@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "697438598174",
+    "project_id": "homeconnect-teamiot",
+    "storage_bucket": "homeconnect-teamiot.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697438598174:android:ead2401912e95158532a0f",
+        "android_client_info": {
+          "package_name": "com.example.ungdungquanlyvadieukhieniot_homeconnect"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP62vx_wjq9uyZJqTmNBqdDtG1OMcFd7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697438598174:android:7877b87d1c4a73c5532a0f",
+        "android_client_info": {
+          "package_name": "com.sns.homeconnect_v2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDP62vx_wjq9uyZJqTmNBqdDtG1OMcFd7A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

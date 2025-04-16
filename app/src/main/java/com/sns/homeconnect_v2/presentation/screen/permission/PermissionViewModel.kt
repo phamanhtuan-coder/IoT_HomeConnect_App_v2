@@ -1,8 +1,7 @@
-package com.example.homeconnect.presentation.permission
+package com.sns.homeconnect_v2.presentation.screen.permission
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
 import androidx.lifecycle.ViewModel
 import com.sns.homeconnect_v2.core.notification.NotificationChannelUtil
 import com.sns.homeconnect_v2.core.permission.PermissionManager

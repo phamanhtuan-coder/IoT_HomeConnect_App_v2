@@ -1,8 +1,11 @@
-package com.sns.homeconnect_v2.domain.usecase.otp
+package com.sns.homeconnect_v2.presentation.viewmodel.otp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -75,7 +78,8 @@ class OTPViewModel @Inject constructor(
                     _verifyEmailState.value = VerifyEmailState.Success(response)
                 },
                 onFailure = { e ->
-                    _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email verification failed")
+                    _verifyEmailState.value =
+                        VerifyEmailState.Error(e.message ?: "Email verification failed")
                 }
             )
         }

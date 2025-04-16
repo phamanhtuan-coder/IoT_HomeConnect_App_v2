@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -7,22 +8,27 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
+import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
 fun NavigationGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Screens.Welcome.route) {
         composable(Screens.Welcome.route) {
-             WelcomeScreen(navController, hiltViewModel())
+            WelcomeScreen(navController)
         }
         composable(Screens.Login.route) {
-             LoginScreen(navController, hiltViewModel())
+            LoginScreen(navController)
         }
-        composable(Screens.RecoverPassword.route) {
-            PasswordRecoveryScreen(navController, hiltViewModel())
-        }
+
+//        composable(Screens.RecoverPassword.route) {
+//            PasswordRecoveryScreen(navController, hiltViewModel())
+//        }
         composable(Screens.Register.route) {
-            SignUpScreen(navController, hiltViewModel())
+            RegisterScreen(navController)
         }
         composable(
             route = Screens.OTP.route,

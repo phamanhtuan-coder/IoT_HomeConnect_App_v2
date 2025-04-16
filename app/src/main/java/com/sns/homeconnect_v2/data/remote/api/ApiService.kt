@@ -2,29 +2,28 @@ package com.sns.homeconnect_v2.data.remote.api
 
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.User
 import retrofit2.http.*
 
 interface ApiService {
-//    @POST("/api/auth/login")
-//    suspend fun login(@Body request: LoginRequest): LoginResponse
-//
-//    @GET("/api/spaces/{spaceId}/devices")
-//    suspend fun getDevices(@Path("spaceId") spaceId: Int, @Header("Authorization") token: String): List<DeviceResponse>
-//
-//    @GET("/api/spaces/{homeId}")
-//    suspend fun getSpacesByHomeId(@Path("homeId") homeId: Int, @Header("Authorization") token: String): List<SpaceResponse>
-//
-//    @POST("/api/auth/register")
-//    suspend fun register(@Body request: RegisterRequest): RegisterResponse
-//
-//    @GET("/api/houses")
-//    suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
-//
-//    @POST("/api/otp/check-email")
-//    suspend fun checkEmail(@Body request: EmailRequest): EmailResponse
-//
+    @POST("/api/auth/login")
+    suspend fun login(@Body request: LoginRequest): LoginResponse
+
+    @POST("/api/auth/register")
+    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
+//    @POST("/api/users/reset-password")
+//    suspend fun newPassword(@Body request: NewPasswordRequest): NewPasswordResponse
+
+    @POST("/api/otp/check-email")
+    suspend fun checkEmail(@Body request: EmailRequest): EmailResponse
+
     @POST("/api/otp/send")
     suspend fun sendOTP(@Body request: EmailRequest): EmailResponse
 
@@ -42,10 +41,20 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body request: DeviceTokenRequest
     ): DeviceTokenResponse
-//
-//    @POST("/api/users/reset-password")
-//    suspend fun newPassword(@Body request: NewPasswordRequest): NewPasswordResponse
 
+    @GET("/api/auth/me")
+    suspend fun getInfoProfile(@Header("Authorization") token: String): User
+
+
+//
+//    @GET("/api/houses")
+//    suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
+//
+//    @GET("/api/spaces/{spaceId}/devices")
+//    suspend fun getDevices(@Path("spaceId") spaceId: Int, @Header("Authorization") token: String): List<DeviceResponse>
+//
+//    @GET("/api/spaces/{homeId}")
+//    suspend fun getSpacesByHomeId(@Path("homeId") homeId: Int, @Header("Authorization") token: String): List<SpaceResponse>
 //
 //    @GET("/api/alerts/getAllByUser")
 //    suspend fun getAllNotification(@Header("Authorization") token: String): List<AlertResponse>
@@ -103,10 +112,7 @@ interface ApiService {
 //        @Path("deviceId") deviceId: Int,
 //        @Header("Authorization") token: String
 //    ): LogLastest
-//
-//    @GET("/api/auth/me")
-//    suspend fun getInfoProfile(@Header("Authorization") token: String): User
-//
+
 //    @PUT("/api/users/{userId}")
 //    suspend fun putInfoProfile(@Path("userId") userId: Int, @Body user: UserRequest, @Header("Authorization") token: String): UserResponse
 //

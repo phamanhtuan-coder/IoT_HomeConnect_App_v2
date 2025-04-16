@@ -2,11 +2,18 @@ package com.sns.homeconnect_v2.core.di
 
 import android.content.Context
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
+import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -18,6 +25,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindAuthRepository(
+        authRepositoryImpl: AuthRepositoryImpl
+    ): AuthRepository
 
     @Binds
     @Singleton
@@ -40,8 +53,43 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
+        fun provideLoginUseCase(
+            authRepository: AuthRepository,
+            authManager: AuthManager
+        ): LoginUseCase {
+            return LoginUseCase(authRepository, authManager)
+        }
+
+        @Provides
+        @Singleton
+        fun provideRegisterUseCase(
+            authRepository: AuthRepository
+        ): RegisterUseCase {
+            return RegisterUseCase(authRepository)
+        }
+
+        @Provides
+        @Singleton
         fun provideSendFcmTokenUseCase(repository: UserRepository): SendFcmTokenUseCase {
             return SendFcmTokenUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideSendOtpUseCase(repository: OTPRepository): SendOtpUseCase {
+            return SendOtpUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideVerifyOtpUseCase(repository: OTPRepository): VerifyOtpUseCase {
+            return VerifyOtpUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideConfirmEmailUseCase(repository: OTPRepository): ConfirmEmailUseCase {
+            return ConfirmEmailUseCase(repository)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.domain.usecase.login
+package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
 import android.app.Application
 import android.util.Log
@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

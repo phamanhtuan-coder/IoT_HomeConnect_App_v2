@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.domain.usecase.login
+package com.sns.homeconnect_v2.domain.usecase.auth
 
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.domain.repository.AuthRepository

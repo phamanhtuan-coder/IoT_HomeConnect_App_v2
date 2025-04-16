@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.screen.login
+package com.sns.homeconnect_v2.presentation.screen.auth
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.background

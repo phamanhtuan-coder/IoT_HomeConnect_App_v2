@@ -1,4 +1,5 @@
 package com.sns.homeconnect_v2.core.permission
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -6,19 +7,21 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.os.Build.VERSION.*
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import javax.inject.Inject
 
-class PermissionManager(private val context: Context) {
+class PermissionManager @Inject constructor(
+    private val context: Context
+) {
 
     @SuppressLint("ObsoleteSdkInt")
     fun getMediaPermissions(): Array<String> {
         return when {
-            SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
                 arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
-            SDK_INT >= Build.VERSION_CODES.Q ->
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ->
                 arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
             else -> arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,

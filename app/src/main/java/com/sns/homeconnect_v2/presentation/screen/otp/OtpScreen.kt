@@ -21,9 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.sns.homeconnect_v2.domain.usecase.otp.OTPState
-import com.sns.homeconnect_v2.domain.usecase.otp.OTPViewModel
-import com.sns.homeconnect_v2.domain.usecase.otp.VerifyEmailState
+import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPState
+import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.otp.VerifyEmailState
 
 @Composable
 fun OtpScreen(

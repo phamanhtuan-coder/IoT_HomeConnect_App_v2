@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.presentation.navigation.NavigationGraph
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,9 +18,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            IoTHomeConnectAppTheme {
+           IoTHomeConnectAppTheme{
                 val navController = rememberNavController()
-
+                NavigationGraph(navController = navController)
             }
         }
     }

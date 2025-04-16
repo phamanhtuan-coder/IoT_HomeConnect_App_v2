@@ -2,9 +2,7 @@ package com.sns.homeconnect_v2.domain.usecase.otp
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,7 +25,9 @@ sealed class VerifyEmailState {
 
 @HiltViewModel
 class OTPViewModel @Inject constructor(
-    private val otpRepository: OTPRepository
+    private val sendOtpUseCase: SendOtpUseCase,
+    private val verifyOtpUseCase: VerifyOtpUseCase,
+    private val confirmEmailUseCase: ConfirmEmailUseCase
 ) : ViewModel() {
 
     private val _sendOtpState = MutableStateFlow<OTPState>(OTPState.Idle)
@@ -42,37 +42,42 @@ class OTPViewModel @Inject constructor(
     fun sendOTP(email: String) {
         _sendOtpState.value = OTPState.Loading
         viewModelScope.launch {
-            try {
-                val response = otpRepository.sendOTP(email)
-                _sendOtpState.value = OTPState.Success(response.success, response.message)
-            } catch (e: Exception) {
-                _sendOtpState.value = OTPState.Error(e.message ?: "Failed to send OTP")
-            }
+            sendOtpUseCase(email).fold(
+                onSuccess = { response ->
+                    _sendOtpState.value = OTPState.Success(response.success, response.message)
+                },
+                onFailure = { e ->
+                    _sendOtpState.value = OTPState.Error(e.message ?: "Failed to send OTP")
+                }
+            )
         }
     }
 
     fun verifyOTP(email: String, otp: String) {
         _verifyOtpState.value = OTPState.Loading
         viewModelScope.launch {
-            try {
-                val response = otpRepository.verifyOTP(email, otp)
-                _verifyOtpState.value = OTPState.Success(response.success, response.message)
-            } catch (e: Exception) {
-                _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
-            }
+            verifyOtpUseCase(email, otp).fold(
+                onSuccess = { response ->
+                    _verifyOtpState.value = OTPState.Success(response.success, response.message)
+                },
+                onFailure = { e ->
+                    _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
+                }
+            )
         }
     }
 
     fun confirmEmail(email: String) {
         _verifyEmailState.value = VerifyEmailState.Loading
         viewModelScope.launch {
-            try {
-                val request = EmailRequest(email = email)
-                val response = otpRepository.verifyOTP(email, "") // Placeholder; replace with actual confirmEmail call if separate endpoint exists
-                _verifyEmailState.value = VerifyEmailState.Success(response)
-            } catch (e: Exception) {
-                _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email verification failed")
-            }
+            confirmEmailUseCase(email).fold(
+                onSuccess = { response ->
+                    _verifyEmailState.value = VerifyEmailState.Success(response)
+                },
+                onFailure = { e ->
+                    _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email verification failed")
+                }
+            )
         }
     }
 }

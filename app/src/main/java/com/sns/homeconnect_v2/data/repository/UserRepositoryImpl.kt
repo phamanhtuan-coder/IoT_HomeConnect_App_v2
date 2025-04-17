@@ -4,7 +4,9 @@ import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.*
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import javax.inject.Inject
 
@@ -13,7 +15,7 @@ class UserRepositoryImpl @Inject constructor(
     private val authManager: AuthManager
 ) : UserRepository {
 
-//    override suspend fun newPassword(email: String, password: String): NewPasswordResponse {
+    //    override suspend fun newPassword(email: String, password: String): NewPasswordResponse {
 //        val request = NewPasswordRequest(email = email, newPassword = password)
 //        return apiService.newPassword(request)
 //    }
@@ -39,9 +41,10 @@ class UserRepositoryImpl @Inject constructor(
 //        return apiService.sharedWith(userId, "Bearer $token")
 //    }
 //
-//    override suspend fun confirmEmail(email: String): EmailResponse {
-//        val request = EmailRequest(email = email)
-//        val token = authManager.getJwtToken()
-//        return apiService.confirmEmail(request, "Bearer $token")
-//    }
+
+    override suspend fun confirmEmail(email: String): EmailResponse {
+        val request = EmailRequest(email = email)
+        val token = authManager.getJwtToken()
+        return apiService.confirmEmail(request, "Bearer $token")
+    }
 }

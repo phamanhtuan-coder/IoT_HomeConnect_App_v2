@@ -11,6 +11,7 @@ import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
@@ -88,8 +89,17 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideConfirmEmailUseCase(repository: OTPRepository): ConfirmEmailUseCase {
+        fun provideConfirmEmailUseCase(repository: UserRepository): ConfirmEmailUseCase {
             return ConfirmEmailUseCase(repository)
         }
+
+        @Provides
+        @Singleton
+        fun provideCheckEmailUseCase(repository: OTPRepository): CheckEmailUseCase {
+            return CheckEmailUseCase(repository)
+        }
+
+
+
     }
 }

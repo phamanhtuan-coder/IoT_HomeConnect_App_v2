@@ -15,7 +15,6 @@ import javax.inject.Inject
 class PermissionManager @Inject constructor(
     private val context: Context
 ) {
-
     @SuppressLint("ObsoleteSdkInt")
     fun getMediaPermissions(): Array<String> {
         return when {
@@ -33,7 +32,7 @@ class PermissionManager @Inject constructor(
     fun getLocationWifiPermissions(): Array<String> {
         return arrayOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_WIFI_STATE
+            Manifest.permission.ACCESS_COARSE_LOCATION
         )
     }
 

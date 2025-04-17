@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PermissionViewModel @Inject constructor(
-    private val permissionManager: PermissionManager
+    val permissionManager: PermissionManager
 ) : ViewModel() {
 
     fun initializePermissions(activity: Activity) {

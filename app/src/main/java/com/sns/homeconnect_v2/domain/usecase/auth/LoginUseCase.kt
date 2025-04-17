@@ -9,13 +9,13 @@ class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val authManager: AuthManager
 ) {
-    suspend operator fun invoke(email: String, password: String): Result<LoginResponse> {
+    suspend operator fun invoke(email: String, password: String): Result<String> {
         return try {
             val response = authRepository.login(email, password)
             if (response.token.isNotEmpty()) {
                authManager.saveJwtToken(response.token)
             }
-            Result.success(response)
+            Result.success(response.token)
         } catch (e: Exception) {
             Result.failure(e)
         }

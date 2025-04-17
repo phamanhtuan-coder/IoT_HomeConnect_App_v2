@@ -17,17 +17,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPState
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.VerifyEmailState
 
 @Composable
 fun OtpScreen(
-    navController: NavHostController,
     email: String,
     title: String = "Nhập mã OTP",
     description: String = "Vui lòng nhập mã OTP vừa được gửi tới Email",
@@ -201,4 +200,10 @@ fun OtpScreen(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun Preview(){
+    OtpScreen("0306221391@gmail.com", "Nhập mã OTP", "Vui lòng nhập mã OTP vừa được gửi tới Email", {})
 }

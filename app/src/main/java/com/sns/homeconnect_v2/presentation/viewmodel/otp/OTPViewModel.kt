@@ -1,8 +1,10 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.otp
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
@@ -70,16 +72,19 @@ class OTPViewModel @Inject constructor(
         }
     }
 
+
     fun confirmEmail(email: String) {
+        // Reset state
         _verifyEmailState.value = VerifyEmailState.Loading
         viewModelScope.launch {
-            confirmEmailUseCase(email).fold(
+           confirmEmailUseCase(email).fold(
                 onSuccess = { response ->
+                    Log.d("OTPViewModel", "Success: ${response.message}")
                     _verifyEmailState.value = VerifyEmailState.Success(response)
                 },
                 onFailure = { e ->
-                    _verifyEmailState.value =
-                        VerifyEmailState.Error(e.message ?: "Email verification failed")
+                    Log.e("OTPViewModel", "Error: ${e.message}")
+                    _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email confirmation failed")
                 }
             )
         }

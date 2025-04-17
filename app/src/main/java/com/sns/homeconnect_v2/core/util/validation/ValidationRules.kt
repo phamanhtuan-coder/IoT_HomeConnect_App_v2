@@ -1,4 +1,6 @@
-package com.example.ungdungquanlyvadieukhieniot_homeconnect.ui.validation
+package com.sns.homeconnect_v2.core.util.validation
+
+import android.content.Context
 
 object ValidationRules {
     // Độ dài tối thiểu của mật khẩu

@@ -18,8 +18,8 @@ interface ApiService {
     @POST("/api/auth/register")
     suspend fun register(@Body request: RegisterRequest): RegisterResponse
 
-//    @POST("/api/users/reset-password")
-//    suspend fun newPassword(@Body request: NewPasswordRequest): NewPasswordResponse
+    @POST("/api/users/reset-password")
+    suspend fun newPassword(@Body request: NewPasswordRequest): NewPasswordResponse
 
     @POST("/api/otp/check-email")
     suspend fun checkEmail(@Body request: EmailRequest): EmailResponse

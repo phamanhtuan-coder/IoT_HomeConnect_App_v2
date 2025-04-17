@@ -7,11 +7,11 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
@@ -23,10 +23,9 @@ fun NavigationGraph(navController: NavHostController) {
         composable(Screens.Login.route) {
             LoginScreen(navController)
         }
-
-//        composable(Screens.RecoverPassword.route) {
-//            PasswordRecoveryScreen(navController, hiltViewModel())
-//        }
+        composable(Screens.RecoverPassword.route) {
+            RecoverPasswordScreen(navController)
+        }
         composable(Screens.Register.route) {
             RegisterScreen(navController)
         }
@@ -40,7 +39,6 @@ fun NavigationGraph(navController: NavHostController) {
             val type = backStackEntry.arguments?.getString("type") ?: "reset_password"
             val email = backStackEntry.arguments?.getString("email") ?: ""
             OtpScreen(
-                navController = navController,
                 email = email,
                 title = when (type) {
                     "reset_password" -> "Nhập mã OTP"
@@ -59,9 +57,15 @@ fun NavigationGraph(navController: NavHostController) {
                         "reset_password" -> navController.navigate("${Screens.NewPassword.route}?email=$email")
                         "email_verification" -> navController.navigate(Screens.Profile.route)
                     }
-                },
-                viewModel = hiltViewModel()
+                }
             )
+        }
+        composable(
+            route = "${Screens.NewPassword.route}?email={email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            // NewPasswordScreen(navController, hiltViewModel(), email)
         }
         composable(Screens.Home.route) {
             // HomeScreen(navController, hiltViewModel())
@@ -114,13 +118,7 @@ fun NavigationGraph(navController: NavHostController) {
         composable(Screens.AddSpace.route) {
             // AddSpaceScreen(navController, hiltViewModel())
         }
-        composable(
-            route = "${Screens.NewPassword.route}?email={email}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" })
-        ) { backStackEntry ->
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            // NewPasswordScreen(navController, hiltViewModel(), email)
-        }
+
         composable(Screens.PasswordAuth.route) {
             // PasswordAuthenticationScreen(navController, hiltViewModel())
         }

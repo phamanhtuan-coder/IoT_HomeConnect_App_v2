@@ -27,6 +27,12 @@ class AuthRepositoryImpl @Inject constructor(
         return apiService.login(request)
     }
 
+    override suspend fun logout() {
+        val token = authManager.getJwtToken()
+//   Todo:     apiService.logout("Bearer $token") // Assuming ApiService has a logout endpoint
+        authManager.clearJwtToken()
+    }
+
     override suspend fun register(user: RegisterRequest): RegisterResponse {
         return apiService.register(user)
     }

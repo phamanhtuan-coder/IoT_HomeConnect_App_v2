@@ -19,4 +19,9 @@ class AuthManager @Inject constructor(
         val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
         sharedPrefs.edit { putString("JWT_TOKEN", token) }
     }
+
+    fun clearJwtToken() {
+        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
+        sharedPrefs.edit { remove("JWT_TOKEN") }
+    }
 }

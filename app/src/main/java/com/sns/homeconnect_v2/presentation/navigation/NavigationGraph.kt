@@ -13,6 +13,8 @@ import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
+import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
+import com.sns.homeconnect_v2.presentation.screen.profile.ProfileScreen
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
@@ -69,13 +71,13 @@ fun NavigationGraph(navController: NavHostController) {
             NewPasswordScreen(navController, email)
         }
         composable(Screens.Home.route) {
-            // HomeScreen(navController)
+            HomeScreen(navController)
         }
         composable(Screens.Dashboard.route) {
             // DashboardScreen(navController)
         }
         composable(Screens.Profile.route) {
-            // ProfileScreen(navController)
+            ProfileScreen(navController)
         }
         composable(Screens.Devices.route) {
             // DeviceScreen(navController)

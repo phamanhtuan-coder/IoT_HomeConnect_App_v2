@@ -27,7 +27,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "WEATHER_API_KEY", "\"93231902cfd746368a9121412251701\"")
+
         }
+        debug {
+            buildConfigField("String", "WEATHER_API_KEY", "\"93231902cfd746368a9121412251701\"")
+        }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -38,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true // Enable buildConfig feature
     }
 }
 

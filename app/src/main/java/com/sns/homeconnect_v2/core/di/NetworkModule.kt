@@ -45,4 +45,5 @@ object NetworkModule {
     fun provideWeatherApiService(@Named("WeatherRetrofit") retrofit: Retrofit): WeatherApiService {
         return retrofit.create(WeatherApiService::class.java)
     }
+
 }

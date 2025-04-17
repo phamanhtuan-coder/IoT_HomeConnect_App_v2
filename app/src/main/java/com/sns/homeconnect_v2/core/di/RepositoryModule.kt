@@ -1,21 +1,29 @@
 package com.sns.homeconnect_v2.core.di
 
 import android.content.Context
+import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
+import com.sns.homeconnect_v2.domain.repository.WeatherRepository
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
+import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
+import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
+import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
+import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -46,6 +54,10 @@ abstract class RepositoryModule {
         otpRepositoryImpl: OTPRepositoryImpl
     ): OTPRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindWeatherRepository(weatherRepositoryImpl: WeatherRepositoryImpl): WeatherRepository
+
     companion object {
         @Provides
         @Singleton
@@ -55,11 +67,23 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
+        fun providePermissionManager(@ApplicationContext context: Context): PermissionManager {
+            return PermissionManager(context)
+        }
+
+        @Provides
+        @Singleton
         fun provideLoginUseCase(
             authRepository: AuthRepository,
             authManager: AuthManager
         ): LoginUseCase {
             return LoginUseCase(authRepository, authManager)
+        }
+
+        @Provides
+        @Singleton
+        fun provideLogOutUseCase(repository: AuthRepository): LogOutUseCase {
+            return LogOutUseCase(repository)
         }
 
         @Provides
@@ -104,6 +128,32 @@ abstract class RepositoryModule {
         @Singleton
         fun provideConfirmEmailUseCase(repository: UserRepository): ConfirmEmailUseCase {
             return ConfirmEmailUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetInfoProfileUseCase (repository: AuthRepository): GetInfoProfileUseCase {
+            return GetInfoProfileUseCase (repository)
+        }
+
+        @Provides
+        @Singleton
+        fun providePutInfoProfileUseCase (repository: UserRepository): PutInfoProfileUseCase {
+            return PutInfoProfileUseCase (repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideFetchSharedWithUseCase (repository: UserRepository): FetchSharedWithUseCase {
+            return FetchSharedWithUseCase (repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetCurrentWeatherUseCase(
+            weatherRepository: WeatherRepository
+        ): GetCurrentWeatherUseCase {
+            return GetCurrentWeatherUseCase(weatherRepository)
         }
 
     }

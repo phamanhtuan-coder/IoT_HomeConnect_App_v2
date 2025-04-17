@@ -3,12 +3,17 @@ package com.sns.homeconnect_v2.data.remote.api
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.NewPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UserRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
+import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import retrofit2.http.*
 
 interface ApiService {
@@ -44,6 +49,18 @@ interface ApiService {
 
     @GET("/api/auth/me")
     suspend fun getInfoProfile(@Header("Authorization") token: String): User
+
+    @PUT("/api/users/{userId}")
+    suspend fun putInfoProfile(@Path("userId") userId: Int, @Body user: UserRequest, @Header("Authorization") token: String): UserResponse
+
+
+    @GET("/api/users/{userId}/shared-with")
+    suspend fun sharedWith(
+        @Path("userId") userId: Int,
+        @Header("Authorization") token: String
+    ): List<SharedWithResponse>
+
+
 
 
 //
@@ -113,9 +130,7 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): LogLastest
 
-//    @PUT("/api/users/{userId}")
-//    suspend fun putInfoProfile(@Path("userId") userId: Int, @Body user: UserRequest, @Header("Authorization") token: String): UserResponse
-//
+
 //    @PUT("/api/users/{userId}/change-password")
 //    suspend fun putChangePassword(@Path("userId") userId: Int, @Body changePasswordRequest: ChangePasswordRequest, @Header("Authorization") token: String): ChangePasswordResponce
 //
@@ -229,13 +244,7 @@ interface ApiService {
 //        @Body body: DailyPowerUsageRequest,
 //        @Header("Authorization") token: String
 //    ): DailyPowerUsageResponse3
-//
-//    @GET("/api/users/{userId}/shared-with")
-//    suspend fun sharedWith(
-//        @Path("userId") userId: Int,
-//        @Header("Authorization") token: String
-//    ): List<SharedWithResponse>
-//
+
 //    @DELETE("/api/sharedpermissions/revoke/{permissionId}")
 //    suspend fun revokePermission(
 //        @Path("permissionId") permissionId: Int,

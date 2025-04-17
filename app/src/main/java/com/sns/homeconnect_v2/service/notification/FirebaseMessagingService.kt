@@ -37,7 +37,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     private fun sendTokenToServer(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
             sendFcmTokenUseCase(token).onSuccess {
-                Log.i("MyFirebaseMessagingService", it)
+                Log.i("MyFirebaseMessagingService", it.message)
             }.onFailure {
                 Log.e("MyFirebaseMessagingService", "sendTokenToServer error: ${it.message}")
             }

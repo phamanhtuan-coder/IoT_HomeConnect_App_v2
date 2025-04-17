@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordState
@@ -56,8 +58,7 @@ fun RecoverPasswordScreen(
     val recoverPasswordState by viewModel.checkEmailState.collectAsState()
     val uiModel by viewModel.uiModel.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
-    val configuration = LocalConfiguration.current
-    val isTablet = configuration.screenWidthDp >= 600
+    val context =  LocalContext.current
 
     Scaffold(
         modifier = Modifier
@@ -69,14 +70,14 @@ fun RecoverPasswordScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = if (isTablet) 32.dp else 16.dp)
+                .padding(horizontal = if (isTablet(context)) 32.dp else 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
             Text(
                 text = "Khôi phục mật khẩu",
-                fontSize = if (isTablet) 28.sp else 24.sp,
+                fontSize = if (isTablet(context)) 28.sp else 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = colorScheme.primary
             )
@@ -104,8 +105,8 @@ fun RecoverPasswordScreen(
                     imeAction = ImeAction.Done
                 ),
                 modifier = Modifier
-                    .width(if (isTablet) 500.dp else 400.dp)
-                    .height(if (isTablet) 80.dp else 70.dp),
+                    .width(if (isTablet(context)) 500.dp else 400.dp)
+                    .height(if (isTablet(context)) 80.dp else 70.dp),
                 shape = RoundedCornerShape(25),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = colorScheme.onBackground,
@@ -130,8 +131,8 @@ fun RecoverPasswordScreen(
                 onClick = { viewModel.checkEmail() },
                 enabled = uiModel.isValid(),
                 modifier = Modifier
-                    .width(if (isTablet) 300.dp else 200.dp)
-                    .height(if (isTablet) 56.dp else 48.dp),
+                    .width(if (isTablet(context)) 300.dp else 200.dp)
+                    .height(if (isTablet(context)) 56.dp else 48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
                 shape = RoundedCornerShape(50)
             ) {

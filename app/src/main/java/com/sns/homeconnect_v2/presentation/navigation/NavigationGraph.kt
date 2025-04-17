@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
@@ -65,22 +66,22 @@ fun NavigationGraph(navController: NavHostController) {
             arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" })
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            // NewPasswordScreen(navController, hiltViewModel(), email)
+            NewPasswordScreen(navController, email)
         }
         composable(Screens.Home.route) {
-            // HomeScreen(navController, hiltViewModel())
+            // HomeScreen(navController)
         }
         composable(Screens.Dashboard.route) {
-            // DashboardScreen(navController, hiltViewModel())
+            // DashboardScreen(navController)
         }
         composable(Screens.Profile.route) {
-            // ProfileScreen(navController, hiltViewModel())
+            // ProfileScreen(navController)
         }
         composable(Screens.Devices.route) {
-            // DeviceScreen(navController, hiltViewModel())
+            // DeviceScreen(navController)
         }
         composable(Screens.Settings.route) {
-            // SettingsScreen(navController, hiltViewModel())
+            // SettingsScreen(navController)
         }
         composable(
             route = "${Screens.AccessPoint.route}?id={id}&name={name}",
@@ -91,43 +92,43 @@ fun NavigationGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: ""
             val name = backStackEntry.arguments?.getString("name") ?: ""
-            // AccessPointConnectionScreen(navController, hiltViewModel(), id, name)
+            // AccessPointConnectionScreen(navController, id, name)
         }
         composable(Screens.AddDevice.route) {
-            // AddDeviceScreen(navController, hiltViewModel())
+            // AddDeviceScreen(navController)
         }
         composable(Screens.AllNotifications.route) {
-            // NotificationScreen(navController, hiltViewModel())
+            // NotificationScreen(navController)
         }
         composable(Screens.HouseManagement.route) {
-            // HouseManagementScreen(navController, hiltViewModel())
+            // HouseManagementScreen(navController)
         }
         composable(
             route = "${Screens.NotificationDetail.route}?id={id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
-            // DetailNotificationScreen(navController, hiltViewModel(), id)
+            // DetailNotificationScreen(navController, id)
         }
         composable(Screens.WifiConnection.route) {
-            // WifiConnectionScreen(navController, hiltViewModel())
+            // WifiConnectionScreen(navController)
         }
         composable(Screens.Spaces.route) {
-            // SpaceScreen(navController, hiltViewModel())
+            // SpaceScreen(navController)
         }
         composable(Screens.AddSpace.route) {
-            // AddSpaceScreen(navController, hiltViewModel())
+            // AddSpaceScreen(navController)
         }
 
         composable(Screens.PasswordAuth.route) {
-            // PasswordAuthenticationScreen(navController, hiltViewModel())
+            // PasswordAuthenticationScreen(navController)
         }
         composable(
             route = "${Screens.UpdatePassword.route}/{id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val userId = backStackEntry.arguments?.getInt("id") ?: -1
-            // UpdatePasswordScreen(navController, hiltViewModel(), userId)
+            // UpdatePasswordScreen(navController, userId)
         }
         composable(
             route = "${Screens.DashboardDeviceScreen.route}/{spaceID}/{id}",
@@ -138,35 +139,35 @@ fun NavigationGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val spaceID = backStackEntry.arguments?.getInt("spaceID") ?: -1
             val id = backStackEntry.arguments?.getInt("id") ?: -1
-            // DashboardDeviceScreen(navController, hiltViewModel(), spaceID, id)
+            // DashboardDeviceScreen(navController, spaceID, id)
         }
         composable(
             route = Screens.ActivityHistory.route,
             arguments = listOf(navArgument("deviceId") { type = NavType.IntType; defaultValue = -1 })
         ) { backStackEntry ->
             val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
-            // ActivityHistoryScreen(navController, hiltViewModel(), deviceId)
+            // ActivityHistoryScreen(navController, deviceId)
         }
         composable(
             route = Screens.ActivityHistoryDetail.route,
             arguments = listOf(navArgument("logDetails") { type = NavType.StringType })
         ) { backStackEntry ->
             val logDetailsJson = backStackEntry.arguments?.getString("logDetails") ?: ""
-            // ActivityHistoryDetailScreen(navController, hiltViewModel(), logDetailsJson)
+            // ActivityHistoryDetailScreen(navController, logDetailsJson)
         }
         composable(
             route = "${Screens.AddSharedUser.route}?id={id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: -1
-            // ShareDeviceScreen(navController, hiltViewModel(), id)
+            // ShareDeviceScreen(navController, id)
         }
         composable(
             route = "${Screens.SharedUsers.route}?id={id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: -1
-            // DeviceSharingListScreen(navController, hiltViewModel(), id)
+            // DeviceSharingListScreen(navController, id)
         }
         composable("device/{typeID}/{id}") { backStackEntry ->
             val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0

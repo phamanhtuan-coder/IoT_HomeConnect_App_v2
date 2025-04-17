@@ -25,8 +25,6 @@ sealed class LoginUiState {
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val sendFcmTokenUseCase: SendFcmTokenUseCase,
-    private val authManager: AuthManager,
-    private val application: Application
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)

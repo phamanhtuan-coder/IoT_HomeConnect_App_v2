@@ -6,5 +6,5 @@ import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 interface OTPRepository {
     suspend fun sendOTP(email: String): EmailResponse
     suspend fun verifyOTP(email: String, otp: String): EmailResponse
-    suspend fun confirmEmail(email: String): EmailResponse
+    suspend fun checkEmail(email: String): EmailResponse
 }

@@ -1,30 +1,32 @@
-package com.example.ungdungquanlyvadieukhieniot_homeconnect.data.repository
+package com.sns.homeconnect_v2.data.repository
 
-import android.content.Context
-import com.example.ungdungquanlyvadieukhieniot_homeconnect.data.remote.api.RetrofitClient
-import com.example.ungdungquanlyvadieukhieniot_homeconnect.data.remote.dto.SharedUser
-import com.example.ungdungquanlyvadieukhieniot_homeconnect.data.remote.dto.SharedUserRequest
+
+import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedUserRequest
+import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import retrofit2.Response
+import javax.inject.Inject
 
-class SharedRepository(private val context: Context) {
-    private val apiService = RetrofitClient.apiService
+class SharedRepositoryImpl @Inject constructor(
+    private val apiService: ApiService,
+    private val authManager: AuthManager
+): SharedRepository {
 
-    suspend fun getSharedUsers(DeviceID: Int): List<SharedUser> {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        val token = sharedPrefs.getString("JWT_TOKEN", "") ?: ""
-        return apiService.getSharedUsers(DeviceID, token = "Bearer $token")
+    override suspend fun getSharedUsers(deviceId: Int): List<SharedUser> {
+        val token = authManager.getJwtToken()
+        return apiService.getSharedUsers(deviceId, token = "Bearer $token")
     }
 
-    suspend fun addSharedUser(DeviceID: Int, SharedWithUserEmail: String): Response<Unit> {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        val token = sharedPrefs.getString("JWT_TOKEN", "") ?: ""
-        val request = SharedUserRequest(SharedWithUserEmail)
-        return apiService.shareDevice(DeviceID, request, token = "Bearer $token")
+    override suspend fun addSharedUser(deviceId: Int, sharedWithUserEmail: String): Response<Unit> {
+        val token = authManager.getJwtToken()
+        val request = SharedUserRequest(sharedWithUserEmail)
+        return apiService.shareDevice(deviceId, request, token = "Bearer $token")
     }
 
-    suspend fun revokePermission(permissionID: Int): Response<Unit> {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        val token = sharedPrefs.getString("JWT_TOKEN", "") ?: ""
+    override suspend fun revokePermission(permissionID: Int):   Response<Unit> {
+        val token = authManager.getJwtToken()
         return apiService.revokePermission(permissionId = permissionID, token = "Bearer $token")
     }
 }

@@ -21,12 +21,15 @@ import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedUserRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
+import retrofit2.Response
 import retrofit2.http.*
 
 interface ApiService {
@@ -140,6 +143,26 @@ interface ApiService {
         @Query("q") query: String,
         @Header("Authorization") token: String
     ): List<AlertResponse>
+
+    @DELETE("/api/sharedpermissions/revoke/{permissionId}")
+    suspend fun revokePermission(
+        @Path("permissionId") permissionId: Int,
+        @Header("Authorization") token: String
+    ):   Response<Unit>
+
+    @GET("/api/sharedpermissions/{deviceId}/shared-users")
+    suspend fun getSharedUsers(
+        @Path("deviceId") deviceId: Int,
+        @Header("Authorization") token: String
+    ): List<SharedUser>
+
+    @POST("/api/sharedpermissions/{deviceId}/share")
+    suspend fun shareDevice(
+        @Path("deviceId") deviceId: Int,
+        @Body sharedWithUserEmail: SharedUserRequest,
+        @Header("Authorization") token: String
+    ):   Response<Unit>
+
 
 //
 //    @GET("/api/logs/device/{id}")
@@ -276,25 +299,7 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): DailyPowerUsageResponse3
 
-//    @DELETE("/api/sharedpermissions/revoke/{permissionId}")
-//    suspend fun revokePermission(
-//        @Path("permissionId") permissionId: Int,
-//        @Header("Authorization") token: String
-//    ): retrofit2.Response<Unit>
-//
-//    @GET("/api/sharedpermissions/{deviceId}/shared-users")
-//    suspend fun getSharedUsers(
-//        @Path("deviceId") deviceId: Int,
-//        @Header("Authorization") token: String
-//    ): List<SharedUser>
-//
-//    @POST("/api/sharedpermissions/{deviceId}/share")
-//    suspend fun shareDevice(
-//        @Path("deviceId") deviceId: Int,
-//        @Body sharedWithUserEmail: SharedUserRequest,
-//        @Header("Authorization") token: String
-//    ): retrofit2.Response<Unit>
-//
+
 
 //    @GET("/api/spaces/{spaceId}/detail")
 //    suspend fun getSpaceDetail(

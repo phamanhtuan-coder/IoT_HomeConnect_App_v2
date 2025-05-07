@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 sealed class GetInfoDeviceState {
     data object Idle : GetInfoDeviceState()                // Chưa làm gì
@@ -63,7 +64,7 @@ sealed class UnlinkState {
 //}
 
 @HiltViewModel
-class DeviceDetailViewModel(
+class DeviceDetailViewModel @Inject constructor(
     private val getInfoDeviceUseCase: GetInfoDeviceUseCase,
     private val toggleDeviceUseCase: ToggleDeviceUseCase,
     private val attributeDeviceUseCase: AttributeDeviceUseCase,

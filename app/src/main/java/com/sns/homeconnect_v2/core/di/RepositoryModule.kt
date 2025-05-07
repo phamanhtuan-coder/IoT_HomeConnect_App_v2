@@ -8,6 +8,7 @@ import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
@@ -16,6 +17,7 @@ import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
+import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.repository.WeatherRepository
@@ -34,7 +36,13 @@ import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.UnlinkDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.AddSharedUserUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.GetSharedUsersUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.RevokePermissionUseCase
 import com.sns.homeconnect_v2.domain.usecase.notification.GetAlertByIdUseCase
+import com.sns.homeconnect_v2.domain.usecase.notification.GetAllByUserUseCase
+import com.sns.homeconnect_v2.domain.usecase.notification.ReadNotificationUseCase
+import com.sns.homeconnect_v2.domain.usecase.notification.SearchNotificationUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
@@ -81,6 +89,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindAlertRepository(alertRepositoryImpl: AlertRepositoryImpl): AlertRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSharedRepository(sharedRepositoryImpl: SharedRepositoryImpl): SharedRepository
 
     companion object {
         @Provides
@@ -215,8 +227,8 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideGetAllByIdUseCase(alertRepository: AlertRepository): GetAllByIdUseCase{
-            return GetAllByIdUseCase(alertRepository)
+        fun provideGetAllByIdUseCase(alertRepository: AlertRepository): GetAllByUserUseCase {
+            return GetAllByUserUseCase (alertRepository)
         }
 
         @Provides
@@ -229,6 +241,24 @@ abstract class RepositoryModule {
         @Singleton
         fun provideSearchNotificationUseCase(alertRepository: AlertRepository): SearchNotificationUseCase{
             return SearchNotificationUseCase(alertRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideAddSharedUserUseCase(sharedRepository: SharedRepository): AddSharedUserUseCase {
+            return AddSharedUserUseCase(sharedRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetSharedUsersUseCase(sharedRepository: SharedRepository): GetSharedUsersUseCase{
+            return GetSharedUsersUseCase(sharedRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideRevokePermissionUseCase(sharedRepository: SharedRepository): RevokePermissionUseCase {
+            return RevokePermissionUseCase(sharedRepository)
         }
     }
 }

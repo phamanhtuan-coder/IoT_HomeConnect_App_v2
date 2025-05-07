@@ -14,6 +14,7 @@ import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.profile.ProfileScreen
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -80,7 +81,7 @@ fun NavigationGraph(navController: NavHostController) {
             ProfileScreen(navController)
         }
         composable(Screens.Devices.route) {
-            // DeviceScreen(navController)
+             DeviceScreen(navController)
         }
         composable(Screens.Settings.route) {
             // SettingsScreen(navController)
@@ -174,8 +175,8 @@ fun NavigationGraph(navController: NavHostController) {
         composable("device/{typeID}/{id}") { backStackEntry ->
             val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-            // val screen = DeviceScreenFactory.getScreen(typeID)
-            // screen(navController, id)
+             val screen = DeviceScreenFactory.getScreen(typeID)
+             screen(navController, id)
         }
     }
 }

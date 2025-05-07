@@ -25,10 +25,13 @@ import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.AttributeDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetInfoDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.UnlinkDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
@@ -158,6 +161,25 @@ abstract class RepositoryModule {
         @Singleton
         fun provideFetchSharedWithUseCase (repository: UserRepository): FetchSharedWithUseCase {
             return FetchSharedWithUseCase (repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideAttributeDeviceUseCase(repository: DeviceRepository): AttributeDeviceUseCase {
+            return AttributeDeviceUseCase(repository)
+        }
+
+
+        @Provides
+        @Singleton
+        fun provideGetInfoDeviceUseCase(repository: DeviceRepository): GetInfoDeviceUseCase {
+            return GetInfoDeviceUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideUnlinkDeviceUseCase(repository: DeviceRepository): UnlinkDeviceUseCase {
+            return UnlinkDeviceUseCase(repository)
         }
 
         @Provides

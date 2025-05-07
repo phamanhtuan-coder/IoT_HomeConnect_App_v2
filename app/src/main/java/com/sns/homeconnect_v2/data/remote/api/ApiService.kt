@@ -9,6 +9,9 @@ import com.sns.homeconnect_v2.data.remote.dto.request.NewPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UserRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.Alert
+import com.sns.homeconnect_v2.data.remote.dto.response.AlertDetail
+import com.sns.homeconnect_v2.data.remote.dto.response.AlertResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
@@ -117,20 +120,27 @@ interface ApiService {
     suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
 
 
-//    @GET("/api/alerts/getAllByUser")
-//    suspend fun getAllNotification(@Header("Authorization") token: String): List<AlertResponse>
+    @GET("/api/alerts/getAllByUser")
+    suspend fun getAllNotification(@Header("Authorization") token: String): List<AlertResponse>
 
-//    @GET("/api/alerts/{alertId}")
-//    suspend fun getAlertById(
-//        @Path("alertId") alertId: Int,
-//        @Header("Authorization") token: String
-//    ): AlertDetail
-//
-//    @PUT("/api/alerts/{alertId}/resolve")
-//    suspend fun readNotification(
-//        @Path("alertId") alertId: Int,
-//        @Header("Authorization") token: String
-//    ): Alert
+    @GET("/api/alerts/{alertId}")
+    suspend fun getAlertById(
+        @Path("alertId") alertId: Int,
+        @Header("Authorization") token: String
+    ): AlertDetail
+
+    @PUT("/api/alerts/{alertId}/resolve")
+    suspend fun readNotification(
+        @Path("alertId") alertId: Int,
+        @Header("Authorization") token: String
+    ): Alert
+
+    @GET("/api/alerts/search")
+    suspend fun searchAlerts(
+        @Query("q") query: String,
+        @Header("Authorization") token: String
+    ): List<AlertResponse>
+
 //
 //    @GET("/api/logs/device/{id}")
 //    suspend fun getDeviceLogs(
@@ -138,12 +148,7 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): List<LogResponse>
 //
-//    @GET("/api/alerts/search")
-//    suspend fun searchAlerts(
-//        @Query("q") query: String,
-//        @Header("Authorization") token: String
-//    ): List<AlertResponse>
-//
+
 //    @GET("/api/logs/latestToggle/{deviceId}")
 //    suspend fun getLatestToggle(
 //        @Path("deviceId") deviceId: Int,

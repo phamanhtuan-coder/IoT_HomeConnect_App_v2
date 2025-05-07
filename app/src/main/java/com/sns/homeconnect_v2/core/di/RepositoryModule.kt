@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.core.di
 import android.content.Context
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
@@ -10,6 +11,7 @@ import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
+import com.sns.homeconnect_v2.domain.repository.AlertRepository
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
@@ -32,6 +34,7 @@ import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.UnlinkDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.notification.GetAlertByIdUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
@@ -74,6 +77,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHouseRepository(houseRepositoryImpl: HouseRepositoryImpl): HouseRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAlertRepository(alertRepositoryImpl: AlertRepositoryImpl): AlertRepository
 
     companion object {
         @Provides
@@ -200,5 +207,28 @@ abstract class RepositoryModule {
             return GetListHouseUseCase(houseRepository)
         }
 
+        @Provides
+        @Singleton
+        fun provideGetAlertByIdUseCase(alertRepository: AlertRepository): GetAlertByIdUseCase{
+            return GetAlertByIdUseCase(alertRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetAllByIdUseCase(alertRepository: AlertRepository): GetAllByIdUseCase{
+            return GetAllByIdUseCase(alertRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideReadNotificationUseCase(alertRepository: AlertRepository): ReadNotificationUseCase{
+            return ReadNotificationUseCase(alertRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideSearchNotificationUseCase(alertRepository: AlertRepository): SearchNotificationUseCase{
+            return SearchNotificationUseCase(alertRepository)
+        }
     }
 }

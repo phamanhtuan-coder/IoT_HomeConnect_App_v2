@@ -4,11 +4,17 @@ import android.content.Context
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
+import com.sns.homeconnect_v2.domain.repository.DeviceRepository
+import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
+import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.repository.WeatherRepository
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
@@ -18,9 +24,11 @@ import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
+import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
@@ -38,25 +46,31 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindAuthRepository(
-        authRepositoryImpl: AuthRepositoryImpl
-    ): AuthRepository
+    abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 
     @Binds
     @Singleton
-    abstract fun bindUserRepository(
-        userRepositoryImpl: UserRepositoryImpl
-    ): UserRepository
+    abstract fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
 
     @Binds
     @Singleton
-    abstract fun bindOTPRepository(
-        otpRepositoryImpl: OTPRepositoryImpl
-    ): OTPRepository
+    abstract fun bindOTPRepository(otpRepositoryImpl: OTPRepositoryImpl): OTPRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDeviceRepository(deviceRepositoryImpl: DeviceRepositoryImpl): DeviceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSpaceRepository(spaceRepositoryImpl: SpaceRepositoryImpl): SpaceRepository
 
     @Binds
     @Singleton
     abstract fun bindWeatherRepository(weatherRepositoryImpl: WeatherRepositoryImpl): WeatherRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHouseRepository(houseRepositoryImpl: HouseRepositoryImpl): HouseRepository
 
     companion object {
         @Provides
@@ -88,9 +102,7 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideRegisterUseCase(
-            authRepository: AuthRepository
-        ): RegisterUseCase {
+        fun provideRegisterUseCase(authRepository: AuthRepository): RegisterUseCase {
             return RegisterUseCase(authRepository)
         }
 
@@ -150,10 +162,20 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideGetCurrentWeatherUseCase(
-            weatherRepository: WeatherRepository
-        ): GetCurrentWeatherUseCase {
+        fun provideToggleDeviceUseCase(repository: DeviceRepository): ToggleDeviceUseCase {
+            return ToggleDeviceUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetCurrentWeatherUseCase(weatherRepository: WeatherRepository): GetCurrentWeatherUseCase {
             return GetCurrentWeatherUseCase(weatherRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetListHouseUseCase(houseRepository: HouseRepository): GetListHouseUseCase {
+            return GetListHouseUseCase(houseRepository)
         }
 
     }

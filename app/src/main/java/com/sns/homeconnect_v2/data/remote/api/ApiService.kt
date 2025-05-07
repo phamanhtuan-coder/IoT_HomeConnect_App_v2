@@ -1,17 +1,27 @@
 package com.sns.homeconnect_v2.data.remote.api
 
+import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.NewPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UserRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.HouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import retrofit2.http.*
@@ -53,41 +63,63 @@ interface ApiService {
     @PUT("/api/users/{userId}")
     suspend fun putInfoProfile(@Path("userId") userId: Int, @Body user: UserRequest, @Header("Authorization") token: String): UserResponse
 
-
     @GET("/api/users/{userId}/shared-with")
     suspend fun sharedWith(
         @Path("userId") userId: Int,
         @Header("Authorization") token: String
     ): List<SharedWithResponse>
 
+    @GET("/api/devices/{deviceId}")
+    suspend fun getInfoDevice(
+        @Path("deviceId") deviceId: Int,
+        @Header("Authorization") token: String
+    ): DeviceResponse
+
+    @POST("/api/devices/{deviceId}/toggle")
+    suspend fun toggleDevice(
+        @Path("deviceId") deviceId: Int,
+        @Body toggle: ToggleRequest,
+        @Header("Authorization") token: String
+    ): ToggleResponse
+
+    @POST("/api/devices/{deviceId}/attributes")
+    suspend fun updateAttributes(
+        @Path("deviceId") deviceId: Int,
+        @Body attribute: AttributeRequest,
+        @Header("Authorization") token: String
+    ): AttributeResponse
+
+    @POST("/api/devices/{deviceId}/unlink")
+    suspend fun unlinkDevice(
+        @Path("deviceId") deviceId: Int,
+        @Header("Authorization") token: String
+    ): UnlinkResponse
+
+    @POST("/api/devices/link")
+    suspend fun linkDevice(
+        @Body body: LinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): LinkDeviceResponse
+
+    @GET("/api/spaces/{homeId}")
+    suspend fun getSpacesByHomeId(
+        @Path("homeId") homeId: Int,
+        @Header("Authorization") token: String
+    ): List<SpaceResponse>
+
+    @GET("/api/spaces/{spaceId}/devices")
+    suspend fun getDevicesBySpaceId(
+        @Path("spaceId") spaceId: Int,
+        @Header("Authorization") token: String
+    ): List<DeviceResponse>
+
+    @GET("/api/houses")
+    suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
 
 
-
-//
-//    @GET("/api/houses")
-//    suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
-//
-//    @GET("/api/spaces/{spaceId}/devices")
-//    suspend fun getDevices(@Path("spaceId") spaceId: Int, @Header("Authorization") token: String): List<DeviceResponse>
-//
-//    @GET("/api/spaces/{homeId}")
-//    suspend fun getSpacesByHomeId(@Path("homeId") homeId: Int, @Header("Authorization") token: String): List<SpaceResponse>
-//
 //    @GET("/api/alerts/getAllByUser")
 //    suspend fun getAllNotification(@Header("Authorization") token: String): List<AlertResponse>
-//
-//    @GET("/api/devices/{deviceId}")
-//    suspend fun getInfoDevice(@Path("deviceId") deviceId: Int, @Header("Authorization") token: String): DeviceResponse
-//
-//    @POST("/api/devices/{deviceId}/toggle")
-//    suspend fun toggleDevice(@Path("deviceId") deviceId: Int, @Body toggle: ToggleRequest, @Header("Authorization") token: String): ToggleResponse
-//
-//    @POST("/api/devices/{deviceId}/attributes")
-//    suspend fun postAttributes(@Path("deviceId") deviceId: Int, @Body attribute: AttributeRequest, @Header("Authorization") token: String): AttributeResponse
-//
-//    @POST("/api/devices/{deviceId}/unlink")
-//    suspend fun postUnlink(@Path("deviceId") deviceId: Int, @Header("Authorization") token: String): UnlinkResponse
-//
+
 //    @GET("/api/alerts/{alertId}")
 //    suspend fun getAlertById(
 //        @Path("alertId") alertId: Int,
@@ -210,13 +242,7 @@ interface ApiService {
 //        @Body body: CreateSpaceRequest,
 //        @Header("Authorization") token: String
 //    ): CreateSpaceResponse
-//
-//    @POST("/api/devices/link")
-//    suspend fun linkDevice(
-//        @Body body: LinkDeviceRequest,
-//        @Header("Authorization") token: String
-//    ): LinkedDeviceResponse
-//
+
 //    @GET("/api/statistics/daily-room-power-usage/{spaceId}/{startDate}/{endDate}")
 //    suspend fun getDailyRoomPowerUsage(
 //        @Path("spaceId") spaceId: Int,

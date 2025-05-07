@@ -5,9 +5,10 @@ import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.response.HouseResponse
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
+import javax.inject.Inject
 
 
-class HouseRepositoryImpl(
+class HouseRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val authManager: AuthManager
 ) : HouseRepository {

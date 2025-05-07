@@ -7,7 +7,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UserRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
-import com.sns.homeconnect_v2.domain.usecase.iot_device.GetInfoProfileUseCase
+import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

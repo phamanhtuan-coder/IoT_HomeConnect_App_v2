@@ -41,18 +41,19 @@ sealed class UnlinkState {
 class FireAlarmDetailViewModel @Inject constructor(
     private val getInfoDeviceUseCase: GetInfoDeviceUseCase,
     private val toggleDeviceUseCase: ToggleDeviceUseCase,
-    private val unlinkDeviceUseCase: UnlinkDeviceUseCase ,
+    private val unlinkDeviceUseCase: UnlinkDeviceUseCase,
 ) : ViewModel() {
 
     private val _infoDeviceState = MutableStateFlow<GetInfoDeviceState>(GetInfoDeviceState.Idle)
     val infoDeviceState = _infoDeviceState.asStateFlow()
+
     /**
      * Lấy danh sách Spaces theo Home ID
      */
     fun getInfoDevice(deviceId: Int) {
-        _infoDeviceState.value =GetInfoDeviceState.Loading
+        _infoDeviceState.value = GetInfoDeviceState.Loading
         viewModelScope.launch {
-         getInfoDeviceUseCase(deviceId).fold(
+            getInfoDeviceUseCase(deviceId).fold(
                 onSuccess = { response ->
                     Log.d("DeviceDetailViewModel", "Success: $response")
                     _infoDeviceState.value = GetInfoDeviceState.Success(response)
@@ -71,14 +72,15 @@ class FireAlarmDetailViewModel @Inject constructor(
     fun toggleDevice(deviceId: Int, toggle: ToggleRequest) {
         _toggleState.value = ToggleState.Loading
         viewModelScope.launch {
-          toggleDeviceUseCase(deviceId, toggle).fold(
+            toggleDeviceUseCase(deviceId, toggle).fold(
                 onSuccess = { response ->
                     Log.d("DeviceDetailViewModel", "Success: $response")
                     _toggleState.value = ToggleState.Success(response)
                 },
                 onFailure = { e ->
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _toggleState.value = ToggleState.Error(e.message ?: "Lỗi khi cập nhật trạng thái thiết bị!")
+                    _toggleState.value =
+                        ToggleState.Error(e.message ?: "Lỗi khi cập nhật trạng thái thiết bị!")
                 }
             )
         }
@@ -90,7 +92,7 @@ class FireAlarmDetailViewModel @Inject constructor(
     fun unlinkDevice(deviceId: Int) {
         _unlinkState.value = UnlinkState.Loading
         viewModelScope.launch {
-           unlinkDeviceUseCase(deviceId).fold(
+            unlinkDeviceUseCase(deviceId).fold(
                 onSuccess = { response ->
                     Log.d("DeviceDetailViewModel", "Success: $response")
                     _unlinkState.value = UnlinkState.Success(response.message)

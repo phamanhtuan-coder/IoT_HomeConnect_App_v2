@@ -86,35 +86,36 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.Unli
 import org.json.JSONObject
 
 @Composable
-fun FireAlarmDetailScreen (
+fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceID: Int?,
     viewModel: FireAlarmDetailViewModel = hiltViewModel(),
 ) {
     var rowWidth by remember { mutableStateOf(0) }
     val smokeLevel by remember { mutableStateOf(20) }
-    val  temperature by remember { mutableStateOf(50) }
-    val  coLevel by remember { mutableStateOf(-1) }
+    val temperature by remember { mutableStateOf(50) }
+    val coLevel by remember { mutableStateOf(-1) }
     var showDialog by remember { mutableStateOf(false) }
-    val  switchState by remember { mutableStateOf(true) }
+    val switchState by remember { mutableStateOf(true) }
     val statusList = listOf("Bình thường", "Báo động", "Lỗi")// Trạng thái
-    val  status by remember { mutableStateOf(0) }
+    val status by remember { mutableStateOf(0) }
     val isTablet = isTablet(LocalContext.current)
 
 
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
     val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
-    when(infoDeviceState){
-        is GetInfoDeviceState.Error ->{
-            Log.d("Error",  (infoDeviceState as GetInfoDeviceState.Error).error)
+    when (infoDeviceState) {
+        is GetInfoDeviceState.Error -> {
+            Log.d("Error", (infoDeviceState as GetInfoDeviceState.Error).error)
         }
+
         is GetInfoDeviceState.Success -> {
             infoDevice = (infoDeviceState as GetInfoDeviceState.Success).device
             Log.d("List Device", (infoDeviceState as GetInfoDeviceState.Success).device.toString())
         }
-        else ->
-        {
+
+        else -> {
             /* Do nothing */
         }
     }
@@ -126,15 +127,17 @@ fun FireAlarmDetailScreen (
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) } // Lắng nghe danh sách thiết bị
     val toggleDeviceState by viewModel.toggleState.collectAsState()
 
-    when(toggleDeviceState){
-        is ToggleState.Error ->{
+    when (toggleDeviceState) {
+        is ToggleState.Error -> {
             Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
         }
+
         is ToggleState.Success -> {
             val successState = toggleDeviceState as ToggleState.Success
             toggleDevice = successState.toggle
             Log.e("toggle Device", toggleDevice.toString())
         }
+
         else -> {
             /* Do nothing */
         }
@@ -165,7 +168,7 @@ fun FireAlarmDetailScreen (
         )
     }
 
-    var powerStatus by remember { mutableStateOf(false)}
+    var powerStatus by remember { mutableStateOf(false) }
     var toggle by remember {
         mutableStateOf(ToggleRequest(powerStatus = powerStatus))
     }
@@ -175,13 +178,15 @@ fun FireAlarmDetailScreen (
 
     val unlinkState by viewModel.unlinkState.collectAsState()
 
-    when(unlinkState){
-        is UnlinkState.Error ->{
-            Log.e("Error Unlink Device",  (unlinkState as UnlinkState.Error).error)
+    when (unlinkState) {
+        is UnlinkState.Error -> {
+            Log.e("Error Unlink Device", (unlinkState as UnlinkState.Error).error)
         }
+
         is UnlinkState.Success -> {
             Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
         }
+
         else -> {
             /* Do nothing */
         }
@@ -300,8 +305,12 @@ fun FireAlarmDetailScreen (
                                                         onCheckedChange = {
                                                             //Todo: Xử lý tắt mở thiết bị
                                                             powerStatus = !powerStatus
-                                                            toggle = ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
-                                                            viewModel.toggleDevice(safeDevice.DeviceID, toggle)
+                                                            toggle =
+                                                                ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
+                                                            viewModel.toggleDevice(
+                                                                safeDevice.DeviceID,
+                                                                toggle
+                                                            )
                                                         },
                                                         thumbContent = {
                                                             Icon(
@@ -342,7 +351,10 @@ fun FireAlarmDetailScreen (
                                                     Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách dưới cùng
                                                 }
 
-                                                SingleColorCircleWithDividers(selectedStatus = statusList[status], dividerCount = 12)
+                                                SingleColorCircleWithDividers(
+                                                    selectedStatus = statusList[status],
+                                                    dividerCount = 12
+                                                )
                                             }
                                             Spacer(modifier = Modifier.height(16.dp))
                                         }
@@ -605,7 +617,11 @@ fun FireAlarmDetailScreen (
                                 Button(
                                     onClick = {
                                         //Todo: Xử lý khi nhấn nút Lịch sử
-                                        navController.navigate(Screens.ActivityHistory.createRoute(safeDevice.DeviceID))
+                                        navController.navigate(
+                                            Screens.ActivityHistory.createRoute(
+                                                safeDevice.DeviceID
+                                            )
+                                        )
                                     },
                                     modifier = Modifier
                                         .weight(0.5f) // Chia đều không gian
@@ -665,7 +681,6 @@ fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
             val center = Offset(size.width / 2, size.height / 2)
 
 
-
             // Vẽ vòng tròn với màu trạng thái
             drawCircle(
                 color = color,
@@ -712,7 +727,7 @@ fun SegmentedCirclePreview() {
 @Composable
 // Hàm hiển thị từng hàng thông tin
 fun InfoRow(label: String, value: String, unit: String, stateColor: Color, stateText: String) {
-   IoTHomeConnectAppTheme {
+    IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         Row(
             modifier = Modifier

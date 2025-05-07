@@ -128,15 +128,17 @@ fun DeviceDetailScreen(
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
     val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
-    when(infoDeviceState){
-        is GetInfoDeviceState.Error ->{
-            Log.d("Error",  (infoDeviceState as GetInfoDeviceState.Error).error)
+    when (infoDeviceState) {
+        is GetInfoDeviceState.Error -> {
+            Log.d("Error", (infoDeviceState as GetInfoDeviceState.Error).error)
         }
+
         is GetInfoDeviceState.Success -> {
             infoDevice = (infoDeviceState as GetInfoDeviceState.Success).device
             Log.d("List Device", (infoDeviceState as GetInfoDeviceState.Success).device.toString())
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
@@ -174,15 +176,17 @@ fun DeviceDetailPhoneScreen(
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) }
     val toggleDeviceState by viewModel.toggleState.collectAsState()
 
-    when(toggleDeviceState){
-        is ToggleState.Error ->{
+    when (toggleDeviceState) {
+        is ToggleState.Error -> {
             Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
         }
+
         is ToggleState.Success -> {
             val successState = toggleDeviceState as ToggleState.Success
             toggleDevice = successState.toggle
             Log.e("toggle Device", toggleDevice.toString())
         }
+
         else -> {
             /* Do nothing */
         }
@@ -233,7 +237,7 @@ fun DeviceDetailPhoneScreen(
         Log.e("attributeJson", attribute.toString())
     }
 
-    var powerStatus by remember { mutableStateOf(false)}
+    var powerStatus by remember { mutableStateOf(false) }
 
     LaunchedEffect(safeDevice) {
         powerStatus = safeDevice.PowerStatus
@@ -247,30 +251,34 @@ fun DeviceDetailPhoneScreen(
 
     val attributeState by viewModel.attributeState.collectAsState()
 
-    when(attributeState){
-        is AttributeState.Error ->{
-            Log.e("Error",  (attributeState as AttributeState.Error).error)
+    when (attributeState) {
+        is AttributeState.Error -> {
+            Log.e("Error", (attributeState as AttributeState.Error).error)
         }
+
         is AttributeState.Success -> {
             val successState = attributeState as AttributeState.Success
             safeDevice = successState.device
             Log.d("Attribute Device", (attributeState as AttributeState.Success).message)
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
 
     val unlinkState by viewModel.unlinkState.collectAsState()
 
-    when(unlinkState){
-        is UnlinkState.Error ->{
-            Log.e("Error Unlink Device",  (unlinkState as UnlinkState.Error).error)
+    when (unlinkState) {
+        is UnlinkState.Error -> {
+            Log.e("Error Unlink Device", (unlinkState as UnlinkState.Error).error)
         }
+
         is UnlinkState.Success -> {
             Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
@@ -387,9 +395,16 @@ fun DeviceDetailPhoneScreen(
                                                         onCheckedChange = {
                                                             //Todo: Xử lý tắt mở thiết bị
                                                             powerStatus = !powerStatus
-                                                            Log.e("powerStatus click",  powerStatus.toString())
-                                                            toggle = ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
-                                                            viewModel.toggleDevice(safeDevice.DeviceID, toggle)
+                                                            Log.e(
+                                                                "powerStatus click",
+                                                                powerStatus.toString()
+                                                            )
+                                                            toggle =
+                                                                ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
+                                                            viewModel.toggleDevice(
+                                                                safeDevice.DeviceID,
+                                                                toggle
+                                                            )
                                                         },
                                                         thumbContent = {
                                                             Icon(
@@ -767,7 +782,11 @@ fun DeviceDetailPhoneScreen(
                                 Button(
                                     onClick = {
                                         //Todo: Xử lý khi nhấn nút Lịch sử
-                                        navController.navigate(Screens.ActivityHistory.createRoute(safeDevice.DeviceID))
+                                        navController.navigate(
+                                            Screens.ActivityHistory.createRoute(
+                                                safeDevice.DeviceID
+                                            )
+                                        )
                                     },
                                     modifier = Modifier
                                         .weight(1f) // Chia đều không gian
@@ -872,21 +891,30 @@ fun DeviceDetailTabletScreen(
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) } // Lắng nghe danh sách thiết bị
     val toggleDeviceState by viewModel.toggleState.collectAsState()
 
-    when(toggleDeviceState){
-        is ToggleState.Error ->{
+    when (toggleDeviceState) {
+        is ToggleState.Error -> {
             Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
         }
+
         is ToggleState.Success -> {
             val successState = toggleDeviceState as ToggleState.Success
             toggleDevice = successState.toggle
             Log.e("toggle Device", toggleDevice.toString())
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
 
-    var attribute by remember { mutableStateOf(AttributeRequest(brightness = 0, color = "#000000")) }
+    var attribute by remember {
+        mutableStateOf(
+            AttributeRequest(
+                brightness = 0,
+                color = "#000000"
+            )
+        )
+    }
 
     var safeDevice = infoDevice ?: DeviceResponse(
         DeviceID = 0,
@@ -926,8 +954,7 @@ fun DeviceDetailTabletScreen(
     }
 
 
-
-    var powerStatus by remember { mutableStateOf(false)}
+    var powerStatus by remember { mutableStateOf(false) }
 
     LaunchedEffect(safeDevice) {
         powerStatus = safeDevice.PowerStatus
@@ -940,28 +967,32 @@ fun DeviceDetailTabletScreen(
 
     val attributeState by viewModel.attributeState.collectAsState()
 
-    when(attributeState){
-        is AttributeState.Error ->{
-            Log.e("Error",  (attributeState as AttributeState.Error).error)
+    when (attributeState) {
+        is AttributeState.Error -> {
+            Log.e("Error", (attributeState as AttributeState.Error).error)
         }
+
         is AttributeState.Success -> {
             Log.d("Attribute Device", (attributeState as AttributeState.Success).message)
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
 
     val unlinkState by viewModel.unlinkState.collectAsState()
 
-    when(unlinkState){
-        is UnlinkState.Error ->{
-            Log.e("Error",  (unlinkState as UnlinkState.Error).error)
+    when (unlinkState) {
+        is UnlinkState.Error -> {
+            Log.e("Error", (unlinkState as UnlinkState.Error).error)
         }
+
         is UnlinkState.Success -> {
             Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
         }
-        else ->{
+
+        else -> {
             /* Do nothing */
         }
     }
@@ -1079,8 +1110,12 @@ fun DeviceDetailTabletScreen(
                                                         onCheckedChange = {
                                                             //Todo: Xử lý khi tắt mở
                                                             powerStatus = !powerStatus
-                                                            toggle = ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
-                                                            viewModel.toggleDevice(safeDevice.DeviceID, toggle)
+                                                            toggle =
+                                                                ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
+                                                            viewModel.toggleDevice(
+                                                                safeDevice.DeviceID,
+                                                                toggle
+                                                            )
 
                                                         }, // Hàm xử lý khi thay đổi trạng thái (để trống)
                                                         thumbContent = {
@@ -1347,7 +1382,13 @@ fun DeviceDetailTabletScreen(
                                                             Column {
                                                                 Text("ID Thiết bị: ${safeDevice.DeviceID}")
                                                                 Text("Tên thiết bị: ${safeDevice.Name}")
-                                                                Text("Loại thiết bị: ${getIconForType(safeDevice.TypeID)}")
+                                                                Text(
+                                                                    "Loại thiết bị: ${
+                                                                        getIconForType(
+                                                                            safeDevice.TypeID
+                                                                        )
+                                                                    }"
+                                                                )
                                                             }
                                                         },
                                                         confirmButton = {
@@ -1731,13 +1772,17 @@ fun EndlessRollingPadlockTimePicker(
 
         // Tính toán chỉ số khởi tạo
         val hourState = rememberLazyListState(
-            initialFirstVisibleItemIndex = (100 * hoursList.size / 2) + hoursList.indexOf(initialHour) - 1
+            initialFirstVisibleItemIndex = (100 * hoursList.size / 2) + hoursList.indexOf(
+                initialHour
+            ) - 1
         )
         val minuteState = rememberLazyListState(
-            initialFirstVisibleItemIndex = (100 * minutesList.size / 2) + minutesList.indexOf(initialMinute) - 1
+            initialFirstVisibleItemIndex = (100 * minutesList.size / 2) + minutesList.indexOf(
+                initialMinute
+            ) - 1
         )
         val amPmState = rememberLazyListState(
-            initialFirstVisibleItemIndex = (100 * amPmList.size / 2) + amPmIndex -1
+            initialFirstVisibleItemIndex = (100 * amPmList.size / 2) + amPmIndex - 1
         )
 
         Box(
@@ -1765,7 +1810,7 @@ fun EndlessRollingPadlockTimePicker(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    item{
+                    item {
                         Box(
                             modifier = Modifier
                                 .wrapContentWidth()
@@ -1813,10 +1858,15 @@ fun EndlessRollingPadlockTimePicker(
         }
 
         // Snap Effect
-        LaunchedEffect(hourState.isScrollInProgress, minuteState.isScrollInProgress, amPmState.isScrollInProgress) {
+        LaunchedEffect(
+            hourState.isScrollInProgress,
+            minuteState.isScrollInProgress,
+            amPmState.isScrollInProgress
+        ) {
             if (!hourState.isScrollInProgress && !minuteState.isScrollInProgress && !amPmState.isScrollInProgress) {
                 val selectedHour = hoursList[(hourState.firstVisibleItemIndex + 1) % hoursList.size]
-                val selectedMinute = minutesList[(minuteState.firstVisibleItemIndex + 1) % minutesList.size]
+                val selectedMinute =
+                    minutesList[(minuteState.firstVisibleItemIndex + 1) % minutesList.size]
                 val selectedAmPm = amPmList[(amPmState.firstVisibleItemIndex + 1) % amPmList.size]
 
                 // Trả về kết quả khi cuộn xong
@@ -1874,13 +1924,15 @@ fun <T> RollingColumn(
             items(items.size * 100) { index ->
                 val item = items[index % items.size]
                 // Xác định mục được chọn
-                val isSelected = (index % items.size == (state.firstVisibleItemIndex + 1) % items.size)
+                val isSelected =
+                    (index % items.size == (state.firstVisibleItemIndex + 1) % items.size)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp), // Chiều cao cố định
                     contentAlignment = Alignment.Center,
-                ) {Text(
+                ) {
+                    Text(
                         text = label(item),
                         fontSize = if (isSelected) fontSize else fontSize * 0.8f, // Giảm font size cho mục không được chọn
                         color = colorScheme.onBackground.copy(alpha = if (isSelected) 1f else 0.4f),

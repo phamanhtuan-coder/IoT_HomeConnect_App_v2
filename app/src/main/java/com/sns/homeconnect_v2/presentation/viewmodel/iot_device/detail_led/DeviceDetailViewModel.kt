@@ -19,7 +19,7 @@ sealed class GetInfoDeviceState {
     data object Idle : GetInfoDeviceState()                // Chưa làm gì
     data object Loading : GetInfoDeviceState()             // Đang loading
     data class Success(val device: DeviceResponse) : GetInfoDeviceState()
-    data class Error(val error: String) : GetInfoDeviceState() 
+    data class Error(val error: String) : GetInfoDeviceState()
 }
 
 sealed class ToggleState {
@@ -97,13 +97,15 @@ class DeviceDetailViewModel(
             toggleDeviceUseCase(deviceId, toggle).fold(
                 onSuccess = { response ->
                     Log.d("DeviceDetailViewModel", "Success: $response")
-                    _toggleState.value =ToggleState.Success(response)
+                    _toggleState.value = ToggleState.Success(response)
                 },
                 onFailure = { e ->
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _toggleState.value = ToggleState.Error(e.message ?: "Lỗi khi cập nhật trạng thái thiết bị!")
+                    _toggleState.value =
+                        ToggleState.Error(e.message ?: "Lỗi khi cập nhật trạng thái thiết bị!")
                 }
-            )        }
+            )
+        }
     }
 
     private val _attributeState = MutableStateFlow<AttributeState>(AttributeState.Idle)
@@ -112,14 +114,16 @@ class DeviceDetailViewModel(
     fun attributeDevice(deviceId: Int, brightness: Int, color: String) {
         _attributeState.value = AttributeState.Loading
         viewModelScope.launch {
-           attributeDeviceUseCase(deviceId, brightness, color).fold(
+            attributeDeviceUseCase(deviceId, brightness, color).fold(
                 onSuccess = { response ->
                     Log.d("DeviceDetailViewModel", "Success: $response")
-                    _attributeState.value = AttributeState.Success(response.message, response.device)
+                    _attributeState.value =
+                        AttributeState.Success(response.message, response.device)
                 },
                 onFailure = { e ->
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _attributeState.value = AttributeState.Error(e.message ?: "Lỗi khi cập nhật thuộc tính thiết bị!")
+                    _attributeState.value =
+                        AttributeState.Error(e.message ?: "Lỗi khi cập nhật thuộc tính thiết bị!")
                 }
             )
         }
@@ -138,7 +142,7 @@ class DeviceDetailViewModel(
                 },
                 onFailure = { e ->
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _unlinkState.value =UnlinkState.Error(e.message ?: "Lỗi khi xóa thiết bị!")
+                    _unlinkState.value = UnlinkState.Error(e.message ?: "Lỗi khi xóa thiết bị!")
                 }
             )
         }

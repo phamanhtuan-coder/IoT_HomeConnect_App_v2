@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.core.di
 
 import android.content.Context
+import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
@@ -105,6 +106,11 @@ abstract class RepositoryModule {
         @Singleton
         fun providePermissionManager(@ApplicationContext context: Context): PermissionManager {
             return PermissionManager(context)
+        }
+        @Provides
+        @Singleton
+        fun providePermissionEventHandler(): PermissionEventHandler {
+            return PermissionEventHandler()
         }
 
         @Provides

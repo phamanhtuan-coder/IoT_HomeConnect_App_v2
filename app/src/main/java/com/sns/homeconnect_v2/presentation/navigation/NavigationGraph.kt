@@ -9,13 +9,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
-import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
-import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
-import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.AccessPointConnectionScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.WifiConnectionScreen
+import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.profile.ProfileScreen
+import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
@@ -81,7 +83,7 @@ fun NavigationGraph(navController: NavHostController) {
             ProfileScreen(navController)
         }
         composable(Screens.Devices.route) {
-             DeviceScreen(navController)
+            DeviceScreen(navController)
         }
         composable(Screens.Settings.route) {
             // SettingsScreen(navController)
@@ -95,7 +97,11 @@ fun NavigationGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id") ?: ""
             val name = backStackEntry.arguments?.getString("name") ?: ""
-            // AccessPointConnectionScreen(navController, id, name)
+            AccessPointConnectionScreen(
+                navController = navController,
+                deviceId = id,
+                deviceName = name
+            )
         }
         composable(Screens.AddDevice.route) {
             // AddDeviceScreen(navController)
@@ -114,7 +120,7 @@ fun NavigationGraph(navController: NavHostController) {
             // DetailNotificationScreen(navController, id)
         }
         composable(Screens.WifiConnection.route) {
-            // WifiConnectionScreen(navController)
+            WifiConnectionScreen(navController)
         }
         composable(Screens.Spaces.route) {
             // SpaceScreen(navController)
@@ -122,7 +128,6 @@ fun NavigationGraph(navController: NavHostController) {
         composable(Screens.AddSpace.route) {
             // AddSpaceScreen(navController)
         }
-
         composable(Screens.PasswordAuth.route) {
             // PasswordAuthenticationScreen(navController)
         }
@@ -175,8 +180,8 @@ fun NavigationGraph(navController: NavHostController) {
         composable("device/{typeID}/{id}") { backStackEntry ->
             val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0
             val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-             val screen = DeviceScreenFactory.getScreen(typeID)
-             screen(navController, id)
+            val screen = DeviceScreenFactory.getScreen(typeID)
+            screen(navController, id)
         }
     }
 }

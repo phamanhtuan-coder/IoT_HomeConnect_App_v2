@@ -12,6 +12,7 @@ import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.LinkDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.AccessPointConnectionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.WifiConnectionScreen
@@ -113,7 +114,7 @@ fun NavigationGraph(navController: NavHostController) {
             WifiConnectionScreen(navController)
         }
         composable(Screens.AddDevice.route) {
-            // AddDeviceScreen(navController)
+            LinkDeviceScreen(navController)
         }
         composable(Screens.HouseManagement.route) {
             // HouseManagementScreen(navController)

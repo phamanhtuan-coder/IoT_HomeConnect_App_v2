@@ -62,7 +62,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddDeviceScreen(
+fun LinkDeviceScreen(
     navController: NavHostController,
     sharedViewModel: SharedViewModel = hiltViewModel(),
     deviceViewModel : DeviceViewModel = hiltViewModel(),

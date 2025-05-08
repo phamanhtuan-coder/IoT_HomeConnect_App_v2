@@ -32,6 +32,7 @@ import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.AttributeDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetInfoDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.LinkDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
@@ -213,6 +214,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideUnlinkDeviceUseCase(repository: DeviceRepository): UnlinkDeviceUseCase {
             return UnlinkDeviceUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideLinkDeviceUseCase(repository: DeviceRepository): LinkDeviceUseCase {
+            return LinkDeviceUseCase(repository)
         }
 
         @Provides

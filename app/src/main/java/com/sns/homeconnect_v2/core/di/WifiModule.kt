@@ -1,6 +1,8 @@
 package com.sns.homeconnect_v2.core.di
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.repository.WifiRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.WifiRepository
@@ -15,6 +17,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object WifiModule {
 
+    @RequiresApi(Build.VERSION_CODES.R)
     @Provides
     @Singleton
     fun provideWifiRepository(

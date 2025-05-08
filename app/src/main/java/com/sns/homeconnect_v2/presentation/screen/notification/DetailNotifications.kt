@@ -65,7 +65,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationRe
  * ---------------------------------------
  */
 @Composable
-fun DetailNotification(
+fun DetailNotificationScreen(
     navController: NavHostController,
     alertId: Int,
     viewModel: NotificationDetailViewModel = hiltViewModel(),
@@ -320,10 +320,4 @@ fun NotificationDetailContent(
             )
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun NotificationDetailPreview() {
-    DetailNotification(navController = rememberNavController(), alertId = 0)
 }

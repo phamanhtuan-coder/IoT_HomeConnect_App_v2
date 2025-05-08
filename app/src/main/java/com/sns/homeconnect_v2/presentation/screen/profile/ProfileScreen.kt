@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.presentation.screen.profile
 
 import IoTHomeConnectAppTheme
-import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -136,11 +135,9 @@ fun ProfileScreen(
     var showAlertDialog by remember { mutableStateOf(false) }
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var errorMessage by remember { mutableStateOf("") }
-    var profileImage by remember {mutableStateOf("")}
+    var profileImage by remember { mutableStateOf("") }
     val displayedAvatarBitmap = remember { mutableStateOf<Bitmap?>(null) }
     val avatarBitmapState = remember { mutableStateOf<Bitmap?>(null) }
-
-
 
     val logoutState by profileViewModel.logoutState.collectAsState()
 
@@ -152,14 +149,17 @@ fun ProfileScreen(
                     popUpTo(navController.graph.startDestinationId) { inclusive = true }
                 }
             }
+
             is ProfileState.Error -> {
-                android.widget.Toast.makeText(
+                Toast.makeText(
                     context,
                     (logoutState as ProfileState.Error).message,
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
                 ).show()
             }
-            else -> { /* Do nothing */ }
+
+            else -> { /* Do nothing */
+            }
         }
     }
 
@@ -167,9 +167,9 @@ fun ProfileScreen(
     var profile by remember { mutableStateOf<User?>(null) } // Lắng nghe danh sách thiết bị
     val infoProfileState by profileViewModel.infoProfileState.collectAsState()
 
-    when(infoProfileState){
-        is InfoProfileState.Error ->{
-            Log.d("Error Profile",  (infoProfileState as InfoProfileState.Error).error)
+    when (infoProfileState) {
+        is InfoProfileState.Error -> {
+            Log.d("Error Profile", (infoProfileState as InfoProfileState.Error).error)
         }
 
         is InfoProfileState.Success -> {
@@ -178,7 +178,8 @@ fun ProfileScreen(
             Log.d("Thành công", "Dữ liệu user: ${profile.toString()}")
         }
 
-        else -> {/* Do nothing */}
+        else -> {/* Do nothing */
+        }
     }
 
     LaunchedEffect(1) {
@@ -194,7 +195,7 @@ fun ProfileScreen(
             dateCreated.value = it.DateOfBirth
             Log.e("dateCreated.value 1", dateCreated.value.toString())
             isVerified.value = it.EmailVerified
-            if (!it.DateOfBirth.isNullOrEmpty()) {
+            if (it.DateOfBirth.isNotEmpty()) {
                 try {
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
                         timeZone = TimeZone.getTimeZone("UTC") // Xác định múi giờ của server
@@ -216,7 +217,8 @@ fun ProfileScreen(
 
             // Xử lý ảnh đại diện (Base64)
             if (it.ProfileImage.isNotEmpty()) {
-                val bitmap = ImageProcessing.base64ToBitmap(it.ProfileImage) // Chuyển đổi Base64 thành Bitmap
+                val bitmap =
+                    ImageProcessing.base64ToBitmap(it.ProfileImage) // Chuyển đổi Base64 thành Bitmap
                 if (bitmap != null) {
                     avatarBitmapState.value = bitmap // Cập nhật trạng thái Bitmap
                     displayedAvatarBitmap.value = bitmap
@@ -228,20 +230,17 @@ fun ProfileScreen(
     var userResponse by remember { mutableStateOf<UserResponse?>(null) } // Lắng nghe user
     val putInfoProfileState by profileViewModel.putInfoProfileState.collectAsState()
 
-    when(putInfoProfileState){
-        is PutInfoProfileState.Error ->{
-            Log.d("Error Profile",  (putInfoProfileState as PutInfoProfileState.Error).error)
-        }
-        is PutInfoProfileState.Idle ->{
-            //Todo
-        }
-        is PutInfoProfileState.Loading -> {
-            //Todo
+    when (putInfoProfileState) {
+        is PutInfoProfileState.Error -> {
+            Log.d("Error Profile", (putInfoProfileState as PutInfoProfileState.Error).error)
         }
         is PutInfoProfileState.Success -> {
             val successState = putInfoProfileState as PutInfoProfileState.Success
             userResponse = successState.userResponse
             Log.d("Thành công", "Dữ liệu user: ${userResponse.toString()}")
+        }
+        else ->{
+            /*Do nothing */
         }
     }
 
@@ -271,7 +270,8 @@ fun ProfileScreen(
 
                 // Xử lý ảnh đại diện (Base64)
                 if (user.ProfileImage.isNotEmpty()) {
-                    val bitmap = ImageProcessing.base64ToBitmap(user.ProfileImage) // Chuyển đổi Base64 thành Bitmap
+                    val bitmap =
+                        ImageProcessing.base64ToBitmap(user.ProfileImage) // Chuyển đổi Base64 thành Bitmap
                     if (bitmap != null) {
                         avatarBitmapState.value = bitmap // Cập nhật trạng thái Bitmap
                     }
@@ -281,7 +281,6 @@ fun ProfileScreen(
             Log.e("LaunchedEffect", "UserResponse is null.")
         }
     }
-
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -336,11 +335,16 @@ fun ProfileScreen(
                                 )
                             if (compressedImage != null && compressedImage.size / 1024 <= maxSizeInKB) {
                                 // Chuyển đổi ảnh đã nén sang Base64
-                                val base64Image = Base64.encodeToString(compressedImage, Base64.NO_WRAP)
+                                val base64Image =
+                                    Base64.encodeToString(compressedImage, Base64.NO_WRAP)
                                 profileImage = base64Image
                                 Log.d("Base64", base64Image) // Log Base64 hoặc gửi lên API
 
-                                val bitmap = BitmapFactory.decodeByteArray(compressedImage, 0, compressedImage.size)
+                                val bitmap = BitmapFactory.decodeByteArray(
+                                    compressedImage,
+                                    0,
+                                    compressedImage.size
+                                )
                                 displayedAvatarBitmap.value = bitmap
                             } else {
                                 // Ảnh vượt kích thước hoặc không thể nén đủ nhỏ
@@ -463,21 +467,21 @@ fun ProfileScreen(
                                     )
                                 }
                             } ?: Box(
-                                    modifier = Modifier
-                                        .size(if (isTablet) 120.dp else 70.dp)
-                                        .background(
-                                            color = colorScheme.primary.copy(alpha = 0.8f),
-                                            shape = CircleShape
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Image(
-                                        imageVector = Icons.Default.Person,
-                                        contentDescription = "Avatar",
-                                        colorFilter = ColorFilter.tint(colorScheme.onPrimary),
-                                        modifier = Modifier.size(if (isTablet) 70.dp else 40.dp)
-                                    )
-                                }
+                                modifier = Modifier
+                                    .size(if (isTablet) 120.dp else 70.dp)
+                                    .background(
+                                        color = colorScheme.primary.copy(alpha = 0.8f),
+                                        shape = CircleShape
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Avatar",
+                                    colorFilter = ColorFilter.tint(colorScheme.onPrimary),
+                                    modifier = Modifier.size(if (isTablet) 70.dp else 40.dp)
+                                )
+                            }
 
                             Box(
                                 modifier = Modifier
@@ -658,7 +662,7 @@ fun ProfileScreen(
                         onValueChange = {
                             nameState.value = it
                             nameErrorState.value = ValidationUtils.validateFullName(it)
-                                        },
+                        },
                         placeholder = { Text("Họ và tên") },
                         shape = RoundedCornerShape(25),
                         singleLine = true,
@@ -690,7 +694,7 @@ fun ProfileScreen(
                         onValueChange = {
                             phoneState.value = it
                             phoneErrorState.value = ValidationUtils.validatePhoneNumber(it)
-                                        },
+                        },
                         placeholder = { Text("Số điện thoại") },
                         shape = RoundedCornerShape(25),
                         singleLine = true,
@@ -722,7 +726,7 @@ fun ProfileScreen(
                         onValueChange = {
                             locationState.value = it
                             locationErrorState.value = ValidationUtils.validateAddress(it)
-                                        },
+                        },
                         placeholder = { Text("Nơi sống hiện tại") },
                         shape = RoundedCornerShape(25),
                         singleLine = true,
@@ -760,7 +764,7 @@ fun ProfileScreen(
                         readOnly = true,
                         trailingIcon = {
                             Icon(
-                                imageVector =if (isVerified.value) Icons.Default.CheckCircle else Icons.Default.Error,
+                                imageVector = if (isVerified.value) Icons.Default.CheckCircle else Icons.Default.Error,
                                 contentDescription = "Verified",
                                 modifier = Modifier.clickable(
                                     onClick = {
@@ -869,7 +873,8 @@ fun ProfileScreen(
                         datePickerState.selectedDateMillis?.let { millis ->
                             try {
                                 val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                selectedDate = formatter.format(Date(millis)) // Hiển thị theo định dạng
+                                selectedDate =
+                                    formatter.format(Date(millis)) // Hiển thị theo định dạng
                                 dateCreated.value = selectedDate // Cập nhật giá trị trường nhập
                                 Log.e("SelectedDate", "Ngày chọn: $selectedDate")
                             } catch (e: Exception) {
@@ -882,12 +887,18 @@ fun ProfileScreen(
                     Button(
                         onClick = {
                             try {
-                                val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                val formattedDate = outputFormat.format(inputFormat.parse(dateCreated.value) ?: Date())
+                                val inputFormat =
+                                    SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                val outputFormat =
+                                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                                val formattedDate = outputFormat.format(
+                                    inputFormat.parse(dateCreated.value) ?: Date()
+                                )
 
                                 // Chuyển đổi ảnh hiện tại thành Base64
-                                val profileImageBase64 = displayedAvatarBitmap.value?.let { ImageProcessing.bitmapToBase64(it) } ?: ""
+                                val profileImageBase64 = displayedAvatarBitmap.value?.let {
+                                    ImageProcessing.bitmapToBase64(it)
+                                } ?: ""
 
                                 val userRequest = UserRequest(
                                     Name = nameState.value.ifBlank { "Tên không được để trống" },
@@ -937,7 +948,11 @@ fun compressImage(inputImage: ByteArray, quality: Int, maxFileSizeKB: Int): Byte
 
         // Nếu kích thước vẫn lớn hơn maxFileSizeKB, giảm độ phân giải
         if (outputStream.size() / 1024 > maxFileSizeKB) {
-            bitmap = ImageProcessing.resizeBitmap(bitmap, bitmap.width / 2, bitmap.height / 2) // Thu nhỏ ảnh
+            bitmap = ImageProcessing.resizeBitmap(
+                bitmap,
+                bitmap.width / 2,
+                bitmap.height / 2
+            ) // Thu nhỏ ảnh
         }
 
         currentQuality -= 10 // Giảm chất lượng ảnh

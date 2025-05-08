@@ -46,6 +46,7 @@ import com.sns.homeconnect_v2.domain.usecase.notification.ReadNotificationUseCas
 import com.sns.homeconnect_v2.domain.usecase.notification.SearchNotificationUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
+import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import dagger.Binds
 import dagger.Module
@@ -181,6 +182,13 @@ abstract class RepositoryModule {
         fun providePutInfoProfileUseCase (repository: UserRepository): PutInfoProfileUseCase {
             return PutInfoProfileUseCase (repository)
         }
+
+        @Provides
+        @Singleton
+        fun provideUpdatePasswordUseCase (repository: UserRepository): UpdatePasswordUseCase {
+            return UpdatePasswordUseCase (repository)
+        }
+
 
         @Provides
         @Singleton

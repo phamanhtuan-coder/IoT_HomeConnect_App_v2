@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.data.remote.api
 
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
@@ -13,6 +14,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.Alert
 import com.sns.homeconnect_v2.data.remote.dto.response.AlertDetail
 import com.sns.homeconnect_v2.data.remote.dto.response.AlertResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
@@ -34,22 +36,34 @@ import retrofit2.http.*
 
 interface ApiService {
     @POST("/api/auth/login")
-    suspend fun login(@Body request: LoginRequest): LoginResponse
+    suspend fun login(
+        @Body request: LoginRequest
+    ): LoginResponse
 
     @POST("/api/auth/register")
-    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+    suspend fun register(
+        @Body request: RegisterRequest
+    ): RegisterResponse
 
     @POST("/api/users/reset-password")
-    suspend fun newPassword(@Body request: NewPasswordRequest): NewPasswordResponse
+    suspend fun newPassword(
+        @Body request: NewPasswordRequest
+    ): NewPasswordResponse
 
     @POST("/api/otp/check-email")
-    suspend fun checkEmail(@Body request: EmailRequest): EmailResponse
+    suspend fun checkEmail(
+        @Body request: EmailRequest
+    ): EmailResponse
 
     @POST("/api/otp/send")
-    suspend fun sendOTP(@Body request: EmailRequest): EmailResponse
+    suspend fun sendOTP(
+        @Body request: EmailRequest
+    ): EmailResponse
 
     @POST("/api/otp/verify")
-    suspend fun verifyOTP(@Body request: EmailRequest): EmailResponse
+    suspend fun verifyOTP(
+        @Body request: EmailRequest
+    ): EmailResponse
 
     @POST("/api/users/confirm-email")
     suspend fun confirmEmail(
@@ -67,7 +81,11 @@ interface ApiService {
     suspend fun getInfoProfile(@Header("Authorization") token: String): User
 
     @PUT("/api/users/{userId}")
-    suspend fun putInfoProfile(@Path("userId") userId: Int, @Body user: UserRequest, @Header("Authorization") token: String): UserResponse
+    suspend fun putInfoProfile(
+        @Path("userId") userId: Int,
+        @Body user: UserRequest,
+        @Header("Authorization") token: String
+    ): UserResponse
 
     @GET("/api/users/{userId}/shared-with")
     suspend fun sharedWith(
@@ -120,11 +138,15 @@ interface ApiService {
     ): List<DeviceResponse>
 
     @GET("/api/houses")
-    suspend fun getListHome(@Header("Authorization") token: String): List<HouseResponse>
+    suspend fun getListHome(
+        @Header("Authorization") token: String
+    ): List<HouseResponse>
 
 
     @GET("/api/alerts/getAllByUser")
-    suspend fun getAllNotification(@Header("Authorization") token: String): List<AlertResponse>
+    suspend fun getAllNotification(
+        @Header("Authorization") token: String
+    ): List<AlertResponse>
 
     @GET("/api/alerts/{alertId}")
     suspend fun getAlertById(
@@ -163,37 +185,14 @@ interface ApiService {
         @Header("Authorization") token: String
     ):   Response<Unit>
 
-
-//
-//    @GET("/api/logs/device/{id}")
-//    suspend fun getDeviceLogs(
-//        @Path("id") deviceId: Int,
-//        @Header("Authorization") token: String
-//    ): List<LogResponse>
-//
-
-//    @GET("/api/logs/latestToggle/{deviceId}")
-//    suspend fun getLatestToggle(
-//        @Path("deviceId") deviceId: Int,
-//        @Header("Authorization") token: String
-//    ): LogLastest
-//
-//    @GET("/api/logs/latestUpdateAttributes/{deviceId}")
-//    suspend fun getLatestUpdateAttributes(
-//        @Path("deviceId") deviceId: Int,
-//        @Header("Authorization") token: String
-//    ): LogLastest
-//
-//    @GET("/api/logs/latestSensor/{deviceId}")
-//    suspend fun getLatestSensor(
-//        @Path("deviceId") deviceId: Int,
-//        @Header("Authorization") token: String
-//    ): LogLastest
+    @PUT("/api/users/{userId}/change-password")
+    suspend fun putChangePassword(
+        @Path("userId") userId: Int,
+        @Body changePasswordRequest: ChangePasswordRequest,
+        @Header("Authorization") token: String
+    ): ChangePasswordResponse
 
 
-//    @PUT("/api/users/{userId}/change-password")
-//    suspend fun putChangePassword(@Path("userId") userId: Int, @Body changePasswordRequest: ChangePasswordRequest, @Header("Authorization") token: String): ChangePasswordResponce
-//
 //    @GET("/api/statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection
 
 import IoTHomeConnectAppTheme
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,41 +22,14 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.rememberResponsiveLayoutConfig
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
-import com.sns.homeconnect_v2.domain.usecase.iot_device.connect.SendWifiCredentialsUseCase
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.access_point_connection.WifiConnectionViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-
-@HiltViewModel
-class WifiConnectionViewModel @Inject constructor(
-    private val sendWifiCredentialsUseCase: SendWifiCredentialsUseCase
-): ViewModel() {
-    var isLoading by mutableStateOf(false)
-        private set
-
-    suspend fun sendCredentials(context: Context, espIp: String, port: Int, ssid: String, password: String): Boolean {
-        isLoading = true
-        val result = sendWifiCredentialsUseCase(espIp, port, ssid, password)
-        isLoading = false
-        return when (result) {
-            is com.sns.homeconnect_v2.core.util.Result.Success -> {
-                Toast.makeText(context, "Wi-Fi credentials sent successfully!", Toast.LENGTH_SHORT).show()
-                true
-            }
-            is com.sns.homeconnect_v2.core.util.Result.Error -> {
-                Toast.makeText(context, result.message, Toast.LENGTH_LONG).show()
-                false
-            }
-        }
-    }
-}
 
 @Composable
 fun WifiConnectionScreen(

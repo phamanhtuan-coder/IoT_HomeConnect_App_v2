@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection
 
 import IoTHomeConnectAppTheme
-import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -24,45 +23,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.PermissionEventHandler
-import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.core.util.rememberResponsiveLayoutConfig
-import com.sns.homeconnect_v2.domain.usecase.iot_device.connect.ScanWifiNetworksUseCase
 import com.sns.homeconnect_v2.presentation.component.WiFiCard
 import com.sns.homeconnect_v2.presentation.component.WifiToggle
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.access_point_connection.AccessPointViewModel
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AccessPointViewModel @Inject constructor(
-    private val scanWifiNetworksUseCase: ScanWifiNetworksUseCase,
-    val permissionManager: PermissionManager
-): ViewModel() {
-    var wifiList by mutableStateOf(emptyList<android.net.wifi.ScanResult>())
-        private set
-    var isLoading by mutableStateOf(false)
-        private set
 
-    suspend fun scanWifiNetworks(context: Context) {
-        isLoading = true
-        val result = scanWifiNetworksUseCase()
-        isLoading = false
-        when (result) {
-            is com.sns.homeconnect_v2.core.util.Result.Success -> wifiList = result.data
-            is com.sns.homeconnect_v2.core.util.Result.Error -> Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    fun checkPermissions(context: Context): Boolean {
-        return permissionManager.getLocationWifiPermissions().all { permissionManager.isPermissionGranted(it) }
-    }
-}
 
 @Composable
 fun AccessPointConnectionScreen(

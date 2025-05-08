@@ -15,6 +15,8 @@ import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.AccessPointConnectionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.WifiConnectionScreen
+import com.sns.homeconnect_v2.presentation.screen.notification.DetailNotificationScreen
+import com.sns.homeconnect_v2.presentation.screen.notification.NotificationScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
 import com.sns.homeconnect_v2.presentation.screen.profile.ProfileScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
@@ -103,11 +105,14 @@ fun NavigationGraph(navController: NavHostController) {
                 deviceName = name
             )
         }
+        composable(Screens.WifiConnection.route) {
+            WifiConnectionScreen(navController)
+        }
         composable(Screens.AddDevice.route) {
             // AddDeviceScreen(navController)
         }
         composable(Screens.AllNotifications.route) {
-            // NotificationScreen(navController)
+            NotificationScreen(navController)
         }
         composable(Screens.HouseManagement.route) {
             // HouseManagementScreen(navController)
@@ -117,10 +122,7 @@ fun NavigationGraph(navController: NavHostController) {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt("id") ?: 0
-            // DetailNotificationScreen(navController, id)
-        }
-        composable(Screens.WifiConnection.route) {
-            WifiConnectionScreen(navController)
+            DetailNotificationScreen(navController, id)
         }
         composable(Screens.Spaces.route) {
             // SpaceScreen(navController)
@@ -149,20 +151,7 @@ fun NavigationGraph(navController: NavHostController) {
             val id = backStackEntry.arguments?.getInt("id") ?: -1
             // DashboardDeviceScreen(navController, spaceID, id)
         }
-        composable(
-            route = Screens.ActivityHistory.route,
-            arguments = listOf(navArgument("deviceId") { type = NavType.IntType; defaultValue = -1 })
-        ) { backStackEntry ->
-            val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
-            // ActivityHistoryScreen(navController, deviceId)
-        }
-        composable(
-            route = Screens.ActivityHistoryDetail.route,
-            arguments = listOf(navArgument("logDetails") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val logDetailsJson = backStackEntry.arguments?.getString("logDetails") ?: ""
-            // ActivityHistoryDetailScreen(navController, logDetailsJson)
-        }
+
         composable(
             route = "${Screens.AddSharedUser.route}?id={id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })

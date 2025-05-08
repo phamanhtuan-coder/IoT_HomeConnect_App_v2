@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
+import IoTHomeConnectAppTheme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,40 +24,42 @@ fun LineChart(
     labels: List<String>,
     color: Color = MaterialTheme.colorScheme.primary
 ) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-        ) {
-            val maxValue = (data.maxOrNull() ?: 1f) * 1.2f
-            val stepX = size.width / (labels.size - 1)
-            val stepY = size.height / maxValue
+    IoTHomeConnectAppTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = title,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+            ) {
+                val maxValue = (data.maxOrNull() ?: 1f) * 1.2f
+                val stepX = size.width / (labels.size - 1)
+                val stepY = size.height / maxValue
 
-            // Draw Lines
-            for (i in 1 until data.size) {
-                drawLine(
-                    color = color,
-                    start = Offset((i - 1) * stepX, size.height - data[i - 1] * stepY),
-                    end = Offset(i * stepX, size.height - data[i] * stepY),
-                    strokeWidth = 4f
-                )
-            }
+                // Draw Lines
+                for (i in 1 until data.size) {
+                    drawLine(
+                        color = color,
+                        start = Offset((i - 1) * stepX, size.height - data[i - 1] * stepY),
+                        end = Offset(i * stepX, size.height - data[i] * stepY),
+                        strokeWidth = 4f
+                    )
+                }
 
-            // Draw Points
-            data.forEachIndexed { index, value ->
-                drawCircle(
-                    color = color,
-                    center = Offset(index * stepX, size.height - value * stepY),
-                    radius = 8f
-                )
+                // Draw Points
+                data.forEachIndexed { index, value ->
+                    drawCircle(
+                        color = color,
+                        center = Offset(index * stepX, size.height - value * stepY),
+                        radius = 8f
+                    )
+                }
             }
         }
     }

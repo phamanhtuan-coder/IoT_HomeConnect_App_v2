@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.1"
+agp = "8.10.0"
 firebaseAnalytics = "22.4.0"
 hilt = "2.56.1" # Update to latest
 coilCompose = "2.7.0"

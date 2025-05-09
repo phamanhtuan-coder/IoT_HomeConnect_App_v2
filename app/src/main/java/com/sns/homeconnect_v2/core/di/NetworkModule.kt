@@ -19,11 +19,10 @@ object NetworkModule {
     @Named("HomeConnectRetrofit")
     fun provideHomeConnectRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://homeconnect-api-ws-3a22df0bbfef.herokuapp.com") //Todo: đổi thành localhost
+            .baseUrl("http://10.0.2.2:3000") // Thay đổi thành localhost/IP thật
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
-
     @Provides
     @Singleton
     @Named("WeatherRetrofit")

@@ -28,7 +28,10 @@ import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screens.Welcome.route) {
+    NavHost(navController = navController, startDestination =
+//        Screens.Welcome.route
+    Screens.Group.route
+    ) {
         // Welcome screen
         composable(Screens.Welcome.route) {
             WelcomeScreen(navController)

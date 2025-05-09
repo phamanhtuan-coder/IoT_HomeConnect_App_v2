@@ -35,4 +35,5 @@ sealed class Screens(val route: String) {
     data object DashboardDeviceScreen : Screens("dashboard_device")
     data object Settings : Screens("settings")
     data object Dashboard : Screens("dashboard")
+    data object Group: Screens("group")
 }

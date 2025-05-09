@@ -71,6 +71,7 @@ fun DetailNotificationScreen(
     viewModel: NotificationDetailViewModel = hiltViewModel(),
 ) {
     val layoutConfig = rememberResponsiveLayoutConfig()
+
     val notificationState by viewModel.alertState.collectAsState()
     val notificationReadState by viewModel.alertReadState.collectAsState()
 

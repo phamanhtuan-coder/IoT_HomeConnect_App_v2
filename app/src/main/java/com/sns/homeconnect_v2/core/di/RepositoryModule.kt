@@ -30,6 +30,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.CreateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.AttributeDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetInfoDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.LinkDeviceUseCase
@@ -50,6 +51,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -245,6 +247,18 @@ abstract class RepositoryModule {
         @Singleton
         fun provideFetchHousesUseCase(houseRepository: HouseRepository): FetchHousesUseCase {
             return FetchHousesUseCase(houseRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideCreateHouseUseCase(houseRepository: HouseRepository): CreateHouseUseCase {
+            return CreateHouseUseCase(houseRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideUpdateHouseUseCase(houseRepository: HouseRepository): UpdateHouseUseCase {
+            return UpdateHouseUseCase(houseRepository)
         }
 
         @Provides

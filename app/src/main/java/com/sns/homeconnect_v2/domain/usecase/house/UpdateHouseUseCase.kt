@@ -1,10 +1,11 @@
 package com.sns.homeconnect_v2.domain.usecase.house
 
+import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
-import com.sns.homeconnect_v2.presentation.viewmodel.house.UpdateHouseState
 import javax.inject.Inject
 
-class CreateHouseUseCase @Inject constructor(
+class UpdateHouseUseCase @Inject constructor(
     private val houseRepository: HouseRepository
 ) {
     suspend operator fun invoke(

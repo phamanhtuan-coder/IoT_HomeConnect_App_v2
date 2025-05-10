@@ -18,8 +18,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.HouseResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
@@ -32,6 +30,12 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -199,6 +203,19 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<HousesListResponse>
 
+        @PUT("/api/houses/{houseId}")
+    suspend fun updateHouse(
+        @Path("houseId") houseId: Int,
+        @Body body: UpdateHouseRequest,
+        @Header("Authorization") token: String
+    ): UpdateHouseResponse
+
+    @POST("/api/houses")
+    suspend fun createHouse(
+        @Body request: CreateHouseRequest,
+        @Header("Authorization") token: String
+    ): CreateHouseResponse
+
 
 //    @GET("/api/statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
@@ -240,19 +257,7 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): WeeklyAverageSensorResponse
 
-//    @PUT("/api/houses/{houseId}")
-//    suspend fun updateHouse(
-//        @Path("houseId") houseId: Int,
-//        @Body body: UpdateHouseRequest,
-//        @Header("Authorization") token: String
-//    ): UpdateHouseResponse
-//
-//    @POST("/api/houses")
-//    suspend fun createHouse(
-//        @Body request: CreateHouseRequest,
-//        @Header("Authorization") token: String
-//    ): CreateHouseResponse
-//
+
 //    @GET("/api/spaces/{houseId}")
 //    suspend fun getSpaces(
 //        @Path("houseId") houseId: Int,

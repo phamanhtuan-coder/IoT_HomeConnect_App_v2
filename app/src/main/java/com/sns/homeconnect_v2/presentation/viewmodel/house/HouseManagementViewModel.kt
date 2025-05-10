@@ -4,8 +4,15 @@ package com.sns.homeconnect_v2.presentation.viewmodel.house
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.house.DefaultSpace
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseDetail
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseDetail1
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
-import com.sns.homeconnect_v2.data.remote.dto.response.HousesListResponse
+import com.sns.homeconnect_v2.domain.usecase.house.CreateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,25 +26,25 @@ sealed class HouseManagementState {
     data class Error(val error: String?) : HouseManagementState()
 }
 
-//sealed class UpdateHouseState {
-//    data object Idle : UpdateHouseState()
-//    data object Loading : UpdateHouseState()
-//    data class Success(val message: String, val house: HouseDetail) : UpdateHouseState()
-//    data class Error(val error: String) : UpdateHouseState()
-//}
-//
-//sealed class CreateHouseState {
-//    data object Idle : CreateHouseState()
-//    data object Loading : CreateHouseState()
-//    data class Success(val message: String, val house: HouseDetail1, val space: DefaultSpace) : CreateHouseState()
-//    data class Error(val error: String) : CreateHouseState()
-//}
+sealed class UpdateHouseState {
+    data object Idle : UpdateHouseState()
+    data object Loading : UpdateHouseState()
+    data class Success(val message: String, val house: HouseDetail?) : UpdateHouseState()
+    data class Error(val error: String) : UpdateHouseState()
+}
+
+sealed class CreateHouseState {
+    data object Idle : CreateHouseState()
+    data object Loading : CreateHouseState()
+    data class Success(val message: String, val house: HouseDetail1, val space: DefaultSpace) : CreateHouseState()
+    data class Error(val error: String) : CreateHouseState()
+}
 
 @HiltViewModel
 class HouseManagementViewModel @Inject constructor (
     private val fetchHousesUseCase: FetchHousesUseCase,
-//    private val createHouseUseCase: CreateHouseUseCase,
-//    private val updateHouseUseCase: UpdateHouseUseCase,
+    private val createHouseUseCase: CreateHouseUseCase,
+    private val updateHouseUseCase: UpdateHouseUseCase,
 ) : ViewModel() {
     // StateFlow để UI lắng nghe trạng thái
     private val _houseManagementState = MutableStateFlow<HouseManagementState>(HouseManagementState.Idle)
@@ -60,34 +67,37 @@ class HouseManagementViewModel @Inject constructor (
         }
     }
 
-//    private val _updateHouseState = MutableStateFlow<UpdateHouseState>(UpdateHouseState.Idle)
-//    val updateHouseState = _updateHouseState.asStateFlow()
-//
-//    fun updateHouse(houseId: Int, request: UpdateHouseRequest) {
-//        _updateHouseState.value = UpdateHouseState.Loading
-//        viewModelScope.launch {
-//            try {
-//                // Gọi hàm cập nhật từ Repository
-//                val response = repository.updateHouse(houseId, request)
-//                _updateHouseState.value = UpdateHouseState.Success(response.message, response.house)
-//            } catch (e: Exception) {
-//                _updateHouseState.value = UpdateHouseState.Error(e.message ?: "Đã xảy ra lỗi")
-//            }
-//        }
-//    }
-//
-//    private val _createHouseState = MutableStateFlow<CreateHouseState>(CreateHouseState.Idle)
-//    val createHouseState = _createHouseState.asStateFlow()
-//
-//    fun createHouse(request: CreateHouseRequest) {
-//        _createHouseState.value = CreateHouseState.Loading
-//        viewModelScope.launch {
-//            try {
-//                val response = repository.createHouse(request)
-//                _createHouseState.value = CreateHouseState.Success(response.message, response.house, response.space)
-//            } catch (e: Exception) {
-//                _createHouseState.value = CreateHouseState.Error(e.message ?: "Đã xảy ra lỗi")
-//            }
-//        }
-//    }
+    private val _updateHouseState = MutableStateFlow<UpdateHouseState>(UpdateHouseState.Idle)
+    val updateHouseState = _updateHouseState.asStateFlow()
+
+    fun updateHouse(houseId: Int, request: UpdateHouseRequest) {
+        _updateHouseState.value = UpdateHouseState.Loading
+        viewModelScope.launch {
+            updateHouseUseCase(houseId, request).fold(
+                onSuccess = { response ->
+                    _updateHouseState.value = UpdateHouseState.Success(response.message, response.data)
+                },
+                onFailure = { e ->
+                    _updateHouseState.value = UpdateHouseState.Error(e.message ?: "Đã xảy ra lỗi")
+                }
+            )
+        }
+    }
+
+    private val _createHouseState = MutableStateFlow<CreateHouseState>(CreateHouseState.Idle)
+    val createHouseState = _createHouseState.asStateFlow()
+
+    fun createHouse(request: CreateHouseRequest) {
+        _createHouseState.value = CreateHouseState.Loading
+        viewModelScope.launch {
+            createHouseUseCase(request).fold(
+                onSuccess = { response ->
+                    _createHouseState.value = CreateHouseState.Success(response.message, response.house, response.space)
+                },
+                onFailure = { e ->
+                    _createHouseState.value = CreateHouseState.Error(e.message ?: "Đã xảy ra lỗi")
+                }
+            )
+        }
+    }
 }

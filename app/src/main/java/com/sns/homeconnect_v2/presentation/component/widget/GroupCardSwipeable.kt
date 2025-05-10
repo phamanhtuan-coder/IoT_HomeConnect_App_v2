@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -51,6 +52,7 @@ fun GroupCardSwipeable(
     ) {
         Row(
             modifier = Modifier
+                .background(color = Color(0xFFD8E4E8))
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically

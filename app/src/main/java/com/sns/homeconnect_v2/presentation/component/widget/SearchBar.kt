@@ -30,43 +30,45 @@ fun SearchBar(
     onSearch: (String) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
-    val colorScheme = MaterialTheme.colorScheme
 
-    OutlinedTextField(
-        value = searchText,
-        onValueChange = {
-            searchText = it
-            onSearch(it)
-        },
-        placeholder = {
-            Text(
-                text = hint,
-                color = colorScheme.onSurface.copy(alpha = 0.5f),
-                fontSize = 16.sp
+    IoTHomeConnectAppTheme {
+        val colorScheme = MaterialTheme.colorScheme
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = {
+                searchText = it
+                onSearch(it)
+            },
+            placeholder = {
+                Text(
+                    text = hint,
+                    color = colorScheme.onSurface.copy(alpha = 0.5f),
+                    fontSize = 16.sp
+                )
+            },
+            singleLine = true,
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon",
+                    tint = colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+            },
+            modifier = modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = colorScheme.surface,
+                focusedContainerColor = colorScheme.surface,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = colorScheme.primary,
+                cursorColor = colorScheme.primary,
+                unfocusedTextColor = colorScheme.onSurface,
+                focusedTextColor = colorScheme.onSurface
             )
-        },
-        singleLine = true,
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search Icon",
-                tint = colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = colorScheme.surface,
-            focusedContainerColor = colorScheme.surface,
-            unfocusedIndicatorColor = Color.Transparent,
-            focusedIndicatorColor = colorScheme.primary,
-            cursorColor = colorScheme.primary,
-            unfocusedTextColor = colorScheme.onSurface,
-            focusedTextColor = colorScheme.onSurface
         )
-    )
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)

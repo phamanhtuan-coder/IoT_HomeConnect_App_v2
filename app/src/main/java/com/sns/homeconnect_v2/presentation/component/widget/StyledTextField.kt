@@ -49,7 +49,6 @@ fun StyledTextField(
         val colorScheme = MaterialTheme.colorScheme
         var passwordVisible by remember { mutableStateOf(false) }
 
-
         Column(modifier = modifier) {
             OutlinedTextField(
                 value = value,

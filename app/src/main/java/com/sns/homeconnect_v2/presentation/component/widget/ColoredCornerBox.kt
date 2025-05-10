@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.draw.clip
 
 @Composable
 fun ColoredCornerBox(
@@ -24,9 +25,9 @@ fun ColoredCornerBox(
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(bottomStart = cornerRadius))
             .background(
                 color = backgroundColor,
-                shape = RoundedCornerShape(bottomStart = cornerRadius)
             )
     ) {
         content()

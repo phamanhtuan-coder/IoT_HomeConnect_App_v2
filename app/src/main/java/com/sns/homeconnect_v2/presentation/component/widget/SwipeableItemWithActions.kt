@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.presentation.component.widget
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,63 +18,59 @@ import kotlin.math.roundToInt
 @Composable
 fun SwipeableItemWithActions(
     isRevealed: Boolean,
-    actions: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
     onExpanded: () -> Unit = {},
     onCollapsed: () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val offset = remember { Animatable(0f) }
-    val maxSwipeWidthPx = with(LocalDensity.current) { 112.dp.toPx() }
+    val maxSwipe = with(LocalDensity.current) { 112.dp.toPx() }
 
     LaunchedEffect(isRevealed) {
-        if (isRevealed) {
-            offset.animateTo(-maxSwipeWidthPx)
-        } else {
-            offset.animateTo(0f)
-        }
+        if (isRevealed) offset.animateTo(-maxSwipe) else offset.animateTo(0f)
     }
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .padding(horizontal = 16.dp)
             .height(IntrinsicSize.Min)
     ) {
+        // Row with action buttons (edit / delete)
         Row(
             modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            actions()
-        }
+            verticalAlignment = Alignment.CenterVertically,
+            content = actions
+        )
 
+        // Main sliding surface
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .offset { IntOffset(offset.value.roundToInt(), 0) }
-                .pointerInput(maxSwipeWidthPx) {
+                .pointerInput(maxSwipe) {
                     detectHorizontalDragGestures(
-                        onHorizontalDrag = { _, dragAmount ->
+                        onHorizontalDrag = { _, drag ->
                             scope.launch {
-                                val newOffset = (offset.value + dragAmount)
-                                    .coerceIn(-maxSwipeWidthPx, 0f)
+                                val newOffset = (offset.value + drag).coerceIn(-maxSwipe, 0f)
                                 offset.snapTo(newOffset)
                             }
                         },
                         onDragEnd = {
                             scope.launch {
-                                if (offset.value <= -maxSwipeWidthPx / 2f) {
-                                    offset.animateTo(-maxSwipeWidthPx)
-                                    onExpanded()
+                                if (offset.value < -maxSwipe / 2f) {
+                                    offset.animateTo(-maxSwipe); onExpanded()
                                 } else {
-                                    offset.animateTo(0f)
-                                    onCollapsed()
+                                    offset.animateTo(0f); onCollapsed()
                                 }
                             }
                         }
                     )
-                }
+                },
+            shape = RoundedCornerShape(16.dp),
         ) {
             content()
         }

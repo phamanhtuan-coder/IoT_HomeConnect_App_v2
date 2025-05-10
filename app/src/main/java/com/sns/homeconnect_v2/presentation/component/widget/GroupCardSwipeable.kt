@@ -8,17 +8,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun GroupCardSwipeable(
     groupName: String,
+    memberCount: Int,
+    icon: ImageVector = Icons.Default.Group,
+    iconColor: Color = MaterialTheme.colorScheme.primary,
     isRevealed: Boolean,
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
@@ -35,78 +41,88 @@ fun GroupCardSwipeable(
                 backgroundColor = Color(0xFF4CAF50),
                 icon = Icons.Default.Edit
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onDelete,
                 backgroundColor = Color(0xFFF44336),
                 icon = Icons.Default.Delete
             )
-        },
-        content = {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Group,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(text = groupName)
-                }
-            }
         }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GroupCardSwipeablePreview() {
-    MaterialTheme {
-        val groups = remember {
-            mutableStateListOf(
-                GroupUi(id = 1, name = "Gia đình", isRevealed = false),
-                GroupUi(id = 2, name = "Marketing", isRevealed = false),
-                GroupUi(id = 3, name = "Kỹ thuật", isRevealed = false)
-            )
-        }
-
-        LazyColumn(modifier = Modifier.padding(16.dp)) {
-            itemsIndexed(groups) { index, group ->
-                GroupCardSwipeable(
-                    groupName = group.name,
-                    isRevealed = group.isRevealed,
-                    onExpandOnly = {
-                        groups.forEachIndexed { i, g ->
-                            groups[i] = g.copy(isRevealed = i == index)
-                        }
-                    },
-                    onCollapse = {
-                        groups[index] = group.copy(isRevealed = false)
-                    },
-                    onDelete = {
-                        groups.removeAt(index)
-                    },
-                    onEdit = {
-                        // handle edit logic
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(64.dp))
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(groupName, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = Color(0xFFFFC107),
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.padding(end = 6.dp)
+                    ) {
+                        Text(
+                            text = "$memberCount",
+                            color = Color.Black,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        )
                     }
-                )
+                    Text(
+                        text = "Thành viên",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize),
+                        color = Color.Black
+                    )
+                }
             }
         }
     }
 }
 
-// 🛠 Mô phỏng đối tượng nhóm
+@Preview(showBackground = true)
+@Composable
+fun GroupCardSwipeablePreview() {
+    val groups = remember {
+        mutableStateListOf(
+            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue),
+            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red),
+            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green)
+        )
+    }
+
+    LazyColumn {
+        itemsIndexed(groups) { index, group ->
+            Spacer(Modifier.height(8.dp))
+            GroupCardSwipeable(
+                groupName = group.name,
+                memberCount = group.members,
+                icon = group.icon,
+                iconColor = group.iconColor,
+                isRevealed = group.isRevealed,
+                onExpandOnly = {
+                    groups.indices.forEach { i ->
+                        groups[i] = groups[i].copy(isRevealed = i == index)
+                    }
+                },
+                onCollapse = {
+                    groups[index] = group.copy(isRevealed = false)
+                },
+                onDelete = { groups.removeAt(index) },
+                onEdit = { /* TODO */ }
+            )
+        }
+    }
+}
+
 data class GroupUi(
     val id: Int,
     val name: String,
-    val isRevealed: Boolean
+    val members: Int,
+    val isRevealed: Boolean,
+    val icon: ImageVector,
+    val iconColor: Color
 )

@@ -82,9 +82,9 @@ fun SearchBarPreview() {
         ) {
             SearchBar(
                 modifier = Modifier
-                    .width(300.dp), // hoặc .fillMaxWidth(0.8f)
+                    .width(300.dp),
                 onSearch = { query ->
-                    // Không cần xử lý trong preview
+                    /* TODO: điều kiện search */
                 }
             )
         }

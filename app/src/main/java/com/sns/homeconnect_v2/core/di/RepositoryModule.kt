@@ -49,6 +49,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -238,6 +239,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideGetListHouseUseCase(houseRepository: HouseRepository): GetListHouseUseCase {
             return GetListHouseUseCase(houseRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideFetchHousesUseCase(houseRepository: HouseRepository): FetchHousesUseCase {
+            return FetchHousesUseCase(houseRepository)
         }
 
         @Provides

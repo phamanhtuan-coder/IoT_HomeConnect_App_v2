@@ -19,6 +19,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.HouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
@@ -193,6 +194,12 @@ interface ApiService {
     ): ChangePasswordResponse
 
 
+    @GET("/api/houses")
+    suspend fun getHouses(
+        @Header("Authorization") token: String
+    ): List<HousesListResponse>
+
+
 //    @GET("/api/statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,
@@ -232,12 +239,7 @@ interface ApiService {
 //        @Path("deviceId") deviceId: Int,
 //        @Header("Authorization") token: String
 //    ): WeeklyAverageSensorResponse
-//
-//    @GET("/api/houses")
-//    suspend fun getHouses(
-//        @Header("Authorization") token: String
-//    ): List<HousesListPesponse>
-//
+
 //    @PUT("/api/houses/{houseId}")
 //    suspend fun updateHouse(
 //        @Path("houseId") houseId: Int,

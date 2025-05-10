@@ -12,6 +12,7 @@ import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
+import com.sns.homeconnect_v2.presentation.screen.house.HouseManagementScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.LinkDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.AccessPointConnectionScreen
@@ -159,6 +160,12 @@ fun NavigationGraph(navController: NavHostController) {
                 val screen = DeviceScreenFactory.getScreen(typeID)
                 screen(navController, id)
             }
+
+            //House Management Screen
+            composable(Screens.HouseManagement.route) {
+                HouseManagementScreen(navController)
+            }
+
         }
     }
 }

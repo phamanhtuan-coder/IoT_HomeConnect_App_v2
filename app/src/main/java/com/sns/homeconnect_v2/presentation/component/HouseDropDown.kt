@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.gms.common.util.DeviceProperties.isTablet
-import com.sns.homeconnect_v2.data.remote.dto.response.HouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.House
+import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.presentation.viewmodel.component.HouseDropDownViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.component.HouseState
 import com.sns.homeconnect_v2.presentation.viewmodel.component.SharedViewModel
@@ -60,41 +61,38 @@ fun HouseSelection(
     sharedViewModel: SharedViewModel = hiltViewModel(),
     houseDropDownViewModel: HouseDropDownViewModel = hiltViewModel(),
     onTabSelected: (Int) -> Unit,
-    onManageHouseClicked: () -> Unit = {} // Callback for managing house
+    onManageHouseClicked: () -> Unit = {}
 ) {
-    val isTablet =
-        isTablet(LocalContext.current) // Kiểm tra xem thiết bị có phải là tablet hay không
+    val isTablet = isTablet(LocalContext.current)
     IoTHomeConnectAppTheme {
-        var houses by remember { mutableStateOf<List<HouseResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
-
+        var houses by remember { mutableStateOf<List<HouseResponse>>(emptyList()) }
         val housesListState by houseDropDownViewModel.houseListState.collectAsState()
-        LaunchedEffect(1) {
-//        selectedSpaceId?.let { spaceId ->
-//            viewModel.loadDevices(spaceId) // Tải danh sách thiết bị khi Space thay đổi
-//        }
+
+        LaunchedEffect(Unit) {
             houseDropDownViewModel.getListHouse()
         }
+
         var selectedItem by remember {
-            mutableStateOf(HouseResponse(HouseID = -1, Name = "Không có nhà"))
+            mutableStateOf(House(houseId = -1, name = "Không có nhà", address = ""))
         }
 
         when (housesListState) {
             is HouseState.Error -> {
                 Log.d("Error", (housesListState as HouseState.Error).error)
             }
-
             is HouseState.Success -> {
                 houses = (housesListState as HouseState.Success).houseList
                 Log.d("List House", houses.toString())
 
-                // Kiểm tra nếu danh sách `houses` trống
-                if (houses.isNotEmpty() && selectedItem.HouseID == -1) {
-                    selectedItem = houses.first()  // Mặc định chọn item đầu tiên
-                    onTabSelected(selectedItem.HouseID)
-                    sharedViewModel.setHouseId(selectedItem.HouseID)
+                if (houses.isNotEmpty() && selectedItem.houseId == -1) {
+                    val firstHouse = houses.first().data
+                    if (firstHouse != null) {
+                        selectedItem = firstHouse
+                        onTabSelected(firstHouse.houseId)
+                        sharedViewModel.setHouseId(firstHouse.houseId)
+                    }
                 }
             }
-
             else -> {
                 /* Do nothing */
             }
@@ -122,11 +120,11 @@ fun HouseSelection(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = selectedItem.Name,
+                        text = selectedItem.name,
                         color = colorScheme.onSurface,
                         fontSize = 18.sp
                     )
-                    Log.d("SelectedItem", "Name: ${selectedItem.Name}, ID: ${selectedItem.HouseID}")
+                    Log.d("SelectedItem", "Name: ${selectedItem.name}, ID: ${selectedItem.houseId}")
                     Icon(
                         imageVector = if (isDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                         contentDescription = null,
@@ -143,21 +141,24 @@ fun HouseSelection(
                         .background(colorScheme.surfaceVariant)
                         .padding(vertical = 4.dp)
                 ) {
-                    houses.forEach { house ->
-                        Text(
-                            text = house.Name,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedItem = house // Cập nhật `selectedItem`
-                                    onTabSelected(house.HouseID) // Gọi callback để xử lý
-                                    sharedViewModel.setHouseId(house.HouseID) // Lưu trạng thái
-                                    isDropdownExpanded = false // Đóng dropdown
-                                }
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            fontSize = 16.sp,
-                            color = colorScheme.onSurface
-                        )
+                    houses.forEach { houseResponse ->
+                        val house = houseResponse.data
+                        if (house != null) {
+                            Text(
+                                text = house.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedItem = house
+                                        onTabSelected(house.houseId)
+                                        sharedViewModel.setHouseId(house.houseId)
+                                        isDropdownExpanded = false
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                fontSize = 16.sp,
+                                color = colorScheme.onSurface
+                            )
+                        }
                     }
 
                     Box(

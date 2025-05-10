@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.compose.material:material:1.6.0")
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
     kapt(libs.jetbrains.kotlinx.metadata.jvm)

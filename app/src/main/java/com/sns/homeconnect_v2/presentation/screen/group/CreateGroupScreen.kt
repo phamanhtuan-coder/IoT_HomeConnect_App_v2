@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import com.sns.homeconnect_v2.presentation.component.ColorPicker
+import com.sns.homeconnect_v2.presentation.component.IconPicker
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -23,6 +25,8 @@ fun CreateGroupScreen() {
     val scope = rememberCoroutineScope()
 
     // ---------------- icon + color state ----------------
+    var selectedLabel by remember { mutableStateOf("Nhà") }
+
     val iconOptions = listOf(
         Icons.Default.Home      to "Nhà",
         Icons.Default.Work      to "Cơ quan",
@@ -35,16 +39,21 @@ fun CreateGroupScreen() {
         Icons.Default.Castle        to "Lâu đài",
         Icons.Default.LocalLibrary  to "Thư viện"
     )
-    var selectedIcon by remember { mutableStateOf(iconOptions.first().first) }
+
+    var selectedColor by remember { mutableStateOf("blue") }
 
     val colorOptions = listOf(
-        Color.Red,
-        Color(0xFF00FF00),
-        Color.Blue,
-        Color.Yellow,
-        Color.Cyan
+        Color.Red to "red",
+        Color.Green to "green",
+        Color.Blue to "blue",
+        Color.Yellow to "yellow",
+        Color.Cyan to "cyan",
+        Color.Magenta to "magenta",
+        Color.Gray to "gray",
+        Color.Black to "black",
+        Color.White to "white",
+        Color(0xFF2196F3) to "customBlue"
     )
-    var selectedColor by remember { mutableStateOf(colorOptions.first()) }
 
     IoTHomeConnectAppTheme {
         Scaffold(
@@ -98,8 +107,8 @@ fun CreateGroupScreen() {
                 item {
                     IconPicker(
                         iconOptions = iconOptions,
-                        selectedIcon = selectedIcon,
-                        onIconSelected = { selectedIcon = it }
+                        selectedIconLabel = selectedLabel,
+                        onIconSelected = { selectedLabel = it }
                     )
                 }
 
@@ -107,8 +116,8 @@ fun CreateGroupScreen() {
                 item {
                     Spacer(Modifier.height(8.dp))
                     ColorPicker(
-                        colorOptions = colorOptions,
-                        selectedColor = selectedColor,
+                        colors = colorOptions,
+                        selectedColorLabel = selectedColor,
                         onColorSelected = { selectedColor = it }
                     )
                     Spacer(Modifier.height(32.dp))

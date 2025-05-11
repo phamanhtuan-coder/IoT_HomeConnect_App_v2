@@ -65,10 +65,28 @@ fun CreateGroupScreen() {
                         Box(
                             modifier = Modifier
                                 .padding(vertical = 12.dp)
-                                .height(56.dp)
+                                .height(IntrinsicSize.Min)
                                 .fillMaxWidth(),
                             contentAlignment = Alignment.Center
-                        ) {}
+                        ) {
+                            Column {
+                                StyledTextField(
+                                    value = groupName,
+                                    onValueChange = { groupName = it },
+                                    placeholderText = "Nhập tên nhóm",
+                                    leadingIcon = Icons.Default.People,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                StyledTextField(
+                                    value = groupDesc,
+                                    onValueChange = { groupDesc = it },
+                                    placeholderText = "Mô tả của group",
+                                    leadingIcon = Icons.Default.NoteAlt,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
                     }
                     InvertedCornerHeader(
                         backgroundColor = Color.White,
@@ -76,33 +94,7 @@ fun CreateGroupScreen() {
                     ) {}
                 }
 
-                item {
-                    StyledTextField(
-                        value = groupName,
-                        onValueChange = { groupName = it },
-                        placeholderText = "Nhập tên nhóm",
-                        leadingIcon = Icons.Default.People,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    StyledTextField(
-                        value = groupDesc,
-                        onValueChange = { groupDesc = it },
-                        placeholderText = "Mô tả của group",
-                        leadingIcon = Icons.Default.NoteAlt,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                }
-
                 // ---------- icon picker ----------
-                item {
-                    Text(
-                        text = "Chọn biểu tượng:",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
                 item {
                     IconPicker(
                         iconOptions = iconOptions,
@@ -130,6 +122,7 @@ fun CreateGroupScreen() {
                         onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
+                    Spacer(Modifier.height(8.dp))
                     ActionButtonWithFeedback(
                         label = "Huỷ bỏ",
                         style = HCButtonStyle.SECONDARY,

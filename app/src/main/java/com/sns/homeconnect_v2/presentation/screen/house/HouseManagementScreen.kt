@@ -2,9 +2,6 @@ package com.sns.homeconnect_v2.presentation.screen.house
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,16 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -52,14 +45,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -68,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
@@ -420,36 +412,39 @@ fun AddHousePopup(
     onAddOrUpdateHouse: (String, String, String, String) -> Unit,
     isTablet: Boolean
 ) {
-    val icons = listOf(
-        Pair(Icons.Default.Home, "Nhà"),
-        Pair(Icons.Default.Work, "Cơ quan"),
-        Pair(Icons.Default.School, "Trường"),
-        Pair(Icons.Default.AccountBalance, "Ngân hàng"),
-        Pair(Icons.Default.Apartment, "Căn hộ"),
-        Pair(Icons.Default.Hotel, "Khách sạn"),
-        Pair(Icons.Default.Villa, "Biệt thự"),
-        Pair(Icons.Default.Cottage, "Nhà gỗ"),
-        Pair(Icons.Default.Castle, "Lâu đài"),
-        Pair(Icons.Default.LocalLibrary, "Thư viện")
+    val selectedLabel = remember { mutableStateOf("Nhà") }
+    val selectedColor = remember { mutableStateOf("blue") }
+
+
+    val iconOptions = listOf(
+        Icons.Default.Home      to "Nhà",
+        Icons.Default.Work      to "Cơ quan",
+        Icons.Default.School    to "Trường",
+        Icons.Default.AccountBalance to "Ngân hàng",
+        Icons.Default.Apartment     to "Căn hộ",
+        Icons.Default.Hotel         to "Khách sạn",
+        Icons.Default.Villa         to "Biệt thự",
+        Icons.Default.Cottage       to "Nhà gỗ",
+        Icons.Default.Castle        to "Lâu đài",
+        Icons.Default.LocalLibrary  to "Thư viện"
     )
 
-    val colors = listOf(
-        Pair(Color.Red, "red"),
-        Pair(Color.Green, "green"),
-        Pair(Color.Blue, "blue"),
-        Pair(Color.Yellow, "yellow"),
-        Pair(Color.Cyan, "cyan"),
-        Pair(Color.Magenta, "magenta"),
-        Pair(Color.Gray, "gray"),
-        Pair(Color.Black, "black"),
-        Pair(Color.White, "white"),
-        Pair(Color(0xFF2196F3), "customBlue")
+    val colorOptions = listOf(
+        Color.Red to "red",
+        Color.Green to "green",
+        Color.Blue to "blue",
+        Color.Yellow to "yellow",
+        Color.Cyan to "cyan",
+        Color.Magenta to "magenta",
+        Color.Gray to "gray",
+        Color.Black to "black",
+        Color.White to "white",
+        Color(0xFF2196F3) to "customBlue"
     )
 
     val houseName = remember { mutableStateOf(houseData.name) }
     val houseAddress = remember { mutableStateOf(houseData.address) }
     val selectedIcon = remember { mutableStateOf(houseData.iconName) }
-    val selectedColor = remember { mutableStateOf(houseData.iconColor.lowercase()) }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -527,16 +522,58 @@ fun AddHousePopup(
                             modifier = Modifier.fillMaxWidth()
                         )
                         IconPicker(
-                            icons = icons,
-                            selectedIcon = selectedIcon
+                            iconOptions = iconOptions,
+                            selectedIconLabel = selectedLabel.value,
+                            onIconSelected = { selectedLabel.value = it }
                         )
                         ColorPicker(
-                            colors = colors,
-                            selectedColor = selectedColor
+                            colors = colorOptions,
+                            selectedColorLabel = selectedColor.value,
+                            onColorSelected = { selectedColor.value = it }
                         )
                     }
                 }
             }
         )
     }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun PreviewCardHouse() {
+    val sampleHouse = HousesListResponse(
+        houseId = 1,
+        name = "Nhà mẫu",
+        address = "123 Đường ABC, TP.HCM",
+        iconName = "Nhà",
+        iconColor = "customBlue",
+        spaces = emptyList()
+    )
+
+    CardHouse(
+        isTablet = false,
+        house = sampleHouse,
+        onEdit = {}
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+fun PreviewAddHousePopup() {
+    val sampleHouse = HousesListResponse(
+        houseId = 0,
+        name = "",
+        address = "",
+        iconName = "Nhà",
+        iconColor = "customBlue",
+        spaces = emptyList()
+    )
+
+    AddHousePopup(
+        houseData = sampleHouse,
+        isEditing = false,
+        onDismiss = {},
+        onAddOrUpdateHouse = { name, address, icon, color -> },
+        isTablet = false
+    )
 }

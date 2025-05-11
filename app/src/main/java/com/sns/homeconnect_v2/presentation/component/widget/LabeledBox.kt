@@ -7,11 +7,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -23,8 +23,6 @@ fun LabeledBox(
     value: String
 ) {
     IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
-
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -33,12 +31,12 @@ fun LabeledBox(
             Box(
                 modifier = Modifier
                     .size(24.dp)
-                    .background(colorScheme.primary, RoundedCornerShape(4.dp)),
+                    .background(color = Color(0xFF3A4750), RoundedCornerShape(4.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = value,
-                    color = colorScheme.onPrimary,
+                    color = Color.White,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )

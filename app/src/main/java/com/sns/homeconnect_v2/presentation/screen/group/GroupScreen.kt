@@ -71,67 +71,67 @@ fun GroupScreen(modifier: Modifier = Modifier) {
             Column (
                 modifier= Modifier.padding(inner)
             ) {
-            ColoredCornerBox(
-                backgroundColor = Color(0xFF3A4750),
-                cornerRadius = 40.dp
-            ) {
-                Box(
-                    modifier = Modifier
-                        .padding(vertical = 12.dp)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                ColoredCornerBox(
+                    backgroundColor = Color(0xFF3A4750),
+                    cornerRadius = 40.dp
                 ) {
-                    SearchBar(
+                    Box(
                         modifier = Modifier
-                            .width(300.dp),
-                        onSearch = { query ->
-                            /* TODO: điều kiện search */
-                        }
-                    )
-                }
-            }
-            InvertedCornerHeader(
-                backgroundColor = Color.White,
-                overlayColor = Color(0xFF3A4750)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    LabeledBox(
-                        label = "Số nhóm",
-                        value = "4"
-                    )
-                }
-            }
-            LazyColumn(modifier = modifier
-                .fillMaxSize()
-            ) {
-                itemsIndexed(groups) { index, group ->
-                    Spacer(Modifier.height(8.dp))
-                    GroupCardSwipeable(
-                        groupName = group.name,
-                        memberCount = group.members,
-                        icon = group.icon,
-                        iconColor = group.iconColor,
-                        isRevealed = group.isRevealed,
-                        onExpandOnly = {
-                            groups.indices.forEach { i ->
-                                groups[i] = groups[i].copy(isRevealed = i == index)
+                            .padding(horizontal = 16.dp, vertical = 16.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        SearchBar(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            onSearch = { query ->
+                                /* TODO: điều kiện search */
                             }
-                        },
-                        onCollapse = {
-                            groups[index] = group.copy(isRevealed = false)
-                        },
-                        onDelete = { groups.removeAt(index) },
-                        onEdit = { /* TODO */ }
-                    )
+                        )
+                    }
+                }
+                InvertedCornerHeader(
+                    backgroundColor = Color.White,
+                    overlayColor = Color(0xFF3A4750)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        LabeledBox(
+                            label = "Số nhóm",
+                            value = "4"
+                        )
+                    }
+                }
+                LazyColumn(modifier = modifier
+                    .fillMaxSize()
+                ) {
+                    itemsIndexed(groups) { index, group ->
+                        Spacer(Modifier.height(8.dp))
+                        GroupCardSwipeable(
+                            groupName = group.name,
+                            memberCount = group.members,
+                            icon = group.icon,
+                            iconColor = group.iconColor,
+                            isRevealed = group.isRevealed,
+                            onExpandOnly = {
+                                groups.indices.forEach { i ->
+                                    groups[i] = groups[i].copy(isRevealed = i == index)
+                                }
+                            },
+                            onCollapse = {
+                                groups[index] = group.copy(isRevealed = false)
+                            },
+                            onDelete = { groups.removeAt(index) },
+                            onEdit = { /* TODO */ }
+                        )
+                    }
                 }
             }
-        }
         }
     }
 }

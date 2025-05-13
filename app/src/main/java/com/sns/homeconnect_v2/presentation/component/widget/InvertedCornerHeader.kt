@@ -6,12 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,11 +22,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
+
 
 @Composable
 fun InvertedCornerHeader(
@@ -37,42 +40,39 @@ fun InvertedCornerHeader(
     overlayColor: Color,
     content: @Composable () -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        // Box dưới (overlay để tạo cảm giác lõm)
+    var contentHeightPx by remember { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    val contentHeightDp = maxOf(with(density) { contentHeightPx.toDp() }, 40.dp)
+
+    Box(modifier = modifier.fillMaxWidth()) {
+
+        // ✅ Overlay màu xanh đậm, luôn có kích thước vuông bằng với box dưới
         Box(
             modifier = Modifier
-                .width(40.dp)
-                .height(40.dp)
+                .size(contentHeightDp)
                 .align(Alignment.TopEnd)
                 .background(overlayColor)
                 .zIndex(1f)
         )
 
-        // Box trên có bo góc lõm
+        // ✅ Nền trắng với chiều cao tối thiểu 40.dp và có thể dãn
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .defaultMinSize(minHeight = 40.dp)
+                .onSizeChanged { contentHeightPx = it.height }
+                .clip(RoundedCornerShape(topEndPercent = topEndCornerPercent))
                 .background(
                     color = backgroundColor,
                     shape = RoundedCornerShape(topEndPercent = topEndCornerPercent)
                 )
                 .zIndex(2f)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topEndPercent = 100))
-            ) {
-                content()
-            }
+            content()
         }
     }
 }
+
 
 @Preview(showBackground = true, name = "InvertedCornerHeader Preview")
 @Composable

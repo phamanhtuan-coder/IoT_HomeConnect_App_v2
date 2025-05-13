@@ -61,12 +61,14 @@ fun SearchBar(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = colorScheme.surface,
                 focusedContainerColor = colorScheme.surface,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = colorScheme.primary,
+                focusedIndicatorColor = colorScheme.primary,       // viền khi focus
+                unfocusedIndicatorColor = colorScheme.outline,     // viền khi chưa focus
                 cursorColor = colorScheme.primary,
                 unfocusedTextColor = colorScheme.onSurface,
                 focusedTextColor = colorScheme.onSurface
             )
+
+
         )
     }
 }

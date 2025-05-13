@@ -12,14 +12,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.IconPicker
+import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateGroupScreen() {
+fun CreateGroupScreen(navController: NavHostController) {
     var groupName by remember { mutableStateOf("") }
     var groupDesc by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -55,9 +62,64 @@ fun CreateGroupScreen() {
         Color(0xFF2196F3) to "customBlue"
     )
 
+    val items = listOf(
+        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
+        "Devices" to Pair(Icons.Filled.Devices, "devices"),
+        "Home" to Pair(Icons.Filled.Home, "home"),
+        "Profile" to Pair(Icons.Filled.Person, "profile"),
+        "Settings" to Pair(Icons.Filled.Settings, "settings")
+    )
+    val context = LocalContext.current
+    val isTablet = isTablet(context)
+
+    // Track the last selected route
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+
     IoTHomeConnectAppTheme {
+        val colorScheme = MaterialTheme.colorScheme
+
         Scaffold(
+            topBar = {
+                Header(
+                    navController = navController,
+                    type          = "Back",
+                    title         = "Settings"
+                )
+            },
             containerColor = Color.White,
+            bottomBar = {
+                BottomAppBar(
+                    tonalElevation = 4.dp,
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.height(120.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        items.forEach { item ->
+                            val isSelected = currentRoute == item.second.second
+                            MenuItem(
+                                text = item.first,
+                                icon = item.second.first,
+                                isSelected = isSelected,
+                                onClick = {
+                                    navController.navigate(item.second.second) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                isTablet = isTablet,
+                            )
+                        }
+                    }
+                }
+            }
         ) { inner ->
             LazyColumn(
                 modifier = Modifier
@@ -68,7 +130,6 @@ fun CreateGroupScreen() {
             ) {
                 item {
                     ColoredCornerBox(
-                        backgroundColor = Color(0xFF3A4750),
                         cornerRadius = 40.dp
                     ) {
                         Box(
@@ -98,8 +159,8 @@ fun CreateGroupScreen() {
                         }
                     }
                     InvertedCornerHeader(
-                        backgroundColor = Color.White,
-                        overlayColor = Color(0xFF3A4750)
+                        backgroundColor = colorScheme.surface,
+                        overlayColor = colorScheme.primary
                     ) {}
                 }
 
@@ -144,8 +205,12 @@ fun CreateGroupScreen() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "CreateGroupScreen Preview - Phone")
 @Composable
-fun CreateGroupScreenPreview() {
-    CreateGroupScreen()
+fun CreateGroupScreenPhonePreview() {
+    IoTHomeConnectAppTheme {
+        CreateGroupScreen(navController = rememberNavController())
+    }
 }
+
+

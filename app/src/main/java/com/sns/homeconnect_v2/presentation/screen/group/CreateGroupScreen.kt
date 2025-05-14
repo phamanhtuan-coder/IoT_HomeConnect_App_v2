@@ -74,7 +74,6 @@ fun CreateGroupScreen(navController: NavHostController) {
 
     // Track the last selected route
     val currentRoute = navController.currentBackStackEntry?.destination?.route
-
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 

@@ -38,7 +38,7 @@ fun GenericDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val bgColor = Color.White
-    val dropdownWidth = remember { mutableStateOf(0)}
+    val dropdownWidth = remember { mutableStateOf(0) }
     val localDensity = LocalDensity.current
 
     Column(modifier = modifier) {
@@ -49,8 +49,8 @@ fun GenericDropdown(
                     dropdownWidth.value = coordinates.size.width
                 }
                 .fillMaxWidth()
-                .height(56.dp)                       // SearchBar‑like height
-                .clip(RoundedCornerShape(12.dp))     // Same radius
+                .height(56.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
                 .background(bgColor)
                 .clickable { expanded = !expanded }
@@ -58,19 +58,18 @@ fun GenericDropdown(
             contentAlignment = Alignment.CenterStart
         ) {
             Row {
-                /* Text hoặc placeholder */
                 Text(
                     text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
-                    fontSize = 16.sp,
+                    fontSize = 26.sp, // Tăng từ 16.sp lên 26.sp
                     color = if (selectedItem.isNullOrBlank()) Color.Gray else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
 
-                /* Mũi tên cuối cùng */
                 Icon(
                     imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.size(56.dp)
                 )
             }
         }
@@ -88,7 +87,7 @@ fun GenericDropdown(
                     text = {
                         Text(
                             text = item,
-                            fontSize = 16.sp,
+                            fontSize = 26.sp, // Tăng từ 16.sp lên 26.sp
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     },

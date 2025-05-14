@@ -9,27 +9,37 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 
 @Composable
-fun DetailGroupScreen() {
+fun DetailGroupScreen(navController: NavHostController) {
     /* ---------------------------------------------------------
        1.  Toàn bộ dữ liệu “cứng” đưa thành biến ở đầu hàm.
            Khi dùng ViewModel, bạn chỉ cần thay thế giá trị cho
            các biến này (hoặc truyền chúng qua tham số).
     ----------------------------------------------------------*/
+    val selectedIcon = Icons.Default.Home
+
     val groupName        = "Family Group"
     val groupDescription = "Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group "
     val users = listOf(
@@ -39,17 +49,24 @@ fun DetailGroupScreen() {
         Triple("Phạm Thị D" , "Member", ""),
         Triple("Hoàng Văn E", "Member", "https://i.pravatar.cc/150?img=20")
     )
-    val groupAvatars: List<String> =
-        users
-            .map { it.third }
-            .filter { it.isNotBlank() }
-            .take(3)
-            .let { list ->
-                List(3) { index -> list.getOrNull(index) ?: "" }
-            }
 
     val memberCount = users.size.toString()
 
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabTitles = listOf("Thành viên", "Nhà")
+
+    val items = listOf(
+        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
+        "Devices" to Pair(Icons.Filled.Devices, "devices"),
+        "Home" to Pair(Icons.Filled.Home, "home"),
+        "Profile" to Pair(Icons.Filled.Person, "profile"),
+        "Settings" to Pair(Icons.Filled.Settings, "settings")
+    )
+    val context = LocalContext.current
+    val isTablet = isTablet(context)
+
+    // Track the last selected route
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
     /* ---------------------------------------------------------
        2.  State chỉ dùng cho UI (điều khiển swipe).
     ----------------------------------------------------------*/
@@ -68,7 +85,35 @@ fun DetailGroupScreen() {
        4.  UI chính
     ----------------------------------------------------------*/
     IoTHomeConnectAppTheme {
+        val fabChildren = listOf(
+            FabChild(
+                icon = Icons.Default.Edit,
+                onClick = { /* TODO: sửa */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            ),
+            FabChild(
+                icon = Icons.Default.Delete,
+                onClick = { /* TODO: xoá */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            ),
+            FabChild(
+                icon = Icons.Default.Share,
+                onClick = { /* TODO: share */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            )
+        )
+
         Scaffold(
+            topBar = {
+                Header(
+                    navController = navController,
+                    type          = "Back",
+                    title         = "Settings"
+                )
+            },
             containerColor = Color.White,
             floatingActionButton = {
                 RadialFab(
@@ -79,7 +124,40 @@ fun DetailGroupScreen() {
                     onParentClick    = { /* thêm thành viên */ }
                 )
             },
-            floatingActionButtonPosition = FabPosition.End
+            floatingActionButtonPosition = FabPosition.End,
+            bottomBar = {
+                BottomAppBar(
+                    tonalElevation = 4.dp,
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier.height(120.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        items.forEach { item ->
+                            val isSelected = currentRoute == item.second.second
+                            MenuItem(
+                                text = item.first,
+                                icon = item.second.first,
+                                isSelected = isSelected,
+                                onClick = {
+                                    navController.navigate(item.second.second) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                isTablet = isTablet,
+                            )
+                        }
+                    }
+                }
+            }
         ) { innerPadding ->
             Column(
                 modifier = Modifier
@@ -90,7 +168,6 @@ fun DetailGroupScreen() {
 
                 /* ------------ HEADER MÀU ĐẬM (có góc bo) -------------- */
                 ColoredCornerBox(
-                    backgroundColor = Color(0xFF3A4750),
                     cornerRadius    = 40.dp
                 ) {
                     Column(
@@ -98,7 +175,6 @@ fun DetailGroupScreen() {
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
-
                         /* ----- Thông tin tên & mô tả group ----- */
                         Box(
                             modifier = Modifier
@@ -113,7 +189,7 @@ fun DetailGroupScreen() {
                                 // Tên
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = Icons.Default.Groups,
+                                        imageVector = selectedIcon,
                                         contentDescription = "Group Icon",
                                         tint = Color.White,
                                         modifier = Modifier.size(32.dp)
@@ -155,107 +231,91 @@ fun DetailGroupScreen() {
                                 }
                             }
 
-                            /*  Phần phải: avatar chồng lên nhau  */
-                            Row(
+                            Column (
                                 modifier = Modifier
-                                    .align(Alignment.CenterEnd)
-                                    .padding(end = 16.dp),
-                                horizontalArrangement = Arrangement.spacedBy((-12).dp)
+                                    .align(Alignment.CenterEnd),
                             ) {
-                                groupAvatars.forEach { url ->
-                                    if (url.isNotBlank()) {
-                                        Image(
-                                            painter = rememberAsyncImagePainter(url),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(36.dp)
-                                                .clip(CircleShape)
-                                                .background(Color.Black.copy(alpha = 0.2f))
-                                        )
-                                    } else {
-                                        Icon(
-                                            imageVector = Icons.Default.Person,
-                                            contentDescription = "Default avatar",
-                                            tint  = Color.White,
-                                            modifier = Modifier
-                                                .size(36.dp)
-                                                .clip(CircleShape)
-                                                .background(Color.DarkGray)
-                                                .padding(6.dp)
-                                        )
-                                    }
+                                /*  Phần phải: avatar chồng lên nhau  */
+                                IconButton(
+                                    onClick = { /* TODO: rời group */ },
+                                    modifier = Modifier
+                                        .align(Alignment.End)
+                                        .size(76.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ExitToApp,
+                                        contentDescription = "Exit group",
+                                        tint = Color.Red,
+                                        modifier = Modifier.size(46.dp)
+                                    )
                                 }
                             }
-                        }
-
-                        /* ----- SearchBar ----- */
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            SearchBar(
-                                modifier = Modifier
-                                    .padding(bottom = 16.dp)
-                                    .fillMaxWidth(),
-                                onSearch = { /* TODO: xử lý search */ }
-                            )
                         }
                     }
                 }
 
                 /* ------------ KHUNG TRẮNG BO GÓC NGƯỢC -------------- */
                 InvertedCornerHeader(
-                    backgroundColor = Color.White,
-                    overlayColor    = Color(0xFF3A4750)
+                    backgroundColor = colorScheme.surface,
+                    overlayColor = colorScheme.primary
                 ) {
-                    Row(
+                    CustomTabRow(
+                        tabs = tabTitles,
+                        selectedTabIndex = selectedTab,
+                        onTabSelected = { selectedTab = it },
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    // --- thanh tìm kiếm ---
+                    SearchBar(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        onSearch = { /* TODO */ }
+                    )
 
-                        LabeledBox(
-                            label = "Số lượng thành viên",
-                            value = memberCount
-                        )
+                    Spacer(Modifier.height(8.dp))
 
-                        IconButton(
-                            onClick = { /* TODO: rời group */ },
-                            modifier = Modifier.size(36.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ExitToApp,
-                                contentDescription = "Exit group",
-                                tint  = Color(0xFF3A4750),
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
+                    // --- hàng thống kê ---
+                    LabeledBox(
+                        label = "Số lượng thành viên",
+                        value = memberCount,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
                 }
 
                 /* ------------ DANH SÁCH THÀNH VIÊN -------------- */
+                val bottomPadding = innerPadding.calculateBottomPadding()
+
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(),                // tránh gesture-bar nếu có
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(
+                        bottom = bottomPadding-32.dp       // ❶  đẩy cao hơn BottomBar/FAB
+                    )
                 ) {
                     items(users.size) { index ->
                         val (name, role, avatar) = users[index]
                         UserCardSwipeable(
-                            userName   = name,
-                            role       = role,
-                            avatarUrl  = avatar,
-                            isRevealed = revealStates[index].value,
+                            userName    = name,
+                            role        = role,
+                            avatarUrl   = avatar,
+                            isRevealed  = revealStates[index].value,
                             onExpandOnly = {
                                 revealStates.forEachIndexed { i, state ->
                                     state.value = i == index
                                 }
                             },
                             onCollapse = { revealStates[index].value = false },
-                            onDelete   = { /* TODO: xoá user */ },
-                            onEdit     = { /* TODO: chỉnh sửa role */ }
+                            onDelete   = { /* xoá user */ },
+                            onEdit     = { /* chỉnh sửa role */ }
                         )
                     }
                 }
@@ -264,8 +324,13 @@ fun DetailGroupScreen() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(
+    name          = "Phone – 360 × 800",
+    showBackground = true,
+    widthDp       = 360,
+    heightDp      = 800
+)
 @Composable
-fun DetailGroupScreenPreview() {
-    DetailGroupScreen()
+fun DetailGroupPhonePreview() {
+    DetailGroupScreen(navController = rememberNavController())
 }

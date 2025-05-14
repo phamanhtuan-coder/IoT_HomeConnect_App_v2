@@ -81,7 +81,7 @@ fun UserCardSwipeable(
 }
 
 @Composable
-private fun UserAvatar(avatarUrl: String) {
+fun UserAvatar(avatarUrl: String) {
     if (avatarUrl.isBlank()) {
         Box(
             modifier = Modifier

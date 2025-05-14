@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,38 +22,51 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun LabeledBox(
     label: String,
-    value: String
+    value: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,          // màu nền mặc định
+    textColor: Color = Color.White,            // màu chữ mặc định
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp)
 ) {
-    IoTHomeConnectAppTheme {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = "$label:",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        )
+
+        Box(
+            modifier = Modifier
+                .size(28.dp)                    // tăng nhẹ cho dễ đọc
+                .background(color, shape),
+            contentAlignment = Alignment.Center
         ) {
-            Text(text = "$label:", fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(color = Color(0xFF3A4750), RoundedCornerShape(4.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = value,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                text = value,
+                color = textColor,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
 
-@Preview(showBackground = true, name = "LabeledBox Preview")
+
+@Preview(showBackground = true)
 @Composable
 fun LabeledBoxPreview() {
     IoTHomeConnectAppTheme {
         LabeledBox(
             label = "Số lượng thiết bị",
-            value = "4"
+            value = "4",
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

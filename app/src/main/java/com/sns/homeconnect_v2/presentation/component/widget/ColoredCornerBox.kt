@@ -14,19 +14,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
 
 @Composable
 fun ColoredCornerBox(
-    backgroundColor: Color = MaterialTheme.colorScheme.primary, // ✅ dùng colorScheme
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     cornerRadius: Dp = 40.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = 57.dp)
             .clip(RoundedCornerShape(bottomStart = cornerRadius))
             .background(backgroundColor)
     ) {
@@ -37,7 +39,7 @@ fun ColoredCornerBox(
 @Preview(showBackground = true)
 @Composable
 fun ColoredCornerBoxPreview() {
-    IoTHomeConnectAppTheme { // ✅ Bao bọc Theme
+    IoTHomeConnectAppTheme {
         ColoredCornerBox(
             cornerRadius = 40.dp
         ) {

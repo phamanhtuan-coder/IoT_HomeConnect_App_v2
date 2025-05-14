@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
+import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.background
@@ -14,21 +15,20 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
 
 @Composable
 fun ColoredCornerBox(
-    backgroundColor: Color,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary, // ✅ dùng colorScheme
     cornerRadius: Dp = 40.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(shape = RoundedCornerShape(bottomStart = cornerRadius))
-            .background(
-                color = backgroundColor,
-            )
+            .clip(RoundedCornerShape(bottomStart = cornerRadius))
+            .background(backgroundColor)
     ) {
         content()
     }
@@ -37,16 +37,18 @@ fun ColoredCornerBox(
 @Preview(showBackground = true)
 @Composable
 fun ColoredCornerBoxPreview() {
-    ColoredCornerBox(
-        backgroundColor = Color(0xFF3A4750), // Màu xanh dương đẹp hơn
-        cornerRadius = 40.dp
-    ) {
-        Text(
-            text = "Preview Box",
-            color = Color.White,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(32.dp) // Tăng khoảng cách bên trong
-        )
+    IoTHomeConnectAppTheme { // ✅ Bao bọc Theme
+        ColoredCornerBox(
+            cornerRadius = 40.dp
+        ) {
+            Text(
+                text = "Preview Box",
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(32.dp)
+            )
+        }
     }
 }
+

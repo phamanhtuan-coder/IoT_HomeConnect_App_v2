@@ -95,7 +95,6 @@ fun ActionButtonWithFeedback(
                     disabledContentColor = contentColor
                 ),
                 modifier = Modifier
-                    .padding(vertical = 4.dp, horizontal = 8.dp)
                     .height(height)
                     .fillMaxWidth()
             ) {

@@ -4,6 +4,8 @@
         <item name="windowSplashScreenBackground">@color/background_blue</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/logo_icon</item>
         <item name="postSplashScreenTheme">@style/Theme.IoTHomeConnectAppV2</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
     <style name="Theme.IoTHomeConnectAppV2" parent="android:Theme.Material.Light.NoActionBar" />

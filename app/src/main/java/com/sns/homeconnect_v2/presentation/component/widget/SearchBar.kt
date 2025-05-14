@@ -61,12 +61,14 @@ fun SearchBar(
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = colorScheme.surface,
                 focusedContainerColor = colorScheme.surface,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = colorScheme.primary,
+                focusedIndicatorColor = colorScheme.primary,       // viền khi focus
+                unfocusedIndicatorColor = colorScheme.outline,     // viền khi chưa focus
                 cursorColor = colorScheme.primary,
                 unfocusedTextColor = colorScheme.onSurface,
                 focusedTextColor = colorScheme.onSurface
             )
+
+
         )
     }
 }
@@ -82,9 +84,9 @@ fun SearchBarPreview() {
         ) {
             SearchBar(
                 modifier = Modifier
-                    .width(300.dp), // hoặc .fillMaxWidth(0.8f)
+                    .width(300.dp),
                 onSearch = { query ->
-                    // Không cần xử lý trong preview
+                    /* TODO: điều kiện search */
                 }
             )
         }

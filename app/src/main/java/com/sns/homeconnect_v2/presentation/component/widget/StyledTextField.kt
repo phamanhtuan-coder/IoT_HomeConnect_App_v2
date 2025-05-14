@@ -2,8 +2,9 @@ package com.sns.homeconnect_v2.presentation.component.widget
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -21,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,7 +31,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import com.sns.homeconnect_v2.presentation.component.dialog.ConfirmationDialog
 
@@ -44,21 +45,37 @@ fun StyledTextField(
     errorText: String? = null,
     isTablet: Boolean = false
 ) {
-
     IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
         var passwordVisible by remember { mutableStateOf(false) }
-
 
         Column(modifier = modifier) {
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                placeholder = { Text(placeholderText) },
-                shape = RoundedCornerShape(25),
+                placeholder = {
+                    Text(
+                        placeholderText,
+                        fontSize = 26.sp,
+                        color = if (errorText != null) Color(0xFFD32F2F) else Color(0xFF212121)
+                    )
+                },
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 26.sp,
+                    color = if (errorText != null) Color(0xFFD32F2F) else Color(0xFF212121)
+                ),
+                shape = RoundedCornerShape(16.dp),
                 singleLine = true,
                 isError = errorText != null,
-                leadingIcon = { Icon(leadingIcon, contentDescription = null) },
+                leadingIcon = {
+                    Row(modifier = Modifier.padding(start = 12.dp, end = 12.dp)) {
+                        Icon(
+                            imageVector = leadingIcon,
+                            contentDescription = null,
+                            modifier = Modifier.size(48.dp),
+                            tint = Color(0xFF212121)
+                        )
+                    }
+                },
                 trailingIcon = if (isPassword) {
                     {
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -75,22 +92,29 @@ fun StyledTextField(
                     imeAction = ImeAction.Next
                 ),
                 modifier = Modifier
-                    .width(if (isTablet) 500.dp else 400.dp)
-                    .height(if (isTablet) 80.dp else 70.dp),
+                    .width(if (isTablet) 500.dp else 400.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = colorScheme.onBackground,
-                    unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                    focusedContainerColor = colorScheme.onPrimary,
-                    unfocusedContainerColor = colorScheme.onPrimary,
-                    focusedIndicatorColor = colorScheme.primary,
-                    unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
+                    focusedTextColor = Color(0xFF212121),
+                    unfocusedTextColor = Color(0xFF212121),
+                    disabledTextColor = Color(0xFF9E9E9E),
+                    errorTextColor = Color(0xFFD32F2F),
+
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color(0xFFF5F5F5),
+                    errorContainerColor = Color.White,
+
+                    focusedIndicatorColor = if (value.isEmpty()) Color(0xFFB71C1C) else Color(0xFFD32F2F),
+                    unfocusedIndicatorColor = Color(0xFF9E9E9E),
+                    disabledIndicatorColor = Color(0xFFBDBDBD),
+                    errorIndicatorColor = if (value.isEmpty()) Color(0xFFB71C1C) else Color(0xFFD32F2F)
                 )
             )
 
             if (!errorText.isNullOrEmpty()) {
                 Text(
                     text = errorText,
-                    color = colorScheme.error,
+                    color = Color(0xFFD32F2F),
                     fontSize = 12.sp,
                     modifier = Modifier.padding(start = 16.dp, top = 4.dp)
                 )
@@ -109,7 +133,7 @@ fun PreviewTextFieldAndDialog() {
         StyledTextField(
             value = text,
             onValueChange = { text = it },
-            placeholderText = "Nhập tên",
+            placeholderText = "Group name",
             leadingIcon = Icons.Default.Person
         )
     }

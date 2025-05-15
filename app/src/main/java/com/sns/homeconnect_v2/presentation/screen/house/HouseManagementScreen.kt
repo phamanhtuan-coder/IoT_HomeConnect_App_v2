@@ -64,8 +64,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
-import com.sns.homeconnect_v2.presentation.component.IconPicker
-import com.sns.homeconnect_v2.presentation.component.ColorPicker
+import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
+import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.viewmodel.house.CreateHouseState

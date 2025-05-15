@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,6 +35,7 @@ import kotlinx.coroutines.launch
 fun HouseDetailScreen(
     navController: NavHostController,
     houseIcon: ImageVector,
+    colorIcon: Color,
     houseName: String,
     houseAddress: String
 ) {
@@ -48,10 +50,10 @@ fun HouseDetailScreen(
 
     val bottomNavItems = listOf(
         "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices"   to Pair(Icons.Filled.Devices, "devices"),
-        "Home"      to Pair(Icons.Filled.Home, "home"),
-        "Profile"   to Pair(Icons.Filled.Person, "profile"),
-        "Settings"  to Pair(Icons.Filled.Settings, "settings")
+        "Devices" to Pair(Icons.Filled.Devices, "devices"),
+        "Home" to Pair(Icons.Filled.Home, "home"),
+        "Profile" to Pair(Icons.Filled.Person, "profile"),
+        "Settings" to Pair(Icons.Filled.Settings, "settings")
     )
 
     val context = LocalContext.current
@@ -60,9 +62,24 @@ fun HouseDetailScreen(
 
     IoTHomeConnectAppTheme {
         val fabOptions = listOf(
-            FabChild(Icons.Default.Edit, onClick = { /* TODO: sửa */ }, containerColor = colorScheme.primary, contentColor = colorScheme.onPrimary),
-            FabChild(Icons.Default.Delete, onClick = { /* TODO: xoá */ }, containerColor = colorScheme.primary, contentColor = colorScheme.onPrimary),
-            FabChild(Icons.Default.Add, onClick = { /* TODO: share */ }, containerColor = colorScheme.primary, contentColor = colorScheme.onPrimary)
+            FabChild(
+                Icons.Default.Edit,
+                onClick = { /* TODO: sửa */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            ),
+            FabChild(
+                Icons.Default.Delete,
+                onClick = { /* TODO: xoá */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            ),
+            FabChild(
+                Icons.Default.Add,
+                onClick = { /* TODO: share */ },
+                containerColor = colorScheme.primary,
+                contentColor = colorScheme.onPrimary
+            )
         )
 
         Scaffold(
@@ -125,9 +142,10 @@ fun HouseDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 ColoredCornerBox(cornerRadius = 40.dp) {
-                    Column(modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth()
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
                     ) {
                         Box(
                             modifier = Modifier
@@ -216,7 +234,7 @@ fun HouseDetailScreen(
 
                         SpaceCardSwipeable(
                             spaceName = space.name,
-                            deviceCount = space.divice,
+                            deviceCount = space.device,
                             icon = space.icon,
                             iconColor = space.iconColor,
                             isRevealed = space.isRevealed,
@@ -265,5 +283,11 @@ fun HouseDetailScreen(
 )
 @Composable
 fun HouseDetailScreenPreview() {
-    HouseDetailScreen(navController = rememberNavController())
+    HouseDetailScreen(
+        navController = rememberNavController(),
+        houseIcon = Icons.Default.Home,
+        colorIcon = Color.Blue,
+        houseName = "Nhà của tôi",
+        houseAddress = "123 Đường ABC, Quận 1, TP.HCM"
+    )
 }

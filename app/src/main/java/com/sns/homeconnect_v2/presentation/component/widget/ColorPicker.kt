@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.component
+package com.sns.homeconnect_v2.presentation.component.widget
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable

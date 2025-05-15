@@ -17,8 +17,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
-import com.sns.homeconnect_v2.presentation.component.ColorPicker
-import com.sns.homeconnect_v2.presentation.component.IconPicker
+import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
+import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
@@ -211,5 +211,3 @@ fun CreateGroupScreenPhonePreview() {
         CreateGroupScreen(navController = rememberNavController())
     }
 }
-
-

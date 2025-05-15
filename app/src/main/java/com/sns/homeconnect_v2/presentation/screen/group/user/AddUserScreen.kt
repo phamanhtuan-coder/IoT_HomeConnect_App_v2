@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.screen.group
+package com.sns.homeconnect_v2.presentation.screen.group.user
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateUserScreen(navController: NavHostController) {
+fun AddUserScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
     var current by remember { mutableStateOf<String?>(null) }
     val list = listOf("Owner", "Vice", "Admin", "Member")
@@ -185,6 +185,6 @@ fun CreateUserScreen(navController: NavHostController) {
 @Composable
 fun CreateUserScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        CreateUserScreen(navController = rememberNavController())
+        AddUserScreen(navController = rememberNavController())
     }
 }

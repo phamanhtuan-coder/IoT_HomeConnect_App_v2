@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.component.widget
+package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
 @Composable
 fun UserCardSwipeable(

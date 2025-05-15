@@ -33,7 +33,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
-import com.sns.homeconnect_v2.presentation.component.widget.SimpleUserCard
+import com.sns.homeconnect_v2.presentation.component.SimpleUserCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

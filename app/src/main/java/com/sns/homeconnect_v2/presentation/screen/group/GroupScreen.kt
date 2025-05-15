@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -34,8 +33,8 @@ import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.FabChild
-import com.sns.homeconnect_v2.presentation.component.widget.GroupCardSwipeable
-import com.sns.homeconnect_v2.presentation.component.widget.GroupUi
+import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
+import com.sns.homeconnect_v2.presentation.component.GroupUi
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab

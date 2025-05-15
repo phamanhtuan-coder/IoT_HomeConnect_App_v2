@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.component.widget
+package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
 @Composable
 fun HouseCardSwipeable(

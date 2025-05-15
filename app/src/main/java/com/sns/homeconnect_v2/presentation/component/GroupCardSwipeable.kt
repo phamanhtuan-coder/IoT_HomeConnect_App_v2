@@ -1,13 +1,11 @@
-package com.sns.homeconnect_v2.presentation.component.widget
+package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BedroomBaby
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Group
@@ -21,19 +19,20 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
 @Composable
-fun SpaceCardSwipeable(
-    spaceName: String,
-    deviceCount: Int,
+fun GroupCardSwipeable(
+    groupName: String,
+    memberCount: Int,
     icon: ImageVector = Icons.Default.Group,
     iconColor: Color = MaterialTheme.colorScheme.primary,
     isRevealed: Boolean,
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit,
-    onClick: () -> Unit // ✅ Thêm onClick làm tham số
+    onEdit: () -> Unit
 ) {
     SwipeableItemWithActions(
         isRevealed = isRevealed,
@@ -55,16 +54,18 @@ fun SpaceCardSwipeable(
     ) {
         Row(
             modifier = Modifier
-                .clickable { onClick() } // ✅ Gán sự kiện click
                 .background(color = Color(0xFFD8E4E8))
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = "Icon for $spaceName", tint = iconColor, modifier = Modifier.size(64.dp))
+            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(64.dp))
             Spacer(Modifier.width(12.dp))
             Column {
-                Text(spaceName, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))
+                Text(
+                    groupName,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold)
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         color = Color(0xFFFFC107),
@@ -72,14 +73,14 @@ fun SpaceCardSwipeable(
                         modifier = Modifier.padding(end = 6.dp)
                     ) {
                         Text(
-                            text = deviceCount.toString(),
+                            text = "$memberCount",
                             color = Color.Black,
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                     Text(
-                        text = "Thiết bị",
+                        text = "Thành viên",
                         style = MaterialTheme.typography.bodyMedium.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize),
                         color = Color.Black
                     )
@@ -91,44 +92,43 @@ fun SpaceCardSwipeable(
 
 @Preview(showBackground = true)
 @Composable
-fun SpaceCardSwipeablePreview() {
-    val spaces = remember {
+fun GroupCardSwipeablePreview() {
+    val groups = remember {
         mutableStateListOf(
-            SpaceUi(1, "Bathroom", 5, false, Icons.Default.BedroomBaby, Color.Blue),
-            SpaceUi(2, "Bedroom", 3, false, Icons.Default.Home, Color.Red),
-            SpaceUi(3, "Lounge", 7, false, Icons.Default.Group, Color.Green)
+            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue),
+            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red),
+            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green)
         )
     }
 
     LazyColumn {
-        itemsIndexed(spaces) { index, space ->
+        itemsIndexed(groups) { index, group ->
             Spacer(Modifier.height(8.dp))
-            SpaceCardSwipeable(
-                spaceName = space.name,
-                deviceCount = space.divice,
-                icon = space.icon,
-                iconColor = space.iconColor,
-                isRevealed = space.isRevealed,
+            GroupCardSwipeable(
+                groupName = group.name,
+                memberCount = group.members,
+                icon = group.icon,
+                iconColor = group.iconColor,
+                isRevealed = group.isRevealed,
                 onExpandOnly = {
-                    spaces.indices.forEach { i ->
-                        spaces[i] = spaces[i].copy(isRevealed = i == index)
+                    groups.indices.forEach { i ->
+                        groups[i] = groups[i].copy(isRevealed = i == index)
                     }
                 },
                 onCollapse = {
-                    spaces[index] = space.copy(isRevealed = false)
+                    groups[index] = group.copy(isRevealed = false)
                 },
-                onDelete = { spaces.removeAt(index) },
-                onEdit = { /* TODO: handle edit */ },
-                onClick = { println("Clicked on ${space.name}") } // ✅ Xử lý click
+                onDelete = { groups.removeAt(index) },
+                onEdit = { /* TODO */ }
             )
         }
     }
 }
 
-data class SpaceUi(
+data class GroupUi(
     val id: Int,
     val name: String,
-    val device: Int,
+    val members: Int,
     val isRevealed: Boolean,
     val icon: ImageVector,
     val iconColor: Color

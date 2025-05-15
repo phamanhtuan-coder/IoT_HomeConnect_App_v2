@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.component.widget
+package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -76,4 +76,3 @@ fun SimpleUserCardPreview() {
         }
     }
 }
-

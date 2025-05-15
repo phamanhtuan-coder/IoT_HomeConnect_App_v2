@@ -29,14 +29,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun HouseDetailScreen(navController: NavHostController) {
+fun HouseDetailScreen(
+    navController: NavHostController,
+    houseIcon: ImageVector,
+    houseName: String,
+    houseAddress: String
+) {
     val scope = rememberCoroutineScope()
-
-    val houseIcon = Icons.Default.Home
-    val colorIcon = Color.Red
-    val houseName = "Main House"
-    val houseAddress = "123 Lê lợi"
-
     val spaces = remember {
         mutableStateListOf(
             SpaceUi(1, "Bathroom", 5, false, Icons.Default.BedroomBaby, Color.Blue),

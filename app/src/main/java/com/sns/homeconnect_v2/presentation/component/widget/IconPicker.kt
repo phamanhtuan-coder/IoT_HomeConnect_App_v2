@@ -32,6 +32,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * Một hàm Composable hiển thị một lưới các biểu tượng để người dùng lựa chọn.
+ *
+ * @param iconOptions Một danh sách các cặp, trong đó mỗi cặp chứa một [ImageVector] và nhãn tương ứng của nó (String).
+ * @param selectedIconLabel Nhãn của biểu tượng hiện được chọn. Điều này được sử dụng để làm nổi bật biểu tượng đã chọn trong lưới.
+ * @param onIconSelected Một hàm gọi lại được gọi khi một biểu tượng được chọn. Nó nhận nhãn (String) của biểu tượng đã chọn.
+ */
 @Composable
 fun IconPicker(
     iconOptions: List<Pair<ImageVector, String>>,

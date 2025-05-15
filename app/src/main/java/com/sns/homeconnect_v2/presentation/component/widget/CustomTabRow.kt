@@ -20,6 +20,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 
+/**
+ * Một hàm composable tùy chỉnh hiển thị một hàng các tab.
+ *
+ * Hàm này nhận vào một danh sách các tiêu đề tab, chỉ mục tab hiện đang được chọn và một hàm
+ * callback để xử lý việc chọn tab. Sau đó, nó hiển thị một `TabRow` với giao diện và hành vi
+ * được tùy chỉnh.
+ *
+ * `TabRow` được tạo kiểu với nền trắng và màu nội dung đen. Chỉ báo tab được chọn
+ * được tô màu bằng màu chính từ MaterialTheme. Tiêu đề tab được
+ * hiển thị với kích thước phông chữ lớn hơn (18.sp) và tiêu đề của tab được chọn được in đậm.
+ *
+ * @param tabs Một danh sách các chuỗi đại diện cho tiêu đề của các tab.
+ * @param selectedTabIndex Chỉ mục của tab hiện đang được chọn.
+ * @param onTabSelected Một hàm callback được gọi khi một tab được chọn. Nó nhận
+ *                      chỉ mục của tab được chọn làm tham số.
+ * @param modifier Một `Modifier` tùy chọn để áp dụng cho `TabRow`.
+ */
 @Composable
 fun CustomTabRow(
     tabs: List<String>,
@@ -82,5 +99,3 @@ fun CustomTabRowPreview() {
         }
     }
 }
-
-

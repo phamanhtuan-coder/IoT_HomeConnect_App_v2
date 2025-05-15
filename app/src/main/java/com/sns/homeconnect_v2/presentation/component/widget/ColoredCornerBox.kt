@@ -19,6 +19,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
 
+/**
+ * Một hàm Composable hiển thị một Box với nền màu và góc dưới bên trái được bo tròn.
+ *
+ * @param backgroundColor Màu nền. Mặc định là màu chính từ MaterialTheme.
+ * @param cornerRadius Bán kính của góc dưới bên trái được bo tròn. Mặc định là 40.dp.
+ * @param content Nội dung sẽ được hiển thị bên trong Box.
+ */
 @Composable
 fun ColoredCornerBox(
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
@@ -53,4 +60,3 @@ fun ColoredCornerBoxPreview() {
         }
     }
 }
-

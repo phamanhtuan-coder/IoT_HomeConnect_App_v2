@@ -19,11 +19,28 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Một nút hành động 3‑trạng‑thái (Primary, Secondary, Disabled) kèm loading + dialog phản hồi.
+ * Xác định kiểu dáng của nút hành động.
+ * - [PRIMARY]: Kiểu chính, thường được sử dụng cho hành động quan trọng nhất.
+ * - [SECONDARY]: Kiểu phụ, thường được sử dụng cho các hành động ít quan trọng hơn hoặc hành động thay thế.
+ * - [DISABLED]: Kiểu không khả dụng, nút sẽ bị vô hiệu hóa và không thể tương tác.
  */
-
 enum class HCButtonStyle { PRIMARY, SECONDARY, DISABLED }
 
+/**
+ * Một nút hành động 3‑trạng‑thái (Primary, Secondary, Disabled) kèm loading + dialog phản hồi.
+ *
+ * @param label Nhãn hiển thị trên nút.
+ * @param onAction Hàm lambda được gọi khi nút được nhấn. Hàm này nhận hai callback:
+ *                 `onSuccess` (để truyền thông điệp thành công) và `onError` (để truyền thông điệp lỗi).
+ *                 Hàm này được thực thi trong một coroutine scope.
+ * @param style Kiểu của nút, mặc định là [HCButtonStyle.PRIMARY].
+ * @param onSuccess Callback được gọi khi hành động thành công và người dùng nhấn "OK" trên dialog thành công.
+ * @param modifier Modifier để tùy chỉnh giao diện và hành vi của nút.
+ * @param height Chiều cao của nút, mặc định là `56.dp`.
+ * @param width Chiều rộng của nút, mặc định là [Dp.Unspecified] (sẽ fill chiều rộng của container).
+ * @param textSize Kích thước chữ của nhãn nút, mặc định là `26.sp`.
+ * @param shape Hình dạng của nút, mặc định là bo góc `12.dp`.
+ */
 @Composable
 fun ActionButtonWithFeedback(
     label: String,

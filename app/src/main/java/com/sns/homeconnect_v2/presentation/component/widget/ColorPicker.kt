@@ -26,6 +26,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * Một hàm Composable hiển thị danh sách các tùy chọn màu theo chiều ngang để lựa chọn.
+ *
+ * Thành phần này cho phép người dùng chọn một màu từ danh sách được xác định trước. Màu được chọn
+ * được làm nổi bật bằng đường viền. Giao diện người dùng bao gồm tiêu đề "Chọn màu sắc:".
+ *
+ * Các tùy chọn màu được hiển thị dưới dạng các bề mặt hình tròn. Khi một màu được chọn,
+ * nó sẽ có đường viền sử dụng `MaterialTheme.colorScheme.primary`.
+ *
+ * @param colors Danh sách các cặp, trong đó mỗi cặp chứa một [Color] và nhãn [String] tương ứng của nó.
+ *               Danh sách này xác định các tùy chọn màu có sẵn.
+ * @param selectedColorLabel Nhãn của màu hiện được chọn. Điều này được sử dụng để làm nổi bật
+ *                           màu đang hoạt động trong giao diện người dùng.
+ * @param onColorSelected Một hàm lambda được gọi khi một màu mới được chọn.
+ *                        Nó nhận nhãn ([String]) của màu được chọn làm tham số của nó.
+ */
 @Composable
 fun ColorPicker(
     colors: List<Pair<Color, String>>,

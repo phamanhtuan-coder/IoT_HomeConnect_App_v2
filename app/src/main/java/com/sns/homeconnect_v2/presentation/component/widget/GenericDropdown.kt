@@ -21,12 +21,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Reusable generic dropdown component styled to match the SearchBar dimensions.
+ * Thành phần dropdown chung có thể tái sử dụng, được tạo kiểu để khớp với kích thước của SearchBar.
  *
- * • Height : **56.dp** – cùng chiều cao SearchBar.
- * • Padding : **16.dp** horizontal & **12.dp** vertical.
- * • Corner  : **12.dp** – tròn đồng nhất.
- * • Trailing arrow (down/up) nằm cuối, thay đổi khi mở menu.
+ * Thành phần này cung cấp một menu dropdown với giao diện nhất quán.
+ *
+ * Các tính năng tạo kiểu chính:
+ * - **Chiều cao**: `56.dp` (khớp với chiều cao của SearchBar).
+ * - **Padding**: `16.dp` theo chiều ngang & `12.dp` theo chiều dọc.
+ * - **Bán kính góc**: `12.dp` (để có giao diện bo tròn đồng nhất).
+ * - **Mũi tên ở cuối**: Một biểu tượng mũi tên (xuống/lên) ở cuối dropdown, sẽ thay đổi hướng khi menu được mở hoặc đóng.
+ *
+ * @param items Danh sách các chuỗi để hiển thị trong menu dropdown.
+ * @param selectedItem Mục hiện đang được chọn. Có thể là null nếu không có mục nào được chọn.
+ * @param onItemSelected Một hàm callback được gọi khi một mục được chọn từ dropdown.
+ * @param modifier [Modifier] tùy chọn để áp dụng cho dropdown.
+ * @param placeHolder Văn bản hiển thị khi không có mục nào được chọn. Mặc định là "Chọn...".
  */
 @Composable
 fun GenericDropdown(

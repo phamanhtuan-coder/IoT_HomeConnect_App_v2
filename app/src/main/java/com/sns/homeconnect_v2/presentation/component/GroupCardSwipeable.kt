@@ -124,12 +124,3 @@ fun GroupCardSwipeablePreview() {
         }
     }
 }
-
-data class GroupUi(
-    val id: Int,
-    val name: String,
-    val members: Int,
-    val isRevealed: Boolean,
-    val icon: ImageVector,
-    val iconColor: Color
-)

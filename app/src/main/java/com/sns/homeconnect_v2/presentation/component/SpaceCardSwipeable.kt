@@ -134,12 +134,3 @@ fun SpaceCardSwipeablePreview() {
         }
     }
 }
-
-data class SpaceUi(
-    val id: Int,
-    val name: String,
-    val device: Int,
-    val isRevealed: Boolean,
-    val icon: ImageVector,
-    val iconColor: Color
-)

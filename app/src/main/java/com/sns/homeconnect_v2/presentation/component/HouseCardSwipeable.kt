@@ -122,12 +122,3 @@ fun HouseCardSwipeablePreview() {
         }
     }
 }
-
-data class HouseUi(
-    val id: Int,
-    val name: String,
-    val spaces: Int,
-    val isRevealed: Boolean,
-    val icon: ImageVector,
-    val iconColor: Color
-)

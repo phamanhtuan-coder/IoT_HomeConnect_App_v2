@@ -11,6 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+/**
+ * Một hàm Composable hiển thị một nút với chỉ báo tải.
+ *
+ * @param text Văn bản hiển thị trên nút khi không tải.
+ * @param isLoading Một giá trị boolean cho biết nút có đang ở trạng thái tải hay không.
+ * @param onClick Một hàm lambda sẽ được thực thi khi nút được nhấp.
+ * @param modifier Một [Modifier] để áp dụng cho nút.
+ */
 @Composable
 fun LoadingButton(
     text: String,

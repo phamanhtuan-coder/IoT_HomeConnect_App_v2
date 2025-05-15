@@ -23,6 +23,14 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 
+/**
+ * Một hàm composable hiển thị thanh tìm kiếm.
+ *
+ * @param modifier Modifier được áp dụng cho thanh tìm kiếm.
+ * @param hint Văn bản gợi ý được hiển thị trong thanh tìm kiếm.
+ * @param onSearch Một hàm callback được gọi khi văn bản tìm kiếm thay đổi.
+ * Văn bản tìm kiếm hiện tại được truyền dưới dạng tham số cho hàm này.
+ */
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,

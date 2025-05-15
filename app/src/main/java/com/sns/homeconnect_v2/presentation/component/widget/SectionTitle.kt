@@ -14,6 +14,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 
+/**
+ * Hàm Composable để hiển thị tiêu đề phần với văn bản, kích thước phông chữ và căn chỉnh văn bản có thể tùy chỉnh.
+ *
+ * @param text Văn bản sẽ được hiển thị làm tiêu đề phần.
+ * @param fontSize Kích thước phông chữ của tiêu đề phần. Mặc định là 20.sp.
+ * @param textAlign Căn chỉnh của văn bản trong tiêu đề phần. Mặc định là TextAlign.Center.
+ */
 @Composable
 fun SectionTitle(
     text: String,

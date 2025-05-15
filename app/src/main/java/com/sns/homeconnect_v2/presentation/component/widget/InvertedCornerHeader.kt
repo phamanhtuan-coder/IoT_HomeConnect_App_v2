@@ -32,6 +32,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 
 
+/**
+ * Một hàm composable tạo ra một header với hiệu ứng góc lõm.
+ *
+ * Composable này tạo ra một header với màu nền và màu phủ.
+ * Màu phủ tạo hiệu ứng góc lõm ở góc trên bên phải của header.
+ * Nội dung của header được cung cấp dưới dạng một lambda composable.
+ *
+ * @param modifier Modifier được áp dụng cho header.
+ * @param topEndCornerPercent Phần trăm bo góc ở góc trên bên phải.
+ * @param backgroundColor Màu nền của header.
+ * @param overlayColor Màu của lớp phủ tạo hiệu ứng góc lõm.
+ * @param content Nội dung của header.
+ */
 @Composable
 fun InvertedCornerHeader(
     modifier: Modifier = Modifier,

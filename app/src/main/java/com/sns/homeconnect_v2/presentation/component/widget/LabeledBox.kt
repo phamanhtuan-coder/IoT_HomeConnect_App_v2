@@ -19,6 +19,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * Một hàm Composable hiển thị một nhãn và một giá trị trong một hộp được định kiểu.
+ * Hàm này thường được sử dụng để trình bày một thông tin với tiêu đề rõ ràng.
+ *
+ * @param label Văn bản hiển thị làm nhãn (ví dụ: "Số lượng thiết bị").
+ * @param value Văn bản hiển thị làm giá trị bên trong hộp (ví dụ: "4").
+ * @param modifier [Modifier] tùy chọn để áp dụng cho toàn bộ Row.
+ * @param color Màu nền của hộp hiển thị giá trị. Mặc định là [MaterialTheme.colorScheme.primary].
+ * @param textColor Màu của văn bản bên trong hộp (giá trị). Mặc định là [Color.White].
+ * @param shape Hình dạng của hộp hiển thị giá trị. Mặc định là [RoundedCornerShape] với bán kính 4.dp.
+ */
 @Composable
 fun LabeledBox(
     label: String,

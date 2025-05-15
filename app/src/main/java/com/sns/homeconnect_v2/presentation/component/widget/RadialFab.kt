@@ -30,6 +30,24 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.MaterialTheme
 
+/**
+ * Một Composable function tạo ra một Nút hành động nổi (FAB) dạng tỏa tròn.
+ *
+ * FAB này có thể mở rộng để hiển thị một tập hợp các FAB con được sắp xếp theo dạng tỏa tròn.
+ *
+ * @param items Một danh sách các đối tượng [FabChild] đại diện cho các FAB con. Có thể rỗng.
+ * @param modifier Modifier cho composable này.
+ * @param fabIcon Biểu tượng hiển thị trên FAB chính. Mặc định là [Icons.Default.Add].
+ * @param parentColor Màu nền của FAB chính. Mặc định là [MaterialTheme.colorScheme.primary].
+ * @param radius Bán kính của cung tròn mà các FAB con được đặt trên đó. Mặc định là `96.dp`.
+ * @param startDeg Góc bắt đầu (tính bằng độ) để đặt FAB con đầu tiên.
+ *                 -90 độ tương ứng với vị trí trên cùng. Mặc định là `-90f`.
+ * @param sweepDeg Góc quét (tính bằng độ) để sắp xếp các FAB con.
+ *                 Giá trị âm có nghĩa là ngược chiều kim đồng hồ. Mặc định là `-90f`.
+ * @param onParentClick Một hàm lambda sẽ được thực thi khi FAB chính được nhấp
+ *                      và không có mục con nào (`items` rỗng).
+ *                      Điều này dành cho các hành động ngắn khi FAB không mở rộng.
+ */
 @Composable
 fun RadialFab(
     items: List<FabChild>,                 // nút con (có thể rỗng)
@@ -92,13 +110,7 @@ fun RadialFab(
     }
 }
 
-/* Dữ liệu nút con tái sử dụng từ lần trước */
-data class FabChild(
-    val icon: ImageVector,
-    val onClick: () -> Unit,
-    val containerColor: Color = Color(0xFF455A64),
-    val contentColor: Color   = Color.White
-)
+
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 640, name = "RadialFab Preview")
 @Composable

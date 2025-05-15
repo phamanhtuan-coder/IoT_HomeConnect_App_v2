@@ -34,6 +34,18 @@ import androidx.compose.ui.unit.sp
 import androidx.wear.compose.material3.Text
 import com.sns.homeconnect_v2.presentation.component.dialog.ConfirmationDialog
 
+/**
+ * Một hàm composable hiển thị một trường văn bản được tạo kiểu.
+ *
+ * @param value Giá trị hiện tại của trường văn bản.
+ * @param onValueChange Một hàm callback được gọi khi giá trị của trường văn bản thay đổi.
+ * @param placeholderText Văn bản hiển thị làm trình giữ chỗ khi trường văn bản trống.
+ * @param leadingIcon Biểu tượng hiển thị ở đầu trường văn bản.
+ * @param modifier Một [Modifier] để áp dụng cho trường văn bản.
+ * @param isPassword Trường văn bản có phải là mật khẩu không. Nếu đúng, một biểu tượng chuyển đổi sẽ được hiển thị để hiển thị/ẩn mật khẩu.
+ * @param errorText Một thông báo lỗi tùy chọn để hiển thị bên dưới trường văn bản.
+ * @param isTablet Thiết bị có phải là máy tính bảng không. Điều này ảnh hưởng đến chiều rộng của trường văn bản.
+ */
 @Composable
 fun StyledTextField(
     value: String,

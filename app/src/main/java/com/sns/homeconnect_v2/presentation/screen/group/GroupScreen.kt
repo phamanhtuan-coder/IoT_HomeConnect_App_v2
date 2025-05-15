@@ -32,13 +32,13 @@ import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
-import com.sns.homeconnect_v2.presentation.component.widget.FabChild
 import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
-import com.sns.homeconnect_v2.presentation.component.GroupUi
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
+import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.model.GroupUi
 
 @Composable
 fun GroupScreen(modifier: Modifier = Modifier, navController: NavHostController) {

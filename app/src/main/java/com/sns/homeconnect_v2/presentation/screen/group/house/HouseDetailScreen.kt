@@ -24,10 +24,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
-import com.sns.homeconnect_v2.presentation.component.SpaceUi
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

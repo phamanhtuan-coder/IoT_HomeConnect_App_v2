@@ -24,11 +24,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable
-import com.sns.homeconnect_v2.presentation.component.HouseUi
 import com.sns.homeconnect_v2.presentation.component.UserCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.model.HouseUi
 
 @Composable
 fun DetailGroupScreen(navController: NavHostController) {

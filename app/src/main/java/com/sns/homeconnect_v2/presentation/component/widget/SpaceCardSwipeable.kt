@@ -61,7 +61,7 @@ fun SpaceCardSwipeable(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(64.dp))
+            Icon(icon, contentDescription = "Icon for $spaceName", tint = iconColor, modifier = Modifier.size(64.dp))
             Spacer(Modifier.width(12.dp))
             Column {
                 Text(spaceName, style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold))

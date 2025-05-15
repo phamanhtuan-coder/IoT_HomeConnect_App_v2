@@ -38,7 +38,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun AddUserScreen(navController: NavHostController) {
+fun AddUserScreen(
+    navController: NavHostController,
+) {
     val scope = rememberCoroutineScope()
     var current by remember { mutableStateOf<String?>(null) }
     val list = listOf("Owner", "Vice", "Admin", "Member")
@@ -66,8 +68,8 @@ fun AddUserScreen(navController: NavHostController) {
             topBar = {
                 Header(
                     navController = navController,
-                    type          = "Back",
-                    title         = "Settings"
+                    type = "Back",
+                    title = "Settings"
                 )
             },
             containerColor = Color.White,
@@ -105,8 +107,8 @@ fun AddUserScreen(navController: NavHostController) {
                 }
             }
         ) { inner ->
-            Column (
-                modifier= Modifier.padding(inner)
+            Column(
+                modifier = Modifier.padding(inner)
             ) {
                 ColoredCornerBox(
                     cornerRadius = 40.dp
@@ -146,7 +148,7 @@ fun AddUserScreen(navController: NavHostController) {
                         .padding(horizontal = 16.dp)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                ){
+                ) {
                     users.forEach { (name, avatar) ->
                         Surface(
                             shape = RoundedCornerShape(16.dp),

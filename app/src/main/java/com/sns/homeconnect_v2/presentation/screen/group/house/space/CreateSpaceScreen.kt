@@ -26,7 +26,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateGroupScreen(navController: NavHostController) {
+fun CreateGroupScreen(
+    navController: NavHostController
+) {
     var spaceName by remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var selectedIconLabel by remember { mutableStateOf("Nhà") }
@@ -196,7 +198,12 @@ fun CreateGroupScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "CreateGroupScreen Preview - Phone")
+@Preview(
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    name = "CreateGroupScreen Preview - Phone"
+)
 @Composable
 fun CreateGroupScreenPhonePreview() {
     IoTHomeConnectAppTheme {

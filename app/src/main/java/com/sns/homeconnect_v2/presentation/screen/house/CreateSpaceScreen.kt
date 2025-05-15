@@ -148,7 +148,7 @@ fun CreateGroupScreen(navController: NavHostController) {
                                     selectedItem = selectedRole,
                                     onItemSelected = { selectedRole = it },
                                     modifier = Modifier.padding(horizontal = 16.dp),
-                                    placeHolder = "Chọn quyền"
+                                    placeHolder = "Chọn nhà"
                                 )
                             }
                         }

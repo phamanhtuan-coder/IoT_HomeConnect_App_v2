@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.screen.house
+package com.sns.homeconnect_v2.presentation.screen.group.house
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*

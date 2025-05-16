@@ -3,7 +3,6 @@ package com.sns.homeconnect_v2.presentation.screen.group.house.space
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -12,21 +11,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.DeviceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
@@ -54,7 +47,7 @@ import com.sns.homeconnect_v2.presentation.model.FabChild
 
 @Composable
 fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostController) {
-//    val Device = remember {
+//    val deviceList = remember {
 //        mutableStateListOf(
 //            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
 //            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
@@ -62,20 +55,7 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
 //        )
 //    }
 
-    val GroupScreen = remember { mutableStateListOf<DeviceUi>() }
-
-    val bottomNavigationItems = listOf(
-        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices" to Pair(Icons.Filled.Devices, "devices"),
-        "Home" to Pair(Icons.Filled.Home, "home"),
-        "Profile" to Pair(Icons.Filled.Person, "profile"),
-        "Settings" to Pair(Icons.Filled.Settings, "settings")
-    )
-    val applicationContext = LocalContext.current
-    val isTablet = isTablet(applicationContext)
-
-    // Track the last selected route
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    val deviceList = remember { mutableStateListOf<DeviceUi>() }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -159,30 +139,30 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
                     ) {
                         LabeledBox(
                             label = "Thiết bị",
-                            value = GroupScreen.size.toString()
+                            value = deviceList.size.toString()
                         )
                     }
                 }
 
-                if (GroupScreen.isNotEmpty()) {
+                if (deviceList.isNotEmpty()) {
                     LazyColumn(modifier = modifier
                         .fillMaxSize()
                     ) {
-                        itemsIndexed(GroupScreen) { deviceIndex, deviceUi ->
+                        itemsIndexed(deviceList) { deviceIndex, deviceUi ->
                             Spacer(Modifier.height(8.dp))
                             DeviceCardSwipeable(
-                                DeviceName = deviceUi.name,
+                                deviceName = deviceUi.name,
                                 roomName = deviceUi.room,
                                 isRevealed = deviceUi.isRevealed,
                                 onExpandOnly = {
-                                    GroupScreen.indices.forEach { i ->
-                                        GroupScreen[i] = GroupScreen[i].copy(isRevealed = i == deviceIndex)
+                                    deviceList.indices.forEach { i ->
+                                        deviceList[i] = deviceList[i].copy(isRevealed = i == deviceIndex)
                                     }
                                 },
                                 onCollapse = {
-                                    GroupScreen[deviceIndex] = deviceUi.copy(isRevealed = false)
+                                    deviceList[deviceIndex] = deviceUi.copy(isRevealed = false)
                                 },
-                                onDelete = { GroupScreen.removeAt(deviceIndex) },
+                                onDelete = { deviceList.removeAt(deviceIndex) },
                                 onEdit = { /* TODO */ }
                             )
                         }

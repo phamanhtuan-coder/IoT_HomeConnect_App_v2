@@ -3,7 +3,6 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -21,70 +19,93 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Room
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
+import com.sns.homeconnect_v2.presentation.component.ScanCodeDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.viewmodel.component.SharedViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.AddDeviceViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.LinkDeviceState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.SpaceState
-import kotlinx.coroutines.launch
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 
+/**
+ * Composable function đại diện cho màn hình liên kết thiết bị IoT mới.
+ * Màn hình này cho phép người dùng nhập ID thiết bị, tên thiết bị, chọn một không gian (phòng),
+ * và liên kết thiết bị bằng cách nhập thủ công hoặc quét mã QR.
+ *
+ * Màn hình bao gồm các trường nhập liệu cho ID và tên thiết bị có kiểm tra hợp lệ,
+ * một danh sách thả xuống để chọn không gian, một nút để bắt đầu quét mã QR,
+ * và một nút để thực hiện thao tác liên kết.
+ *
+ * Nó sử dụng một số thành phần Material 3 và các thành phần tùy chỉnh như `StyledTextField`,
+ * `GenericDropdown`, `ActionButtonWithFeedback`, và `ScanCodeDialog`.
+ *
+ * Các phần bị chú thích gợi ý việc tích hợp với các ViewModel (`SharedViewModel`,
+ * `DeviceViewModel`, `AddDeviceViewModel`) để quản lý trạng thái và các hoạt động dữ liệu,
+ * chẳng hạn như lấy danh sách không gian có sẵn và xử lý quá trình liên kết thiết bị.
+ * Hiện tại, chúng không hoạt động trong đoạn mã được cung cấp.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 19-05-2025
+ *
+ * @param navController [NavHostController] để thực hiện các hành động điều hướng, chẳng hạn như quay lại.
+ *                      Nó được sử dụng bởi các thành phần `Header` và `MenuBottom`.
+ *
+ * Các tham số sau đây bị chú thích nhưng chỉ ra các phụ thuộc ViewModel tiềm năng:
+ * @param sharedViewModel Một thể hiện của `SharedViewModel` (bị chú thích).
+ *                        Có khả năng được sử dụng để chia sẻ dữ liệu như `houseId` giữa các màn hình khác nhau.
+ * @param deviceViewModel Một thể hiện của `DeviceViewModel` (bị chú thích).
+ *                        Có khả năng được sử dụng để lấy dữ liệu liên quan đến thiết bị và không gian, ví dụ: `getSpacesByHomeId`.
+ * @param addDeviceViewModel Một thể hiện của `AddDeviceViewModel` (bị chú thích).
+ *                           Có khả năng được sử dụng để xử lý logic thêm/liên kết thiết bị mới,
+ *                           quản lý các trạng thái như `linkDeviceState`.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinkDeviceScreen(
     navController: NavHostController,
-    sharedViewModel: SharedViewModel = hiltViewModel(),
-    deviceViewModel : DeviceViewModel = hiltViewModel(),
-    addDeviceViewModel : AddDeviceViewModel = hiltViewModel()
+//    sharedViewModel: SharedViewModel = hiltViewModel(),
+//    deviceViewModel : DeviceViewModel = hiltViewModel(),
+//    addDeviceViewModel : AddDeviceViewModel = hiltViewModel()
 ) {
     // Lấy houseId từ SharedViewModel
-    val houseId by sharedViewModel.houseId.collectAsState()
+//    val houseId by sharedViewModel.houseId.collectAsState()
 
     // Gọi hàm lấy danh sách Spaces khi houseId != null
-    LaunchedEffect(houseId) {
-        houseId?.let {
-            deviceViewModel.getSpacesByHomeId(it)
-        }
-    }
+//    LaunchedEffect(houseId) {
+//        houseId?.let {
+//            deviceViewModel.getSpacesByHomeId(it)
+//        }
+//    }
 
     // Lắng nghe luồng State của danh sách space
-    val spacesState by deviceViewModel.spacesListState.collectAsState()
+//    val spacesState by deviceViewModel.spacesListState.collectAsState()
 
-    val deviceLinkState by addDeviceViewModel.linkDeviceState.collectAsState()
+//    val deviceLinkState by addDeviceViewModel.linkDeviceState.collectAsState()
 
     // Biến Compose
-    val coroutineScope = rememberCoroutineScope()
+//    val coroutineScope = rememberCoroutineScope()
+
+    var current by remember { mutableStateOf<String?>(null) }
 
     var deviceId by remember { mutableStateOf("") }
     var deviceName by remember { mutableStateOf("") }
@@ -92,33 +113,36 @@ fun LinkDeviceScreen(
     var deviceIdError by remember { mutableStateOf("") }
     var deviceNameError by remember { mutableStateOf("") }
 
-    // Những biến cho dropdown:
-    var expanded by remember { mutableStateOf(false) }
-    var selectedSpaceName by remember { mutableStateOf("Chọn phòng") }
-    var selectedSpaceId by remember { mutableStateOf<Int?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
 
-    val configuration = LocalConfiguration.current
-    val isTablet = configuration.screenWidthDp >= 600
+    // Những biến cho dropdown:
+//    var expanded by remember { mutableStateOf(false) }
+//    var selectedSpaceName by remember { mutableStateOf("Chọn phòng") }
+//    var selectedSpaceId by remember { mutableStateOf<Int?>(null) }
+
+//    val configuration = LocalConfiguration.current
+//    val isTablet = configuration.screenWidthDp >= 600
 
     // Lắng nghe DeviceLinkState để xử lý side-effect (nếu cần)
-    LaunchedEffect(deviceLinkState) {
-        when (deviceLinkState) {
-            is LinkDeviceState.LinkSuccess -> {
-                // Xử lý thành công
-                val successMsg = (deviceLinkState as LinkDeviceState.LinkSuccess).message
-                Log.d("AddDeviceScreen", "LinkSuccess: $successMsg")
-                // Có thể hiển thị Toast hoặc điều hướng màn khác
-            }
-            is LinkDeviceState.Error -> {
-                // Xử lý lỗi
-                val errMsg = (deviceLinkState as LinkDeviceState.Error).error
-                Log.e("AddDeviceScreen", "Error linkDevice: $errMsg")
-            }
-            else -> {
-                // Idle hoặc Loading, chưa cần gì thêm
-            }
-        }
-    }
+//    LaunchedEffect(deviceLinkState) {
+//        when (deviceLinkState) {
+//            is LinkDeviceState.LinkSuccess -> {
+//                // Xử lý thành công
+//                val successMsg = (deviceLinkState as LinkDeviceState.LinkSuccess).message
+//                Log.d("AddDeviceScreen", "LinkSuccess: $successMsg")
+//                // Có thể hiển thị Toast hoặc điều hướng màn khác
+//            }
+//            is LinkDeviceState.Error -> {
+//                // Xử lý lỗi
+//                val errMsg = (deviceLinkState as LinkDeviceState.Error).error
+//                Log.e("AddDeviceScreen", "Error linkDevice: $errMsg")
+//            }
+//            else -> {
+//                // Idle hoặc Loading, chưa cần gì thêm
+//            }
+//        }
+//    }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -168,184 +192,100 @@ fun LinkDeviceScreen(
                                         modifier = Modifier.width(400.dp)
                                     ) {
                                         // Ô nhập ID thiết bị
-                                        OutlinedTextField(
+                                        StyledTextField(
                                             value = deviceId,
                                             onValueChange = {
                                                 deviceId = it
                                                 deviceIdError = ValidationUtils.validateDeviceId(it)
                                             },
-                                            leadingIcon = {
-                                                Icon(
-                                                    Icons.Filled.Person,
-                                                    contentDescription = null
-                                                )
-                                            },
-                                            shape = RoundedCornerShape(25),
-                                            singleLine = true,
-                                            placeholder = { Text("ID Thiết bị") },
-                                            modifier = Modifier
-                                                .width(if (isTablet) 500.dp else 400.dp)
-                                                .height(if (isTablet) 80.dp else 70.dp),
-                                            colors = TextFieldDefaults.colors(
-                                                focusedTextColor = colorScheme.onBackground,
-                                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                                focusedContainerColor = colorScheme.onPrimary,
-                                                unfocusedContainerColor = colorScheme.onPrimary,
-                                                focusedIndicatorColor = colorScheme.primary,
-                                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                                            ),
-                                            isError = deviceIdError.isNotBlank()
+                                            placeholderText = "ID Thiết bị",
+                                            leadingIcon = Icons.Default.Devices
                                         )
+
                                         Spacer(modifier = Modifier.height(8.dp))
 
                                         // Ô nhập Tên thiết bị
-                                        OutlinedTextField(
+                                        StyledTextField(
                                             value = deviceName,
                                             onValueChange = {
                                                 deviceName = it
                                                 deviceNameError = ValidationUtils.validateDeviceName(it)
                                             },
-                                            leadingIcon = {
-                                                Icon(
-                                                    Icons.Default.Devices,
-                                                    contentDescription = null
-                                                )
-                                            },
-                                            singleLine = true,
-                                            shape = RoundedCornerShape(25),
-                                            placeholder = { Text("Tên thiết bị") },
-                                            modifier = Modifier
-                                                .width(if (isTablet) 500.dp else 400.dp)
-                                                .height(if (isTablet) 80.dp else 70.dp),
-                                            colors = TextFieldDefaults.colors(
-                                                focusedTextColor = colorScheme.onBackground,
-                                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                                focusedContainerColor = colorScheme.onPrimary,
-                                                unfocusedContainerColor = colorScheme.onPrimary,
-                                                focusedIndicatorColor = colorScheme.primary,
-                                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                                            ),
-                                            isError = deviceNameError.isNotBlank()
+                                            placeholderText = "Tên thiết bị",
+                                            leadingIcon = Icons.Default.Devices
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
 
                                         // Dropdown Spaces
                                         // Nếu bạn không muốn dùng ExposedDropdownMenuBox
                                         // có thể tùy chỉnh DropdownMenuItem thủ công, nhưng dưới đây là ví dụ M3.
-                                       ExposedDropdownMenuBox(
-                                            expanded = expanded,
-                                            onExpandedChange = { expanded = !expanded }
-                                        ) {
-                                            OutlinedTextField(
-                                                value = selectedSpaceName,
-                                                onValueChange = {},
-                                                readOnly = true, // Chỉ chọn từ dropdown
-                                                singleLine = true,
-                                                shape = RoundedCornerShape(25),
-                                                leadingIcon = {
-                                                    Icon(
-                                                        Icons.Default.Room,
-                                                        contentDescription = null
-                                                    )
-                                                },
-                                                placeholder = { Text("Chọn phòng") },
-                                                modifier = Modifier
-                                                    .menuAnchor() // Bắt buộc khi dùng ExposedDropdownMenuBox
-                                                    .width(if (isTablet) 500.dp else 400.dp)
-                                                    .height(if (isTablet) 80.dp else 70.dp),
-                                                trailingIcon = {
-                                                    Icon(
-                                                        imageVector = Icons.Default.KeyboardArrowDown,
-                                                        contentDescription = null
-                                                    )
-                                                },
-                                                colors = OutlinedTextFieldDefaults.colors(
-                                                    focusedTextColor = colorScheme.onBackground,
-                                                    unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                                )
-                                            )
 
-                                            ExposedDropdownMenu(
-                                                expanded = expanded,
-                                                onDismissRequest = { expanded = false },
-                                            ) {
-                                                when (spacesState) {
-                                                    is SpaceState.Loading -> {
-                                                        // Loading menu item
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .padding(8.dp)
-                                                                .fillMaxSize()
-                                                        ) {
-                                                            Text("Đang tải danh sách phòng...")
-                                                        }
-                                                    }
-                                                    is SpaceState.Success -> {
-                                                        val spaces = (spacesState as SpaceState.Success).spacesList
-                                                        // Duyệt qua danh sách phòng và tạo item
-                                                        spaces.forEach { space ->
-                                                            DropdownMenuItem(
-                                                                text = { Text(space.Name) },
-                                                                onClick = {
-                                                                    selectedSpaceName = space.Name
-                                                                    selectedSpaceId = space.SpaceID
-                                                                    expanded = false
-                                                                }
-                                                            )
-                                                        }
-                                                    }
-                                                    is SpaceState.Error -> {
-                                                        val errorMsg = (spacesState as SpaceState.Error).error
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .padding(8.dp)
-                                                                .fillMaxWidth()
-                                                        ) {
-                                                            Text(
-                                                                text = "Lỗi khi tải phòng: $errorMsg",
-                                                                color = MaterialTheme.colorScheme.error
-                                                            )
-                                                        }
-                                                    }
-                                                    else -> {
-                                                        /* Do nothing */
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        GenericDropdown(
+                                            items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                            selectedItem = current,
+                                            onItemSelected = { current = it },
+                                            isTablet = false,
+                                            leadingIcon = Icons.Default.Room // 👈 truyền icon vào
+                                        )
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
-                                        // Nút liên kết
-                                        Button(
-                                            onClick = {
-                                                // Validate lần cuối
+                                        ActionButtonWithFeedback(
+                                            label = "Quét mã QR",
+                                            style = HCButtonStyle.PRIMARY,
+                                            onAction = { onS, _ -> onS("Mở camera"); showDialog = true }
+                                        )
+
+                                        if (showDialog) {
+                                            ScanCodeDialog(
+                                                code = "1234-5678-6565-3333",
+                                                onDismiss = { showDialog = false },
+                                                onOk      = { showSuccess = true }
+                                            )
+                                        }
+
+                                        if (showSuccess) {
+                                            AlertDialog(
+                                                onDismissRequest = { showSuccess = false },
+                                                confirmButton = { TextButton(onClick = { showSuccess = false }) { Text("Đóng") } },
+                                                title = { Text("🎉  Thành công!", fontSize = 20.sp) },
+                                                text  = { Text("Thiết bị đã được xác nhận.") },
+                                                shape = RoundedCornerShape(16.dp)
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        ActionButtonWithFeedback(
+                                            label = "Liên kết",
+                                            style = HCButtonStyle.SECONDARY,
+                                            onAction = { onS, onE ->
                                                 deviceIdError = ValidationUtils.validateDeviceId(deviceId)
                                                 deviceNameError = ValidationUtils.validateDeviceName(deviceName)
 
-                                                // Nếu không có lỗi và đã chọn room
-                                                coroutineScope.launch {
-                                                    addDeviceViewModel.linkDevice(
-                                                        deviceId = deviceId,
-                                                        spaceId = selectedSpaceId.toString(),
-                                                        deviceName = deviceName
-                                                    )
+                                                if (deviceIdError.isNotBlank() || deviceNameError.isNotBlank()) {
+                                                    onE("Thông tin không hợp lệ")
+                                                    return@ActionButtonWithFeedback
                                                 }
-                                            },
-                                            modifier = Modifier
-                                                .align(Alignment.CenterHorizontally)
-                                                .width(if (isTablet) 300.dp else 200.dp)
-                                                .height(if (isTablet) 56.dp else 48.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = colorScheme.primary
-                                            ),
-                                            shape = RoundedCornerShape(50)
-                                        ) {
-                                            Text(
-                                                "Liên kết",
-                                                color = colorScheme.onPrimary,
-                                            )
-                                        }
+
+                                                try {
+//                                                    val success =
+//                                                        addDeviceViewModel.linkDeviceSync(
+//                                                        deviceId = deviceId,
+//                                                        spaceId = selectedSpaceId.toString(),
+//                                                        deviceName = deviceName
+//                                                    ) // giả sử đây là suspend fun trả true/false
+//
+//                                                    if (success) {
+//                                                        delay(1000) // giả lập xử lý
+//                                                        onS("Liên kết thành công")
+//                                                    } else {
+//                                                        onE("Liên kết thất bại")
+//                                                    }
+                                                } catch (e: Exception) {
+                                                    onE("Lỗi: ${e.message}")
+                                                }
+                                            }
+                                        )
                                     }
                                 }
                             }
@@ -355,4 +295,11 @@ fun LinkDeviceScreen(
             }
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LinkDeviceScreenPreview() {
+    val navController = rememberNavController() // Fake NavController for preview
+    LinkDeviceScreen(navController = navController)
 }

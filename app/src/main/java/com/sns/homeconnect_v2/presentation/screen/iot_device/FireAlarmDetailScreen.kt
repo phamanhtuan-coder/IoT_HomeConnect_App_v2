@@ -1,111 +1,77 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
-import android.app.Application
 import android.util.Log
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
-import com.sns.homeconnect_v2.R
-import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
+import com.sns.homeconnect_v2.presentation.component.InfoRow
+import com.sns.homeconnect_v2.presentation.component.SingleColorCircleWithDividers
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.FireAlarmDetailViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.GetInfoDeviceState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.ToggleState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.UnlinkState
-import org.json.JSONObject
 
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
-    deviceID: Int?,
+//    deviceID: Int?,
 //    viewModel: FireAlarmDetailViewModel = hiltViewModel(),
 ) {
-    var rowWidth by remember { mutableStateOf(0) }
-    val smokeLevel by remember { mutableStateOf(20) }
-    val temperature by remember { mutableStateOf(50) }
-    val coLevel by remember { mutableStateOf(-1) }
+    var rowWidth by remember { mutableIntStateOf(0) }
+    val smokeLevel by remember { mutableIntStateOf(20) }
+    val temperature by remember { mutableIntStateOf(50) }
+    val coLevel by remember { mutableIntStateOf(-1) }
     var showDialog by remember { mutableStateOf(false) }
     var isCheck by remember { mutableStateOf(false) }
     val statusList = listOf("Bình thường", "Báo động", "Lỗi")// Trạng thái
-    val status by remember { mutableStateOf(0) }
+    val status by remember { mutableIntStateOf(0) }
     val isTablet = isTablet(LocalContext.current)
 
 
@@ -168,7 +134,7 @@ fun FireAlarmDetailScreen(
         safeDevice = infoDevice ?: DeviceResponse(
             DeviceID = 0,
             TypeID = 0,
-            Name = "",
+            Name = "Dinning room",
             PowerStatus = false,
             SpaceID = 0,
             Attribute = ""
@@ -176,9 +142,9 @@ fun FireAlarmDetailScreen(
     }
 
     var powerStatus by remember { mutableStateOf(false) }
-    var toggle by remember {
-        mutableStateOf(ToggleRequest(powerStatus = powerStatus))
-    }
+//    var toggle by remember {
+//        mutableStateOf(ToggleRequest(powerStatus = powerStatus))
+//    }
     LaunchedEffect(safeDevice) {
         powerStatus = safeDevice.PowerStatus
     }
@@ -261,13 +227,14 @@ fun FireAlarmDetailScreen(
                                     horizontalAlignment = Alignment.Start,
                                     verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
                                 ) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+
                                     Text(
                                         text = safeDevice.Name,
                                         color = colorScheme.onPrimary, // Màu chữ trắng
-                                        lineHeight = 32.sp,
-                                        fontSize = 30.sp
+                                        lineHeight = 27.sp,
+                                        fontSize = 25.sp
                                     ) // Tiêu đề
-                                    Spacer(modifier = Modifier.height(4.dp)) // Khoảng cách giữa các thành phần
 
                                     // Switch bật/tắt đèn
                                     CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
@@ -276,21 +243,14 @@ fun FireAlarmDetailScreen(
                                         "Trạng thái hiện tại: ",
                                         color = colorScheme.onPrimary,
                                         fontSize = 16.sp
-                                    ) // Nhãn cho độ sáng
-                                    // Hiển thị phần trăm độ sáng
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(), // Chiều rộng đầy đủ
-                                        horizontalArrangement = Arrangement.Start,
-                                        verticalAlignment = Alignment.Bottom // Canh các thành phần theo đáy
-                                    ) {
-                                        Text(
-                                            statusList[status],
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 25.sp,
-                                            color = colorScheme.onPrimary
-                                        ) // Số phần trăm
-                                    }
-                                    Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách dưới cùng
+                                    )
+
+                                    Text(
+                                        statusList[status],
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 25.sp,
+                                        color = colorScheme.onPrimary
+                                    )
                                 }
 
                                 SingleColorCircleWithDividers(
@@ -308,7 +268,7 @@ fun FireAlarmDetailScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 12.dp, start = 12.dp, end = 8.dp),
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -407,21 +367,9 @@ fun FireAlarmDetailScreen(
                                     }
                                 )
 
-                                Slider(
-                                    value = smokeLevel.toFloat(),
-                                    onValueChange = {
-                                        //Todo: Xử lý khi thay đổi giá trị
-                                    }, // Thanh trượt giá trị mặc định là 80
-                                    steps = 50,
-                                    valueRange = 0f..1000f,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = colorScheme.onPrimary,
-                                        activeTrackColor = colorScheme.onPrimary,
-                                        activeTickColor = colorScheme.onBackground,
-                                        inactiveTrackColor = colorScheme.onBackground,
-                                        inactiveTickColor = colorScheme.onSecondary
-                                    )
-                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                // TODO: Thêm Slider bên nhánh lamp detail
+                                Spacer(modifier = Modifier.height(8.dp))
 
                                 InfoRow(
                                     label = "Nhiệt độ:",
@@ -438,21 +386,11 @@ fun FireAlarmDetailScreen(
                                         else -> "✓"
                                     }
                                 )
-                                Slider(
-                                    value = temperature.toFloat(),
-                                    onValueChange = {
-                                        //Todo: Xử lý khi thay đổi giá trị
-                                    }, // Thanh trượt giá trị mặc định là 80
-                                    steps = 5,
-                                    valueRange = 0f..100f,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = colorScheme.onPrimary,
-                                        activeTrackColor = colorScheme.onPrimary,
-                                        activeTickColor = colorScheme.onBackground,
-                                        inactiveTrackColor = colorScheme.onBackground,
-                                        inactiveTickColor = colorScheme.onSecondary
-                                    )
-                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                // TODO: Thêm Slider bên nhánh lamp detail
+                                Spacer(modifier = Modifier.height(8.dp))
+
                                 InfoRow(
                                     label = "Độ ẩm:",
                                     value = "$coLevel",
@@ -469,73 +407,103 @@ fun FireAlarmDetailScreen(
                                     }
 
                                 )
-                                Slider(
-                                    value = coLevel.toFloat(),
-                                    onValueChange = {
-                                        //Todo: Xử lý khi thay đổi giá trị
-                                    }, // Thanh trượt giá trị mặc định là 80
-                                    steps = 5,
-                                    valueRange = 0f..100f,
-                                    colors = SliderDefaults.colors(
-                                        thumbColor = colorScheme.onPrimary,
-                                        activeTrackColor = colorScheme.onPrimary,
-                                        activeTickColor = colorScheme.onBackground,
-                                        inactiveTrackColor = colorScheme.onBackground,
-                                        inactiveTickColor = colorScheme.onSecondary
-                                    )
-                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                // TODO: Thêm Slider bên nhánh lamp detail
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
 
-                            Row(
+                            /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */
+                            Column(
                                 modifier = Modifier
-                                    .padding(16.dp)
-                                    .then(Modifier.width(rowWidth.dp)),
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    8.dp,
-                                    alignment = Alignment.CenterHorizontally
-                                ), // Khoảng cách giữa các nút
-                                verticalAlignment = Alignment.CenterVertically
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Button(
-                                    onClick = {
-                                        //Todo: Xử lý khi nhấn nút Lịch sử
-                                        navController.navigate(
-                                            Screens.ActivityHistory.createRoute(
-                                                safeDevice.DeviceID
-                                            )
-                                        )
-                                    },
-                                    modifier = Modifier
-                                        .weight(0.5f) // Chia đều không gian
-                                        .width(if (isTablet) 300.dp else 200.dp)
-                                        .height(if (isTablet) 56.dp else 48.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                                    shape = RoundedCornerShape(50)
+                                // HÀNG 1
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Text(
-                                        text = "Lịch sử hoạt động",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp
+                                    ActionButtonWithFeedback(
+                                        label = "Khóa thiết bị",
+                                        onAction = { onS, _ -> onS("Đã khóa") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    ActionButtonWithFeedback(
+                                        label = "Gỡ kết nối",
+                                        onAction = { onS, _ -> onS("Đã gỡ") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
 
-                                Button(
-                                    onClick = {
-                                        showAlertDialog = true
-                                    },
-                                    modifier = Modifier
-                                        .weight(0.5f) // Chia đều không gian
-                                        .width(if (isTablet) 300.dp else 200.dp)
-                                        .height(if (isTablet) 56.dp else 48.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error),
-                                    shape = RoundedCornerShape(50)
+                                Spacer(Modifier.height(12.dp))
+
+                                // HÀNG 2
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    Text(
-                                        text = "Gỡ kết nối",
-                                        fontWeight = FontWeight.Bold,
-                                        color = colorScheme.onError
+                                    ActionButtonWithFeedback(
+                                        label = "Chia sẻ quyền",
+                                        onAction = { onS, _ -> onS("Đã chia sẻ") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    ActionButtonWithFeedback(
+                                        label = "Reset thiết bị",
+                                        onAction = { onS, _ -> onS("Đã reset") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
                                     )
                                 }
+
+                                Spacer(Modifier.height(12.dp))
+
+                                // HÀNG 3
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    ActionButtonWithFeedback(
+                                        label = "Chuyển quyền sở hữu",
+                                        onAction = { onS, _ -> onS("Đã chuyển") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    ActionButtonWithFeedback(
+                                        label = "Xem phiên bản",
+                                        onAction = { onS, _ -> onS("v1.0") },
+                                        style = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
+                                        textSize = 20.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+
+                                Spacer(Modifier.height(16.dp))
+
+                                // NÚT CUỐI
+                                ActionButtonWithFeedback(
+                                    label = "Báo mất thiết bị",
+                                    onAction = { onS, _ -> onS("Đã báo mất") },
+                                    style = HCButtonStyle.PRIMARY,
+                                    height = 62.dp,
+                                    textSize = 20.sp,
+                                    modifier = Modifier.fillMaxWidth(0.8f)
+                                )
                             }
                         }
                     }
@@ -546,197 +514,61 @@ fun FireAlarmDetailScreen(
 }
 
 /* ---------- PREVIEWS ---------- */
-
 @Preview(
     showBackground = true,
     widthDp = 360,
     heightDp = 800,
     name = "FireAlarmDetail – Phone"
 )
+
 @Composable
 fun FireAlarmDetailPhonePreview() {
     IoTHomeConnectAppTheme {
         FireAlarmDetailScreen(
             navController = rememberNavController(),
-            deviceID = 0            // dummy id
+//            deviceID = 0            // dummy id
         )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    widthDp = 800,
-    heightDp = 1280,
-    name = "FireAlarmDetail – Tablet"
-)
-@Composable
-fun FireAlarmDetailTabletPreview() {
-    IoTHomeConnectAppTheme {
-        FireAlarmDetailScreen(
-            navController = rememberNavController(),
-            deviceID = 0
-        )
-    }
-}
-
-@Composable
-fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
-    Box(
-        modifier = Modifier
-            .size(150.dp)
-            .padding(bottom = 8.dp),
-        contentAlignment = Alignment.Center // Đảm bảo nội dung bên trong căn giữa
-    ) {
-        // Xác định màu dựa theo trạng thái
-        val color = when (selectedStatus) {
-            "Bình thường" -> Color.Green
-            "Báo động" -> Color.Red
-            "Lỗi" -> Color.Yellow
-            else -> Color.Gray
-        }
-        Canvas(modifier = Modifier.size(200.dp)) {
-            val radius = size.minDimension / 2 - 20f // Trừ bớt để tránh bị cắt
-            val center = Offset(size.width / 2, size.height / 2)
-
-
-            // Vẽ vòng tròn với màu trạng thái
-            drawCircle(
-                color = color,
-                radius = radius,
-                center = center,
-                style = Stroke(width = 40f) // Độ dày của vòng tròn
-            )
-
-            // Vẽ các đường gạch phân cách
-            val lineAngleStep = 360f / dividerCount
-            for (i in 0 until dividerCount) {
-                val angle = Math.toRadians((-90 + i * lineAngleStep).toDouble())
-                val startX = center.x + (radius - 20f) * Math.cos(angle).toFloat()
-                val startY = center.y + (radius - 20f) * Math.sin(angle).toFloat()
-                val endX = center.x + (radius + 20f) * Math.cos(angle).toFloat()
-                val endY = center.y + (radius + 20f) * Math.sin(angle).toFloat()
-
-                drawLine(
-                    color = Color.Black,
-                    start = Offset(startX, startY),
-                    end = Offset(endX, endY),
-                    strokeWidth = 4f
-                )
-            }
-        }
-
-        // Icon trung tâm (nếu cần)
-        Image(
-            painter = painterResource(id = R.drawable.fire),
-            colorFilter = ColorFilter.tint(color),
-            contentDescription = null,
-            modifier = Modifier.size(100.dp) // Kích thước biểu tượng
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun SegmentedCirclePreview() {
-    val statusList = listOf("Bình thường", "Báo động", "Lỗi")
-    SingleColorCircleWithDividers(selectedStatus = statusList[0], dividerCount = 12)
-}
-
-@Composable
-// Hàm hiển thị từng hàng thông tin
-fun InfoRow(label: String, value: String, unit: String, stateColor: Color, stateText: String) {
-    IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
-        Row(
-            modifier = Modifier
-                .wrapContentWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = label,
-                fontSize = 16.sp,
-                modifier = Modifier.weight(1f),
-                color = colorScheme.onBackground,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Row(
-                modifier = Modifier.weight(2f),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = value,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorScheme.onBackground,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = unit,
-                    fontSize = 12.sp,
-                    modifier = Modifier.offset(y = 3.dp),
-                    color = colorScheme.onBackground,
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(20.dp)
-                    .clip(CircleShape)
-                    .background(stateColor),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stateText,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
     }
 }
 
 // Thêm extension function để parse toggle log
-fun String.parseToggleCommand(): Boolean? {
-    return try {
-        val command = JSONObject(this)
-        if (command.has("command")) {
-            val toggleCommand = command.getJSONObject("command")
-            toggleCommand.getBoolean("powerStatus")
-        } else {
-            null
-        }
-    } catch (e: Exception) {
-        Log.e("ParseLog", "Error parsing toggle command", e)
-        null
-    }
-}
+//fun String.parseToggleCommand(): Boolean? {
+//    return try {
+//        val command = JSONObject(this)
+//        if (command.has("command")) {
+//            val toggleCommand = command.getJSONObject("command")
+//            toggleCommand.getBoolean("powerStatus")
+//        } else {
+//            null
+//        }
+//    } catch (e: Exception) {
+//        Log.e("ParseLog", "Error parsing toggle command", e)
+//        null
+//    }
+//}
 
 // Thêm data class để giữ giá trị sensor
-data class SensorData(
-    val gas: Int = 0,
-    val temperature: Double = 0.0,
-    val humidity: Int = 0
-)
+//data class SensorData(
+//    val gas: Int = 0,
+//    val temperature: Double = 0.0,
+//    val humidity: Int = 0
+//)
 
 // Extension function để parse sensor data
-fun String.parseSensorData(): SensorData? {
-    return try {
-        val parts = this.split("}")
-        // Lấy phần JSON cuối cùng chứa dữ liệu sensor
-        val sensorJson = parts.last { it.contains("sensorData") } + "}"
-        val data = JSONObject(sensorJson)
-
-        SensorData(
-            gas = data.optInt("gas", 0),
-            temperature = data.optDouble("temperature", 0.0),
-            humidity = data.optInt("humidity", 0)
-        )
-    } catch (e: Exception) {
-        Log.e("ParseLog", "Error parsing sensor data", e)
-        null
-    }
-}
+//fun String.parseSensorData(): SensorData? {
+//    return try {
+//        val parts = this.split("}")
+//        // Lấy phần JSON cuối cùng chứa dữ liệu sensor
+//        val sensorJson = parts.last { it.contains("sensorData") } + "}"
+//        val data = JSONObject(sensorJson)
+//
+//        SensorData(
+//            gas = data.optInt("gas", 0),
+//            temperature = data.optDouble("temperature", 0.0),
+//            humidity = data.optInt("humidity", 0)
+//        )
+//    } catch (e: Exception) {
+//        Log.e("ParseLog", "Error parsing sensor data", e)
+//        null
+//    }
+//}

@@ -150,7 +150,9 @@ fun CreateGroupScreen(
                                     selectedItem = selectedRole,
                                     onItemSelected = { selectedRole = it },
                                     modifier = Modifier.padding(horizontal = 16.dp),
-                                    placeHolder = "Chọn nhà"
+                                    placeHolder = "Chọn nhà",
+                                    isTablet = isTablet,
+                                    leadingIcon = Icons.Default.Room
                                 )
                             }
                         }

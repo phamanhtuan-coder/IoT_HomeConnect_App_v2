@@ -86,7 +86,7 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
                 Header(
                     navController = navController,
                     type          = "Back",
-                    title         = spaceName ?: "Space Details"
+                    title         = "Space Details"
                 )
             },
             containerColor = Color.White,

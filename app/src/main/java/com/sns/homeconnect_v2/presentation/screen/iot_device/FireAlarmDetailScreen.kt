@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -45,6 +47,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,14 +73,18 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
+import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
+import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.FireAlarmDetailViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_fire.GetInfoDeviceState
@@ -89,65 +96,65 @@ import org.json.JSONObject
 fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceID: Int?,
-    viewModel: FireAlarmDetailViewModel = hiltViewModel(),
+//    viewModel: FireAlarmDetailViewModel = hiltViewModel(),
 ) {
     var rowWidth by remember { mutableStateOf(0) }
     val smokeLevel by remember { mutableStateOf(20) }
     val temperature by remember { mutableStateOf(50) }
     val coLevel by remember { mutableStateOf(-1) }
     var showDialog by remember { mutableStateOf(false) }
-    val switchState by remember { mutableStateOf(true) }
+    var isCheck by remember { mutableStateOf(false) }
     val statusList = listOf("Bình thường", "Báo động", "Lỗi")// Trạng thái
     val status by remember { mutableStateOf(0) }
     val isTablet = isTablet(LocalContext.current)
 
 
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
-    val infoDeviceState by viewModel.infoDeviceState.collectAsState()
+//    val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
-    when (infoDeviceState) {
-        is GetInfoDeviceState.Error -> {
-            Log.d("Error", (infoDeviceState as GetInfoDeviceState.Error).error)
-        }
-
-        is GetInfoDeviceState.Success -> {
-            infoDevice = (infoDeviceState as GetInfoDeviceState.Success).device
-            Log.d("List Device", (infoDeviceState as GetInfoDeviceState.Success).device.toString())
-        }
-
-        else -> {
-            /* Do nothing */
-        }
-    }
+//    when (infoDeviceState) {
+//        is GetInfoDeviceState.Error -> {
+//            Log.d("Error", (infoDeviceState as GetInfoDeviceState.Error).error)
+//        }
+//
+//        is GetInfoDeviceState.Success -> {
+//            infoDevice = (infoDeviceState as GetInfoDeviceState.Success).device
+//            Log.d("List Device", (infoDeviceState as GetInfoDeviceState.Success).device.toString())
+//        }
+//
+//        else -> {
+//            /* Do nothing */
+//        }
+//    }
 
     LaunchedEffect(1) {
-        viewModel.getInfoDevice(deviceID!!)
+//        viewModel.getInfoDevice(deviceID!!)
     }
 
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) } // Lắng nghe danh sách thiết bị
-    val toggleDeviceState by viewModel.toggleState.collectAsState()
+//    val toggleDeviceState by viewModel.toggleState.collectAsState()
 
-    when (toggleDeviceState) {
-        is ToggleState.Error -> {
-            Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
-        }
-
-        is ToggleState.Success -> {
-            val successState = toggleDeviceState as ToggleState.Success
-            toggleDevice = successState.toggle
-            Log.e("toggle Device", toggleDevice.toString())
-        }
-
-        else -> {
-            /* Do nothing */
-        }
-    }
+//    when (toggleDeviceState) {
+//        is ToggleState.Error -> {
+//            Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
+//        }
+//
+//        is ToggleState.Success -> {
+//            val successState = toggleDeviceState as ToggleState.Success
+//            toggleDevice = successState.toggle
+//            Log.e("toggle Device", toggleDevice.toString())
+//        }
+//
+//        else -> {
+//            /* Do nothing */
+//        }
+//    }
 
 
     var safeDevice = infoDevice ?: DeviceResponse(
         DeviceID = 0,
         TypeID = 0,
-        Name = "",
+        Name = "Dinning room",
         PowerStatus = false,
         SpaceID = 0,
         Attribute = ""
@@ -176,21 +183,21 @@ fun FireAlarmDetailScreen(
         powerStatus = safeDevice.PowerStatus
     }
 
-    val unlinkState by viewModel.unlinkState.collectAsState()
+//    val unlinkState by viewModel.unlinkState.collectAsState()
 
-    when (unlinkState) {
-        is UnlinkState.Error -> {
-            Log.e("Error Unlink Device", (unlinkState as UnlinkState.Error).error)
-        }
-
-        is UnlinkState.Success -> {
-            Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
-        }
-
-        else -> {
-            /* Do nothing */
-        }
-    }
+//    when (unlinkState) {
+//        is UnlinkState.Error -> {
+//            Log.e("Error Unlink Device", (unlinkState as UnlinkState.Error).error)
+//        }
+//
+//        is UnlinkState.Success -> {
+//            Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
+//        }
+//
+//        else -> {
+//            /* Do nothing */
+//        }
+//    }
 
 
     var showAlertDialog by remember { mutableStateOf(false) }
@@ -199,7 +206,7 @@ fun FireAlarmDetailScreen(
             title = "Gỡ kết nối",
             text = "Bạn có chắc chắn muốn gỡ kết nối thiết bị này không?",
             onConfirm = {
-                viewModel.unlinkDevice(safeDevice.DeviceID)
+//                viewModel.unlinkDevice(safeDevice.DeviceID)
                 showAlertDialog = false
                 navController.popBackStack()
             },
@@ -231,265 +238,140 @@ fun FireAlarmDetailScreen(
             containerColor = colorScheme.background,
             modifier = Modifier.fillMaxSize(),
             content = { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
+                LazyColumn (
+                    modifier = Modifier.padding(innerPadding)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize() // Đảm bảo chiếm toàn bộ không gian
-                            .fillMaxHeight()
-                            .imePadding() // Tự động thêm khoảng trống khi bàn phím xuất hiện
-                            .verticalScroll(rememberScrollState()) // Cho phép cuộn
-                            .padding(innerPadding)
-                    ) {
-                        // Nội dung bên dưới
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(color = colorScheme.background)
-                                .wrapContentHeight()
+                    item {
+                        ColoredCornerBox(
+                            cornerRadius = 40.dp
                         ) {
-                            Column {
-                                // Hộp màu xanh dương
-                                Box(
+                            // Phần đầu tiên: Hiển thị thông tin "Dining Room"
+                            Row(
+                                modifier = Modifier.padding(
+                                    horizontal = 16.dp,
+                                    vertical = 8.dp
+                                ) // Canh lề trên và phải
+                            ) {
+                                // Cột chứa các thông tin của phòng
+                                Column(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .background(
-                                            color = colorScheme.primary,
-                                            shape = RoundedCornerShape(bottomStart = 40.dp)
-                                        )
-                                        .zIndex(1f)
+                                        .fillMaxWidth() // Chiều rộng đầy đủ
+                                        .background(color = colorScheme.primary) // Nền màu xanh dương
+                                        .weight(0.2f), // Chiếm 20% của Row
+                                    horizontalAlignment = Alignment.Start,
+                                    verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(RoundedCornerShape(bottomStart = 40.dp)) // Làm bo tròn góc dưới bên trái của Box
+                                    Text(
+                                        text = safeDevice.Name,
+                                        color = colorScheme.onPrimary, // Màu chữ trắng
+                                        lineHeight = 32.sp,
+                                        fontSize = 30.sp
+                                    ) // Tiêu đề
+                                    Spacer(modifier = Modifier.height(4.dp)) // Khoảng cách giữa các thành phần
+
+                                    // Switch bật/tắt đèn
+                                    CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
+
+                                    Text(
+                                        "Trạng thái hiện tại: ",
+                                        color = colorScheme.onPrimary,
+                                        fontSize = 16.sp
+                                    ) // Nhãn cho độ sáng
+                                    // Hiển thị phần trăm độ sáng
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(), // Chiều rộng đầy đủ
+                                        horizontalArrangement = Arrangement.Start,
+                                        verticalAlignment = Alignment.Bottom // Canh các thành phần theo đáy
                                     ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxSize() // Chiếm toàn bộ kích thước của Box
-                                        ) {
-                                            // Phần đầu tiên: Hiển thị thông tin "Dining Room"
-                                            Row(
-                                                modifier = Modifier.padding(
-                                                    top = 8.dp,
-                                                    end = 12.dp
-                                                ) // Canh lề trên và phải
-                                            ) {
-                                                // Cột chứa các thông tin của phòng
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(
-                                                            start = 12.dp,
-                                                            end = 12.dp
-                                                        ) // Canh lề hai bên
-                                                        .fillMaxWidth() // Chiều rộng đầy đủ
-                                                        .background(color = colorScheme.primary) // Nền màu xanh dương
-                                                        .weight(0.2f), // Chiếm 20% của Row
-                                                    horizontalAlignment = Alignment.Start,
-                                                    verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
-                                                ) {
-                                                    Text(
-                                                        text = safeDevice.Name,
-                                                        color = colorScheme.onPrimary, // Màu chữ trắng
-                                                        lineHeight = 32.sp,
-                                                        fontSize = 30.sp
-                                                    ) // Tiêu đề
-                                                    Spacer(modifier = Modifier.height(4.dp)) // Khoảng cách giữa các thành phần
-
-                                                    // Switch bật/tắt đèn
-                                                    Switch(
-                                                        checked = powerStatus,
-                                                        onCheckedChange = {
-                                                            //Todo: Xử lý tắt mở thiết bị
-                                                            powerStatus = !powerStatus
-                                                            toggle =
-                                                                ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
-                                                            viewModel.toggleDevice(
-                                                                safeDevice.DeviceID,
-                                                                toggle
-                                                            )
-                                                        },
-                                                        thumbContent = {
-                                                            Icon(
-                                                                imageVector = if (switchState) Icons.Filled.Check else Icons.Filled.Close,
-                                                                contentDescription = "On/Off Switch",
-                                                                tint = if (switchState) colorScheme.onPrimary else colorScheme.onSecondary.copy(
-                                                                    alpha = 0.8f
-                                                                )
-                                                            )
-                                                        },
-                                                        colors = SwitchDefaults.colors(
-                                                            checkedThumbColor = colorScheme.primary,
-                                                            checkedTrackColor = colorScheme.onPrimary,
-                                                            uncheckedThumbColor = colorScheme.secondary,
-                                                            uncheckedTrackColor = colorScheme.onSecondary.copy(
-                                                                alpha = 0.8f
-                                                            ),
-                                                        )
-                                                    )
-                                                    Text(
-                                                        "Trạng thái hiện tại: ",
-                                                        color = colorScheme.onPrimary,
-                                                        fontSize = 16.sp
-                                                    ) // Nhãn cho độ sáng
-                                                    // Hiển thị phần trăm độ sáng
-                                                    Row(
-                                                        modifier = Modifier.fillMaxWidth(), // Chiều rộng đầy đủ
-                                                        horizontalArrangement = Arrangement.Start,
-                                                        verticalAlignment = Alignment.Bottom // Canh các thành phần theo đáy
-                                                    ) {
-                                                        Text(
-                                                            statusList[status],
-                                                            fontWeight = FontWeight.Bold,
-                                                            fontSize = 25.sp,
-                                                            color = colorScheme.onPrimary
-                                                        ) // Số phần trăm
-                                                    }
-                                                    Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách dưới cùng
-                                                }
-
-                                                SingleColorCircleWithDividers(
-                                                    selectedStatus = statusList[status],
-                                                    dividerCount = 12
-                                                )
-                                            }
-                                            Spacer(modifier = Modifier.height(16.dp))
-                                        }
+                                        Text(
+                                            statusList[status],
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 25.sp,
+                                            color = colorScheme.onPrimary
+                                        ) // Số phần trăm
                                     }
+                                    Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách dưới cùng
                                 }
-                                // Hộp màu xanh lá cây với góc lõm
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
+
+                                SingleColorCircleWithDividers(
+                                    selectedStatus = statusList[status],
+                                    dividerCount = 12
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+
+                        InvertedCornerHeader(
+                            backgroundColor = colorScheme.surface,
+                            overlayColor = colorScheme.primary
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp, start = 12.dp, end = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                /* ---------- INFO ---------- */
+                                IconButton(
+                                    onClick = { showDialog = true },
+                                    modifier = Modifier.size(32.dp)           // toàn bộ IconButton = 32 × 32
                                 ) {
-                                    // Box màu vàng (ở dưới)
-                                    Box(
-                                        modifier = Modifier
-                                            .width(40.dp)
-                                            .height(40.dp)
-                                            .align(Alignment.TopEnd)
-                                            .background(color = colorScheme.primary)
-                                            .zIndex(1f) // Z-index thấp hơn
+                                    Icon(
+                                        imageVector = Icons.Default.Info,
+                                        contentDescription = "Info",
+                                        tint = colorScheme.primary,
+                                        modifier = Modifier.size(32.dp)       // icon bên trong = 32
                                     )
+                                }
 
-                                    // Box màu xanh lá cây (ở trên)
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(
-                                                color = colorScheme.background,
-                                                shape = RoundedCornerShape(topEndPercent = 50)
-                                            )
-                                            .width(50.dp)
-                                            .height(50.dp)
-                                            .zIndex(2f) // Z-index cao hơn
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clip(RoundedCornerShape(topEndPercent = 100)) // Clip nội dung ScrollableTabRow
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth() // Đảm bảo Row chiếm toàn bộ chiều rộng
-                                                    .padding(
-                                                        top = 12.dp,
-                                                        start = 12.dp,
-                                                        end = 8.dp
-                                                    ), // Khoảng cách bên trong Row
-                                                horizontalArrangement = Arrangement.SpaceBetween, // Đẩy các phần tử ra hai bên
-                                                verticalAlignment = Alignment.CenterVertically // Căn giữa theo chiều dọc
-                                            ) {
-                                                // Nội dung bên phải (Icon trong Box)
-                                                Button(
-                                                    onClick = {
-                                                        showDialog = true
-                                                    },
-                                                    modifier = Modifier
-                                                        .size(24.dp), // Kích thước tổng thể của Button
-                                                    shape = CircleShape, // Đảm bảo Button có dạng hình tròn
-                                                    contentPadding = PaddingValues(0.dp), // Loại bỏ padding mặc định
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = colorScheme.onPrimary,
-                                                        contentColor = colorScheme.primary
-                                                    )
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Info,
-                                                        contentDescription = "Info",
-                                                        modifier = Modifier.size(24.dp), // Kích thước của Icon
-                                                        tint = colorScheme.primary
-                                                    )
-                                                }
-                                                Button(
-                                                    onClick = {
-                                                        navController.navigate(Screens.AccessPoint.route + "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}")
-                                                    },
-                                                    modifier = Modifier
-                                                        .size(24.dp), // Kích thước tổng thể của Button
-                                                    shape = CircleShape, // Đảm bảo Button có dạng hình tròn
-                                                    contentPadding = PaddingValues(0.dp), // Loại bỏ padding mặc định,
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = colorScheme.onPrimary,
-                                                        contentColor = colorScheme.primary
+                                /* ---------- WIFI ---------- */
+                                IconButton(
+                                    onClick = {
+                                        navController.navigate(
+                                            Screens.AccessPoint.route +
+                                                    "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}"
+                                        )
+                                    },
+                                    modifier = Modifier.size(32.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Wifi,
+                                        contentDescription = "Wi-Fi",
+                                        tint = colorScheme.primary,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
 
-                                                    )
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Wifi,
-                                                        contentDescription = "Wifi",
-                                                        modifier = Modifier.size(24.dp), // Kích thước của Icon
-                                                        tint = colorScheme.primary
-
-                                                    )
-                                                }
-                                                if (showDialog) {
-                                                    fun getIconForType(typeId: Int): String {
-                                                        return when (typeId) {
-                                                            1 -> "Fire Alarm" // Light
-                                                            2, 3 -> "LED Light" // Fire
-                                                            else -> ""         // Biểu tượng mặc định
-                                                        }
-                                                    }
-
-                                                    AlertDialog(
-                                                        onDismissRequest = {
-                                                            showDialog = false
-                                                        }, // Đóng Dialog khi chạm ngoài
-                                                        title = { Text(text = "Thông tin thiết bị") },
-                                                        text = {
-                                                            Column {
-                                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                                Text(
-                                                                    "Loại thiết bị: ${
-                                                                        getIconForType(
-                                                                            safeDevice.TypeID
-                                                                        )
-                                                                    }"
-                                                                )
-                                                            }
-                                                        },
-                                                        confirmButton = {
-                                                            Button(onClick = {
-                                                                showDialog = false
-                                                            }) {
-                                                                Text("Đóng")
-                                                            }
-                                                        }
-                                                    )
-                                                }
+                                /* ---------- DIALOG ---------- */
+                                if (showDialog) {
+                                    val typeName = when (safeDevice.TypeID) {
+                                        1 -> "Fire Alarm"
+                                        2, 3 -> "LED Light"
+                                        else -> ""
+                                    }
+                                    AlertDialog(
+                                        onDismissRequest = { showDialog = false },
+                                        title = { Text("Thông tin thiết bị") },
+                                        text = {
+                                            Column {
+                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
+                                                Text("Tên thiết bị: ${safeDevice.Name}")
+                                                Text("Loại thiết bị: $typeName")
+                                            }
+                                        },
+                                        confirmButton = {
+                                            TextButton(onClick = { showDialog = false }) {
+                                                Text("Đóng")
                                             }
                                         }
-                                    }
+                                    )
                                 }
                             }
                         }
+                    }
 
+                    item {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -663,10 +545,46 @@ fun FireAlarmDetailScreen(
     }
 }
 
+/* ---------- PREVIEWS ---------- */
+
+@Preview(
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800,
+    name = "FireAlarmDetail – Phone"
+)
+@Composable
+fun FireAlarmDetailPhonePreview() {
+    IoTHomeConnectAppTheme {
+        FireAlarmDetailScreen(
+            navController = rememberNavController(),
+            deviceID = 0            // dummy id
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 1280,
+    name = "FireAlarmDetail – Tablet"
+)
+@Composable
+fun FireAlarmDetailTabletPreview() {
+    IoTHomeConnectAppTheme {
+        FireAlarmDetailScreen(
+            navController = rememberNavController(),
+            deviceID = 0
+        )
+    }
+}
+
 @Composable
 fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
     Box(
-        modifier = Modifier.size(200.dp),
+        modifier = Modifier
+            .size(150.dp)
+            .padding(bottom = 8.dp),
         contentAlignment = Alignment.Center // Đảm bảo nội dung bên trong căn giữa
     ) {
         // Xác định màu dựa theo trạng thái

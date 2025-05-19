@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Room
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,24 @@ import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.component.SimpleUserCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+/**
+ * Hàm Composable đại diện cho màn hình "Thêm người dùng".
+ * Màn hình này cho phép người dùng tìm kiếm và thêm người dùng mới vào một nhóm,
+ * gán vai trò cho họ và điều hướng đến các phần khác của ứng dụng.
+ *
+ * Màn hình bao gồm:
+ * - Thanh ứng dụng trên cùng với nút quay lại và tiêu đề.
+ * - Thanh tìm kiếm để tìm người dùng.
+ * - Một phần để hiển thị người dùng đang được thêm (hiện tại là một trình giữ chỗ).
+ * - Menu thả xuống để chọn vai trò cho người dùng mới (Chủ sở hữu, Phó, Quản trị viên, Thành viên).
+ * - Nút "Thêm" để xác nhận việc thêm người dùng.
+ * - Thanh điều hướng dưới cùng để điều hướng đến các màn hình khác như Bảng điều khiển, Thiết bị, Trang chủ, Hồ sơ và Cài đặt.
+ *
+ * @param navController [NavHostController] được sử dụng để điều hướng trong ứng dụng.
+ * @author Nguyễn Thanh Sang
+ * @since 19-05-2025
+ */
 
 @Composable
 fun AddUserScreen(
@@ -168,7 +187,9 @@ fun AddUserScreen(
                     GenericDropdown(
                         items = list,
                         selectedItem = current,
-                        onItemSelected = { current = it }
+                        onItemSelected = { current = it },
+                        isTablet = isTablet,
+                        leadingIcon = Icons.Default.Room
                     )
                     Spacer(Modifier.height(8.dp))
                     ActionButtonWithFeedback(

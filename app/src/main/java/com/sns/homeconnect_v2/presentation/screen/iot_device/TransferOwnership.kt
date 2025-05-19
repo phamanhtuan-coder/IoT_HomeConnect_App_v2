@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun DetailInfoDeviceScreen(navController: NavHostController) {
+fun TransferOwnershipScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
 
     IoTHomeConnectAppTheme {
@@ -116,8 +116,8 @@ fun DetailInfoDeviceScreen(navController: NavHostController) {
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "GroupScreen - Phone")
 @Composable
-fun DetailInfoDeviceScreenPhonePreview() {
+fun TransferOwnershipScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        DetailInfoDeviceScreen(navController = rememberNavController())
+        TransferOwnershipScreen(navController = rememberNavController())
     }
 }

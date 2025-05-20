@@ -36,7 +36,7 @@ fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
             else -> Color.Gray
         }
         Canvas(modifier = Modifier.size(200.dp)) {
-            val radius = size.minDimension / 2 - 20f // Trừ bớt để tránh bị cắt
+            val radius = size.minDimension / 2 - PADDING_OFFSET // Trừ bớt để tránh bị cắt
             val center = Offset(size.width / 2, size.height / 2)
 
 

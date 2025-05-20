@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
@@ -26,32 +27,44 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Composable function hiển thị màn hình thông tin chi tiết cho một thiết bị IoT.
- * Màn hình này bao gồm một header, một khu vực nội dung với một trường văn bản được tạo kiểu và một nút hành động,
- * và một menu điều hướng ở dưới cùng.
+ * Composable function cho màn hình "Chuyển quyền sở hữu" của một thiết bị IoT.
+ * Màn hình này cho phép chủ sở hữu hiện tại chuyển quyền sở hữu cho người dùng khác bằng cách nhập email của họ.
  *
  * Bố cục màn hình bao gồm:
- * - Một thanh trên cùng với nút quay lại và tiêu đề "Space Details".
+ * - Một thanh ứng dụng trên cùng với nút quay lại và tiêu đề "Space Details".
  * - Một khu vực nội dung chính bao gồm:
- *     - Một `ColoredCornerBox` (hiện tại trống).
- *     - Một `InvertedCornerHeader`.
+ *     - Một `ColoredCornerBox` (hiện tại trống, có thể dùng cho các yếu tố trực quan trong tương lai).
+ *     - Một `InvertedCornerHeader` để tạo sự tách biệt trực quan.
  *     - Một `Column` chứa:
- *         - Một `StyledTextField` để nhập email.
+ *         - Một `StyledTextField` để người dùng nhập địa chỉ email của người nhận.
  *         - Một `ActionButtonWithFeedback` có nhãn "Chuyển quyền".
- * - Một thanh dưới cùng với điều hướng `MenuBottom`.
+ * - Một thanh điều hướng dưới cùng sử dụng `MenuBottom`.
  *
- * `StyledTextField` cho phép người dùng nhập văn bản (có lẽ là địa chỉ email).
- * `ActionButtonWithFeedback` mô phỏng một hành động mất 1 giây để hoàn thành
- * và sau đó hiển thị "Done".
+ * **Chức năng:**
+ * - `StyledTextField` cho phép người dùng nhập email của người mà họ muốn chuyển quyền sở hữu.
+ * - Nhấp vào nút "Chuyển quyền" sẽ kích hoạt một hộp thoại xác nhận (`WarningDialog`).
+ * - Nếu người dùng xác nhận trong hộp thoại:
+ *     - Một vòng xoay tải sẽ hiển thị trên nút.
+ *     - Một lệnh gọi API mô phỏng (trì hoãn 1 giây) được thực hiện.
+ *     - Sau khi hoàn thành (mô phỏng) thành công, một thông báo thành công "Đã chuyển quyền thành công!" sẽ được hiển thị.
+ *     - Nếu lệnh gọi API (mô phỏng) thất bại, một thông báo lỗi "Chuyển quyền thất bại!" sẽ được hiển thị.
+ *     - Vòng xoay tải sẽ bị ẩn sau khi thao tác hoàn tất.
+ * - Nếu người dùng hủy hộp thoại xác nhận, quá trình chuyển quyền sẽ bị hủy bỏ.
  *
- * @param navController NavHostController được sử dụng cho các hành động điều hướng, chẳng hạn như quay lại.
+ * @param navController `NavHostController` được sử dụng cho các hành động điều hướng, chẳng hạn như điều hướng quay lại.
  * @author Nguyễn Thanh Sang
  * @since 19-05-24
+ * @updated Nguyễn Thanh Sang - 20/05/25: Bổ sung dialog xác nhận khi chuyển quyền.
  */
 
 @Composable
 fun TransferOwnershipScreen(navController: NavHostController) {
     val scope = rememberCoroutineScope()
+
+    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var showConfirm      by remember { mutableStateOf(false) }
+    var isLoading        by remember { mutableStateOf(false) }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -104,10 +117,44 @@ fun TransferOwnershipScreen(navController: NavHostController) {
                     )
 
                     ActionButtonWithFeedback(
-                        label = "Chuyển quyền",
-                        style = HCButtonStyle.PRIMARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } }
+                        label  = "Chuyển quyền",
+                        style  = HCButtonStyle.PRIMARY,
+                        isLoadingFromParent = isLoading,
+                        onAction = { onS, onE ->
+                            /* ⇢ chỉ lưu callback, CHƯA gọi API */
+                            pendingOnSuccess = onS
+                            pendingOnError   = onE
+                            showConfirm      = true
+                        }
                     )
+
+                    if (showConfirm) {
+                        WarningDialog(
+                            title       = "Xác nhận chuyển quyền",
+                            text        = "Bạn có chắc muốn chuyển quyền sử dụng không?",
+                            confirmText = "Đồng ý",
+                            dismissText = "Huỷ",
+                            onConfirm = {
+                                showConfirm = false
+                                isLoading   = true                // spinner ngay lập tức
+
+                                scope.launch {
+                                    delay(1000)                   // giả lập API
+                                    val ok = true                 // kết quả thật
+                                    if (ok) pendingOnSuccess?.invoke("Đã chuyển quyền thành công!")
+                                    else     pendingOnError?.invoke("Chuyển quyền thất bại!")
+                                    isLoading = false             // tắt spinner
+                                    pendingOnSuccess = null
+                                    pendingOnError   = null
+                                }
+                            },
+                            onDismiss = {
+                                showConfirm      = false
+                                pendingOnSuccess = null
+                                pendingOnError   = null
+                            }
+                        )
+                    }
                 }
             }
         }

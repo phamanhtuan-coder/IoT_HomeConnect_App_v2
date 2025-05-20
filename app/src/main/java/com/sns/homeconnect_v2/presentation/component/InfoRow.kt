@@ -5,9 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,13 +22,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * A composable function that displays a row of information with a label, value, unit, and a state indicator.
+ * Một hàm có thể kết hợp (composable function) hiển thị một hàng thông tin với nhãn, giá trị, đơn vị và chỉ báo trạng thái.
+ * Thành phần này được thiết kế để trình bày dữ liệu một cách rõ ràng và ngắn gọn, phù hợp cho bảng điều khiển hoặc màn hình thông tin.
  *
- * @param label The label text displayed on the left side of the row.
- * @param value The main value text displayed prominently in the center of the row.
- * @param unit The unit text displayed next to the value, typically in a smaller font size.
- * @param stateColor The background color of the circular state indicator on the right side of the row.
- * @param stateText The text displayed inside the circular state indicator.
+ * Bố cục bao gồm ba phần chính:
+ * 1. **Nhãn (Label)**: Hiển thị ở bên trái, mô tả dữ liệu đang được hiển thị.
+ * 2. **Giá trị và Đơn vị (Value and Unit)**: Hiển thị ở giữa, với giá trị nổi bật hơn và đơn vị hơi lệch và nhỏ hơn.
+ * 3. **Chỉ báo trạng thái (State Indicator)**: Một vòng tròn màu ở bên phải, chứa văn bản cho biết trạng thái liên quan đến dữ liệu.
+ *
+ * `InfoRow` sử dụng `IoTHomeConnectAppTheme` để tạo kiểu nhất quán với phần còn lại của ứng dụng.
+ * Nó sử dụng các composable `Row` và `Box` để bố cục, và các composable `Text` để hiển thị thông tin.
+ * `MaterialTheme.colorScheme` được sử dụng để đảm bảo rằng màu văn bản thích ứng với chủ đề hiện tại (sáng/tối).
+ *
+ * @param label Văn bản cho nhãn, được định vị ở phía bên trái của hàng.
+ * @param value Giá trị dữ liệu chính, được hiển thị nổi bật ở giữa.
+ * @param unit Đơn vị tương ứng với giá trị, được hiển thị bên cạnh nó với phông chữ nhỏ hơn.
+ * @param stateColor Màu nền cho chỉ báo trạng thái hình tròn ở bên phải.
+ * @param stateText Văn bản được hiển thị bên trong chỉ báo trạng thái hình tròn (ví dụ: viết tắt trạng thái hoặc biểu tượng).
  */
 @Composable
 fun InfoRow(label: String, value: String, unit: String, stateColor: Color, stateText: String)

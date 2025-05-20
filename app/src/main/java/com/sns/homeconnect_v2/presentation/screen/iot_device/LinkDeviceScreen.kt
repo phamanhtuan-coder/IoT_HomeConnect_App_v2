@@ -3,17 +3,13 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,8 +39,10 @@ import com.sns.homeconnect_v2.presentation.component.ScanCodeDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 
 /**
@@ -53,11 +51,11 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
  * và liên kết thiết bị bằng cách nhập thủ công hoặc quét mã QR.
  *
  * Màn hình bao gồm các trường nhập liệu cho ID và tên thiết bị có kiểm tra hợp lệ,
- * một danh sách thả xuống để chọn không gian, một nút để bắt đầu quét mã QR,
- * và một nút để thực hiện thao tác liên kết.
+ * một danh sách thả xuống để chọn không gian, một nút để bắt đầu quét mã QR (hiển thị `ScanCodeDialog`),
+ * và một nút để thực hiện thao tác liên kết. Sau khi quét mã thành công, một `AlertDialog` xác nhận sẽ hiển thị.
  *
  * Nó sử dụng một số thành phần Material 3 và các thành phần tùy chỉnh như `StyledTextField`,
- * `GenericDropdown`, `ActionButtonWithFeedback`, và `ScanCodeDialog`.
+ * `GenericDropdown`, `ActionButtonWithFeedback`, `ScanCodeDialog` và `AlertDialog`.
  *
  * Các phần bị chú thích gợi ý việc tích hợp với các ViewModel (`SharedViewModel`,
  * `DeviceViewModel`, `AddDeviceViewModel`) để quản lý trạng thái và các hoạt động dữ liệu,
@@ -66,6 +64,10 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
  *
  * @author Nguyễn Thanh Sang
  * @since 19-05-2025
+ * @see ScanCodeDialog
+ * @see AlertDialog
+ *
+ * Cập nhật bởi Nguyễn Thanh Sang, ngày 20/05/2025: Bổ sung `ScanCodeDialog` và `AlertDialog` cho chức năng quét QR.
  *
  * @param navController [NavHostController] để thực hiện các hành động điều hướng, chẳng hạn như quay lại.
  *                      Nó được sử dụng bởi các thành phần `Header` và `MenuBottom`.
@@ -74,10 +76,6 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
  * @param sharedViewModel Một thể hiện của `SharedViewModel` (bị chú thích).
  *                        Có khả năng được sử dụng để chia sẻ dữ liệu như `houseId` giữa các màn hình khác nhau.
  * @param deviceViewModel Một thể hiện của `DeviceViewModel` (bị chú thích).
- *                        Có khả năng được sử dụng để lấy dữ liệu liên quan đến thiết bị và không gian, ví dụ: `getSpacesByHomeId`.
- * @param addDeviceViewModel Một thể hiện của `AddDeviceViewModel` (bị chú thích).
- *                           Có khả năng được sử dụng để xử lý logic thêm/liên kết thiết bị mới,
- *                           quản lý các trạng thái như `linkDeviceState`.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -155,139 +153,126 @@ fun LinkDeviceScreen(
                 MenuBottom(navController)
             },
             content = { innerPadding ->
-                Box(
-                    modifier = Modifier.fillMaxSize()
+                Column (
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
                 ) {
-                    Column(
+                    ColoredCornerBox(
+                        cornerRadius = 40.dp
+                    ){}
+
+                    InvertedCornerHeader(
+                        backgroundColor = colorScheme.surface,
+                        overlayColor = colorScheme.primary
+                    ){}
+
+                    Box(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .imePadding()
-                            .verticalScroll(rememberScrollState())
-                            .padding(innerPadding),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxSize()                 // chiếm trọn màn hình
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .background(colorScheme.background)
-                                .padding(8.dp)
+                                .align(Alignment.Center)   // căn giữa trong Box
+                                .padding(16.dp)            // padding 16dp bốn phía
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement  = Arrangement.Center,
+                            horizontalAlignment  = Alignment.CenterHorizontally
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .background(
-                                        colorScheme.background,
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                    .padding(16.dp)
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    // Cột chứa các ô nhập liệu và nút "Liên kết"
-                                    Column(
-                                        modifier = Modifier.width(400.dp)
-                                    ) {
-                                        // Ô nhập ID thiết bị
-                                        StyledTextField(
-                                            value = deviceId,
-                                            onValueChange = {
-                                                deviceId = it
-                                                deviceIdError = ValidationUtils.validateDeviceId(it)
-                                            },
-                                            placeholderText = "ID Thiết bị",
-                                            leadingIcon = Icons.Default.Devices
-                                        )
+                            // Ô nhập ID thiết bị
+                            StyledTextField(
+                                value = deviceId,
+                                onValueChange = {
+                                    deviceId = it
+                                    deviceIdError = ValidationUtils.validateDeviceId(it)
+                                },
+                                placeholderText = "ID Thiết bị",
+                                leadingIcon = Icons.Default.Devices
+                            )
 
-                                        Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                                        // Ô nhập Tên thiết bị
-                                        StyledTextField(
-                                            value = deviceName,
-                                            onValueChange = {
-                                                deviceName = it
-                                                deviceNameError = ValidationUtils.validateDeviceName(it)
-                                            },
-                                            placeholderText = "Tên thiết bị",
-                                            leadingIcon = Icons.Default.Devices
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
+                            // Ô nhập Tên thiết bị
+                            StyledTextField(
+                                value = deviceName,
+                                onValueChange = {
+                                    deviceName = it
+                                    deviceNameError = ValidationUtils.validateDeviceName(it)
+                                },
+                                placeholderText = "Tên thiết bị",
+                                leadingIcon = Icons.Default.Devices
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                                        // Dropdown Spaces
-                                        // Nếu bạn không muốn dùng ExposedDropdownMenuBox
-                                        // có thể tùy chỉnh DropdownMenuItem thủ công, nhưng dưới đây là ví dụ M3.
+                            // Dropdown Spaces
+                            // Nếu bạn không muốn dùng ExposedDropdownMenuBox
+                            // có thể tùy chỉnh DropdownMenuItem thủ công, nhưng dưới đây là ví dụ M3.
 
-                                        GenericDropdown(
-                                            items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                                            selectedItem = current,
-                                            onItemSelected = { current = it },
-                                            isTablet = false,
-                                            leadingIcon = Icons.Default.Room // 👈 truyền icon vào
-                                        )
+                            GenericDropdown(
+                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                selectedItem = current,
+                                onItemSelected = { current = it },
+                                isTablet = false,
+                                leadingIcon = Icons.Default.Room // 👈 truyền icon vào
+                            )
 
-                                        Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                                        ActionButtonWithFeedback(
-                                            label = "Quét mã QR",
-                                            style = HCButtonStyle.PRIMARY,
-                                            onAction = { onS, _ -> onS("Mở camera"); showDialog = true }
-                                        )
+                            ActionButtonWithFeedback(
+                                label = "Quét mã QR",
+                                style = HCButtonStyle.PRIMARY,
+                                onAction = { onS, _ -> onS("Mở camera"); showDialog = true }
+                            )
 
-                                        if (showDialog) {
-                                            ScanCodeDialog(
-                                                code = "1234-5678-6565-3333",
-                                                onDismiss = { showDialog = false },
-                                                onOk      = { showSuccess = true }
-                                            )
-                                        }
+                            if (showDialog) {
+                                ScanCodeDialog(
+                                    code = "1234-5678-6565-3333",
+                                    onDismiss = { showDialog = false },
+                                    onOk      = { showSuccess = true }
+                                )
+                            }
 
-                                        if (showSuccess) {
-                                            AlertDialog(
-                                                onDismissRequest = { showSuccess = false },
-                                                confirmButton = { TextButton(onClick = { showSuccess = false }) { Text("Đóng") } },
-                                                title = { Text("🎉  Thành công!", fontSize = 20.sp) },
-                                                text  = { Text("Thiết bị đã được xác nhận.") },
-                                                shape = RoundedCornerShape(16.dp)
-                                            )
-                                        }
+                            if (showSuccess) {
+                                AlertDialog(
+                                    onDismissRequest = { showSuccess = false },
+                                    confirmButton = { TextButton(onClick = { showSuccess = false }) { Text("Đóng") } },
+                                    title = { Text("🎉  Thành công!", fontSize = 20.sp) },
+                                    text  = { Text("Thiết bị đã được xác nhận.") },
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                            }
 
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        ActionButtonWithFeedback(
-                                            label = "Liên kết",
-                                            style = HCButtonStyle.SECONDARY,
-                                            onAction = { onS, onE ->
-                                                deviceIdError = ValidationUtils.validateDeviceId(deviceId)
-                                                deviceNameError = ValidationUtils.validateDeviceName(deviceName)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            ActionButtonWithFeedback(
+                                label = "Liên kết",
+                                style = HCButtonStyle.SECONDARY,
+                                onAction = { onS, onE ->
+                                    deviceIdError = ValidationUtils.validateDeviceId(deviceId)
+                                    deviceNameError = ValidationUtils.validateDeviceName(deviceName)
 
-                                                if (deviceIdError.isNotBlank() || deviceNameError.isNotBlank()) {
-                                                    onE("Thông tin không hợp lệ")
-                                                    return@ActionButtonWithFeedback
-                                                }
+                                    if (deviceIdError.isNotBlank() || deviceNameError.isNotBlank()) {
+                                        onE("Thông tin không hợp lệ")
+                                        return@ActionButtonWithFeedback
+                                    }
 
-                                                try {
-                                                    val success =
-                                                        addDeviceViewModel.linkDeviceSync(
-                                                            deviceId = deviceId,
-                                                            spaceId = selectedSpaceId.toString(),
-                                                            deviceName = deviceName
-                                                        ) // giả sử đây là suspend fun trả true/false
+                                    try {
+//                                                    val success =
+//                                                        addDeviceViewModel.linkDeviceSync(
+//                                                            deviceId = deviceId,
+//                                                            spaceId = selectedSpaceId.toString(),
+//                                                            deviceName = deviceName
+//                                                        ) // giả sử đây là suspend fun trả true/false
 
-                                                    if (success) {
-                                                        onS("Liên kết thành công")
-                                                    } else {
-                                                        onE("Liên kết thất bại")
-                                                    }
-                                                } catch (e: Exception) {
-                                                    onE("Lỗi: ${e.message}")
-                                                }
-                                            }
-                                        )
+//                                                    if (success) {
+//                                                        onS("Liên kết thành công")
+//                                                    } else {
+//                                                        onE("Liên kết thất bại")
+//                                                    }
+                                    } catch (e: Exception) {
+                                        onE("Lỗi: ${e.message}")
                                     }
                                 }
-                            }
+                            )
                         }
                     }
                 }

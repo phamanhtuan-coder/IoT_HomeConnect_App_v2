@@ -16,6 +16,7 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ConfirmationDialog(
@@ -24,10 +25,11 @@ fun ConfirmationDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     confirmText: String = "Xác nhận",
-    dismissText: String = "Huỷ"
+    dismissText: String = ""
 ) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
+
         AlertDialog(
             onDismissRequest = onDismiss,
             title = {
@@ -50,25 +52,42 @@ fun ConfirmationDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        shape = RoundedCornerShape(50),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(dismissText, color = colorScheme.primary)
+                    /* --------- nút Huỷ (Outlined) --------- */
+                    if (dismissText.isNotBlank()) {
+                        OutlinedButton(
+                            onClick = onDismiss,
+                            shape = RoundedCornerShape(25),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(dismissText, color = colorScheme.primary)
+                        }
                     }
-                    Button(
-                        onClick = onConfirm,
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(confirmText, color = colorScheme.onPrimary)
+
+                    /* --------- nút Xác nhận (Filled) --------- */
+                    if (confirmText.isNotBlank()) {
+                        Button(
+                            onClick = onConfirm,
+                            shape = RoundedCornerShape(25),
+                            colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(confirmText, color = colorScheme.onPrimary)
+                        }
                     }
                 }
             },
             containerColor = colorScheme.background
         )
     }
+}
 
+@Preview(showBackground = true, widthDp = 340, heightDp = 240)
+@Composable
+fun ConfirmationDialogPreview() {
+    ConfirmationDialog(
+        title    = "Xác nhận xoá",
+        message  = "Bạn chắc chắn muốn xoá thiết bị này?",
+        onConfirm = {},
+        onDismiss = {}
+    )
 }

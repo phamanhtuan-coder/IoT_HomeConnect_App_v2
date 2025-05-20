@@ -46,7 +46,7 @@ fun GenericDropdown(
     selectedItem: String?,
     onItemSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    placeHolder: String = "Chọn phòng",
+    placeHolder: String = "Select...",
     isTablet: Boolean = false,
     leadingIcon: ImageVector // ✅ THÊM icon
 ) {

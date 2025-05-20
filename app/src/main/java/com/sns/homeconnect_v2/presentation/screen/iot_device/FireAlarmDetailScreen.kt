@@ -28,9 +28,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +49,7 @@ import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
+import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
 import com.sns.homeconnect_v2.presentation.component.InfoRow
 import com.sns.homeconnect_v2.presentation.component.SingleColorCircleWithDividers
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
@@ -57,6 +60,30 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+/**
+ * Enum class đại diện cho các hành động khác nhau có thể được thực hiện trên một thiết bị.
+ *
+ * Enum này được sử dụng để quản lý và xác định các hoạt động khác nhau của thiết bị trong ứng dụng,
+ * đặc biệt trong bối cảnh tương tác người dùng và các lệnh gọi API.
+ *
+ * - **LOCK**: Đại diện cho hành động khóa thiết bị, ngăn chặn việc sử dụng hoặc thay đổi trái phép.
+ * - **UNLINK**: Đại diện cho hành động xóa thiết bị khỏi tài khoản hoặc mạng của người dùng.
+ * - **RESET**: Đại diện cho hành động đặt lại thiết bị về cài đặt gốc mặc định.
+ * - **SHARE**: Đại diện cho hành động chia sẻ quyền kiểm soát hoặc truy cập thiết bị với người dùng khác.
+ * - **TRANSFER**: Đại diện cho hành động chuyển quyền sở hữu thiết bị cho người dùng khác.
+ * - **VERSION**: Đại diện cho hành động kiểm tra phiên bản firmware hoặc phần mềm hiện tại của thiết bị.
+ * - **REPORT_LOST**: Đại diện cho hành động báo cáo thiết bị bị mất hoặc bị đánh cắp.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 20-05-2025
+ */
+enum class DeviceAction {
+    LOCK, UNLINK, RESET,
+    SHARE, TRANSFER, VERSION, REPORT_LOST
+}
 
 @Composable
 fun FireAlarmDetailScreen(
@@ -74,8 +101,27 @@ fun FireAlarmDetailScreen(
     val status by remember { mutableIntStateOf(0) }
     val isTablet = isTablet(LocalContext.current)
 
+    /* state giữ hàm onSuccess / onError tạm thời */
+    val scope = rememberCoroutineScope()
+
+    /* ---------- 2. STATE DÙNG CHUNG ---------- */
+    var pendingAction      by remember { mutableStateOf<DeviceAction?>(null) }
+    var loadingAction      by remember { mutableStateOf<DeviceAction?>(null) }
+
+    var pendingOnSuccess   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError     by remember { mutableStateOf<((String) -> Unit)?>(null) }
+
+    var confirmTitle       by remember { mutableStateOf("") }
+    var confirmMessage     by remember { mutableStateOf("") }
+    var showConfirm        by remember { mutableStateOf(false) }
 
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
+
+    /* ---------- STATE CHO MỖI SLIDER ---------- */
+    var gasSliderValue      by remember { mutableFloatStateOf(smokeLevel.toFloat()) }  // slider khí gas
+    var tempSliderValue     by remember { mutableFloatStateOf(temperature.toFloat()) } // slider nhiệt độ
+    var humiditySliderValue by remember { mutableFloatStateOf(coLevel.toFloat()) }     // slider độ ẩm
+
 //    val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
 //    when (infoDeviceState) {
@@ -369,6 +415,15 @@ fun FireAlarmDetailScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 // TODO: Thêm Slider bên nhánh lamp detail
+                                EdgeToEdgeSlider(
+                                    value         = gasSliderValue,
+                                    onValueChange = { gasSliderValue = it },
+                                    activeTrackColor = Color.Red,
+                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+                                    thumbColor = Color.Red,
+                                    thumbBorderColor = Color.DarkGray,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 InfoRow(
@@ -389,6 +444,15 @@ fun FireAlarmDetailScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 // TODO: Thêm Slider bên nhánh lamp detail
+                                EdgeToEdgeSlider(
+                                    value         = tempSliderValue,
+                                    onValueChange = { tempSliderValue = it },
+                                    activeTrackColor = Color.Red,
+                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+                                    thumbColor = Color.Red,
+                                    thumbBorderColor = Color.DarkGray,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 InfoRow(
@@ -410,6 +474,15 @@ fun FireAlarmDetailScreen(
 
                                 Spacer(modifier = Modifier.height(8.dp))
                                 // TODO: Thêm Slider bên nhánh lamp detail
+                                EdgeToEdgeSlider(
+                                    value         = humiditySliderValue,
+                                    onValueChange = { humiditySliderValue = it },
+                                    activeTrackColor = Color.Red,
+                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+                                    thumbColor = Color.Red,
+                                    thumbBorderColor = Color.DarkGray,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
@@ -420,91 +493,190 @@ fun FireAlarmDetailScreen(
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                // HÀNG 1
+
+                                /* ===== HÀNG 1 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* KHÓA THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Khóa thiết bị",
-                                        onAction = { onS, _ -> onS("Đã khóa") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Khóa thiết bị",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Khóa thiết bị"
+                                            confirmMessage   = "Bạn có chắc muốn khoá thiết bị này?"
+                                            pendingAction    = DeviceAction.LOCK
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK
                                     )
+
+                                    /* GỠ KẾT NỐI – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Gỡ kết nối",
-                                        onAction = { onS, _ -> onS("Đã gỡ") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Gỡ kết nối",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Gỡ kết nối"
+                                            confirmMessage   = "Bạn muốn gỡ kết nối!"
+                                            pendingAction    = DeviceAction.UNLINK
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK
                                     )
                                 }
 
                                 Spacer(Modifier.height(12.dp))
 
-                                // HÀNG 2
+                                /* ===== HÀNG 2 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* CHIA SẺ QUYỀN – KHÔNG dialog, quay ngay */
                                     ActionButtonWithFeedback(
-                                        label = "Chia sẻ quyền",
-                                        onAction = { onS, _ -> onS("Đã chia sẻ") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Chia sẻ quyền",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.SHARE          // bật spinner
+                                            scope.launch {
+                                                // Giả lập xử lý
+                                                delay(1000)
+                                                onS("Đã chia sẻ")
+                                                loadingAction = null                    // tắt spinner
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE
                                     )
+
+                                    /* RESET THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Reset thiết bị",
-                                        onAction = { onS, _ -> onS("Đã reset") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Reset thiết bị",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Reset thiết bị"
+                                            confirmMessage   = "Bạn muốn reset thiết bị này!"
+                                            pendingAction    = DeviceAction.RESET
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.RESET
                                     )
                                 }
 
                                 Spacer(Modifier.height(12.dp))
 
-                                // HÀNG 3
+                                /* ===== HÀNG 3 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* CHUYỂN QUYỀN SỞ HỮU – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Chuyển quyền sở hữu",
-                                        onAction = { onS, _ -> onS("Đã chuyển") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Chuyển quyền sở hữu",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.TRANSFER
+                                            scope.launch {
+                                                delay(1000)
+                                                onS("Đã chuyển")
+                                                loadingAction = null
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER
                                     )
+
+                                    /* XEM PHIÊN BẢN – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Xem phiên bản",
-                                        onAction = { onS, _ -> onS("v1.0") },
-                                        style = HCButtonStyle.PRIMARY,
+                                        label  = "Xem phiên bản",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.VERSION
+                                            scope.launch {
+                                                delay(1000)
+                                                onS("v1.0")
+                                                loadingAction = null
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION
                                     )
                                 }
 
                                 Spacer(Modifier.height(16.dp))
 
-                                // NÚT CUỐI
+                                /* ===== NÚT CUỐI (BÁO MẤT) ===== */
                                 ActionButtonWithFeedback(
-                                    label = "Báo mất thiết bị",
-                                    onAction = { onS, _ -> onS("Đã báo mất") },
-                                    style = HCButtonStyle.PRIMARY,
+                                    label  = "Báo mất thiết bị",
+                                    onAction = { onS, _ ->
+                                        loadingAction = DeviceAction.REPORT_LOST
+                                        scope.launch {
+                                            delay(1000)
+                                            onS("Đã báo mất")
+                                            loadingAction = null
+                                        }
+                                    },
+                                    style  = HCButtonStyle.PRIMARY,
                                     height = 62.dp,
                                     textSize = 20.sp,
-                                    modifier = Modifier.fillMaxWidth(0.8f)
+                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST
                                 )
                             }
+
+                            // WarningDialog xác nhận
+                            if (showConfirm) {
+                                WarningDialog(
+                                    title       = confirmTitle,
+                                    text        = confirmMessage,
+                                    confirmText = "Đồng ý",
+                                    dismissText = "Huỷ",
+                                    onConfirm = {
+                                        showConfirm = false
+
+                                        /* Bật spinner đúng nút */
+                                        loadingAction = pendingAction
+//                                        val act = pendingAction          // copy ra để dùng trong coroutine
+                                        pendingAction = null
+
+                                        scope.launch {
+                                            delay(1000)                  // gọi API thật tại đây
+                                            val ok = true
+                                            if (ok)  pendingOnSuccess?.invoke("Thành công!")
+                                            else     pendingOnError?.invoke("Thất bại!")
+
+                                            loadingAction = null         // tắt spinner
+                                        }
+                                    },
+                                    onDismiss = {
+                                        showConfirm   = false
+                                        pendingAction = null
+                                    }
+                                )
+                            }
+
                         }
                     }
                 }

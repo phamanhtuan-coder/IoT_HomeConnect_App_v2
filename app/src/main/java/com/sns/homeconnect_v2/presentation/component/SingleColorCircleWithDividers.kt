@@ -16,10 +16,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.R
+import com.sns.homeconnect_v2.core.util.PADDING_OFFSET
 import kotlin.math.cos
 import kotlin.math.sin
 
 
+/**
+ * Một Composable function hiển thị một vòng tròn đơn sắc với các vạch chia.
+ * Màu sắc của vòng tròn được xác định bởi tham số `selectedStatus`.
+ * Số lượng vạch chia được xác định bởi tham số `dividerCount`.
+ *
+ * @param selectedStatus Trạng thái để hiển thị. Điều này xác định màu sắc của vòng tròn.
+ *                       Các giá trị có thể là "Bình thường" (Xanh lá), "Báo động" (Đỏ), "Lỗi" (Vàng).
+ *                       Mặc định là Xám nếu trạng thái không được nhận dạng.
+ * @param dividerCount Số lượng vạch chia để vẽ trên vòng tròn.
+ * @author Nguyễn Thanh Sang
+ * @since 20-05-2025
+ */
 @Composable
 fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
     Box(
@@ -50,8 +63,8 @@ fun SingleColorCircleWithDividers(selectedStatus: String, dividerCount: Int) {
 
             // Vẽ các đường gạch phân cách
             val lineAngleStep = 360f / dividerCount
-            for (i in 0 until dividerCount) {
-                val angle = Math.toRadians((-90 + i * lineAngleStep).toDouble())
+            for (dividerIndex in 0 until dividerCount) {
+                val angle = Math.toRadians((-90 + dividerIndex * lineAngleStep).toDouble())
                 val startX = center.x + (radius - 20f) * cos(angle).toFloat()
                 val startY = center.y + (radius - 20f) * sin(angle).toFloat()
                 val endX = center.x + (radius + 20f) * cos(angle).toFloat()

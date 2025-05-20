@@ -268,19 +268,18 @@ fun LinkDeviceScreen(
                                                 }
 
                                                 try {
-//                                                    val success =
-//                                                        addDeviceViewModel.linkDeviceSync(
-//                                                        deviceId = deviceId,
-//                                                        spaceId = selectedSpaceId.toString(),
-//                                                        deviceName = deviceName
-//                                                    ) // giả sử đây là suspend fun trả true/false
-//
-//                                                    if (success) {
-//                                                        delay(1000) // giả lập xử lý
-//                                                        onS("Liên kết thành công")
-//                                                    } else {
-//                                                        onE("Liên kết thất bại")
-//                                                    }
+                                                    val success =
+                                                        addDeviceViewModel.linkDeviceSync(
+                                                            deviceId = deviceId,
+                                                            spaceId = selectedSpaceId.toString(),
+                                                            deviceName = deviceName
+                                                        ) // giả sử đây là suspend fun trả true/false
+
+                                                    if (success) {
+                                                        onS("Liên kết thành công")
+                                                    } else {
+                                                        onE("Liên kết thất bại")
+                                                    }
                                                 } catch (e: Exception) {
                                                     onE("Lỗi: ${e.message}")
                                                 }

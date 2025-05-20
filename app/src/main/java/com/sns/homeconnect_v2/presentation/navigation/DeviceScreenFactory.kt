@@ -4,8 +4,6 @@ package com.sns.homeconnect_v2.presentation.navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
-
 
 object DeviceScreenFactory {
     private val screenMap: Map<Int, @Composable (NavHostController, Int?) -> Unit> = mapOf(

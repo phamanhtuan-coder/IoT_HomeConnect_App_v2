@@ -26,29 +26,22 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Một composable slider tùy chỉnh trải dài toàn bộ chiều rộng của vùng chứa,
- * có thiết kế track và thumb tùy chỉnh.
+ * Slider "tràn cạnh" với track và thumb có thể tùy chỉnh.
+ * Slider này sẽ chiếm toàn bộ chiều rộng của container chứa nó và cho phép tùy chỉnh kiểu dáng của các thành phần.
  *
- * Slider này được thiết kế để cung cấp giao diện trực quan "tràn cạnh".
- * Nó đạt được điều này bằng cách:
- * 1. Vẽ một track tùy chỉnh bao gồm hai phần:
- *    - Một track không hoạt động (màu nhạt hơn) lấp đầy toàn bộ chiều rộng.
- *    - Một track hoạt động (màu sáng hơn) biểu thị tiến trình hiện tại.
- * 2. Sử dụng composable `Slider` tiêu chuẩn nhưng ẩn track và thumb mặc định của nó.
- *    `Slider` tiêu chuẩn được sử dụng chủ yếu cho logic xử lý chạm và cập nhật giá trị.
- * 3. Cung cấp một composable thumb tùy chỉnh.
- *
- * @param value Giá trị hiện tại của slider (dự kiến trong khoảng từ 0f đến 255f).
- * @param onValueChange Một callback được gọi khi giá trị của slider thay đổi.
- * @param modifier [Modifier] tùy chọn cho composable này.
- * @param thumbSize Đường kính của vùng có thể chạm cho thumb.
- *                  Chiều cao trực quan của thumb được cố định ở 25.dp, nhưng điều này kiểm soát mục tiêu chạm.
- * @param trackHeight Chiều cao của track slider tùy chỉnh.
+ * @param value Giá trị hiện tại của slider (từ 0f đến 255f).
+ * @param onValueChange Một callback được gọi khi giá trị của slider thay đổi do người dùng kéo thumb.
+ * @param modifier Modifier được áp dụng cho slider.
+ * @param thumbSize Kích thước của vùng chạm cho thumb.
+ * @param trackHeight Chiều cao của track slider.
+ * @param thumbColor Màu của thumb.
+ * @param thumbBorderColor Màu của đường viền thumb.
+ * @param activeTrackColor Màu của phần track đã được kéo qua.
+ * @param inactiveTrackColor Màu của phần track chưa được kéo qua.
  *
  * @author Nguyễn Thanh Sang
- * @since 19-05-2025
+ * @since 20-05-2025
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EdgeToEdgeSlider(
@@ -56,58 +49,57 @@ fun EdgeToEdgeSlider(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     thumbSize: Dp = 40.dp,
-    trackHeight: Dp = 6.dp
+    trackHeight: Dp = 6.dp,
+    thumbColor: Color = Color.White,
+    thumbBorderColor: Color = Color.LightGray,
+    activeTrackColor: Color = Color.White,
+    inactiveTrackColor: Color = Color.White.copy(alpha = 0.4f)
 ) {
-    // Tính phần trăm chiều dài track đã kéo (0‥1)
-    val fraction = (value / 255f).coerceIn(0f, 1f)
+    val trackFillFraction = (value / 255f).coerceIn(0f, 1f)
 
     Box(modifier) {
 
-        /* ---------- TRACK TÙY CHỈNH ---------- */
-
-        // Phần track chưa kéo
+        /* ---------- TRACK ---------- */
+        // Chưa kéo
         Box(
             Modifier
                 .fillMaxWidth()
                 .height(trackHeight)
                 .align(Alignment.Center)
                 .clip(RoundedCornerShape(trackHeight / 2))
-                .background(Color.White.copy(alpha = 0.4f))
+                .background(inactiveTrackColor)
         )
-        // Phần track đã kéo
+        // Đã kéo
         Box(
             Modifier
-                .fillMaxWidth(fraction)
+                .fillMaxWidth(trackFillFraction)
                 .height(trackHeight)
                 .align(Alignment.CenterStart)
                 .clip(RoundedCornerShape(trackHeight / 2))
-                .background(Color.White)
+                .background(activeTrackColor)
         )
 
-        /* ---------- SLIDER ẨN TRACK, CHỈ DÙNG THUMB + LOGIC ---------- */
-
+        /* ---------- SLIDER ẨN TRACK ---------- */
         Slider(
             value = value,
             onValueChange = onValueChange,
             valueRange = 0f..255f,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(thumbSize)          // cao đủ để nhận touch
+                .height(thumbSize)
                 .align(Alignment.Center),
             colors = SliderDefaults.colors(
-                thumbColor         = Color.Transparent, // Ẩn track mặc định
+                thumbColor         = Color.Transparent,
                 activeTrackColor   = Color.Transparent,
-                inactiveTrackColor = Color.Transparent,
-                activeTickColor    = Color.Transparent,
-                inactiveTickColor  = Color.Transparent
+                inactiveTrackColor = Color.Transparent
             ),
             thumb = {
                 Box(
                     Modifier
-                        .size(thumbSize, 25.dp)            // 40 × 35 dp
+                        .size(thumbSize, 25.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White)
-                        .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
+                        .background(thumbColor)
+                        .border(1.dp, thumbBorderColor, RoundedCornerShape(10.dp))
                 )
             }
         )
@@ -115,19 +107,23 @@ fun EdgeToEdgeSlider(
 }
 
 @Preview(
-    name = "Edge-to-Edge Slider (50 %)",
+    name = "Edge-to-Edge Slider (preview)",
     showBackground = true,
-    backgroundColor = 0xFF1E88E5,     // nền xanh cho dễ nhìn
+    backgroundColor = 0xFF1E88E5,
     widthDp = 360
 )
 @Composable
 fun EdgeToEdgeSliderPreview() {
     IoTHomeConnectAppTheme {
-        var value by remember { mutableFloatStateOf(128f) }      // 0‥255
+        var value by remember { mutableFloatStateOf(128f) }
 
         EdgeToEdgeSlider(
-            value = value,
+            value         = value,
             onValueChange = { value = it },
+            activeTrackColor  = Color.Red,
+            inactiveTrackColor= Color.Red.copy(alpha = 0.3f),
+            thumbColor        = Color.Red,
+            thumbBorderColor  = Color.DarkGray,
             modifier = Modifier
                 .padding(24.dp)
                 .fillMaxWidth()

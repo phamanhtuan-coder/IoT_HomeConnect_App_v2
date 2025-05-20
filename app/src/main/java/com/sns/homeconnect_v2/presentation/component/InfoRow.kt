@@ -29,7 +29,7 @@ fun InfoRow(label: String, value: String, unit: String, stateColor: Color, state
         val colorScheme = MaterialTheme.colorScheme
         Row(
             modifier = Modifier
-                .wrapContentWidth(),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {

@@ -21,8 +21,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+/**
+ * A composable function that displays a row of information with a label, value, unit, and a state indicator.
+ *
+ * @param label The label text displayed on the left side of the row.
+ * @param value The main value text displayed prominently in the center of the row.
+ * @param unit The unit text displayed next to the value, typically in a smaller font size.
+ * @param stateColor The background color of the circular state indicator on the right side of the row.
+ * @param stateText The text displayed inside the circular state indicator.
+ */
 @Composable
-// Hàm hiển thị từng hàng thông tin
 fun InfoRow(label: String, value: String, unit: String, stateColor: Color, stateText: String)
 {
     IoTHomeConnectAppTheme {

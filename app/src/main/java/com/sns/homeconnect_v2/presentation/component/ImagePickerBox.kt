@@ -92,7 +92,7 @@ fun ImagePickerBox(
 private fun BrowseButton(onClick: () -> Unit) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(20),                  // pill
+        shape = RoundedCornerShape(20.dp),                  // pill
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Red,             // nền theo theme
             contentColor   = Color.White                // chữ trắng

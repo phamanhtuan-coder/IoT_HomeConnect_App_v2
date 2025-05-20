@@ -115,26 +115,21 @@ fun SoftwareVersionScreen(navController: NavHostController) {
                     backgroundColor = colorScheme.surface,
                     overlayColor = colorScheme.primary
                 ) {
-                    InvertedCornerHeader(
-                        backgroundColor = colorScheme.surface,
-                        overlayColor    = colorScheme.primary
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()          // phủ ngang
+                            .height(40.dp)           // cao cố định
+                            .padding(start = 16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment     = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()          // phủ ngang
-                                .height(40.dp)           // cao cố định
-                                .padding(start = 16.dp),
-                            horizontalArrangement = Arrangement.Start,
-                            verticalAlignment     = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text          = "Bản cập mới",
-                                color         = Color.Black,
-                                fontSize      = 20.sp,
-                                fontWeight    = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
-                        }
+                        Text(
+                            text          = "Bản cập mới",
+                            color         = Color.Black,
+                            fontSize      = 20.sp,
+                            fontWeight    = FontWeight.Bold,
+                            letterSpacing = 0.5.sp
+                        )
                     }
                 }
 

@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.ChangeLogCard
 import com.sns.homeconnect_v2.presentation.component.VersionInfo
 import com.sns.homeconnect_v2.presentation.component.VersionTable
+import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
@@ -34,6 +35,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SoftwareVersionScreen(navController: NavHostController) {
+    val scope = rememberCoroutineScope()
+
+    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var showConfirm      by remember { mutableStateOf(false) }
+    var isLoading        by remember { mutableStateOf(false) }
+
     IoTHomeConnectAppTheme {
         val versionText  = "V0.015"
         val summaryText  = "Tóm tắt nội dung thay đổi"
@@ -61,7 +69,6 @@ fun SoftwareVersionScreen(navController: NavHostController) {
         )
 
         val colorScheme = MaterialTheme.colorScheme
-        val scope = rememberCoroutineScope()
 
         Scaffold(
             topBar = {
@@ -104,11 +111,47 @@ fun SoftwareVersionScreen(navController: NavHostController) {
                             version = versionText,
                             summary = summaryText
                         )
+                        // Nút chính
                         ActionButtonWithFeedback(
-                            label = "Cập nhật phiên bản",
-                            style = HCButtonStyle.PRIMARY,
-                            onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } }
+                            label  = "Cập nhật phiên bản",
+                            style  = HCButtonStyle.PRIMARY,
+                            isLoadingFromParent = isLoading,
+                            onAction = { onS, onE ->
+                                /* ⇢ chỉ lưu callback, CHƯA gọi API */
+                                pendingOnSuccess = onS
+                                pendingOnError   = onE
+                                showConfirm      = true
+                            }
                         )
+
+                        // Dialog xác nhận
+                        if (showConfirm) {
+                            WarningDialog(
+                                title       = "Xác nhận cập nhật",
+                                text        = "Bạn có chắc muốn cập nhật phiên bản không?",
+                                confirmText = "Cập nhật",
+                                dismissText = "Huỷ",
+                                onConfirm = {
+                                    showConfirm = false
+                                    isLoading   = true                // spinner ngay lập tức
+
+                                    scope.launch {
+                                        delay(1000)                   // giả lập API
+                                        val ok = true                 // kết quả thật
+                                        if (ok) pendingOnSuccess?.invoke("Đã cập nhật thành công!")
+                                        else     pendingOnError?.invoke("Cập nhật thất bại!")
+                                        isLoading = false             // tắt spinner
+                                        pendingOnSuccess = null
+                                        pendingOnError   = null
+                                    }
+                                },
+                                onDismiss = {
+                                    showConfirm      = false
+                                    pendingOnSuccess = null
+                                    pendingOnError   = null
+                                }
+                            )
+                        }
                     }
                 }
                 InvertedCornerHeader(

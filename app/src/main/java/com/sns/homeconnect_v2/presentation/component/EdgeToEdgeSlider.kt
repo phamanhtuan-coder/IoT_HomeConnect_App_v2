@@ -55,7 +55,7 @@ fun EdgeToEdgeSlider(
     activeTrackColor: Color = Color.White,
     inactiveTrackColor: Color = Color.White.copy(alpha = 0.4f)
 ) {
-    val trackFillFraction = (value / 255f).coerceIn(0f, 1f)
+    val trackFillFraction = (value / MAX_SLIDER_VALUE).coerceIn(0f, 1f)
 
     Box(modifier) {
 

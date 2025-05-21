@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.sp
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 
 const val PADDING_OFFSET = 20f
+const val MAX_SLIDER_VALUE = 255f
 
 data class LayoutConfig(
     val outerPadding: Dp,  // Padding bên ngoài, thường được tính theo tỉ lệ chiều rộng màn hình

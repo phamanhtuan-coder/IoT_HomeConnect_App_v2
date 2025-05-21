@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,6 +88,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /**
@@ -116,7 +119,7 @@ import kotlin.math.roundToInt
  *
  * -----------------------------------------
  * Cập nhật bởi: Nguyễn Thanh Sang
- * Ngày: 19/05/2025
+ * Ngày: 20/05/2025
  * ---------------------
  * Thêm các Nút Hành động.
  */
@@ -136,6 +139,21 @@ fun DeviceDetailScreen(
     var isCheck by remember { mutableStateOf(false) }
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) }
     var sliderValue by remember { mutableFloatStateOf(128f) }   // 0‥255
+
+    /* state giữ hàm onSuccess / onError tạm thời */
+    val scope = rememberCoroutineScope()
+
+    /* ---------- 2. STATE DÙNG CHUNG ---------- */
+    var pendingAction      by remember { mutableStateOf<DeviceAction?>(null) }
+    var loadingAction      by remember { mutableStateOf<DeviceAction?>(null) }
+
+    var pendingOnSuccess   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError     by remember { mutableStateOf<((String) -> Unit)?>(null) }
+
+    var confirmTitle       by remember { mutableStateOf("") }
+    var confirmMessage     by remember { mutableStateOf("") }
+    var showConfirm        by remember { mutableStateOf(false) }
+
 //    val toggleDeviceState by viewModel.toggleState.collectAsState()
 
 //    when (toggleDeviceState) {
@@ -166,26 +184,26 @@ fun DeviceDetailScreen(
     var safeDevice =
 //        infoDevice ?:
         DeviceResponse(
-        DeviceID = 0,
-        TypeID = 0,
-        Name = "Dining Room",
-        PowerStatus = false,
-        SpaceID = 0,
-        Attribute = ""
-    )
+            DeviceID = 0,
+            TypeID = 0,
+            Name = "Dining Room",
+            PowerStatus = false,
+            SpaceID = 0,
+            Attribute = ""
+        )
 
     Log.e("safeDevice", safeDevice.toString())
     LaunchedEffect(toggleDevice) {
         safeDevice =
 //            infoDevice ?:
             DeviceResponse(
-            DeviceID = 0,
-            TypeID = 0,
-            Name = "Dining room",
-            PowerStatus = false,
-            SpaceID = 0,
-            Attribute = ""
-        )
+                DeviceID = 0,
+                TypeID = 0,
+                Name = "Dining room",
+                PowerStatus = false,
+                SpaceID = 0,
+                Attribute = ""
+            )
     }
 
     LaunchedEffect(safeDevice.Attribute) {
@@ -415,7 +433,7 @@ fun DeviceDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth() // Đảm bảo Row chiếm toàn bộ chiều rộng
                                     .padding(
-                                       horizontal = 16.dp, vertical = 8.dp
+                                        horizontal = 16.dp, vertical = 8.dp
                                     ), // Khoảng cách bên trong Row
                                 horizontalArrangement = Arrangement.SpaceBetween, // Đẩy các phần tử ra hai bên
                                 verticalAlignment = Alignment.CenterVertically // Căn giữa theo chiều dọc
@@ -585,89 +603,187 @@ fun DeviceDetailScreen(
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                // HÀNG 1
+
+                                /* ===== HÀNG 1 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* KHÓA THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Khóa thiết bị",
-                                        onAction = { onS, _ -> onS("Đã khóa") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Khóa thiết bị",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Khóa thiết bị"
+                                            confirmMessage   = "Bạn có chắc muốn khoá thiết bị này?"
+                                            pendingAction    = DeviceAction.LOCK
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK
                                     )
+
+                                    /* GỠ KẾT NỐI – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Gỡ kết nối",
-                                        onAction = { onS, _ -> onS("Đã gỡ") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Gỡ kết nối",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Gỡ kết nối"
+                                            confirmMessage   = "Bạn muốn gỡ kết nối!"
+                                            pendingAction    = DeviceAction.UNLINK
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK
                                     )
                                 }
 
                                 Spacer(Modifier.height(12.dp))
 
-                                // HÀNG 2
+                                /* ===== HÀNG 2 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* CHIA SẺ QUYỀN – KHÔNG dialog, quay ngay */
                                     ActionButtonWithFeedback(
-                                        label = "Chia sẻ quyền",
-                                        onAction = { onS, _ -> onS("Đã chia sẻ") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Chia sẻ quyền",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.SHARE          // bật spinner
+                                            scope.launch {
+                                                // Giả lập xử lý
+                                                delay(1000)
+                                                onS("Đã chia sẻ")
+                                                loadingAction = null                    // tắt spinner
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE
                                     )
+
+                                    /* RESET THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Reset thiết bị",
-                                        onAction = { onS, _ -> onS("Đã reset") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Reset thiết bị",
+                                        onAction = { onS, onE ->
+                                            pendingOnSuccess = onS
+                                            pendingOnError   = onE
+                                            confirmTitle     = "Reset thiết bị"
+                                            confirmMessage   = "Bạn muốn reset thiết bị này!"
+                                            pendingAction    = DeviceAction.RESET
+                                            showConfirm      = true
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.RESET
                                     )
                                 }
 
                                 Spacer(Modifier.height(12.dp))
 
-                                // HÀNG 3
+                                /* ===== HÀNG 3 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
+                                    /* CHUYỂN QUYỀN SỞ HỮU – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Chuyển quyền sở hữu",
-                                        onAction = { onS, _ -> onS("Đã chuyển") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Chuyển quyền sở hữu",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.TRANSFER
+                                            scope.launch {
+                                                delay(1000)
+                                                onS("Đã chuyển")
+                                                loadingAction = null
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER
                                     )
+
+                                    /* XEM PHIÊN BẢN – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label = "Xem phiên bản",
-                                        onAction = { onS, _ -> onS("v1.0") },
-                                        style = HCButtonStyle.PRIMARY,
-                                        height = 72.dp,
+                                        label  = "Xem phiên bản",
+                                        onAction = { onS, _ ->
+                                            loadingAction = DeviceAction.VERSION
+                                            scope.launch {
+                                                delay(1000)
+                                                onS("v1.0")
+                                                loadingAction = null
+                                            }
+                                        },
+                                        style  = HCButtonStyle.PRIMARY,
+                                        height = 62.dp,
                                         textSize = 20.sp,
-                                        modifier = Modifier.weight(1f)
+                                        modifier = Modifier.weight(1f),
+                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION
                                     )
                                 }
 
                                 Spacer(Modifier.height(16.dp))
 
-                                // NÚT CUỐI
+                                /* ===== NÚT CUỐI (BÁO MẤT) ===== */
                                 ActionButtonWithFeedback(
-                                    label = "Báo mất thiết bị",
-                                    onAction = { onS, _ -> onS("Đã báo mất") },
-                                    style = HCButtonStyle.PRIMARY,
-                                    height = 72.dp,
+                                    label  = "Báo mất thiết bị",
+                                    onAction = { onS, _ ->
+                                        loadingAction = DeviceAction.REPORT_LOST
+                                        scope.launch {
+                                            delay(1000)
+                                            onS("Đã báo mất")
+                                            loadingAction = null
+                                        }
+                                    },
+                                    style  = HCButtonStyle.PRIMARY,
+                                    height = 62.dp,
                                     textSize = 20.sp,
-                                    modifier = Modifier.fillMaxWidth(0.8f)
+                                    modifier = Modifier.fillMaxWidth(0.8f),
+                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST
+                                )
+                            }
+
+                            // WarningDialog xác nhận
+                            if (showConfirm) {
+                                WarningDialog(
+                                    title       = confirmTitle,
+                                    text        = confirmMessage,
+                                    confirmText = "Đồng ý",
+                                    dismissText = "Huỷ",
+                                    onConfirm = {
+                                        showConfirm = false
+
+                                        /* Bật spinner đúng nút */
+                                        loadingAction = pendingAction
+//                                        val act = pendingAction          // copy ra để dùng trong coroutine
+                                        pendingAction = null
+
+                                        scope.launch {
+                                            delay(1000)                  // gọi API thật tại đây
+                                            val ok = true
+                                            if (ok)  pendingOnSuccess?.invoke("Thành công!")
+                                            else     pendingOnError?.invoke("Thất bại!")
+
+                                            loadingAction = null         // tắt spinner
+                                        }
+                                    },
+                                    onDismiss = {
+                                        showConfirm   = false
+                                        pendingAction = null
+                                    }
                                 )
                             }
                         }
@@ -732,20 +848,6 @@ fun DeviceDetailTabletScreen(
     var safeDevice =
 //        infoDevice ?:
         DeviceResponse(
-        DeviceID = 0,
-        TypeID = 0,
-        Name = "",
-        PowerStatus = false,
-        SpaceID = 0,
-        Attribute = ""
-    )
-
-    Log.e("safeDevice", safeDevice.toString())
-
-    LaunchedEffect(toggleDevice) {
-        safeDevice =
-//            infoDevice ?:
-            DeviceResponse(
             DeviceID = 0,
             TypeID = 0,
             Name = "",
@@ -753,6 +855,20 @@ fun DeviceDetailTabletScreen(
             SpaceID = 0,
             Attribute = ""
         )
+
+    Log.e("safeDevice", safeDevice.toString())
+
+    LaunchedEffect(toggleDevice) {
+        safeDevice =
+//            infoDevice ?:
+            DeviceResponse(
+                DeviceID = 0,
+                TypeID = 0,
+                Name = "",
+                PowerStatus = false,
+                SpaceID = 0,
+                Attribute = ""
+            )
     }
 
     LaunchedEffect(safeDevice.Attribute) {

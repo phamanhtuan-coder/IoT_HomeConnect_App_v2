@@ -1,7 +1,5 @@
 package com.sns.homeconnect_v2.core.util.validation
 
-import android.content.Context
-
 object ValidationRules {
     // Độ dài tối thiểu của mật khẩu
     const val MIN_PASSWORD_LENGTH = 8
@@ -13,13 +11,13 @@ object ValidationRules {
     const val MIN_ADDRESS_LENGTH = 10
 
     // Regex để kiểm tra số điện thoại: chỉ chấp nhận từ 10 đến 11 chữ số
-    const val PHONE_NUMBER_REGEX = "^[0-9]{10,11}\$"
+    const val PHONE_NUMBER_REGEX     = "^[0-9]{10,11}$"
 
     // Danh sách các ký tự đặc biệt được yêu cầu trong mật khẩu
-    const val PASSWORD_SPECIAL_CHARS = "!@#\$%^&*()_-+=<>?/"
+    const val PASSWORD_SPECIAL_CHARS = "!@#$%^&*()_-+=<>?/"
 
     // Quy tắc ID thiết bị
-    const val DEVICE_ID_REGEX = "^[a-zA-Z0-9_]{5,20}\$" // Chỉ chữ cái, số và dấu gạch dưới, từ 5-20 ký tự.
+    const val DEVICE_ID_REGEX        = "^[a-zA-Z0-9_]{5,20}$" // Chỉ chữ cái, số và dấu gạch dưới, từ 5-20 ký tự.
 
     // Quy tắc Tên thiết bị
     const val MIN_DEVICE_NAME_LENGTH = 3

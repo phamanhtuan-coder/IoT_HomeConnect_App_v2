@@ -18,7 +18,6 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.AccessPointConnectionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.access_point_connection.WifiConnectionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.DeviceSharingListScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.ShareDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.notification.DetailNotificationScreen
 import com.sns.homeconnect_v2.presentation.screen.notification.NotificationScreen
 import com.sns.homeconnect_v2.presentation.screen.otp.OtpScreen
@@ -144,7 +143,7 @@ fun NavigationGraph(navController: NavHostController) {
                 route = "${Screens.AddSharedUser.route}?id={id}",
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getInt("id") ?: -1
+//                val id = backStackEntry.arguments?.getInt("id") ?: -1
 //                ShareDeviceScreen(navController, id)
             }
             composable(

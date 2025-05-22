@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.sns.homeconnect_v2.presentation.navigation.Screens.TransferOwnership
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -24,6 +25,16 @@ import com.sns.homeconnect_v2.presentation.screen.profile.ProfileScreen
 import com.sns.homeconnect_v2.presentation.screen.profile.UpdatePasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.setting.SettingsScreen
 import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
+import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
+import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
+import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController) {
@@ -48,7 +59,6 @@ fun NavigationGraph(navController: NavHostController) {
             val email = backStackEntry.arguments?.getString("email") ?: ""
             NewPasswordScreen(navController, email)
         }
-        // TODO: Add PasswordAuth screen
 
         // --- OTP screens ---
         composable(
@@ -118,9 +128,21 @@ fun NavigationGraph(navController: NavHostController) {
             // TODO: Add SpaceDetail screen with route "space_detail/{spaceId}"
 
             // --- Group screens ---
-            // TODO: Add Groups screen
-            // TODO: Add CreateGroup screen
-            // TODO: Add GroupDetail screen with route "group_detail/{groupId}"
+            composable(Screens.Groups.route) {
+                GroupScreen(
+                    navController = navController,
+                )
+            }
+            composable(Screens.CreateGroup.route) {
+                CreateGroupScreen(navController)
+            }
+            composable(
+                route = Screens.GroupDetail.route,
+                arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
+                DetailGroupScreen(navController) //Todo: Pass groupId to DetailGroupScreen
+            }
             // TODO: Add AddGroupUser screen with route "add_group_user/{groupId}"
 
             // --- IoT Device screens ---
@@ -142,12 +164,58 @@ fun NavigationGraph(navController: NavHostController) {
                 WifiConnectionScreen(navController)
             }
 
+            composable(Screens.ListDevices.route) {
+                ListDeviceScreen(navController)
+            }
+
+            composable(
+                route = Screens.DeviceDetail.route,
+                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
+                DeviceDetailScreen(navController)
+            }
+
+            composable(
+                route = Screens.FireAlarmDetail.route
+            ) {
+                FireAlarmDetailScreen(navController)
+            }
+
+            composable(
+                route = Screens.DefaultDetail.route,
+                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
+                DefaultDetailScreen(navController)
+            }
+
+            composable(
+                route = Screens.SoftwareVersion.route,
+                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
+                SoftwareVersionScreen(navController) // Todo: Pass deviceId to SoftwareVersionScreen
+            }
+
+            composable(
+                route = Screens.ReportLostDevice.route,
+                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
+                ReportLostDeviceScreen(navController) //Todo: Pass deviceId to ReportLostDeviceScreen
+            }
+
+            composable(
+                route = TransferOwnership.route,
+                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
+                TransferOwnershipScreen(navController) // Todo: Pass deviceId to TransferOwnershipScreen
+            }
+
             // TODO: Add ActivityHistory screen with route "activity_history?deviceId={deviceId}"
             // TODO: Add ActivityHistoryDetail screen with route "activity_history_detail/{logDetails}"
-            // TODO: Add FireAlarmDetail screen
-            // TODO: Add DefaultDetail screen with route "default_detail/{deviceId}"
-            // TODO: Add SoftwareVersion screen with route "software_version/{deviceId}"
-            // TODO: Add ReportLostDevice screen with route "report_lost_device/{deviceId}"
             // TODO: Add DeviceSharing screen with route "device_sharing/{deviceId}"
 
             composable(
@@ -157,6 +225,7 @@ fun NavigationGraph(navController: NavHostController) {
                 val id = backStackEntry.arguments?.getInt("id") ?: -1
                 DeviceSharingListScreen(navController, id)
             }
+
             composable("device/{typeID}/{id}") { backStackEntry ->
                 val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0
                 val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()

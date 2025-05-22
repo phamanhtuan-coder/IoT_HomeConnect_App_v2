@@ -172,7 +172,7 @@ fun SharedUserCard(
                             coroutineScope.launch {
                                 delay(1000)               // mô phỏng API
                                 val isActionSuccessful = true           // ← kết quả thật
-                                if (isActionSuccessful) onSuccessCallback?.invoke("Thiết bị đã thêm thành công!")
+                                if (isActionSuccessful) onSuccessCallback?.invoke("Quyền đã được gỡ thành công!")
                                 else      onErrorCallback?.invoke("Thao tác thất bại, vui lòng thử lại.")
                             }
                             isButtonLoading = true

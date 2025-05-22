@@ -256,12 +256,13 @@ fun ShareDeviceScreen(
                                     pendingOnSuccess = null
                                     pendingOnError   = null
                                     coroutineScope.launch {
+                                        isButtonLoading = true
                                         delay(1000)               // mô phỏng API
                                         val isActionSuccessful = true           // ← kết quả thật
                                         if (isActionSuccessful) onSuccessCallback?.invoke("Thiết bị đã thêm thành công!")
                                         else      onErrorCallback?.invoke("Thao tác thất bại, vui lòng thử lại.")
+                                        isButtonLoading = false
                                     }
-                                    isButtonLoading = true
                                 },
                                 onDismiss = {
                                     showConfirm = false          // huỷ, không làm gì

@@ -5,8 +5,12 @@ sealed class Screens(val route: String) {
     data object Login : Screens("login")
     data object Register : Screens("register")
     data object RecoverPassword : Screens("recover_password")
-    data object UpdatePassword : Screens("update_password")
-    data object NewPassword : Screens("new_password")
+    data object UpdatePassword : Screens("update_password/{id}") {
+        fun createRoute(id: Int) = "update_password/$id"
+    }
+    data object NewPassword : Screens("new_password?email={email}") {
+        fun createRoute(email: String) = "new_password?email=$email"
+    }
     data object PasswordAuth : Screens("password_auth")
     data object Welcome : Screens("welcome")
 
@@ -62,8 +66,12 @@ sealed class Screens(val route: String) {
     // --- IoT Device screens ---
     data object Devices : Screens("devices")
     data object AddDevice : Screens("add_device")
-    data object DeviceDetail : Screens("device_detail")
-    data object AccessPoint : Screens("access_point")
+    data object DeviceDetail : Screens("device_detail/{deviceId}") {
+        fun createRoute(deviceId: Int) = "device_detail/$deviceId"
+    }
+    data object AccessPoint : Screens("access_point?id={id}&name={name}") {
+        fun createRoute(id: String, name: String) = "access_point?id=$id&name=$name"
+    }
     data object WifiConnection : Screens("wifi_connection")
     data object ActivityHistory : Screens("activity_history?deviceId={deviceId}") {
         fun createRoute(deviceId: Int): String = "activity_history?deviceId=$deviceId"
@@ -84,8 +92,12 @@ sealed class Screens(val route: String) {
     data object DeviceSharing : Screens("device_sharing/{deviceId}") {
         fun createRoute(deviceId: Int) = "device_sharing/$deviceId"
     }
-    data object SharedUsers : Screens("shared_users")
-    data object AddSharedUser : Screens("add_shared_user")
+    data object SharedUsers : Screens("shared_users?id={id}") {
+        fun createRoute(id: Int) = "shared_users?id=$id"
+    }
+    data object AddSharedUser : Screens("add_shared_user?id={id}") {
+        fun createRoute(id: Int) = "add_shared_user?id=$id"
+    }
     data object TransferOwnership : Screens("transfer_ownership/{deviceId}") {
         fun createRoute(deviceId: Int) = "transfer_ownership/$deviceId"
     }
@@ -93,7 +105,9 @@ sealed class Screens(val route: String) {
 
     // --- Notification screens ---
     data object AllNotifications : Screens("all_notifications")
-    data object NotificationDetail : Screens("notification_detail")
+    data object NotificationDetail : Screens("notification_detail?id={id}") {
+        fun createRoute(id: Int) = "notification_detail?id=$id"
+    }
     data object ListNotifications : Screens("list_notifications")
     data object DetailNotifications : Screens("detail_notifications/{notificationId}") {
         fun createRoute(notificationId: Int) = "detail_notifications/$notificationId"

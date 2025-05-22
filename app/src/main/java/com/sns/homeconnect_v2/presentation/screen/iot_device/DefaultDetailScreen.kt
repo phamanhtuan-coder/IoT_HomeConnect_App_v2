@@ -59,7 +59,7 @@ fun DefaultScreen(navController: NavHostController) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_TABLET)
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
 @Composable
 fun DefaultScreenPreview() {
     DefaultScreen(navController = rememberNavController())

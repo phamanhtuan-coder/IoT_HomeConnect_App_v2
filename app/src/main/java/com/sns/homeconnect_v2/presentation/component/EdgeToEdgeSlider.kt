@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.sns.homeconnect_v2.core.util.MAX_SLIDER_VALUE
 
 /**
  * Slider "tràn cạnh" với track và thumb có thể tùy chỉnh.

@@ -69,6 +69,9 @@ sealed class Screens(val route: String) {
     data object DeviceDetail : Screens("device_detail/{deviceId}") {
         fun createRoute(deviceId: Int) = "device_detail/$deviceId"
     }
+    data object DeviceByType : Screens("device/{typeID}/{id}") {
+        fun createRoute(typeID: Int, id: Int) = "device/$typeID/$id"
+    }
     data object AccessPoint : Screens("access_point?id={id}&name={name}") {
         fun createRoute(id: String, name: String) = "access_point?id=$id&name=$name"
     }

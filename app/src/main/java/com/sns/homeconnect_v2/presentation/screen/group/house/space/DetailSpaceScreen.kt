@@ -133,7 +133,7 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                            .padding(start = 16.dp, top = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

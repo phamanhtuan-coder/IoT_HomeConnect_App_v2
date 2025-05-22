@@ -130,8 +130,8 @@ fun ActionButtonWithFeedback(
                             strokeWidth = 2.dp,
                             modifier = Modifier
                                 .size(20.dp)
-                                .padding(end = 8.dp)
                         )
+                        Spacer(modifier= Modifier.width(8.dp))
                         Text("Đang xử lý…", fontSize = textSize, fontWeight = FontWeight.Medium)
                     }
                 } else {
@@ -144,7 +144,7 @@ fun ActionButtonWithFeedback(
                 ConfirmationDialog(
                     title       = successDialogTitle,
                     message     = message,
-                    onConfirm   = { successMessage = null; onSuccess() },
+                    onConfirm   = { successMessage = null; onSuccess(); isButtonLoading = false},
                     onDismiss   = { successMessage = null },
                     confirmText = "OK",
                     dismissText = ""
@@ -156,7 +156,7 @@ fun ActionButtonWithFeedback(
                 ConfirmationDialog(
                     title       = errorDialogTitle,
                     message     = error,
-                    onConfirm   = { successMessage = null; onSuccess() },
+                    onConfirm   = { successMessage = null; onSuccess(); isButtonLoading = false},
                     onDismiss   = { successMessage = null },
                     confirmText = "OK",
                     dismissText = ""

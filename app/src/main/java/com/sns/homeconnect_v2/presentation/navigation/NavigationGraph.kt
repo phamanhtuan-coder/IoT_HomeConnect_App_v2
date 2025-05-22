@@ -145,7 +145,7 @@ fun NavigationGraph(navController: NavHostController) {
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getInt("id") ?: -1
-                ShareDeviceScreen(navController, id)
+//                ShareDeviceScreen(navController, id)
             }
             composable(
                 route = "${Screens.SharedUsers.route}?id={id}",

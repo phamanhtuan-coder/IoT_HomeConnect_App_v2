@@ -194,22 +194,46 @@ fun AppDrawerContent(
             onCloseDrawer = onCloseDrawer
         )
 
-        val spaceGroup = listOf(
-            Triple(Icons.Filled.AddHomeWork, "Quản lý không gian", Screens.HouseManagement.route),
-            Triple(Icons.Filled.Home, "Nhóm thiết bị", Screens.Groups.route)
+        val houseGroup = listOf(
+            Triple(Icons.Filled.AddHomeWork, "Quản lý nhà", Screens.HouseManagement.route)
         )
 
         DrawerMenuGroup(
-            title = "Không gian và nhóm",
+            title = "Quản lý nhà",
             icon = Icons.Filled.AddHomeWork,
-            items = spaceGroup,
+            items = houseGroup,
+            navController = navController,
+            onCloseDrawer = onCloseDrawer
+        )
+
+        val groupsGroup = listOf(
+            Triple(Icons.Filled.Home, "Nhóm thiết bị", Screens.Groups.route),
+            Triple(Icons.Filled.Add, "Tạo nhóm mới", Screens.CreateGroup.route)
+        )
+
+        DrawerMenuGroup(
+            title = "Nhóm thiết bị",
+            icon = Icons.Filled.Home,
+            items = groupsGroup,
+            navController = navController,
+            onCloseDrawer = onCloseDrawer
+        )
+
+        val notificationsGroup = listOf(
+            Triple(Icons.Filled.Notifications, "Tất cả thông báo", Screens.AllNotifications.route),
+            Triple(Icons.Filled.Notifications, "Danh sách thông báo", Screens.ListNotifications.route)
+        )
+
+        DrawerMenuGroup(
+            title = "Thông báo",
+            icon = Icons.Filled.Notifications,
+            items = notificationsGroup,
             navController = navController,
             onCloseDrawer = onCloseDrawer
         )
 
         val accountGroup = listOf(
             Triple(Icons.Filled.Person, "Hồ sơ người dùng", Screens.Profile.route),
-            Triple(Icons.Filled.Notifications, "Thông báo", Screens.AllNotifications.route),
             Triple(Icons.Filled.Settings, "Cài đặt", Screens.Settings.route)
         )
 

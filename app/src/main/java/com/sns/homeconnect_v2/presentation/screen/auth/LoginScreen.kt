@@ -148,7 +148,15 @@ fun LoginScreen(
                 }
 
                 Button(
-                    onClick = { viewModel.login(emailState.value, passwordState.value) },
+                    onClick = {
+                        // TODO: Re-enable API call when new API is ready
+                        // viewModel.login(emailState.value, passwordState.value)
+
+                        // Direct navigation for demo
+                        navController.navigate("home_graph") {
+                            popUpTo(Screens.Welcome.route) { inclusive = true }
+                        }
+                    },
                     modifier = Modifier
                         .width(if (isTablet) 300.dp else 200.dp)
                         .height(if (isTablet) 56.dp else 48.dp),
@@ -163,6 +171,9 @@ fun LoginScreen(
                     )
                 }
 
+                // Comment out the UI state handling since we're bypassing API calls
+                // TODO: Re-enable when API is ready
+                /*
                 when (loginUiState) {
                     is LoginUiState.Idle -> {}
                     is LoginUiState.Loading -> {}
@@ -180,6 +191,7 @@ fun LoginScreen(
                         )
                     }
                 }
+                */
 
                 Row(
                     modifier = Modifier.fillMaxWidth(if (isTablet) 0.8f else 0.9f),

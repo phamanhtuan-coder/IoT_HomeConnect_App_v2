@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component.navigation
 
 import IoTHomeConnectAppTheme
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import kotlinx.coroutines.launch
 
@@ -90,12 +94,11 @@ fun DrawerWithContent(
 
     // Khi có header kiểu back thì không hiển thị nút drawer
     val showDrawerButton = type == "Home"
-
+    IoTHomeConnectAppTheme {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             AppDrawerContent(
-                username = username,
                 navController = navController,
                 onCloseDrawer = {
                     scope.launch { drawerState.close() }
@@ -118,8 +121,9 @@ fun DrawerWithContent(
                 )
                 content()
             }
-        }
+        },
     )
+    }
 }
 
 /**
@@ -127,7 +131,6 @@ fun DrawerWithContent(
  */
 @Composable
 fun AppDrawerContent(
-    username: String,
     navController: NavHostController,
     onCloseDrawer: () -> Unit
 ) {
@@ -135,29 +138,33 @@ fun AppDrawerContent(
         modifier = Modifier.width(300.dp),
         drawerContainerColor = MaterialTheme.colorScheme.background,
         drawerContentColor = MaterialTheme.colorScheme.onBackground,
+        drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
     ) {
-        // Close button
-        Row(
+        // Phần header với nền màu xanh bao phủ cả nút đóng drawer
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.End
+                .background(
+                    MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(topEnd = 16.dp)
+                )
         ) {
+            // Close button without white background - chỉ có icon X màu trắng trên nền xanh
             IconButton(
                 onClick = onCloseDrawer,
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
-                    .size(40.dp)
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Đóng menu",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
-        }
 
-        DrawerHeader(username = username)
+            DrawerHeader()
+        }
 
         Divider(
             thickness = 1.dp,
@@ -289,35 +296,19 @@ fun AppDrawerContent(
 }
 
 @Composable
-fun DrawerHeader(username: String) {
-    IoTHomeConnectAppTheme {
-        Box(
+fun DrawerHeader() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.logo),
+            contentDescription = "Logo",
             modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(vertical = 24.dp, horizontal = 16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = getGreeting(),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = username,
-                    color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                    fontSize = 16.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
+                .size(250.dp, 100.dp),
+            contentScale = ContentScale.Crop
+        )
     }
 }
 
@@ -440,7 +431,6 @@ fun DrawerMenuItem(
 fun DrawerContentPreview() {
     IoTHomeConnectAppTheme {
         AppDrawerContent(
-            username = "Alice Nguyen",
             navController = rememberNavController(),
             onCloseDrawer = {}
         )

@@ -95,10 +95,10 @@ fun MenuBottom(
         // Track the last selected route
         val currentRoute = navController.currentBackStackEntry?.destination?.route
 
-        // Main container with proper stacking context
+        // Main container with proper stacking context - increased height to accommodate higher home button
         Box(
             contentAlignment = Alignment.TopCenter,
-            modifier = Modifier.height(if (isTablet) 120.dp else 90.dp)
+            modifier = Modifier.height(if (isTablet) 140.dp else 110.dp)
         ) {
             // Bottom Navigation Bar with lower z-index
             Box(
@@ -177,12 +177,13 @@ fun MenuBottom(
             )
 
             // Position the floating components at the top-center of the box with higher z-index
+            // Now with increased offset to appear higher
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .zIndex(1f)
-                    .offset(y = 0.dp) // Position it exactly where needed
+                    .offset(y = if (isTablet) 10.dp else 5.dp) // Positioned higher than before
             ) {
                 // Overlay circle with app background color to create floating effect
                 Box(
@@ -207,12 +208,12 @@ fun MenuBottom(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 12.dp,
-                        pressedElevation = 8.dp
+                        defaultElevation = 15.dp, // Increased elevation
+                        pressedElevation = 10.dp
                     ),
                     modifier = Modifier
                         .size(if (isTablet) 70.dp else 60.dp)
-                        .shadow(16.dp, CircleShape) // Increased shadow for better floating effect
+                        .shadow(18.dp, CircleShape) // Slightly increased shadow for higher elevation effect
                         .scale(scale)
                         .zIndex(1f)
                 ) {

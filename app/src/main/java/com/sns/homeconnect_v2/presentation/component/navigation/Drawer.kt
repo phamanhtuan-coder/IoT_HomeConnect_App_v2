@@ -135,163 +135,178 @@ fun AppDrawerContent(
     onCloseDrawer: () -> Unit
 ) {
     ModalDrawerSheet(
-        modifier = Modifier.width(300.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier
+            .width(300.dp),
+        drawerContainerColor = Color.Transparent, // Đặt màu container là trong suốt
         drawerContentColor = MaterialTheme.colorScheme.onBackground,
-        drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+        drawerShape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp,)
     ) {
-        // Phần header với nền màu xanh bao phủ cả nút đóng drawer
-        Box(
+        // Phần header với nền màu xanh bao phủ cả nút đóng drawer và phần safe area trên cùng
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(
                     MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(topEnd = 16.dp)
+                    shape = RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
                 )
         ) {
-            // Close button without white background - chỉ có icon X màu trắng trên nền xanh
-            IconButton(
-                onClick = onCloseDrawer,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Đóng menu",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
+            // Thêm một Spacer để phủ kín vùng status bar
+            Spacer(modifier = Modifier.height(24.dp))
 
-            DrawerHeader()
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Close button without white background - chỉ có icon X màu trắng trên nền xanh
+                IconButton(
+                    onClick = onCloseDrawer,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Đóng menu",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+
+                DrawerHeader()
+            }
         }
 
-        Divider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+        // Phần nội dung còn lại với nền trắng
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Menu items grouped
-        val homeGroup = listOf(
-            Triple(Icons.Filled.Home, "Trang chủ", Screens.Home.route),
-            Triple(Icons.Filled.PieChart, "Dashboard", Screens.Dashboard.route)
-        )
+            // Menu items grouped
+            val homeGroup = listOf(
+                Triple(Icons.Filled.Home, "Trang chủ", Screens.Home.route),
+                Triple(Icons.Filled.PieChart, "Dashboard", Screens.Dashboard.route)
+            )
 
-        DrawerMenuGroup(
-            title = "Trang chủ",
-            icon = Icons.Filled.Home,
-            items = homeGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Trang chủ",
+                icon = Icons.Filled.Home,
+                items = homeGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        val devicesGroup = listOf(
-            Triple(Icons.Filled.Devices, "Danh sách thiết bị", Screens.ListDevices.route),
-            Triple(Icons.Filled.Add, "Thêm thiết bị", Screens.AddDevice.route),
-            Triple(Icons.Filled.History, "Lịch sử hoạt động", Screens.ActivityHistory.createRoute(0))
-        )
+            val devicesGroup = listOf(
+                Triple(Icons.Filled.Devices, "Danh sách thiết bị", Screens.ListDevices.route),
+                Triple(Icons.Filled.Add, "Thêm thiết bị", Screens.AddDevice.route),
+                Triple(Icons.Filled.History, "Lịch sử hoạt động", Screens.ActivityHistory.createRoute(0))
+            )
 
-        DrawerMenuGroup(
-            title = "Quản lý thiết bị",
-            icon = Icons.Filled.Devices,
-            items = devicesGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Quản lý thiết bị",
+                icon = Icons.Filled.Devices,
+                items = devicesGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        val houseGroup = listOf(
-            Triple(Icons.Filled.AddHomeWork, "Quản lý nhà", Screens.HouseManagement.route)
-        )
+            val houseGroup = listOf(
+                Triple(Icons.Filled.AddHomeWork, "Quản lý nhà", Screens.HouseManagement.route)
+            )
 
-        DrawerMenuGroup(
-            title = "Quản lý nhà",
-            icon = Icons.Filled.AddHomeWork,
-            items = houseGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Quản lý nhà",
+                icon = Icons.Filled.AddHomeWork,
+                items = houseGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        val groupsGroup = listOf(
-            Triple(Icons.Filled.Home, "Nhóm thiết bị", Screens.Groups.route),
-            Triple(Icons.Filled.Add, "Tạo nhóm mới", Screens.CreateGroup.route)
-        )
+            val groupsGroup = listOf(
+                Triple(Icons.Filled.Home, "Nhóm thiết bị", Screens.Groups.route),
+                Triple(Icons.Filled.Add, "Tạo nhóm mới", Screens.CreateGroup.route)
+            )
 
-        DrawerMenuGroup(
-            title = "Nhóm thiết bị",
-            icon = Icons.Filled.Home,
-            items = groupsGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Nhóm thiết bị",
+                icon = Icons.Filled.Home,
+                items = groupsGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        val notificationsGroup = listOf(
-            Triple(Icons.Filled.Notifications, "Tất cả thông báo", Screens.AllNotifications.route),
-            Triple(Icons.Filled.Notifications, "Danh sách thông báo", Screens.ListNotifications.route)
-        )
+            val notificationsGroup = listOf(
+                Triple(Icons.Filled.Notifications, "Tất cả thông báo", Screens.AllNotifications.route),
+                Triple(Icons.Filled.Notifications, "Danh sách thông báo", Screens.ListNotifications.route)
+            )
 
-        DrawerMenuGroup(
-            title = "Thông báo",
-            icon = Icons.Filled.Notifications,
-            items = notificationsGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Thông báo",
+                icon = Icons.Filled.Notifications,
+                items = notificationsGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        val accountGroup = listOf(
-            Triple(Icons.Filled.Person, "Hồ sơ người dùng", Screens.Profile.route),
-            Triple(Icons.Filled.Settings, "Cài đặt", Screens.Settings.route)
-        )
+            val accountGroup = listOf(
+                Triple(Icons.Filled.Person, "Hồ sơ người dùng", Screens.Profile.route),
+                Triple(Icons.Filled.Settings, "Cài đặt", Screens.Settings.route)
+            )
 
-        DrawerMenuGroup(
-            title = "Tài khoản",
-            icon = Icons.Filled.Person,
-            items = accountGroup,
-            navController = navController,
-            onCloseDrawer = onCloseDrawer
-        )
+            DrawerMenuGroup(
+                title = "Tài khoản",
+                icon = Icons.Filled.Person,
+                items = accountGroup,
+                navController = navController,
+                onCloseDrawer = onCloseDrawer
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f))
 
-        Divider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+            Divider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
 
-        DrawerMenuItem(
-            icon = Icons.Filled.Help,
-            label = "Trợ giúp",
-            onClick = {
-                // TODO: Navigate to help screen
-                onCloseDrawer()
-            }
-        )
-
-        DrawerMenuItem(
-            icon = Icons.Filled.Info,
-            label = "Giới thiệu",
-            onClick = {
-                // TODO: Navigate to about screen
-                onCloseDrawer()
-            }
-        )
-
-        DrawerMenuItem(
-            icon = Icons.Filled.Logout,
-            label = "Đăng xuất",
-            onClick = {
-                // TODO: Implement logout functionality
-                navController.navigate(Screens.Login.route) {
-                    popUpTo(0) { inclusive = true }
+            DrawerMenuItem(
+                icon = Icons.Filled.Help,
+                label = "Trợ giúp",
+                onClick = {
+                    // TODO: Navigate to help screen
+                    onCloseDrawer()
                 }
-                onCloseDrawer()
-            },
-            tint = MaterialTheme.colorScheme.error
-        )
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            DrawerMenuItem(
+                icon = Icons.Filled.Info,
+                label = "Giới thiệu",
+                onClick = {
+                    // TODO: Navigate to about screen
+                    onCloseDrawer()
+                }
+            )
+
+            DrawerMenuItem(
+                icon = Icons.Filled.Logout,
+                label = "Đăng xuất",
+                onClick = {
+                    // TODO: Implement logout functionality
+                    navController.navigate(Screens.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                    onCloseDrawer()
+                },
+                tint = MaterialTheme.colorScheme.error
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
     }
 }
 

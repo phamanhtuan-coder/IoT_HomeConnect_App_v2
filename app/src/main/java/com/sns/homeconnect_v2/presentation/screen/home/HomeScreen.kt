@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,10 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceShare
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.presentation.component.DeviceCard
@@ -151,106 +155,121 @@ fun HomeScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(paddingValues)
                                 .verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.SpaceBetween,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             WeatherInfo()
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Thiết bị được chia sẻ
                             Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
+                                // Thiết bị được chia sẻ
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
                                 ) {
-                                    Text(
-                                        text = "Thiết bị được chia sẻ",
-                                        color = colorScheme.onBackground,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    TextButton(
-                                        onClick = { /* TODO: Navigate tới màn hình toàn bộ thiết bị */ },
-                                        colors = ButtonDefaults.textButtonColors(
-                                            contentColor = Color.Blue
-                                        )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(text = "")
+                                        Text(
+                                            text = "Thiết bị được chia sẻ",
+                                            color = colorScheme.onBackground,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        TextButton(
+                                            onClick = { /* TODO: Navigate to all devices */ },
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = Color.Blue
+                                            )
+                                        ) {
+                                            Text(text = "Xem tất cả")
+                                        }
                                     }
-                                }
 
-                                fun getType(typeId: Int): String {
-                                    return when (typeId) {
-                                        1 -> "Báo cháy" // Fire
-                                        2 -> "Đèn led" // Light
-                                        else -> "Không xác định"
-                                    }
-                                }
+                                    LazyRow(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        items(4) { index ->
+                                            val device = when (index) {
+                                                0 -> SharedWithResponse(
+                                                    PermissionID = 1,
+                                                    DeviceID = 101,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 101,
+                                                        Name = "Đèn phòng khách",
+                                                        TypeID = 2
+                                                    )
+                                                )
+                                                1 -> SharedWithResponse(
+                                                    PermissionID = 2,
+                                                    DeviceID = 102,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 102,
+                                                        Name = "Cảm biến khói",
+                                                        TypeID = 1
+                                                    )
+                                                )
+                                                2 -> SharedWithResponse(
+                                                    PermissionID = 3,
+                                                    DeviceID = 103,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 103,
+                                                        Name = "Đèn ngủ",
+                                                        TypeID = 2
+                                                    )
+                                                )
+                                                else -> SharedWithResponse(
+                                                    PermissionID = 4,
+                                                    DeviceID = 104,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 104,
+                                                        Name = "Cửa thông minh",
+                                                        TypeID = 3
+                                                    )
+                                                )
+                                            }
 
-                                Log.d("SharedUsers", sharedUsers.toString())
-
-                                // TODO: Remove this demo data when API is ready
-                                val demoSharedDevices = listOf(
-                                    SharedWithResponse(
-                                        PermissionID = 1,
-                                        DeviceID = 101,
-                                        SharedWithUserID = 1,
-                                        CreatedAt = "2025-05-23",
-                                        Device = DeviceShare(
-                                            DeviceID = 101,
-                                            Name = "Đèn phòng khách",
-                                            TypeID = 2
-                                        )
-                                    ),
-                                    SharedWithResponse(
-                                        PermissionID = 2,
-                                        DeviceID = 102,
-                                        SharedWithUserID = 1,
-                                        CreatedAt = "2025-05-23",
-                                        Device = DeviceShare(
-                                            DeviceID = 102,
-                                            Name = "Cảm biến khói",
-                                            TypeID = 1
-                                        )
-                                    ),
-                                    SharedWithResponse(
-                                        PermissionID = 3,
-                                        DeviceID = 103,
-                                        SharedWithUserID = 1,
-                                        CreatedAt = "2025-05-23",
-                                        Device = DeviceShare(
-                                            DeviceID = 103,
-                                            Name = "Đèn ngủ",
-                                            TypeID = 2
-                                        )
-                                    )
-                                )
-
-                                LazyRow(
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    items(demoSharedDevices) { device ->
-                                        DeviceCard(
-                                            device = device,
-                                            navController,
-                                            deviceName = device.Device.Name,
-                                            deviceType = getType(device.Device.TypeID)
-                                        )
+                                            DeviceCard(
+                                                device = device,
+                                                navigator = navController,
+                                                deviceName = device.Device.Name,
+                                                deviceType = when (device.Device.TypeID) {
+                                                    1 -> "Báo cháy"
+                                                    2 -> "Đèn led"
+                                                    3 -> "Cửa thông minh"
+                                                    else -> "Không xác định"
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                 )
+                )
             }
         )
     }
+}
+
+@Preview(showBackground = true, device = Devices.PIXEL_4)
+@Composable
+fun HomeScreenPreview() {
+    val navController = rememberNavController()
+    HomeScreen(navController)
 }

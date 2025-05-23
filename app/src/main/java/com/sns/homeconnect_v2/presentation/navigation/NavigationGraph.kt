@@ -207,7 +207,7 @@ fun NavigationGraph(navController: NavHostController) {
             }
 
             composable(
-                route = TransferOwnership.route,
+                route = Screens.TransferOwnership.route,
                 arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1

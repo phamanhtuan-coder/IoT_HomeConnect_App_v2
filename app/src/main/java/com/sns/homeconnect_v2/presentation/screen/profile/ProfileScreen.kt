@@ -164,9 +164,11 @@ fun ProfileScreen(
     }
 
 
-    var profile by remember { mutableStateOf<User?>(null) } // Lắng nghe danh sách thiết bị
+    var profile by remember { mutableStateOf<User?>(null) }
     val infoProfileState by profileViewModel.infoProfileState.collectAsState()
 
+    // TODO: Re-enable API call when new API is ready
+    /*
     when (infoProfileState) {
         is InfoProfileState.Error -> {
             Log.d("Error Profile", (infoProfileState as InfoProfileState.Error).error)
@@ -184,6 +186,21 @@ fun ProfileScreen(
 
     LaunchedEffect(1) {
         profileViewModel.getInfoProfile()
+    }
+    */
+
+    // Mock data for demo
+    LaunchedEffect(1) {
+        profile = User(
+            UserID = 1,
+            Name = nameState.value,
+            Email = emailState.value,
+            Phone = phoneState.value,
+            Address = locationState.value,
+            DateOfBirth = dateCreated.value,
+            EmailVerified = true,
+            ProfileImage = profileImage,
+        )
     }
 
     LaunchedEffect(profile) { // Lắng nghe thay đổi của profile

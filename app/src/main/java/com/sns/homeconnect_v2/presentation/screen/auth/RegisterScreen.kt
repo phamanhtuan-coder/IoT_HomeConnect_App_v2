@@ -152,12 +152,20 @@ fun RegisterScreen(
         is RegisterState.Success -> {
             LaunchedEffect(Unit) {
                 navController.navigate(Screens.Login.route) {
-                    popUpTo(Screens.Register.route) { inclusive = true }
+                    popUpTo(Screens.Welcome.route) { inclusive = false }
                 }
             }
         }
     }
     */
+
+    // Function to handle registration for demo
+    fun handleRegistrationDemo() {
+        // Direct navigation for demo purposes without API call
+        navController.navigate(Screens.Login.route) {
+            popUpTo(Screens.Welcome.route) { inclusive = false }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize().background(colorScheme.background),
@@ -529,11 +537,8 @@ fun RegisterScreen(
 
                 Button(
                     onClick = {
-                        // TODO: Re-enable API call when new API is ready
-                        // registerUser()
-
                         // Direct navigation for demo
-                        navController.navigate(Screens.Login.route)
+                        handleRegistrationDemo()
                     },
                     modifier = Modifier
                         .weight(1f)

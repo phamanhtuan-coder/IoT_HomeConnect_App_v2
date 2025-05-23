@@ -18,16 +18,23 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddHomeWork
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -42,7 +49,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,11 +74,13 @@ import kotlinx.coroutines.launch
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 23/05/2025
+ * Lần cập nhật cuối: 23/05/2025
  * -----------------------------------------
  * @param navController: Đối tượng điều khiển điều hướng
  * @param type: Loại Header (Home hoặc Back)
  * @param title: Tiêu đề của Header
  * @param username: Tên người dùng
+ * @param showDrawerButton: Hiển thị nút drawer menu. Mặc định là hiển thị với Header Home và ẩn với Header Back
  * @return TopAppBar chứa thông tin Header và MenuDrawer
  * ---------------------------------------
  */
@@ -78,6 +91,7 @@ fun HeaderWithDrawer(
     type: String = "Home",
     title: String = "",
     username: String = "Chúc bạn có một ngày tốt lành!",
+    showDrawerButton: Boolean = type == "Home",  // Default: only show drawer button on Home headers
     content: @Composable () -> Unit
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -91,7 +105,28 @@ fun HeaderWithDrawer(
                 drawerContainerColor = MaterialTheme.colorScheme.background,
                 drawerContentColor = MaterialTheme.colorScheme.onBackground,
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(
+                        onClick = { scope.launch { drawerState.close() } },
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                            .size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Đóng menu",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
                 DrawerHeader(username = username)
+
                 Divider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -99,59 +134,59 @@ fun HeaderWithDrawer(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Menu items
-                DrawerMenuItem(
+                // Menu items grouped
+                val homeGroup = listOf(
+                    Triple(Icons.Filled.Home, "Trang chủ", Screens.Home.route),
+                    Triple(Icons.Filled.PieChart, "Dashboard", Screens.Dashboard.route)
+                )
+
+                DrawerMenuGroup(
+                    title = "Trang chủ",
                     icon = Icons.Filled.Home,
-                    label = "Trang chủ",
-                    onClick = {
-                        navController.navigate(Screens.Home.route)
-                        scope.launch { drawerState.close() }
-                    }
+                    items = homeGroup,
+                    navController = navController,
+                    onCloseDrawer = { scope.launch { drawerState.close() } }
                 )
 
-                DrawerMenuItem(
+                val devicesGroup = listOf(
+                    Triple(Icons.Filled.Devices, "Danh sách thiết bị", Screens.ListDevices.route),
+                    Triple(Icons.Filled.Add, "Thêm thiết bị", Screens.AddDevice.route),
+                    Triple(Icons.Filled.History, "Lịch sử hoạt động", Screens.ActivityHistory.createRoute(0))
+                )
+
+                DrawerMenuGroup(
+                    title = "Quản lý thiết bị",
                     icon = Icons.Filled.Devices,
-                    label = "Thiết bị",
-                    onClick = {
-                        navController.navigate(Screens.ListDevices.route)
-                        scope.launch { drawerState.close() }
-                    }
+                    items = devicesGroup,
+                    navController = navController,
+                    onCloseDrawer = { scope.launch { drawerState.close() } }
                 )
 
-                DrawerMenuItem(
+                val spaceGroup = listOf(
+                    Triple(Icons.Filled.AddHomeWork, "Quản lý không gian", Screens.HouseManagement.route),
+                    Triple(Icons.Filled.Home, "Nhóm thiết bị", Screens.Groups.route)
+                )
+
+                DrawerMenuGroup(
+                    title = "Không gian và nhóm",
                     icon = Icons.Filled.AddHomeWork,
-                    label = "Quản lý không gian",
-                    onClick = {
-                        navController.navigate(Screens.HouseManagement.route)
-                        scope.launch { drawerState.close() }
-                    }
+                    items = spaceGroup,
+                    navController = navController,
+                    onCloseDrawer = { scope.launch { drawerState.close() } }
                 )
 
-                DrawerMenuItem(
+                val accountGroup = listOf(
+                    Triple(Icons.Filled.Person, "Hồ sơ người dùng", Screens.Profile.route),
+                    Triple(Icons.Filled.Notifications, "Thông báo", Screens.AllNotifications.route),
+                    Triple(Icons.Filled.Settings, "Cài đặt", Screens.Settings.route)
+                )
+
+                DrawerMenuGroup(
+                    title = "Tài khoản",
                     icon = Icons.Filled.Person,
-                    label = "Hồ sơ người dùng",
-                    onClick = {
-                        navController.navigate(Screens.Profile.route)
-                        scope.launch { drawerState.close() }
-                    }
-                )
-
-                DrawerMenuItem(
-                    icon = Icons.Filled.Notifications,
-                    label = "Thông báo",
-                    onClick = {
-                        navController.navigate(Screens.AllNotifications.route)
-                        scope.launch { drawerState.close() }
-                    }
-                )
-
-                DrawerMenuItem(
-                    icon = Icons.Filled.Settings,
-                    label = "Cài đặt",
-                    onClick = {
-                        navController.navigate(Screens.Settings.route)
-                        scope.launch { drawerState.close() }
-                    }
+                    items = accountGroup,
+                    navController = navController,
+                    onCloseDrawer = { scope.launch { drawerState.close() } }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -202,6 +237,7 @@ fun HeaderWithDrawer(
                     "Home" -> HomeHeaderWithMenu(
                         navController = navController,
                         username = username,
+                        showDrawerButton = showDrawerButton,
                         onMenuClick = {
                             scope.launch {
                                 if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -211,6 +247,7 @@ fun HeaderWithDrawer(
                     "Back" -> BackHeaderWithMenu(
                         navController = navController,
                         title = title,
+                        showDrawerButton = showDrawerButton,
                         onMenuClick = {
                             scope.launch {
                                 if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -220,6 +257,7 @@ fun HeaderWithDrawer(
                     "Notification" -> NotificationHeaderWithMenu(
                         navController = navController,
                         title = title,
+                        showDrawerButton = showDrawerButton,
                         onMenuClick = {
                             scope.launch {
                                 if (drawerState.isClosed) drawerState.open() else drawerState.close()
@@ -266,6 +304,88 @@ fun DrawerHeader(username: String) {
     }
 }
 
+/**
+ * Nhóm menu trong drawer
+ */
+@Composable
+fun DrawerMenuGroup(
+    title: String,
+    icon: ImageVector,
+    items: List<Triple<ImageVector, String, String>>,
+    navController: NavHostController,
+    onCloseDrawer: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = !expanded }
+                .padding(vertical = 12.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = title,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                contentDescription = if (expanded) "Thu gọn" else "Mở rộng",
+                tint = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (expanded) {
+            items.forEach { (itemIcon, label, route) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            navController.navigate(route)
+                            onCloseDrawer()
+                        }
+                        .padding(start = 56.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = itemIcon,
+                        contentDescription = label,
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = label,
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.Filled.ChevronRight,
+                        contentDescription = "Chuyển tới",
+                        tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+    }
+}
+
 @Composable
 fun DrawerMenuItem(
     icon: ImageVector,
@@ -307,6 +427,7 @@ fun DrawerMenuItem(
 fun HomeHeaderWithMenu(
     navController: NavHostController,
     username: String,
+    showDrawerButton: Boolean = true,
     onMenuClick: () -> Unit
 ) {
     IoTHomeConnectAppTheme {
@@ -332,11 +453,13 @@ fun HomeHeaderWithMenu(
                 }
             },
             navigationIcon = {
-                RoundedIconButton(
-                    icon = Icons.Filled.Menu,
-                    description = "Menu",
-                    onClick = onMenuClick
-                )
+                if (showDrawerButton) {
+                    RoundedIconButton(
+                        icon = Icons.Filled.Menu,
+                        description = "Menu",
+                        onClick = onMenuClick
+                    )
+                }
             },
             actions = {
                 RoundedIconButton(
@@ -360,6 +483,7 @@ fun HomeHeaderWithMenu(
 fun BackHeaderWithMenu(
     navController: NavHostController,
     title: String,
+    showDrawerButton: Boolean = false,
     onMenuClick: () -> Unit
 ) {
     IoTHomeConnectAppTheme {
@@ -376,34 +500,36 @@ fun BackHeaderWithMenu(
                 )
             },
             navigationIcon = {
-                RoundedIconButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    description = "Back",
-                    onClick = {
-                        // Mimic Facebook-like back navigation
-                        val canGoBack = navController.previousBackStackEntry != null
-                        if (canGoBack) {
-                            // Custom back navigation that doesn't clear the entire stack
-                            navController.navigateUp()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RoundedIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        description = "Back",
+                        onClick = {
+                            val canGoBack = navController.previousBackStackEntry != null
+                            if (canGoBack) {
+                                navController.navigateUp()
+                            }
                         }
+                    )
+
+                    if (showDrawerButton) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        RoundedIconButton(
+                            icon = Icons.Filled.Menu,
+                            description = "Menu",
+                            onClick = onMenuClick
+                        )
                     }
-                )
+                }
             },
             actions = {
-                Row {
-                    RoundedIconButton(
-                        icon = Icons.Filled.Menu,
-                        description = "Menu",
-                        onClick = onMenuClick
-                    )
-                    RoundedIconButton(
-                        icon = Icons.Filled.Notifications,
-                        description = "Notifications",
-                        onClick = {
-                            navController.navigate(Screens.AllNotifications.route)
-                        }
-                    )
-                }
+                RoundedIconButton(
+                    icon = Icons.Filled.Notifications,
+                    description = "Notifications",
+                    onClick = {
+                        navController.navigate(Screens.AllNotifications.route)
+                    }
+                )
             }
         )
     }
@@ -418,6 +544,7 @@ fun BackHeaderWithMenu(
 fun NotificationHeaderWithMenu(
     navController: NavHostController,
     title: String,
+    showDrawerButton: Boolean = false,
     onMenuClick: () -> Unit
 ) {
     IoTHomeConnectAppTheme {
@@ -434,26 +561,29 @@ fun NotificationHeaderWithMenu(
                 )
             },
             navigationIcon = {
-                RoundedIconButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    description = "Back",
-                    onClick = {
-                        // Mimic Facebook-like back navigation
-                        val canGoBack = navController.previousBackStackEntry != null
-                        if (canGoBack) {
-                            // Custom back navigation that doesn't clear the entire stack
-                            navController.navigateUp()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RoundedIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        description = "Back",
+                        onClick = {
+                            val canGoBack = navController.previousBackStackEntry != null
+                            if (canGoBack) {
+                                navController.navigateUp()
+                            }
                         }
+                    )
+
+                    if (showDrawerButton) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        RoundedIconButton(
+                            icon = Icons.Filled.Menu,
+                            description = "Menu",
+                            onClick = onMenuClick
+                        )
                     }
-                )
+                }
             },
-            actions = {
-                RoundedIconButton(
-                    icon = Icons.Filled.Menu,
-                    description = "Menu",
-                    onClick = onMenuClick
-                )
-            }
+            actions = {}
         )
     }
 }

@@ -4,10 +4,14 @@ import IoTHomeConnectAppTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -17,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -49,25 +54,21 @@ fun getGreeting(): String {
     }
 }
 
-
 /**
  * Header cho màn hình Home hoặc Back
  * -----------------------------------------
  * - Người viết: Phạm Anh Tuấn
  * - Ngày viết: 29/11/2024
- * - Ngày cập nhật gần nhất: 15/12/2024
+ * - Ngày cập nhật gần nhất: 23/05/2025
  * -----------------------------------------
  * @param navController: Đối tượng điều khiển điều hướng
  * @param type: Loại Header (Home hoặc Back)
  * @param title: Tiêu đề của Header
  * @param username: Tên người dùng
+ * @param showDrawerButton: Hiển thị nút drawer menu
+ * @param onDrawerClick: Xử lý sự kiện khi người dùng nhấn vào nút drawer
  * @return TopAppBar chứa thông tin Header
  * ---------------------------------------
- * Người cập nhật: Phạm Anh Tuấn
- * Ngày cập nhật: 15/12/2024
- * Nội dung cập nhật:
- * - Thêm điều hướng quay lại màn hình trước đó
- *
  */
 @Composable
 fun Header(
@@ -75,11 +76,13 @@ fun Header(
     type: String = "Home",
     title: String = "",
     username: String = "Chúc bạn có một ngày tốt lành!",
+    showDrawerButton: Boolean = type == "Home",
+    onDrawerClick: () -> Unit = {}
 ) {
     when (type) {
-        "Home" -> HomeHeader(navController, username)
-        "Notification" -> NotificationHeader(navController, title)
-        "Back" -> BackHeader(navController, title)
+        "Home" -> HomeHeader(navController, username, showDrawerButton, onDrawerClick)
+        "Notification" -> NotificationHeader(navController, title, showDrawerButton, onDrawerClick)
+        "Back" -> BackHeader(navController, title, showDrawerButton, onDrawerClick)
     }
 }
 
@@ -88,9 +91,12 @@ fun Header(
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 29/11/2024
- * Ngày cập nhật gần nhất: 13/12/2024
+ * Ngày cập nhật gần nhất: 23/05/2025
  * -----------------------------------------
+ * @param navController: Đối tượng điều khiển điều hướng
  * @param title: Tiêu đề của Header
+ * @param showDrawerButton: Hiển thị nút drawer menu
+ * @param onDrawerClick: Xử lý sự kiện khi người dùng nhấn vào nút drawer
  * @return TopAppBar chứa thông tin Header
  * ---------------------------------------
  */
@@ -99,7 +105,8 @@ fun Header(
 fun BackHeader(
     navController: NavHostController,
     title: String,
-
+    showDrawerButton: Boolean = false,
+    onDrawerClick: () -> Unit = {}
 ) {
     IoTHomeConnectAppTheme {
         TopAppBar(
@@ -115,25 +122,35 @@ fun BackHeader(
                 )
             },
             navigationIcon = {
-                RoundedIconButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    description = "Back",
-                    onClick = {
-                        // Mimic Facebook-like back navigation
-                        val canGoBack = navController.previousBackStackEntry != null
-                        if (canGoBack) {
-                            // Custom back navigation that doesn't clear the entire stack
-                            navController.navigateUp()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RoundedIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        description = "Back",
+                        onClick = {
+                            // Mimic Facebook-like back navigation
+                            val canGoBack = navController.previousBackStackEntry != null
+                            if (canGoBack) {
+                                // Custom back navigation that doesn't clear the entire stack
+                                navController.navigateUp()
+                            }
                         }
+                    )
+
+                    if (showDrawerButton) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        RoundedIconButton(
+                            icon = Icons.Filled.Menu,
+                            description = "Menu",
+                            onClick = onDrawerClick
+                        )
                     }
-                )
+                }
             },
             actions = {
                 RoundedIconButton(
                     icon = Icons.Filled.Notifications,
                     description = "Notifications",
                     onClick = {
-                        //Todo: Lấy thông báo từ server
                         navController.navigate(Screens.AllNotifications.route)
                     }
                 )
@@ -147,9 +164,12 @@ fun BackHeader(
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 29/11/2024
- * Ngày cập nhật gần nhất: 13/12/2024
+ * Ngày cập nhật gần nhất: 23/05/2025
  * -----------------------------------------
+ * @param navController: Đối tượng điều khiển điều hướng
  * @param username: Tên người dùng
+ * @param showDrawerButton: Hiển thị nút drawer menu
+ * @param onDrawerClick: Xử lý sự kiện khi người dùng nhấn vào nút drawer
  * @return TopAppBar chứa thông tin Header
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,6 +177,8 @@ fun BackHeader(
 fun HomeHeader(
     navController: NavHostController,
     username: String,
+    showDrawerButton: Boolean = true,
+    onDrawerClick: () -> Unit = {}
 ) {
     IoTHomeConnectAppTheme {
         TopAppBar(
@@ -180,12 +202,20 @@ fun HomeHeader(
                     )
                 }
             },
+            navigationIcon = {
+                if (showDrawerButton) {
+                    RoundedIconButton(
+                        icon = Icons.Filled.Menu,
+                        description = "Menu",
+                        onClick = onDrawerClick
+                    )
+                }
+            },
             actions = {
                 RoundedIconButton(
                     icon = Icons.Filled.Notifications,
                     description = "Notifications",
                     onClick = {
-                        //Todo: Lấy thông báo từ server
                         navController.navigate(Screens.AllNotifications.route)
                     }
                 )
@@ -196,7 +226,6 @@ fun HomeHeader(
 
 @Composable
 fun RoundedIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
-    IoTHomeConnectAppTheme {
     IconButton(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -209,14 +238,28 @@ fun RoundedIconButton(icon: ImageVector, description: String, onClick: () -> Uni
             tint = MaterialTheme.colorScheme.primary
         )
     }
-    }
 }
 
+/**
+ * Header cho màn hình Notification
+ * -----------------------------------------
+ * Người viết: Phạm Anh Tuấn
+ * Ngày viết: 29/11/2024
+ * Ngày cập nhật gần nhất: 23/05/2025
+ * -----------------------------------------
+ * @param navController: Đối tượng điều khiển điều hướng
+ * @param title: Tiêu đề của Header
+ * @param showDrawerButton: Hiển thị nút drawer menu
+ * @param onDrawerClick: Xử lý sự kiện khi người dùng nhấn vào nút drawer
+ * @return TopAppBar chứa thông tin Header
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationHeader(
     navController: NavHostController,
-    title: String
+    title: String,
+    showDrawerButton: Boolean = false,
+    onDrawerClick: () -> Unit = {}
 ) {
     IoTHomeConnectAppTheme {
         TopAppBar(
@@ -232,19 +275,31 @@ fun NotificationHeader(
                 )
             },
             navigationIcon = {
-                RoundedIconButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    description = "Back",
-                    onClick = {
-                        // Mimic Facebook-like back navigation
-                        val canGoBack = navController.previousBackStackEntry != null
-                        if (canGoBack) {
-                            // Custom back navigation that doesn't clear the entire stack
-                            navController.navigateUp()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RoundedIconButton(
+                        icon = Icons.AutoMirrored.Filled.ArrowBack,
+                        description = "Back",
+                        onClick = {
+                            // Mimic Facebook-like back navigation
+                            val canGoBack = navController.previousBackStackEntry != null
+                            if (canGoBack) {
+                                // Custom back navigation that doesn't clear the entire stack
+                                navController.navigateUp()
+                            }
                         }
+                    )
+
+                    if (showDrawerButton) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        RoundedIconButton(
+                            icon = Icons.Filled.Menu,
+                            description = "Menu",
+                            onClick = onDrawerClick
+                        )
                     }
-                )
+                }
             },
+            actions = {}
         )
     }
 }
@@ -263,5 +318,18 @@ fun HeaderTabletPreview() {
         type = "Back",
         title = "Settings",
         username = "Bob"
+    )
+}
+
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+fun HeaderWithDrawerButtonPreview() {
+    Header(
+        navController = rememberNavController(),
+        type = "Back",
+        title = "Settings",
+        username = "Bob",
+        showDrawerButton = true,
+        onDrawerClick = {}
     )
 }

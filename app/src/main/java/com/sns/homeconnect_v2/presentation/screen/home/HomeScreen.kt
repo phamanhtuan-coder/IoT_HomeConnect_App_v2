@@ -38,8 +38,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.presentation.component.DeviceCard
-import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.navigation.DrawerWithContent
 import com.sns.homeconnect_v2.presentation.component.WeatherInfo
 import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.home.SharedWithState
@@ -51,7 +51,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewMo
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 29/11/2024
- * Lần cập nhật cuối: 29/11/2024
+ * Lần cập nhật cuối: 23/05/2025
  * -----------------------------------------
 
  * @param modifier Modifier mở rộng để áp dụng cho layout (đã gán giá trị mặc dịnh).
@@ -119,88 +119,96 @@ fun HomeScreen(
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        Scaffold(containerColor = colorScheme.background,
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            /*
-            * Hiển thị Header
-             */
-            Header(navController, "Home")
-        },
-        bottomBar = {
-            /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
-            MenuBottom(navController)
-        },
-        content = {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+        // Get username from profile state
+        val username = when (infoProfileState) {
+            is InfoProfileState.Success -> (infoProfileState as InfoProfileState.Success).user.Name
+            else -> "Chúc bạn có một ngày tốt lành!"
+        }
 
-            ) {
-                WeatherInfo()
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                // Thiết bị được chia sẻ
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Thiết bị được chia sẻ",
-                            color = colorScheme.onBackground,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        TextButton(
-                            onClick = { /* TODO: Navigate tới màn hình toàn b thiết bị */ },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.Blue
-                            )
+        // Using DrawerWithContent instead of direct Scaffold
+        DrawerWithContent(
+            navController = navController,
+            type = "Home",
+            username = username,
+            content = {
+                Scaffold(
+                    containerColor = colorScheme.background,
+                    modifier = modifier.fillMaxSize(),
+                    bottomBar = {
+                        /*
+                        * Hiển thị Thanh Menu dưới cùng
+                        */
+                        MenuBottom(navController)
+                    },
+                    content = { paddingValues ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues)
+                                .verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "")
-                        }
-                    }
+                            WeatherInfo()
 
-                    fun getType(typeId: Int): String {
-                        return when (typeId) {
-                            1 -> "Báo cháy" // Fire
-                            2 -> "Đèn led" // Light
-                            else -> "Không xác định"
-                        }
-                    }
-                    Log.d("SharedUsers", sharedUsers.toString())
-                    sharedUsers?.let { response ->
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(response) { device ->
-                                DeviceCard(
-                                    device,
-                                    navController,
-                                    deviceName = device.Device.Name,
-                                    deviceType = getType(device.Device.TypeID),
-                                )
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Thiết bị được chia sẻ
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Thiết bị được chia sẻ",
+                                        color = colorScheme.onBackground,
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    TextButton(
+                                        onClick = { /* TODO: Navigate tới màn hình toàn bộ thiết bị */ },
+                                        colors = ButtonDefaults.textButtonColors(
+                                            contentColor = Color.Blue
+                                        )
+                                    ) {
+                                        Text(text = "")
+                                    }
+                                }
+
+                                fun getType(typeId: Int): String {
+                                    return when (typeId) {
+                                        1 -> "Báo cháy" // Fire
+                                        2 -> "Đèn led" // Light
+                                        else -> "Không xác định"
+                                    }
+                                }
+
+                                Log.d("SharedUsers", sharedUsers.toString())
+                                sharedUsers?.let { response ->
+                                    LazyRow(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        items(response) { device ->
+                                            DeviceCard(
+                                                device,
+                                                navController,
+                                                deviceName = device.Device.Name,
+                                                deviceType = getType(device.Device.TypeID),
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                )
             }
-        }
-    )
+        )
     }
 }

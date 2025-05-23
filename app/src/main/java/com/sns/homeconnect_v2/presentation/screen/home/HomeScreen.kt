@@ -151,7 +151,7 @@ fun HomeScreen(
                         */
                         MenuBottom(navController)
                     },
-                    content = { paddingValues ->
+                    content = {  innerPadding ->
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()

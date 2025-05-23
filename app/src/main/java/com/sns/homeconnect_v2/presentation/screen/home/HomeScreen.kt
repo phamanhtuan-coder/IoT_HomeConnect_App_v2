@@ -68,8 +68,11 @@ fun HomeScreen(
     profileViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
 
-    var userId by remember { mutableStateOf(0) }
+    var userId by remember { mutableStateOf(1) } // Default userId for demo
     val infoProfileState by profileViewModel.infoProfileState.collectAsState()
+
+    // TODO: Re-enable API call when new API is ready
+    /*
     LaunchedEffect(Unit) {
         profileViewModel.getInfoProfile()
     }
@@ -90,32 +93,34 @@ fun HomeScreen(
 
         else -> {}
     }
+    */
 
     val state by homeViewModel.sharedWithState.collectAsState()
     var sharedUsers by remember { mutableStateOf<List<SharedWithResponse>?>(emptyList()) }
 
+    // TODO: Re-enable API call when new API is ready
+    /*
     LaunchedEffect(userId) {
         homeViewModel.fetchSharedWith(userId)
     }
+
     when (state) {
         is SharedWithState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            // Loading state handling
         }
+
         is SharedWithState.Success -> {
-           sharedUsers = (state as SharedWithState.Success).sharedWithResponse
-            Log.e("SharedWithState.Success", "Thành công")
+            sharedUsers = (state as SharedWithState.Success).sharedWith
+            Log.d("SharedWithState", sharedUsers.toString())
         }
+
         is SharedWithState.Error -> {
-            val errorMessage = (state as SharedWithState.Error).error
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
-            }
-            Log.e("SharedWithState.Error", "Thất bại")
+            Log.d("SharedWithState", (state as SharedWithState.Error).error)
         }
+
         else -> {}
     }
+    */
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -207,7 +212,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                )
+                 )
             }
         )
     }

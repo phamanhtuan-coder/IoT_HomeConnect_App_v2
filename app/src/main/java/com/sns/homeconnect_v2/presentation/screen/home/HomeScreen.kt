@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceShare
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.presentation.component.DeviceCard
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
@@ -195,18 +196,54 @@ fun HomeScreen(
                                 }
 
                                 Log.d("SharedUsers", sharedUsers.toString())
-                                sharedUsers?.let { response ->
-                                    LazyRow(
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        items(response) { device ->
-                                            DeviceCard(
-                                                device,
-                                                navController,
-                                                deviceName = device.Device.Name,
-                                                deviceType = getType(device.Device.TypeID),
-                                            )
-                                        }
+
+                                // TODO: Remove this demo data when API is ready
+                                val demoSharedDevices = listOf(
+                                    SharedWithResponse(
+                                        PermissionID = 1,
+                                        DeviceID = 101,
+                                        SharedWithUserID = 1,
+                                        CreatedAt = "2025-05-23",
+                                        Device = DeviceShare(
+                                            DeviceID = 101,
+                                            Name = "Đèn phòng khách",
+                                            TypeID = 2
+                                        )
+                                    ),
+                                    SharedWithResponse(
+                                        PermissionID = 2,
+                                        DeviceID = 102,
+                                        SharedWithUserID = 1,
+                                        CreatedAt = "2025-05-23",
+                                        Device = DeviceShare(
+                                            DeviceID = 102,
+                                            Name = "Cảm biến khói",
+                                            TypeID = 1
+                                        )
+                                    ),
+                                    SharedWithResponse(
+                                        PermissionID = 3,
+                                        DeviceID = 103,
+                                        SharedWithUserID = 1,
+                                        CreatedAt = "2025-05-23",
+                                        Device = DeviceShare(
+                                            DeviceID = 103,
+                                            Name = "Đèn ngủ",
+                                            TypeID = 2
+                                        )
+                                    )
+                                )
+
+                                LazyRow(
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    items(demoSharedDevices) { device ->
+                                        DeviceCard(
+                                            device = device,
+                                            navController,
+                                            deviceName = device.Device.Name,
+                                            deviceType = getType(device.Device.TypeID)
+                                        )
                                     }
                                 }
                             }

@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,14 +33,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceShare
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
 import com.sns.homeconnect_v2.presentation.component.DeviceCard
-import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.navigation.DrawerWithContent
 import com.sns.homeconnect_v2.presentation.component.WeatherInfo
 import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.home.SharedWithState
@@ -51,7 +56,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewMo
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 29/11/2024
- * Lần cập nhật cuối: 29/11/2024
+ * Lần cập nhật cuối: 23/05/2025
  * -----------------------------------------
 
  * @param modifier Modifier mở rộng để áp dụng cho layout (đã gán giá trị mặc dịnh).
@@ -68,8 +73,11 @@ fun HomeScreen(
     profileViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
 
-    var userId by remember { mutableStateOf(0) }
+    var userId by remember { mutableStateOf(1) } // Default userId for demo
     val infoProfileState by profileViewModel.infoProfileState.collectAsState()
+
+    // TODO: Re-enable API call when new API is ready
+    /*
     LaunchedEffect(Unit) {
         profileViewModel.getInfoProfile()
     }
@@ -90,117 +98,178 @@ fun HomeScreen(
 
         else -> {}
     }
+    */
 
     val state by homeViewModel.sharedWithState.collectAsState()
     var sharedUsers by remember { mutableStateOf<List<SharedWithResponse>?>(emptyList()) }
 
+    // TODO: Re-enable API call when new API is ready
+    /*
     LaunchedEffect(userId) {
         homeViewModel.fetchSharedWith(userId)
     }
+
     when (state) {
         is SharedWithState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            // Loading state handling
         }
+
         is SharedWithState.Success -> {
-           sharedUsers = (state as SharedWithState.Success).sharedWithResponse
-            Log.e("SharedWithState.Success", "Thành công")
+            sharedUsers = (state as SharedWithState.Success).sharedWith
+            Log.d("SharedWithState", sharedUsers.toString())
         }
+
         is SharedWithState.Error -> {
-            val errorMessage = (state as SharedWithState.Error).error
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
-            }
-            Log.e("SharedWithState.Error", "Thất bại")
+            Log.d("SharedWithState", (state as SharedWithState.Error).error)
         }
+
         else -> {}
     }
+    */
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        Scaffold(containerColor = colorScheme.background,
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            /*
-            * Hiển thị Header
-             */
-            Header(navController, "Home")
-        },
-        bottomBar = {
-            /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
-            MenuBottom(navController)
-        },
-        content = {
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(it)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
+        // Get username from profile state
+        val username = when (infoProfileState) {
+            is InfoProfileState.Success -> (infoProfileState as InfoProfileState.Success).user.Name
+            else -> "Chúc bạn có một ngày tốt lành!"
+        }
 
-            ) {
-                WeatherInfo()
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-
-                // Thiết bị được chia sẻ
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Thiết bị được chia sẻ",
-                            color = colorScheme.onBackground,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        TextButton(
-                            onClick = { /* TODO: Navigate tới màn hình toàn b thiết bị */ },
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = Color.Blue
-                            )
+        // Using DrawerWithContent instead of direct Scaffold
+        DrawerWithContent(
+            navController = navController,
+            type = "Home",
+            username = username,
+            content = {
+                Scaffold(
+                    containerColor = colorScheme.background,
+                    modifier = modifier.fillMaxSize(),
+                    bottomBar = {
+                        /*
+                        * Hiển thị Thanh Menu dưới cùng
+                        */
+                        MenuBottom(navController)
+                    },
+                    content = {  innerPadding ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(text = "")
-                        }
-                    }
+                            WeatherInfo()
 
-                    fun getType(typeId: Int): String {
-                        return when (typeId) {
-                            1 -> "Báo cháy" // Fire
-                            2 -> "Đèn led" // Light
-                            else -> "Không xác định"
-                        }
-                    }
-                    Log.d("SharedUsers", sharedUsers.toString())
-                    sharedUsers?.let { response ->
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            items(response) { device ->
-                                DeviceCard(
-                                    device,
-                                    navController,
-                                    deviceName = device.Device.Name,
-                                    deviceType = getType(device.Device.TypeID),
-                                )
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                // Thiết bị được chia sẻ
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "Thiết bị được chia sẻ",
+                                            color = colorScheme.onBackground,
+                                            fontSize = 20.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        TextButton(
+                                            onClick = { /* TODO: Navigate to all devices */ },
+                                            colors = ButtonDefaults.textButtonColors(
+                                                contentColor = Color.Blue
+                                            )
+                                        ) {
+                                            Text(text = "Xem tất cả")
+                                        }
+                                    }
+
+                                    LazyRow(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        items(4) { index ->
+                                            val device = when (index) {
+                                                0 -> SharedWithResponse(
+                                                    PermissionID = 1,
+                                                    DeviceID = 101,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 101,
+                                                        Name = "Đèn phòng khách",
+                                                        TypeID = 2
+                                                    )
+                                                )
+                                                1 -> SharedWithResponse(
+                                                    PermissionID = 2,
+                                                    DeviceID = 102,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 102,
+                                                        Name = "Cảm biến khói",
+                                                        TypeID = 1
+                                                    )
+                                                )
+                                                2 -> SharedWithResponse(
+                                                    PermissionID = 3,
+                                                    DeviceID = 103,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 103,
+                                                        Name = "Đèn ngủ",
+                                                        TypeID = 2
+                                                    )
+                                                )
+                                                else -> SharedWithResponse(
+                                                    PermissionID = 4,
+                                                    DeviceID = 104,
+                                                    SharedWithUserID = 1,
+                                                    CreatedAt = "2025-05-23",
+                                                    Device = DeviceShare(
+                                                        DeviceID = 104,
+                                                        Name = "Cửa thông minh",
+                                                        TypeID = 3
+                                                    )
+                                                )
+                                            }
+
+                                            DeviceCard(
+                                                device = device,
+                                                navigator = navController,
+                                                deviceName = device.Device.Name,
+                                                deviceType = when (device.Device.TypeID) {
+                                                    1 -> "Báo cháy"
+                                                    2 -> "Đèn led"
+                                                    3 -> "Cửa thông minh"
+                                                    else -> "Không xác định"
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                )
             }
-        }
-    )
+        )
     }
+}
+
+@Preview(showBackground = true, device = Devices.PIXEL_4)
+@Composable
+fun HomeScreenPreview() {
+    val navController = rememberNavController()
+    HomeScreen(navController)
 }

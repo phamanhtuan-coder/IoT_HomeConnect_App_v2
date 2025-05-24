@@ -4,7 +4,9 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val LightColors = lightColorScheme(
     primary = Color(0xFF3D8CF0),
@@ -40,6 +42,18 @@ fun IoTHomeConnectAppTheme(
     content: @Composable () -> Unit
 ) {
     val colors = if (darkTheme) DarkColors else LightColors
+
+    // Áp dụng màu primary cho status bar
+    val systemUiController = rememberSystemUiController()
+    val primaryColor = if (darkTheme) DarkColors.primary else LightColors.primary
+
+    SideEffect {
+        // Thiết lập màu primaryColor cho status bar
+        systemUiController.setStatusBarColor(
+            color = primaryColor,
+            darkIcons = !darkTheme // Sử dụng icon màu tối khi theme là light
+        )
+    }
 
     MaterialTheme(
         colorScheme = colors,

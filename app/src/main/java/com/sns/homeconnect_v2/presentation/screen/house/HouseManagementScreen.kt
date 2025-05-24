@@ -105,10 +105,48 @@ fun HouseManagementScreen(
         spaces = emptyList()
     )) }
 
+    // TODO: Re-enable API call when new API is ready
+    /*
     val state by viewModel.houseManagementState.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchHouses()
+    }
+    */
+
+    // Mock data for demo purposes
+    val mockHouses = remember {
+        listOf(
+            HousesListResponse(
+                houseId = 1,
+                name = "Nhà chính",
+                address = "123 Đường ABC, Quận 1",
+                iconName = "Home",
+                iconColor = "#4CAF50",
+                spaces = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp")
+            ),
+            HousesListResponse(
+                houseId = 2,
+                name = "Nhà nghỉ dưỡng",
+                address = "456 Đường XYZ, Quận 7",
+                iconName = "Villa",
+                iconColor = "#2196F3",
+                spaces = listOf("Sân vườn", "Phòng khách", "Phòng ngủ")
+            ),
+            HousesListResponse(
+                houseId = 3,
+                name = "Văn phòng",
+                address = "789 Đường EFG, Quận 3",
+                iconName = "Work",
+                iconColor = "#FF9800",
+                spaces = listOf("Phòng làm việc", "Phòng họp", "Khu giải trí")
+            )
+        )
+    }
+
+    // Use mock state instead of real API state for demo
+    val mockState = remember {
+        mutableStateOf<HouseManagementState>(HouseManagementState.Success(mockHouses))
     }
 
     IoTHomeConnectAppTheme {
@@ -142,14 +180,15 @@ fun HouseManagementScreen(
                         color = colorScheme.onBackground
                     )
 
-                    when (state) {
+                    // Use mockState instead of state for demo
+                    when (val currentState = mockState.value) {
                         is HouseManagementState.Loading -> {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 CircularProgressIndicator()
                             }
                         }
                         is HouseManagementState.Success -> {
-                            val houses = (state as HouseManagementState.Success).houses
+                            val houses = currentState.houses
                             LazyColumn(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -169,7 +208,7 @@ fun HouseManagementScreen(
                             }
                         }
                         is HouseManagementState.Error -> {
-                            Text("Error: ${(state as HouseManagementState.Error).error}")
+                            Text("Error: ${currentState.error}")
                         }
                         else -> {
                             /* Do Nothing */

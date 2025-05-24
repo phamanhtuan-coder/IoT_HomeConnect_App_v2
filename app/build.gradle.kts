@@ -55,6 +55,9 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:1.3.0")
     implementation ("androidx.camera:camera-view:1.3.0")
 
+    // System UI Controller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+
     // ML Kit Barcode
     implementation ("com.google.mlkit:barcode-scanning:17.1.0")
     implementation(libs.hilt.android)

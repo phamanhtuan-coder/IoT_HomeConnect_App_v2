@@ -15,9 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 
 @Composable
-fun DefaultScreen(navController: NavHostController) {
+fun DefaultDetailScreen(navController: NavHostController) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 
@@ -62,5 +63,5 @@ fun DefaultScreen(navController: NavHostController) {
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
 @Composable
 fun DefaultScreenPreview() {
-    DefaultScreen(navController = rememberNavController())
+    DefaultDetailScreen(navController = rememberNavController())
 }

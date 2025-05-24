@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,7 +103,7 @@ fun WeatherInfo(
             val thoiGianHienTai = formatDateTime(data.location.localtime)
             val thoiTietHienTai = data.current.condition.text
             val nhietDoHienTai = "${data.current.tempC}°C"
-            val viTriHienTai = "${data.location.name}, ${data.location.country}"
+            val viTriHienTai = formatLocation(data.location.name, data.location.country)
             val doAm = "${data.current.humidity}"
             val tamNhin = "${data.current.visKm}"
             val tocDoGio = "${data.current.windKph}"
@@ -156,7 +157,9 @@ fun WeatherInfo(
                             Text(
                                 text = viTriHienTai,
                                 color = Color(0xFF424242),
-                                fontSize = 14.sp
+                                fontSize = 14.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -323,6 +326,26 @@ fun WeatherWidget(icon: ImageVector, value: String, label: String, isTablet: Boo
             }
         }
     }
+}
+
+private fun formatLocation(city: String, country: String): String {
+    // Rút gọn tên thành phố nếu quá dài
+    val maxCityLength = 15
+    val shortenedCity = if (city.length > maxCityLength) {
+        city.take(maxCityLength - 2) + "..."
+    } else {
+        city
+    }
+
+    // Lấy tên viết tắt của quốc gia nếu là tên dài
+    val shortenedCountry = when (country) {
+        "United States of America" -> "USA"
+        "United Kingdom" -> "UK"
+        "Viet Nam" -> "VN"
+        else -> country
+    }
+
+    return "$shortenedCity, $shortenedCountry"
 }
 
 fun isDayTime(): Boolean {

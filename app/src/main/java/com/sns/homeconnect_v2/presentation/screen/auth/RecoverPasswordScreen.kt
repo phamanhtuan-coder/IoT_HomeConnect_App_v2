@@ -128,7 +128,15 @@ fun RecoverPasswordScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { viewModel.checkEmail() },
+                onClick = {
+                    // TODO: Re-enable API call when new API is ready
+                    // viewModel.checkEmail()
+
+                    // Direct navigation for demo
+                    navController.navigate(
+                        Screens.OTP.createRoute("reset_password", uiModel.email)
+                    )
+                },
                 enabled = uiModel.isValid(),
                 modifier = Modifier
                     .width(if (isTablet(context)) 300.dp else 200.dp)
@@ -144,6 +152,8 @@ fun RecoverPasswordScreen(
                 )
             }
 
+            // TODO: Re-enable when API is ready
+            /*
             when (recoverPasswordState) {
                 is RecoverPasswordState.Success -> {
                     LaunchedEffect(Unit) {
@@ -166,6 +176,7 @@ fun RecoverPasswordScreen(
                     // Do nothing
                 }
             }
+            */
 
             if (uiModel.errorMessage.isNotBlank()) {
                 Text(

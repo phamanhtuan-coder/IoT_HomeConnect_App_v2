@@ -92,85 +92,26 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
-/**
- * Đại diện cho Màn hình Chi tiết Thiết bị (DeviceDetailScreen).
- *
- * -----------------------------------------
- * Tác giả: Nguyễn Thanh Sang
- * Ngày: 6/12/2024
- * Cập nhật lần cuối: 10/12/2024
- * -----------------------------------------
- *
- * @param navController NavController để điều hướng giữa các màn hình.
- *
- * @return Một Scaffold đại diện cho màn hình chi tiết thiết bị.
- *
- * -----------------------------------------
- * Cập nhật bởi: Phạm Anh Tuấn
- * Ngày: 30/12/2024
- * -----------------------------------------
- * Điều chỉnh giao diện người dùng.
- * ---------------------------------------
- *
- * Cập nhật bởi: Nguyễn Thanh Sang
- * Ngày: 31/12/2024
- * ---------------------
- * Thêm chức năng điều hướng.
- *
- * -----------------------------------------
- * Cập nhật bởi: Nguyễn Thanh Sang
- * Ngày: 20/05/2025
- * ---------------------
- * Thêm các Nút Hành động.
- */
-
 @Composable
 fun DeviceDetailScreen(
-    navController: NavHostController,
-//    infoDevice: DeviceResponse?,
-//    viewModel: DeviceDetailViewModel = hiltViewModel()
+    navController: NavHostController
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }
-//    var selectedTimeBegin by remember { mutableStateOf("12:00 AM") }
-//    var selectedTimeEnd by remember { mutableStateOf("12:00 AM") }
-//    var showDialogTimePickerBegin by remember { mutableStateOf(false) }
-//    var showDialogTimePickerEnd by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var isCheck by remember { mutableStateOf(false) }
-    var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) }
     var sliderValue by remember { mutableFloatStateOf(128f) }   // 0‥255
 
-    /* state giữ hàm onSuccess / onError tạm thời */
     val scope = rememberCoroutineScope()
 
-    /* ---------- 2. STATE DÙNG CHUNG ---------- */
-    var pendingAction      by remember { mutableStateOf<DeviceAction?>(null) }
-    var loadingAction      by remember { mutableStateOf<DeviceAction?>(null) }
+    var pendingAction by remember { mutableStateOf<DeviceAction?>(null) }
+    var loadingAction by remember { mutableStateOf<DeviceAction?>(null) }
 
-    var pendingOnSuccess   by remember { mutableStateOf<((String) -> Unit)?>(null) }
-    var pendingOnError     by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
-    var confirmTitle       by remember { mutableStateOf("") }
-    var confirmMessage     by remember { mutableStateOf("") }
-    var showConfirm        by remember { mutableStateOf(false) }
-
-//    val toggleDeviceState by viewModel.toggleState.collectAsState()
-
-//    when (toggleDeviceState) {
-//        is ToggleState.Error -> {
-//            Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
-//        }
-//
-//        is ToggleState.Success -> {
-//            val successState = toggleDeviceState as ToggleState.Success
-//            toggleDevice = successState.toggle
-//            Log.e("toggle Device", toggleDevice.toString())
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
+    var confirmTitle by remember { mutableStateOf("") }
+    var confirmMessage by remember { mutableStateOf("") }
+    var showConfirm by remember { mutableStateOf(false) }
 
     var attribute by remember {
         mutableStateOf(
@@ -181,30 +122,24 @@ fun DeviceDetailScreen(
         )
     }
 
-    var safeDevice =
-//        infoDevice ?:
-        DeviceResponse(
-            DeviceID = 0,
-            TypeID = 0,
-            Name = "Dining Room",
-            PowerStatus = false,
-            SpaceID = 0,
-            Attribute = ""
-        )
+    var safeDevice = DeviceResponse(
+        DeviceID = 0,
+        TypeID = 0,
+        Name = "Dining Room",
+        PowerStatus = false,
+        SpaceID = 0,
+        Attribute = ""
+    )
 
     Log.e("safeDevice", safeDevice.toString())
-    LaunchedEffect(toggleDevice) {
-        safeDevice =
-//            infoDevice ?:
-            DeviceResponse(
-                DeviceID = 0,
-                TypeID = 0,
-                Name = "Dining room",
-                PowerStatus = false,
-                SpaceID = 0,
-                Attribute = ""
-            )
+    /*
+    LaunchedEffect(Unit) {
+        // TODO: Re-enable API call when new API is ready
+        // viewModel.loadDeviceDetail()
+
+        // Use demo data for now
     }
+    */
 
     LaunchedEffect(safeDevice.Attribute) {
         val attributeJson = if (safeDevice.Attribute.isEmpty()) {
@@ -228,44 +163,6 @@ fun DeviceDetailScreen(
     }
 
     Log.e("powerStatus", powerStatus.toString())
-    // Khởi tạo toggle
-//    var toggle by remember {
-//        mutableStateOf(ToggleRequest(powerStatus = powerStatus))
-//    }
-
-//    val attributeState by viewModel.attributeState.collectAsState()
-
-//    when (attributeState) {
-//        is AttributeState.Error -> {
-//            Log.e("Error", (attributeState as AttributeState.Error).error)
-//        }
-//
-//        is AttributeState.Success -> {
-//            val successState = attributeState as AttributeState.Success
-//            safeDevice = successState.device
-//            Log.d("Attribute Device", (attributeState as AttributeState.Success).message)
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
-
-//    val unlinkState by viewModel.unlinkState.collectAsState()
-
-//    when (unlinkState) {
-//        is UnlinkState.Error -> {
-//            Log.e("Error Unlink Device", (unlinkState as UnlinkState.Error).error)
-//        }
-//
-//        is UnlinkState.Success -> {
-//            Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
 
     var showAlertDialog by remember { mutableStateOf(false) }
     if (showAlertDialog) {
@@ -273,7 +170,6 @@ fun DeviceDetailScreen(
             title = "Gỡ kết nối",
             text = "Bạn có chắc chắn muốn gỡ kết nối thiết bị này không?",
             onConfirm = {
-//                viewModel.unlinkDevice(safeDevice.DeviceID)
                 showAlertDialog = false
                 navController.popBackStack()
             },
@@ -287,9 +183,6 @@ fun DeviceDetailScreen(
         val colorScheme = MaterialTheme.colorScheme
         Scaffold(
             topBar = {
-                /*
-            * Hiển thị Header
-             */
                 Header(
                     navController = navController,
                     type = "Back",
@@ -297,15 +190,12 @@ fun DeviceDetailScreen(
                 )
             },
             bottomBar = {
-                /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
                 MenuBottom(navController)
             },
             containerColor = colorScheme.background,
             modifier = Modifier.fillMaxSize(),
             content = { innerPadding ->
-                LazyColumn (
+                LazyColumn(
                     modifier = Modifier
                         .padding(innerPadding)
                 ) {
@@ -315,54 +205,50 @@ fun DeviceDetailScreen(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .fillMaxSize() // Chiếm toàn bộ kích thước của Box
+                                    .fillMaxSize()
                             ) {
-                                // Phần đầu tiên: Hiển thị thông tin "Dining Room"
                                 Row(
                                     modifier = Modifier.padding(
                                         horizontal = 16.dp
-                                    ) // Canh lề trên và phải
+                                    )
                                 ) {
-                                    // Cột chứa các thông tin của phòng
                                     Column(
                                         modifier = Modifier
                                             .padding(
                                                 end = 12.dp
-                                            ) // Canh lề hai bên
-                                            .fillMaxWidth() // Chiều rộng đầy đủ
-                                            .background(color = colorScheme.primary) // Nền màu xanh dương
-                                            .weight(0.2f), // Chiếm 20% trọng lượng của Row
+                                            )
+                                            .fillMaxWidth()
+                                            .background(color = colorScheme.primary)
+                                            .weight(0.2f),
                                         horizontalAlignment = Alignment.Start,
-                                        verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
+                                        verticalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
                                             text = safeDevice.Name,
-                                            color = colorScheme.onPrimary, // Màu chữ trắng
+                                            color = colorScheme.onPrimary,
                                             lineHeight = 32.sp,
                                             fontSize = 30.sp
-                                        ) // Tiêu đề
-                                        Spacer(modifier = Modifier.height(4.dp)) // Khoảng cách giữa các thành phần
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
 
                                         CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
-                                        // Switch bật/tắt đèn
 
-                                        // Hiển thị phần trăm độ sáng
                                         Row(
-                                            modifier = Modifier.fillMaxWidth(), // Chiều rộng đầy đủ
+                                            modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.Start,
-                                            verticalAlignment = Alignment.Bottom // Canh các thành phần theo đáy
+                                            verticalAlignment = Alignment.Bottom
                                         ) {
                                             Text(
                                                 text = ((sliderValue * 100 / 255).roundToInt()).toString(),
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 50.sp,
                                                 color = colorScheme.onPrimary
-                                            ) // Số phần trăm
+                                            )
                                             Text(
                                                 "%",
                                                 fontWeight = FontWeight.Bold,
                                                 fontSize = 25.sp,
-                                                modifier = Modifier.offset(y = (-8).dp), // Đẩy lên trên một chút
+                                                modifier = Modifier.offset(y = (-8).dp),
                                                 color = colorScheme.onPrimary
                                             )
                                         }
@@ -371,31 +257,29 @@ fun DeviceDetailScreen(
                                             "Độ sáng",
                                             color = colorScheme.onPrimary,
                                             fontSize = 20.sp
-                                        ) // Nhãn cho độ sáng
-                                        Spacer(modifier = Modifier.height(8.dp)) // Khoảng cách dưới cùng
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
 
-                                    // Hình ảnh đèn
                                     Image(
                                         painter = painterResource(id = R.drawable.lamp),
-                                        modifier = Modifier.size(200.dp), // Kích thước hình ảnh
-                                        contentDescription = "",// Mô tả cho hình ảnh
-                                        colorFilter = ColorFilter.tint(colorScheme.onPrimary) // Màu chữ trắng
+                                        modifier = Modifier.size(200.dp),
+                                        contentDescription = "",
+                                        colorFilter = ColorFilter.tint(colorScheme.onPrimary)
                                     )
                                 }
 
-                                // Thanh trượt để điều chỉnh cường độ sáng
                                 Column(
                                     modifier = Modifier
                                         .width(rowWidth.dp)
-                                        .background(color = colorScheme.primary) // Nền màu xanh dương
+                                        .background(color = colorScheme.primary)
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
                                     Text(
                                         "Cường độ",
                                         color = colorScheme.onPrimary
-                                    ) // Tiêu đề cường độ sáng
+                                    )
 
                                     EdgeToEdgeSlider(
                                         value = sliderValue,
@@ -407,13 +291,12 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                // Đường kẻ phân cách mỏng
                                 Box(
                                     modifier = Modifier
                                         .padding(start = 16.dp, end = 16.dp)
                                         .fillMaxWidth()
                                         .height(1.dp)
-                                        .background(colorScheme.onPrimary) // Màu xám nhạt cho đường kẻ
+                                        .background(colorScheme.onPrimary)
                                 )
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -431,18 +314,16 @@ fun DeviceDetailScreen(
                         ) {
                             Row(
                                 modifier = Modifier
-                                    .fillMaxWidth() // Đảm bảo Row chiếm toàn bộ chiều rộng
+                                    .fillMaxWidth()
                                     .padding(
                                         horizontal = 16.dp, vertical = 8.dp
-                                    ), // Khoảng cách bên trong Row
-                                horizontalArrangement = Arrangement.SpaceBetween, // Đẩy các phần tử ra hai bên
-                                verticalAlignment = Alignment.CenterVertically // Căn giữa theo chiều dọc
+                                    ),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                // Nội dung bên phải (Icon trong Box)
-                                /*  Nút Info  */
                                 IconButton(
                                     onClick = { showDialog = true },
-                                    modifier = Modifier.size(32.dp)   // 32 dp để dễ chạm hơn 24 dp
+                                    modifier = Modifier.size(32.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Info,
@@ -452,7 +333,6 @@ fun DeviceDetailScreen(
                                     )
                                 }
 
-                                /*  Nút Wi-Fi  */
                                 IconButton(
                                     onClick = {
                                         navController.navigate(
@@ -473,16 +353,16 @@ fun DeviceDetailScreen(
                                 if (showDialog) {
                                     fun getIconForType(typeId: Int): String {
                                         return when (typeId) {
-                                            1 -> "Fire Alarm" // Light
-                                            2, 3 -> "LED Light" // Fire
-                                            else -> ""         // Biểu tượng mặc định
+                                            1 -> "Fire Alarm"
+                                            2, 3 -> "LED Light"
+                                            else -> ""
                                         }
                                     }
 
                                     AlertDialog(
                                         onDismissRequest = {
                                             showDialog = false
-                                        }, // Đóng Dialog khi chạm ngoài
+                                        },
                                         title = { Text(text = "Thông tin thiết bị") },
                                         text = {
                                             Column {
@@ -515,130 +395,49 @@ fun DeviceDetailScreen(
                             modifier = Modifier
                                 .wrapContentWidth()
                                 .onSizeChanged { size ->
-                                    rowWidth = size.width // Lấy kích thước của Row
+                                    rowWidth = size.width
                                 },
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-//                            Text(
-//                                text = "Select Time",
-//                                fontSize = 24.sp,
-//                                color = colorScheme.onBackground,
-//                                modifier = Modifier.padding(bottom = 16.dp)
-//                            )
-//                            Row(
-//                                horizontalArrangement = Arrangement.Center,
-//                                verticalAlignment = Alignment.CenterVertically
-//                            ) {
-//                                Text(
-//                                    text = selectedTimeBegin,
-//                                    fontSize = 24.sp,
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = colorScheme.onBackground,
-//                                    modifier = Modifier
-//                                        .clickable { showDialogTimePickerBegin = true }
-//                                )
-//                                Spacer(modifier = Modifier.width(8.dp))
-//                                Text(
-//                                    text = "To",
-//                                    fontSize = 24.sp,
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = colorScheme.onBackground,
-//                                )
-//                                Spacer(modifier = Modifier.width(8.dp))
-//                                Text(
-//                                    text = selectedTimeEnd,
-//                                    fontSize = 24.sp,
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = colorScheme.onBackground,
-//                                    modifier = Modifier
-//                                        .clickable { showDialogTimePickerEnd = true }
-//                                )
-//                            }
-//
-//                            if (showDialogTimePickerBegin) {
-//                                Dialog(onDismissRequest = { showDialogTimePickerBegin = false }) {
-//                                    Box(
-//                                        modifier = Modifier
-//                                            .background(
-//                                                colorScheme.onBackground,
-//                                                shape = RoundedCornerShape(12.dp)
-//                                            )
-//                                            .padding(16.dp)
-//                                            .wrapContentSize()
-//                                    ) {
-//                                        EndlessRollingPadlockTimePicker { hour, minute, amPm ->
-//                                            selectedTimeBegin =
-//                                                "$hour:${minute.toString().padStart(2, '0')} $amPm"
-//                                            showDialog = false // Đóng dialog sau khi chọn xong
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            if (showDialogTimePickerEnd) {
-//                                Dialog(onDismissRequest = { showDialogTimePickerEnd = false }) {
-//                                    Box(
-//                                        modifier = Modifier
-//                                            .background(
-//                                                colorScheme.background,
-//                                                shape = RoundedCornerShape(12.dp)
-//                                            )
-//                                            .padding(16.dp)
-//                                            .wrapContentSize()
-//                                    ) {
-//                                        EndlessRollingPadlockTimePicker { hour, minute, amPm ->
-//                                            selectedTimeEnd =
-//                                                "$hour:${minute.toString().padStart(2, '0')} $amPm"
-//                                            showDialog = false // Đóng dialog sau khi chọn xong
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            DayPicker()
-
-                            /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-
-                                /* ===== HÀNG 1 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    /* KHÓA THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label  = "Khóa thiết bị",
+                                        label = "Khóa thiết bị",
                                         onAction = { onS, onE ->
                                             pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Khóa thiết bị"
-                                            confirmMessage   = "Bạn có chắc muốn khoá thiết bị này?"
-                                            pendingAction    = DeviceAction.LOCK
-                                            showConfirm      = true
+                                            pendingOnError = onE
+                                            confirmTitle = "Khóa thiết bị"
+                                            confirmMessage = "Bạn có chắc muốn khoá thiết bị này?"
+                                            pendingAction = DeviceAction.LOCK
+                                            showConfirm = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
                                         isLoadingFromParent = loadingAction == DeviceAction.LOCK
                                     )
 
-                                    /* GỠ KẾT NỐI – có dialog */
                                     ActionButtonWithFeedback(
-                                        label  = "Gỡ kết nối",
+                                        label = "Gỡ kết nối",
                                         onAction = { onS, onE ->
                                             pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Gỡ kết nối"
-                                            confirmMessage   = "Bạn muốn gỡ kết nối!"
-                                            pendingAction    = DeviceAction.UNLINK
-                                            showConfirm      = true
+                                            pendingOnError = onE
+                                            confirmTitle = "Gỡ kết nối"
+                                            confirmMessage = "Bạn muốn gỡ kết nối!"
+                                            pendingAction = DeviceAction.UNLINK
+                                            showConfirm = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -648,42 +447,38 @@ fun DeviceDetailScreen(
 
                                 Spacer(Modifier.height(12.dp))
 
-                                /* ===== HÀNG 2 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    /* CHIA SẺ QUYỀN – KHÔNG dialog, quay ngay */
                                     ActionButtonWithFeedback(
-                                        label  = "Chia sẻ quyền",
+                                        label = "Chia sẻ quyền",
                                         onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.SHARE          // bật spinner
+                                            loadingAction = DeviceAction.SHARE
                                             scope.launch {
-                                                // Giả lập xử lý
                                                 delay(1000)
                                                 onS("Đã chia sẻ")
-                                                loadingAction = null                    // tắt spinner
+                                                loadingAction = null
                                             }
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
                                         isLoadingFromParent = loadingAction == DeviceAction.SHARE
                                     )
 
-                                    /* RESET THIẾT BỊ – có dialog */
                                     ActionButtonWithFeedback(
-                                        label  = "Reset thiết bị",
+                                        label = "Reset thiết bị",
                                         onAction = { onS, onE ->
                                             pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Reset thiết bị"
-                                            confirmMessage   = "Bạn muốn reset thiết bị này!"
-                                            pendingAction    = DeviceAction.RESET
-                                            showConfirm      = true
+                                            pendingOnError = onE
+                                            confirmTitle = "Reset thiết bị"
+                                            confirmMessage = "Bạn muốn reset thiết bị này!"
+                                            pendingAction = DeviceAction.RESET
+                                            showConfirm = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -693,14 +488,12 @@ fun DeviceDetailScreen(
 
                                 Spacer(Modifier.height(12.dp))
 
-                                /* ===== HÀNG 3 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-                                    /* CHUYỂN QUYỀN SỞ HỮU – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label  = "Chuyển quyền sở hữu",
+                                        label = "Chuyển quyền sở hữu",
                                         onAction = { onS, _ ->
                                             loadingAction = DeviceAction.TRANSFER
                                             scope.launch {
@@ -709,16 +502,15 @@ fun DeviceDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
                                         isLoadingFromParent = loadingAction == DeviceAction.TRANSFER
                                     )
 
-                                    /* XEM PHIÊN BẢN – KHÔNG dialog */
                                     ActionButtonWithFeedback(
-                                        label  = "Xem phiên bản",
+                                        label = "Xem phiên bản",
                                         onAction = { onS, _ ->
                                             loadingAction = DeviceAction.VERSION
                                             scope.launch {
@@ -727,7 +519,7 @@ fun DeviceDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -737,9 +529,8 @@ fun DeviceDetailScreen(
 
                                 Spacer(Modifier.height(16.dp))
 
-                                /* ===== NÚT CUỐI (BÁO MẤT) ===== */
                                 ActionButtonWithFeedback(
-                                    label  = "Báo mất thiết bị",
+                                    label = "Báo mất thiết bị",
                                     onAction = { onS, _ ->
                                         loadingAction = DeviceAction.REPORT_LOST
                                         scope.launch {
@@ -748,7 +539,7 @@ fun DeviceDetailScreen(
                                             loadingAction = null
                                         }
                                     },
-                                    style  = HCButtonStyle.PRIMARY,
+                                    style = HCButtonStyle.PRIMARY,
                                     height = 62.dp,
                                     textSize = 20.sp,
                                     modifier = Modifier.fillMaxWidth(0.8f),
@@ -756,32 +547,29 @@ fun DeviceDetailScreen(
                                 )
                             }
 
-                            // WarningDialog xác nhận
                             if (showConfirm) {
                                 WarningDialog(
-                                    title       = confirmTitle,
-                                    text        = confirmMessage,
+                                    title = confirmTitle,
+                                    text = confirmMessage,
                                     confirmText = "Đồng ý",
                                     dismissText = "Huỷ",
                                     onConfirm = {
                                         showConfirm = false
 
-                                        /* Bật spinner đúng nút */
                                         loadingAction = pendingAction
-//                                        val act = pendingAction          // copy ra để dùng trong coroutine
                                         pendingAction = null
 
                                         scope.launch {
-                                            delay(1000)                  // gọi API thật tại đây
+                                            delay(1000)
                                             val ok = true
-                                            if (ok)  pendingOnSuccess?.invoke("Thành công!")
-                                            else     pendingOnError?.invoke("Thất bại!")
+                                            if (ok) pendingOnSuccess?.invoke("Thành công!")
+                                            else pendingOnError?.invoke("Thất bại!")
 
-                                            loadingAction = null         // tắt spinner
+                                            loadingAction = null
                                         }
                                     },
                                     onDismiss = {
-                                        showConfirm   = false
+                                        showConfirm = false
                                         pendingAction = null
                                     }
                                 )
@@ -804,9 +592,7 @@ fun DeviceDetailScreenPreview() {
 
 @Composable
 fun DeviceDetailTabletScreen(
-    navController: NavHostController,
-//    infoDevice: DeviceResponse?,
-//    viewModel: DeviceDetailViewModel = hiltViewModel()
+    navController: NavHostController
 ) {
     var rowWidth by remember { mutableStateOf<Int?>(null) }
     var selectedTimeBegin by remember { mutableStateOf("12:00 AM") }
@@ -817,25 +603,6 @@ fun DeviceDetailTabletScreen(
 
     val switchState by remember { mutableStateOf(true) }
 
-    var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) } // Lắng nghe danh sách thiết bị
-//    val toggleDeviceState by viewModel.toggleState.collectAsState()
-
-//    when (toggleDeviceState) {
-//        is ToggleState.Error -> {
-//            Log.e("Error", (toggleDeviceState as ToggleState.Error).error)
-//        }
-//
-//        is ToggleState.Success -> {
-//            val successState = toggleDeviceState as ToggleState.Success
-//            toggleDevice = successState.toggle
-//            Log.e("toggle Device", toggleDevice.toString())
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
-
     var attribute by remember {
         mutableStateOf(
             AttributeRequest(
@@ -845,31 +612,25 @@ fun DeviceDetailTabletScreen(
         )
     }
 
-    var safeDevice =
-//        infoDevice ?:
-        DeviceResponse(
-            DeviceID = 0,
-            TypeID = 0,
-            Name = "",
-            PowerStatus = false,
-            SpaceID = 0,
-            Attribute = ""
-        )
+    var safeDevice = DeviceResponse(
+        DeviceID = 0,
+        TypeID = 0,
+        Name = "",
+        PowerStatus = false,
+        SpaceID = 0,
+        Attribute = ""
+    )
 
     Log.e("safeDevice", safeDevice.toString())
 
-    LaunchedEffect(toggleDevice) {
-        safeDevice =
-//            infoDevice ?:
-            DeviceResponse(
-                DeviceID = 0,
-                TypeID = 0,
-                Name = "",
-                PowerStatus = false,
-                SpaceID = 0,
-                Attribute = ""
-            )
+    /*
+    LaunchedEffect(Unit) {
+        // TODO: Re-enable API call when new API is ready
+        // viewModel.loadDeviceDetail()
+
+        // Use demo data for now
     }
+    */
 
     LaunchedEffect(safeDevice.Attribute) {
         val attributeJson = if (safeDevice.Attribute.isEmpty()) {
@@ -886,57 +647,16 @@ fun DeviceDetailTabletScreen(
         Log.e("attributeJson", attribute.toString())
     }
 
-
     var powerStatus by remember { mutableStateOf(false) }
 
     LaunchedEffect(safeDevice) {
         powerStatus = safeDevice.PowerStatus
     }
 
-    // Khởi tạo toggle
-    var toggle by remember {
-        mutableStateOf(ToggleRequest(powerStatus = powerStatus))
-    }
-
-//    val attributeState by viewModel.attributeState.collectAsState()
-
-//    when (attributeState) {
-//        is AttributeState.Error -> {
-//            Log.e("Error", (attributeState as AttributeState.Error).error)
-//        }
-//
-//        is AttributeState.Success -> {
-//            Log.d("Attribute Device", (attributeState as AttributeState.Success).message)
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
-
-//    val unlinkState by viewModel.unlinkState.collectAsState()
-
-//    when (unlinkState) {
-//        is UnlinkState.Error -> {
-//            Log.e("Error", (unlinkState as UnlinkState.Error).error)
-//        }
-//
-//        is UnlinkState.Success -> {
-//            Log.d("Unlink Device", (unlinkState as UnlinkState.Success).message)
-//        }
-//
-//        else -> {
-//            /* Do nothing */
-//        }
-//    }
-
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         Scaffold(
             topBar = {
-                /*
-            * Hiển thị Header
-             */
                 Header(
                     navController = navController,
                     type = "Back",
@@ -944,9 +664,6 @@ fun DeviceDetailTabletScreen(
                 )
             },
             bottomBar = {
-                /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
                 MenuBottom(navController)
             },
             containerColor = colorScheme.background,
@@ -959,7 +676,6 @@ fun DeviceDetailTabletScreen(
                         title = "Gỡ kết nối",
                         text = "Bạn có chắc chắn muốn gỡ kết nối thiết bị này không?",
                         onConfirm = {
-//                            viewModel.unlinkDevice(safeDevice.DeviceID)
                             showAlertDialog = false
                             navController.popBackStack()
                         },
@@ -974,13 +690,12 @@ fun DeviceDetailTabletScreen(
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize() // Đảm bảo chiếm toàn bộ không gian
+                            .fillMaxSize()
                             .fillMaxHeight()
-                            .imePadding() // Tự động thêm khoảng trống khi bàn phím xuất hiện
-                            .verticalScroll(rememberScrollState()) // Cho phép cuộn
+                            .imePadding()
+                            .verticalScroll(rememberScrollState())
                             .padding(innerPadding)
                     ) {
-                        // Nội dung bên dưới
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -988,7 +703,6 @@ fun DeviceDetailTabletScreen(
                                 .wrapContentHeight()
                         ) {
                             Column {
-                                // Hộp màu xanh dương
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -999,58 +713,46 @@ fun DeviceDetailTabletScreen(
                                         )
                                         .zIndex(1f)
                                 ) {
-                                    // Box chính bao quanh toàn bộ giao diện
                                     Box(
                                         modifier = Modifier
-                                            .fillMaxSize() // Chiếm toàn bộ màn hình
-                                            .clip(RoundedCornerShape(bottomStart = 40.dp)) // Bo góc phía dưới bên trái
+                                            .fillMaxSize()
+                                            .clip(RoundedCornerShape(bottomStart = 40.dp))
                                     ) {
                                         Column(
                                             modifier = Modifier
-                                                .fillMaxSize() // Chiếm toàn bộ kích thước của Box
+                                                .fillMaxSize()
                                         ) {
-                                            // Phần Header: Hiển thị thông tin phòng và đèn
                                             Row(
                                                 modifier = Modifier.padding(
                                                     top = 8.dp,
                                                     end = 12.dp
-                                                ) // Canh lề trên và phải
+                                                )
                                             ) {
-                                                // Cột bên trái: Thông tin về phòng và độ sáng
                                                 Column(
                                                     modifier = Modifier
                                                         .padding(
                                                             start = 12.dp,
                                                             end = 12.dp
-                                                        ) // Canh lề trái và phải
-                                                        .fillMaxWidth() // Chiều rộng đầy đủ
-                                                        .background(color = colorScheme.primary) // Nền xanh
-                                                        .weight(0.2f), // Trọng lượng chiếm 20% của Row
+                                                        )
+                                                        .fillMaxWidth()
+                                                        .background(color = colorScheme.primary)
+                                                        .weight(0.2f),
                                                     horizontalAlignment = Alignment.Start,
-                                                    verticalArrangement = Arrangement.SpaceBetween // Phân bố các thành phần cách đều nhau
+                                                    verticalArrangement = Arrangement.SpaceBetween
                                                 ) {
                                                     Text(
                                                         text = safeDevice.Name,
                                                         color = colorScheme.onPrimary,
                                                         lineHeight = 32.sp,
                                                         fontSize = 30.sp
-                                                    ) // Tiêu đề
-                                                    Spacer(modifier = Modifier.height(4.dp)) // Khoảng cách
+                                                    )
+                                                    Spacer(modifier = Modifier.height(4.dp))
 
-                                                    // Switch bật/tắt đèn với icon
                                                     Switch(
                                                         checked = powerStatus,
                                                         onCheckedChange = {
-                                                            //Todo: Xử lý khi tắt mở
                                                             powerStatus = !powerStatus
-                                                            toggle =
-                                                                ToggleRequest(powerStatus = powerStatus) // Cập nhật toggl
-//                                                            viewModel.toggleDevice(
-//                                                                safeDevice.DeviceID,
-//                                                                toggle
-//                                                            )
-
-                                                        }, // Hàm xử lý khi thay đổi trạng thái (để trống)
+                                                        },
                                                         thumbContent = {
                                                             Icon(
                                                                 imageVector = if (switchState) Icons.Filled.Check else Icons.Filled.Close,
@@ -1070,23 +772,22 @@ fun DeviceDetailTabletScreen(
                                                         )
                                                     )
 
-                                                    // Hiển thị mức độ sáng (80%)
                                                     Row(
                                                         modifier = Modifier.fillMaxWidth(),
-                                                        horizontalArrangement = Arrangement.Start, // Căn trái
-                                                        verticalAlignment = Alignment.Bottom // Căn dưới
+                                                        horizontalArrangement = Arrangement.Start,
+                                                        verticalAlignment = Alignment.Bottom
                                                     ) {
                                                         Text(
                                                             text = attribute.brightness.toString(),
                                                             fontWeight = FontWeight.Bold,
                                                             fontSize = 50.sp,
                                                             color = colorScheme.onPrimary
-                                                        ) // Số phần trăm
+                                                        )
                                                         Text(
                                                             "%",
                                                             fontWeight = FontWeight.Bold,
                                                             fontSize = 25.sp,
-                                                            modifier = Modifier.offset(y = (-8).dp), // Đẩy chữ % lên trên
+                                                            modifier = Modifier.offset(y = (-8).dp),
                                                             color = colorScheme.onPrimary
                                                         )
                                                     }
@@ -1094,30 +795,28 @@ fun DeviceDetailTabletScreen(
                                                         "Độ sanng",
                                                         color = colorScheme.onPrimary,
                                                         fontSize = 20.sp
-                                                    ) // Nhãn Brightness
+                                                    )
                                                     Spacer(modifier = Modifier.height(8.dp))
                                                 }
 
-                                                // Hình ảnh chiếc đèn ở cột bên phải
                                                 Image(
                                                     painter = painterResource(id = R.drawable.lamp),
-                                                    modifier = Modifier.size(150.dp), // Kích thước hình
-                                                    contentDescription = "", // Không có mô tả
-                                                    colorFilter = ColorFilter.tint(colorScheme.onPrimary) // Màu chữ trắng
+                                                    modifier = Modifier.size(150.dp),
+                                                    contentDescription = "",
+                                                    colorFilter = ColorFilter.tint(colorScheme.onPrimary)
                                                 )
                                             }
 
-                                            // Thanh Slider điều chỉnh cường độ sáng và các ngày trong tuần
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                                     .padding(start = 12.dp, end = 12.dp)
-                                                    .background(color = colorScheme.primary) // Nền xanh
+                                                    .background(color = colorScheme.primary)
                                             ) {
                                                 Text(
                                                     "Cường độ",
                                                     color = colorScheme.onPrimary,
-                                                ) // Tiêu đề cường độ
+                                                )
 
                                                 Column(
                                                     modifier = Modifier
@@ -1125,17 +824,15 @@ fun DeviceDetailTabletScreen(
                                                     horizontalAlignment = Alignment.CenterHorizontally,
                                                     verticalArrangement = Arrangement.Center
                                                 ) {
-                                                    // Hàng chứa thanh trượt và biểu tượng bóng đèn
                                                     Row(
                                                         modifier = Modifier
                                                             .width(500.dp)
                                                             .onSizeChanged { size ->
                                                                 rowWidth = size.width
                                                             },
-                                                        horizontalArrangement = Arrangement.Center, // Căn cách đều các thành phần
-                                                        verticalAlignment = Alignment.CenterVertically // Căn giữa theo chiều dọc
+                                                        horizontalArrangement = Arrangement.Center,
+                                                        verticalAlignment = Alignment.CenterVertically
                                                     ) {
-                                                        // Hình bóng đèn tắt
                                                         Image(
                                                             painter = painterResource(id = R.drawable.bulboff),
                                                             modifier = Modifier
@@ -1144,14 +841,12 @@ fun DeviceDetailTabletScreen(
                                                             contentDescription = ""
                                                         )
 
-                                                        // Thanh trượt (Slider) giá trị 80
                                                         Slider(
                                                             value = attribute.brightness.toFloat(),
                                                             onValueChange = {
 
-                                                            }, // Thanh trượt giá trị mặc định là 80
+                                                            },
                                                             onValueChangeFinished = {
-                                                                // Gửi dữ liệu lên server khi người dùng dừng thao tác kéo thanh trượt
                                                             },
                                                             steps = 10,
                                                             valueRange = 0f..255f,
@@ -1165,7 +860,6 @@ fun DeviceDetailTabletScreen(
                                                             )
                                                         )
 
-                                                        // Hình bóng đèn bật
                                                         Image(
                                                             painter = painterResource(id = R.drawable.bulb),
                                                             modifier = Modifier
@@ -1177,7 +871,6 @@ fun DeviceDetailTabletScreen(
                                                 }
                                             }
 
-                                            // Dòng kẻ phân cách
                                             Spacer(modifier = Modifier.height(2.dp))
                                             Box(
                                                 modifier = Modifier
@@ -1213,7 +906,6 @@ fun DeviceDetailTabletScreen(
                                         }
                                     }
                                 }
-                                // Hộp màu xanh lá cây với góc lõm
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -1226,7 +918,7 @@ fun DeviceDetailTabletScreen(
                                             .height(40.dp)
                                             .align(Alignment.TopEnd)
                                             .background(color = colorScheme.primary)
-                                            .zIndex(1f) // Z-index thấp hơn
+                                            .zIndex(1f)
                                     )
 
 
@@ -1239,33 +931,32 @@ fun DeviceDetailTabletScreen(
                                             )
                                             .width(50.dp)
                                             .height(50.dp)
-                                            .zIndex(2f) // Z-index cao hơn
+                                            .zIndex(2f)
                                     ) {
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .clip(RoundedCornerShape(topEndPercent = 100)) // Clip nội dung ScrollableTabRow
+                                                .clip(RoundedCornerShape(topEndPercent = 100))
                                         ) {
                                             Row(
                                                 modifier = Modifier
-                                                    .fillMaxWidth() // Đảm bảo Row chiếm toàn bộ chiều rộng
+                                                    .fillMaxWidth()
                                                     .padding(
                                                         top = 12.dp,
                                                         start = 12.dp,
                                                         end = 8.dp
-                                                    ), // Khoảng cách bên trong Row
-                                                horizontalArrangement = Arrangement.SpaceBetween, // Đẩy các phần tử ra hai bên
-                                                verticalAlignment = Alignment.CenterVertically // Căn giữa theo chiều dọc
+                                                    ),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.CenterVertically
                                             ) {
-                                                // Nội dung bên phải (Icon trong Box)
                                                 Button(
                                                     onClick = {
                                                         showDialog = true
                                                     },
                                                     modifier = Modifier
-                                                        .size(36.dp), // Kích thước tổng thể của Button
-                                                    shape = CircleShape, // Đảm bảo Button có dạng hình tròn
-                                                    contentPadding = PaddingValues(0.dp), // Loại bỏ padding mặc định
+                                                        .size(36.dp),
+                                                    shape = CircleShape,
+                                                    contentPadding = PaddingValues(0.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         containerColor = colorScheme.onPrimary,
                                                         contentColor = colorScheme.primary
@@ -1274,7 +965,7 @@ fun DeviceDetailTabletScreen(
                                                     Icon(
                                                         imageVector = Icons.Default.Info,
                                                         contentDescription = "Info",
-                                                        modifier = Modifier.size(36.dp), // Kích thước của Icon,
+                                                        modifier = Modifier.size(36.dp),
                                                         tint = colorScheme.primary
                                                     )
                                                 }
@@ -1283,9 +974,9 @@ fun DeviceDetailTabletScreen(
                                                         navController.navigate(Screens.AccessPoint.route + "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}")
                                                     },
                                                     modifier = Modifier
-                                                        .size(36.dp), // Kích thước tổng thể của Button
-                                                    shape = CircleShape, // Đảm bảo Button có dạng hình tròn
-                                                    contentPadding = PaddingValues(0.dp), // Loại bỏ padding mặc định
+                                                        .size(36.dp),
+                                                    shape = CircleShape,
+                                                    contentPadding = PaddingValues(0.dp),
                                                     colors = ButtonDefaults.buttonColors(
                                                         containerColor = colorScheme.onPrimary,
                                                         contentColor = colorScheme.primary
@@ -1294,22 +985,22 @@ fun DeviceDetailTabletScreen(
                                                     Icon(
                                                         imageVector = Icons.Default.Wifi,
                                                         contentDescription = "Wifi",
-                                                        modifier = Modifier.size(36.dp),// Kích thước của Icon
+                                                        modifier = Modifier.size(36.dp),
                                                         tint = colorScheme.primary
                                                     )
                                                 }
                                                 if (showDialog) {
                                                     fun getIconForType(typeId: Int): String {
                                                         return when (typeId) {
-                                                            1 -> "Fire Alarm" // Light
-                                                            2 -> "LED Light" // Fire
-                                                            else -> ""         // Biểu tượng mặc định
+                                                            1 -> "Fire Alarm"
+                                                            2 -> "LED Light"
+                                                            else -> ""
                                                         }
                                                     }
                                                     AlertDialog(
                                                         onDismissRequest = {
                                                             showDialog = false
-                                                        }, // Đóng Dialog khi chạm ngoài
+                                                        },
                                                         title = { Text(text = "Thông tin thiết bị") },
                                                         text = {
                                                             Column {
@@ -1404,7 +1095,7 @@ fun DeviceDetailTabletScreen(
                                                 selectedTimeBegin = "$hour:${
                                                     minute.toString().padStart(2, '0')
                                                 } $amPm"
-                                                showDialog = false // Đóng dialog sau khi chọn xong
+                                                showDialog = false
                                             }
                                         }
                                     }
@@ -1424,7 +1115,7 @@ fun DeviceDetailTabletScreen(
                                                 selectedTimeEnd = "$hour:${
                                                     minute.toString().padStart(2, '0')
                                                 } $amPm"
-                                                showDialog = false // Đóng dialog sau khi chọn xong
+                                                showDialog = false
                                             }
                                         }
                                     }
@@ -1437,16 +1128,15 @@ fun DeviceDetailTabletScreen(
                                     horizontalArrangement = Arrangement.spacedBy(
                                         8.dp,
                                         alignment = Alignment.CenterHorizontally
-                                    ), // Khoảng cách giữa các nút
+                                    ),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Button(
                                         onClick = {
-                                            //Todo: Xử lý khi nhấn nút Lịch sử
                                             navController.navigate(Screens.ActivityHistory.route)
                                         },
                                         modifier = Modifier
-                                            .weight(1f) // Chia đều không gian
+                                            .weight(1f)
                                             .width(200.dp)
                                             .height(48.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
@@ -1464,7 +1154,7 @@ fun DeviceDetailTabletScreen(
                                             showAlertDialog = true
                                         },
                                         modifier = Modifier
-                                            .weight(1f) // Chia đều không gian
+                                            .weight(1f)
                                             .width(200.dp)
                                             .height(48.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error),
@@ -1481,7 +1171,7 @@ fun DeviceDetailTabletScreen(
                                     modifier = Modifier
                                         .padding(16.dp)
                                         .then(if (rowWidth != null) Modifier.width(rowWidth!!.dp) else Modifier.fillMaxWidth()),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp), // Khoảng cách giữa các nút
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Button(
@@ -1489,7 +1179,7 @@ fun DeviceDetailTabletScreen(
                                             navController.navigate(Screens.SharedUsers.route + "?id=${safeDevice.DeviceID}")
                                         },
                                         modifier = Modifier
-                                            .weight(1f) // Chia đều không gian
+                                            .weight(1f)
                                             .width(300.dp)
                                             .height(48.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
@@ -1508,7 +1198,7 @@ fun DeviceDetailTabletScreen(
                                             showAlertDialog = true
                                         },
                                         modifier = Modifier
-                                            .weight(1f) // Chia đều không gian
+                                            .weight(1f)
                                             .width(300.dp)
                                             .height(48.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),

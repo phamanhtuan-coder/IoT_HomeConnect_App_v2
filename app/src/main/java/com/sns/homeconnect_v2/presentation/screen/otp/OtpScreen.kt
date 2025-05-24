@@ -37,6 +37,8 @@ fun OtpScreen(
     val verifyOTPState by viewModel.verifyOtpState.collectAsState()
     val verifyEmailState by viewModel.verifyEmailState.collectAsState()
 
+    // TODO: Re-enable API call when new API is ready
+    /*
     LaunchedEffect(Unit) {
         viewModel.sendOTP(email)
     }
@@ -47,6 +49,10 @@ fun OtpScreen(
             verifyEmailState is VerifyEmailState.Success -> onVerificationSuccess()
         }
     }
+    */
+
+    // Mock successful OTP for demo
+    val mockSuccessMessage = "Mã OTP đã được gửi tới Email của bạn."
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -76,18 +82,9 @@ fun OtpScreen(
                 )
 
                 Text(
-                    text = when (sendOTPState) {
-                        is OTPState.Success -> "Mã OTP đã được gửi tới Email của bạn."
-                        is OTPState.Error -> (sendOTPState as OTPState.Error).message
-                        is OTPState.Loading -> "Đang gửi mã OTP..."
-                        else -> ""
-                    },
+                    text = mockSuccessMessage,
                     fontSize = 14.sp,
-                    color = when (sendOTPState) {
-                        is OTPState.Success -> Color.Green
-                        is OTPState.Loading -> Color.Yellow
-                        else -> colorScheme.error
-                    }
+                    color = Color.Green
                 )
 
                 Text(
@@ -145,7 +142,6 @@ fun OtpScreen(
                     onClick = {
                         otpValue.forEachIndexed { index, _ -> otpValue[index] = "" }
                         focusRequesters[0].requestFocus()
-                        viewModel.sendOTP(email)
                     }
                 ) {
                     Text(
@@ -159,29 +155,11 @@ fun OtpScreen(
                     focusRequesters[0].requestFocus()
                 }
 
-                Text(
-                    text = when {
-                        verifyOTPState is OTPState.Error -> (verifyOTPState as OTPState.Error).message
-                        verifyEmailState is VerifyEmailState.Error -> (verifyEmailState as VerifyEmailState.Error).message
-                        verifyOTPState is OTPState.Loading || verifyEmailState is VerifyEmailState.Loading -> "Đang xác thực..."
-                        else -> ""
-                    },
-                    fontSize = 14.sp,
-                    color = when {
-                        verifyOTPState is OTPState.Loading || verifyEmailState is VerifyEmailState.Loading -> Color.Yellow
-                        else -> colorScheme.error
-                    }
-                )
-
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
                     onClick = {
-                        if (title == "Xác thực Email") {
-                            viewModel.confirmEmail(email)
-                        } else {
-                            viewModel.verifyOTP(email, otpValue.joinToString(""))
-                        }
+                        onVerificationSuccess()
                     },
                     modifier = Modifier.size(
                         width = if (isTablet) 300.dp else 200.dp,

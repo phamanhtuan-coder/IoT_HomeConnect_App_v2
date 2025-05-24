@@ -139,6 +139,8 @@ fun RegisterScreen(
         return errorMessage.isEmpty()
     }
 
+    // TODO: Re-enable when API is ready
+    /*
     when (registerState) {
         is RegisterState.Error -> {
             Text((registerState as RegisterState.Error).error, color = Color.Red)
@@ -150,9 +152,18 @@ fun RegisterScreen(
         is RegisterState.Success -> {
             LaunchedEffect(Unit) {
                 navController.navigate(Screens.Login.route) {
-                    popUpTo(Screens.Register.route) { inclusive = true }
+                    popUpTo(Screens.Welcome.route) { inclusive = false }
                 }
             }
+        }
+    }
+    */
+
+    // Function to handle registration for demo
+    fun handleRegistrationDemo() {
+        // Direct navigation for demo purposes without API call
+        navController.navigate(Screens.Login.route) {
+            popUpTo(Screens.Welcome.route) { inclusive = false }
         }
     }
 
@@ -524,27 +535,11 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.width(16.dp))
                 }
 
-                OutlinedButton(
+                Button(
                     onClick = {
-                        if (stage == 1) {
-                            stage = 2
-                            errorMessage = ""
-                        } else if (stage == 2 && validateInput()) {
-                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-                            val localDate = LocalDate.parse(selectedDate, formatter)
-                            val user = RegisterRequest(
-                                Name = name,
-                                Email = email,
-                                PasswordHash = password,
-                                Phone = phoneNumber,
-                                Address = address,
-                                ProfileImage = profileImage,
-                                DateOfBirth = localDate.toString()
-                            )
-                            viewModel.register(user)
-                        }
+                        // Direct navigation for demo
+                        handleRegistrationDemo()
                     },
-                    enabled = (stage == 1 || (stage == 2 && validateInput())),
                     modifier = Modifier
                         .weight(1f)
                         .width(if (isTablet) 300.dp else 200.dp)
@@ -553,7 +548,12 @@ fun RegisterScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
                     shape = RoundedCornerShape(50)
                 ) {
-                    Text(if (stage == 1) "Tiếp tục" else "Đăng ký")
+                    Text(
+                        text = "Đăng ký",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colorScheme.onPrimary
+                    )
                 }
             }
 

@@ -4,6 +4,7 @@ import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -18,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
@@ -45,17 +47,17 @@ fun CustomTabRow(
     modifier: Modifier = Modifier,
 ) {
     IoTHomeConnectAppTheme {
-        TabRow(
+        ScrollableTabRow (
             selectedTabIndex = selectedTabIndex,
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             containerColor = Color.White,
             contentColor = Color.Black,
+            edgePadding = 0.dp, // tùy chọn: bỏ khoảng trắng hai bên nếu muốn sát lề
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.Indicator(
                     Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                    color = MaterialTheme.colorScheme.primary,       // màu bạn muốn, ví dụ xanh đậm cùng header
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         ) {

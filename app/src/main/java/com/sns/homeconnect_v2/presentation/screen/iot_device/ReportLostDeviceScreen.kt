@@ -33,6 +33,8 @@ import kotlinx.coroutines.launch
  * @param navController [NavHostController] được sử dụng để điều hướng.
  * @author Nguyễn Thanh Sang
  * @since 20-05-2025
+ * @updatedBy Nguyễn Thanh Sang
+ * @updatedDate 26-05-2025
  */
 
 @Composable
@@ -75,7 +77,7 @@ fun ReportLostDeviceScreen(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text          = "Báo mất thiết bị",
+                                text          = "",
                                 color         = Color.White,
                                 fontSize      = 30.sp,
                                 fontWeight    = FontWeight.Bold,

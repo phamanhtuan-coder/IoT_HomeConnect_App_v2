@@ -6,5 +6,9 @@ data class TicketUi(
     val typeTicket: String,
     val date: String,
     val content: String,
-    val isResolved: Boolean
+    val status: TicketStatus
 )
+
+enum class TicketStatus {
+    PROCESSED, UNPROCESSED
+}

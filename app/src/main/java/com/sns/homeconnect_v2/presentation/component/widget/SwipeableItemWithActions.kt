@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -24,7 +23,7 @@ import kotlin.math.roundToInt
  *
  * @param isRevealed Một boolean cho biết liệu các hành động có hiện đang được tiết lộ hay không.
  *                   Điều này có thể được sử dụng để điều khiển trạng thái được tiết lộ theo chương trình.
- * @param modifier [Modifier] tùy chọn được áp dụng cho Box gốc của composable này.
+ * @param [Modifier] tùy chọn được áp dụng cho Box gốc của composable này.
  * @param onExpanded Một lambda gọi lại được gọi khi mục được vuốt mở (các hành động được tiết lộ hoàn toàn).
  * @param onCollapsed Một lambda gọi lại được gọi khi mục được vuốt đóng (các hành động bị ẩn).
  * @param actions Một lambda composable xác định nội dung của các hành động được tiết lộ khi vuốt.
@@ -46,7 +45,11 @@ fun SwipeableItemWithActions(
     // Tự động đo chiều rộng action buttons
     val swipeWidthPx = remember { mutableFloatStateOf(0f) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
         // --- Actions ---
         Row(
             modifier = Modifier

@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.screen.iot_device
+package com.sns.homeconnect_v2.presentation.screen.ticket
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Support
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,26 +26,14 @@ import com.sns.homeconnect_v2.presentation.component.widget.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Hàm Composable để hiển thị màn hình báo mất thiết bị.
- * Màn hình này cho phép người dùng báo mất thiết bị bằng cách cung cấp họ tên đầy đủ, địa chỉ email,
- * mô tả sự cố và hình ảnh làm bằng chứng sở hữu.
- *
- * @param navController [NavHostController] được sử dụng để điều hướng.
- * @author Nguyễn Thanh Sang
- * @since 20-05-2025
- * @updatedBy Nguyễn Thanh Sang
- * @updatedDate 26-05-2025
- */
-
 @Composable
-fun ReportLostDeviceScreen(navController: NavHostController) {
+fun CreateTicketScreen(navController: NavHostController) {
     IoTHomeConnectAppTheme {
+        val colorScheme = MaterialTheme.colorScheme
         var fullName by remember { mutableStateOf("") }
         var emailAddress by remember { mutableStateOf("") }
         var incidentDescription by remember { mutableStateOf("") }
-
-        val colorScheme = MaterialTheme.colorScheme
+        var current by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
 
         Scaffold(
@@ -77,7 +66,7 @@ fun ReportLostDeviceScreen(navController: NavHostController) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
-                                text          = "",
+                                text          = "Tạo hổ trợ",
                                 color         = Color.White,
                                 fontSize      = 30.sp,
                                 fontWeight    = FontWeight.Bold,
@@ -114,13 +103,22 @@ fun ReportLostDeviceScreen(navController: NavHostController) {
                             leadingIcon = Icons.Default.Email
                         )
 
+                        GenericDropdown(
+                            items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                            selectedItem = current,
+                            onItemSelected = { current = it },
+                            isTablet = false,
+                            placeHolder = "Bảo hành",
+                            leadingIcon = Icons.Default.Support
+                        )
+
                         SituationDescriptionField(
                             value         = incidentDescription,
                             onValueChange = { incidentDescription = it }
                         )
 
                         Text(
-                            text          = "Hình ảnh minh chứng thiết bị là của shop",
+                            text          = "Minh chứng thiết bị là của shop.",
                             color         = Color.Black,
                             fontSize      = 15.sp,
                             fontWeight    = FontWeight.Normal,
@@ -147,8 +145,8 @@ fun ReportLostDeviceScreen(navController: NavHostController) {
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "CreateGroupScreen Preview - Phone")
 @Composable
-fun ReportLostDeviceScreenPhonePreview() {
+fun CreateTicketScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        ReportLostDeviceScreen(navController = rememberNavController())
+        CreateTicketScreen(navController = rememberNavController())
     }
 }

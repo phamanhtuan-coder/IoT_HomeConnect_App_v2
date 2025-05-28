@@ -19,6 +19,25 @@ import androidx.compose.ui.unit.sp
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
+/**
+ * Một hàm composable hiển thị thẻ người dùng với các hành động có thể vuốt.
+ *
+ * Thành phần này hiển thị thông tin người dùng bao gồm tên, vai trò và ảnh đại diện của họ.
+ * Nó hỗ trợ các cử chỉ vuốt để hiển thị các hành động như chỉnh sửa và xóa.
+ *
+ * @param userName Tên của người dùng.
+ * @param role Vai trò của người dùng (ví dụ: Chủ sở hữu, Quản trị viên, Thành viên).
+ * @param avatarUrl URL của hình ảnh đại diện của người dùng. Mặc định là một chuỗi trống, sẽ hiển thị một ảnh đại diện mặc định.
+ * @param isRevealed Một trạng thái boolean cho biết các hành động có thể vuốt hiện có được hiển thị hay không.
+ * @param onExpandOnly Một hàm lambda sẽ được gọi khi các hành động có thể vuốt được mở rộng.
+ *                     Điều này thường được sử dụng để đảm bảo chỉ một mục được mở rộng tại một thời điểm.
+ * @param onCollapse Một hàm lambda sẽ được gọi khi các hành động có thể vuốt được thu gọn.
+ * @param onDelete Một hàm lambda sẽ được gọi khi hành động xóa được kích hoạt.
+ * @param onEdit Một hàm lambda sẽ được gọi khi hành động chỉnh sửa được kích hoạt.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 20-05-2025
+ */
 @Composable
 fun UserCardSwipeable(
     userName: String,
@@ -36,6 +55,7 @@ fun UserCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),

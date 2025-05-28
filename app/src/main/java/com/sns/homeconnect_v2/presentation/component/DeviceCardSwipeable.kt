@@ -33,6 +33,23 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
 
+/**
+ * Một hàm composable hiển thị thẻ thiết bị có thể vuốt.
+ *
+ * Thẻ này hiển thị tên thiết bị, tên phòng và công tắc để điều khiển thiết bị.
+ * Nó cũng hỗ trợ các hành động vuốt để chỉnh sửa và xóa thiết bị.
+ *
+ * @param deviceName Tên của thiết bị. Mặc định là một chuỗi rỗng.
+ * @param roomName Tên của phòng nơi thiết bị được đặt. Mặc định là một chuỗi rỗng.
+ * @param isRevealed Liệu các hành động vuốt có đang được hiển thị hay không. Mặc định là false.
+ * @param onExpandOnly Một hàm callback được gọi khi thẻ được vuốt để hiển thị các hành động.
+ * @param onCollapse Một hàm callback được gọi khi thẻ được vuốt lại để ẩn các hành động.
+ * @param onDelete Một hàm callback được gọi khi hành động xóa được kích hoạt.
+ * @param onEdit Một hàm callback được gọi khi hành động chỉnh sửa được kích hoạt.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 26-05-25
+ */
 @Composable
 fun DeviceCardSwipeable(
     deviceName: String = "",
@@ -50,6 +67,7 @@ fun DeviceCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),

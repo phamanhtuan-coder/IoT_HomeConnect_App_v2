@@ -23,6 +23,22 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.HouseUi
 
+/**
+ * Thành phần giao diện (Composable) để hiển thị thẻ thông tin nhà có thể vuốt.
+ *
+ * @param houseName Tên của ngôi nhà.
+ * @param spaceCount Số lượng không gian trong nhà.
+ * @param icon Biểu tượng hiển thị cho ngôi nhà. Mặc định là Icons.Default.Home.
+ * @param iconColor Màu của biểu tượng. Mặc định là MaterialTheme.colorScheme.primary.
+ * @param isRevealed Trạng thái cho biết các hành động có được hiển thị hay không.
+ * @param onExpandOnly Hàm gọi lại khi mục được mở rộng.
+ * @param onCollapse Hàm gọi lại khi mục được thu gọn.
+ * @param onDelete Hàm gọi lại khi hành động xóa được nhấp.
+ * @param onEdit Hàm gọi lại khi hành động sửa được nhấp.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 26-05-2025
+ */
 @Composable
 fun HouseCardSwipeable(
     houseName: String,
@@ -40,6 +56,7 @@ fun HouseCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),

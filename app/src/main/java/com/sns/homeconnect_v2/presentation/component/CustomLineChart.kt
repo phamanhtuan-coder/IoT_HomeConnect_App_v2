@@ -1,5 +1,9 @@
+package com.sns.homeconnect_v2.presentation.component
+
+import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -7,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -61,8 +66,10 @@ fun CustomLineChart(
     val scrollState = rememberScrollState()
     var touchedIndex by remember { mutableStateOf<Int?>(null) }
 
-    val minY = 0f // Luôn bắt đầu từ 0
-    val maxY = dataPoints.maxOfOrNull { it.yValue } ?: 1f
+    val minY = 0f
+    val realMaxY = dataPoints.maxOfOrNull { it.yValue } ?: 1f
+    val paddingTop = (realMaxY - minY) * 0.2f // Thêm 10% khoảng trắng phía trên
+    val maxY = realMaxY + paddingTop
     val yRange = (maxY - minY).takeIf { it > 0 } ?: 1f
 
     val yAxisWidth = 34.dp
@@ -71,7 +78,12 @@ fun CustomLineChart(
 
     Box(
         modifier = modifier
-            .background(backgroundColor, RoundedCornerShape(cornerRadius))
+            .shadow(6.dp, RoundedCornerShape(cornerRadius))
+            .background(
+                color = Color(0xFFF4F7FB), // Màu nền trắng pha xanh
+                shape = RoundedCornerShape(cornerRadius)
+            )
+            .border(1.dp, Color(0xFFD0E3FF), RoundedCornerShape(cornerRadius))
             .padding(padding)
     ) {
         Row {
@@ -98,10 +110,10 @@ fun CustomLineChart(
                         String.format(Locale.US, "%.1f", minY + i * yRange / yLabelCount),
                         size.width - 8f,
                         y + 10f,
-                        android.graphics.Paint().apply {
+                        Paint().apply {
                             color = android.graphics.Color.DKGRAY
                             textSize = labelTextSize * 3
-                            textAlign = android.graphics.Paint.Align.RIGHT
+                            textAlign = Paint.Align.RIGHT
                         }
                     )
                 }
@@ -185,7 +197,7 @@ fun CustomLineChart(
                             dataPoints[i].xLabel,
                             labelOffset,
                             size.height - 2f,
-                            android.graphics.Paint().apply {
+                            Paint().apply {
                                 color = android.graphics.Color.DKGRAY
                                 textSize = labelTextSize * 3
                             }
@@ -219,7 +231,7 @@ fun CustomLineChart(
                                 "${dataPoints[index].yValue}",
                                 point.x + 20f,
                                 point.y - 25f,
-                                android.graphics.Paint().apply {
+                                Paint().apply {
                                     color = android.graphics.Color.BLACK
                                     textSize = 40f
                                     isFakeBoldText = true

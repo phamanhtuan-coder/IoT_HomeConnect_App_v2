@@ -1,64 +1,76 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
-import CustomLineChart
+import com.sns.homeconnect_v2.presentation.component.CustomLineChart
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Today
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.ChartLegend
-import com.sns.homeconnect_v2.presentation.component.DeviceStatusCard
+import com.sns.homeconnect_v2.presentation.component.RoomTabRow
+import com.sns.homeconnect_v2.presentation.component.TimeRangePicker
+import com.sns.homeconnect_v2.presentation.component.WeatherInfo
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
-import com.sns.homeconnect_v2.presentation.component.widget.CustomTabRow
 import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.model.DataPoint
-import com.sns.homeconnect_v2.presentation.model.DeviceStatusCardData
 
 /**
- * Hàm Composable cho Màn hình Bảng điều khiển.
- * Màn hình này hiển thị dữ liệu cảm biến (nhiệt độ, độ ẩm, khí gas, điện năng)
- * dưới dạng biểu đồ đường và danh sách các thiết bị cho các phòng khác nhau.
+ * Hàm Composable đại diện cho màn hình dashboard của ứng dụng IoT Home Connect.
+ * Màn hình này hiển thị dữ liệu cảm biến khác nhau dưới dạng biểu đồ đường, cùng với thông tin thời tiết,
+ * các tab chọn phòng và các thành phần điều hướng.
  *
- * @param navController NavHostController để điều hướng.
+ * Dashboard hiển thị dữ liệu cho:
+ * - Nhiệt độ
+ * - Độ ẩm
+ * - Mức độ khí gas
+ * - Mức tiêu thụ điện
+ *
+ * Người dùng có thể tương tác với các dropdown để lọc dữ liệu (mặc dù hiện tại đang sử dụng dữ liệu giả)
+ * và chọn các phòng khác nhau để xem dữ liệu cụ thể (hiện tại mặc định là phòng "living").
+ *
+ * Cấu trúc màn hình bao gồm:
+ * - Một `Header` ở trên cùng để điều hướng và hiển thị tiêu đề.
+ * - Một thành phần `WeatherInfo`.
+ * - Các dropdown để chọn nhóm và nhà (chức năng hiện tại là giả).
+ * - `RoomTabRow` để chuyển đổi giữa các phòng khác nhau.
+ * - Một loạt các thành phần `CustomLineChart`, mỗi thành phần hiển thị một loại dữ liệu cảm biến khác nhau,
+ *   cùng với một `ChartLegend`.
+ * - Một `MenuBottom` ở dưới cùng để điều hướng ứng dụng.
+ *
+ * Dữ liệu cho các biểu đồ hiện được tạo ngẫu nhiên cho mục đích minh họa.
+ *
+ * @param navController `NavHostController` được sử dụng để điều hướng giữa các màn hình khác nhau
+ *                      trong ứng dụng.
  * @author Nguyễn Thanh Sang
- * @since 25-05-2025
+ * @since 29-05-2025
  */
 @Composable
 fun DashboardScreen(navController: NavHostController) {
     IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
-        var selectedSensorTypeTabIndex by remember { mutableIntStateOf(0) }
-        val sensorTypeTabTitles = listOf("Nhiệt độ", "Độ ẩm", "Khí gas", "Điện tiêu thụ")
-        var selectedRoomTabIndex by remember { mutableIntStateOf(0) }
-        val roomTabTitles = listOf("Phòng khách", "Phòng ngủ", "Phòng bếp", "Phòng chờ")
+        val chartNames = listOf(
+            "Nhiệt độ",
+            "Độ ẩm",
+            "Khí gas",
+            "Điện tiêu thụ"
+        )
         val temperatureData = (0..23).map { hour ->
             val temperatureValue = (14 + 10 * kotlin.math.sin(Math.PI * (hour - 6) / 15)).toFloat() + (0..2).random()
             DataPoint("%02d:00".format(hour), temperatureValue)
@@ -79,7 +91,6 @@ fun DashboardScreen(navController: NavHostController) {
             }
             DataPoint("%02d:00".format(hour), electricityUsage)
         }
-        // Ví dụ: 4 loại, màu giống mẫu ảnh
         val chartColors = listOf(
             Color(0xFF26A69A), // Xanh ngọc - Nhiệt độ
             Color(0xFF5C6BC0), // Xanh tím - Độ ẩm
@@ -92,47 +103,15 @@ fun DashboardScreen(navController: NavHostController) {
             Color(0x55E57373), // Đỏ nhạt
             Color(0x55FFB300)  // Vàng nhạt
         )
-        val chartNames = listOf(
-            "Nhiệt độ",
-            "Độ ẩm",
-            "Khí gas",
-            "Điện tiêu thụ"
-        )
         val chartDataList = listOf(
             temperatureData, // 0
             humidityData,    // 1
             gasData,         // 2
             electricityData  // 3
         )
-        val selectedSensorLineColor = chartColors[selectedSensorTypeTabIndex]
-        val selectedSensorFillColor = chartFillColors[selectedSensorTypeTabIndex]
-        val selectedSensorChartLabel = chartNames[selectedSensorTypeTabIndex]
-        val selectedSensorData = chartDataList.getOrNull(selectedSensorTypeTabIndex) ?: temperatureData
-        val livingRoomDevices = listOf(
-            DeviceStatusCardData("MÁY BÁO KHÓI", "Báo cháy", true, "0.0 W", "0.0 độ"),
-            DeviceStatusCardData("CAMERA 1", "Camera", true, "2.0 W", "30.0 độ"),
-            DeviceStatusCardData("ĐÈN TRẦN", "Chiếu sáng", false, "10.0 W", "32.0 độ"),
-        )
-        val bedroomDevices = listOf(
-            DeviceStatusCardData("MÁY LẠNH", "Điều hoà", true, "800.0 W", "20.0 độ"),
-            DeviceStatusCardData("ĐÈN ĐẦU GIƯỜNG", "Chiếu sáng", false, "5.0 W", "30.0 độ"),
-        )
-        val kitchenDevices = listOf(
-            DeviceStatusCardData("BẾP TỪ", "Bếp", false, "1500.0 W", "50.0 độ"),
-            DeviceStatusCardData("MÁY HÚT KHÓI", "Hút mùi", true, "120.0 W", "38.0 độ"),
-        )
-        val lobbyDevices = listOf(
-            DeviceStatusCardData("MÁY LỌC KHÔNG KHÍ", "Lọc khí", true, "60.0 W", "28.0 độ"),
-        )
-        val deviceCardLists = listOf(
-            livingRoomDevices, // 0
-            bedroomDevices,    // 1
-            kitchenDevices,    // 2
-            lobbyDevices       // 3
-        )
-        val currentDeviceList = deviceCardLists.getOrNull(selectedRoomTabIndex) ?: emptyList()
-
-        var selectedDay by remember { mutableStateOf<String?>(null) }
+        var current by remember { mutableStateOf<String?>(null) }
+        var activeRoom by remember { mutableStateOf("living") }
+        val colorScheme = MaterialTheme.colorScheme
 
         Scaffold(
             topBar = {
@@ -157,98 +136,70 @@ fun DashboardScreen(navController: NavHostController) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 16.dp)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center,
+                                .padding(16.dp)
                         ) {
-                            Text(
-                                text          = "Nhiệt độ",
-                                color         = Color.White,
-                                fontSize      = 30.sp,
-                                fontWeight    = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
+                            WeatherInfo()
                         }
                     }
 
                     InvertedCornerHeader(
                         backgroundColor = colorScheme.surface,
                         overlayColor = colorScheme.primary
-                    ) {
-                        CustomTabRow(
-                            tabs = sensorTypeTabTitles,
-                            selectedTabIndex = selectedSensorTypeTabIndex,
-                            onTabSelected = { selectedSensorTypeTabIndex = it }
-                        )
-                    }
+                    ) { }
 
                     Column (
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        CustomLineChart(
-                            dataPoints = selectedSensorData,
-                            chartWidth = 350.dp,
-                            chartHeight = 240.dp,
-                            yLabelCount = 5,
-                            lineColor = selectedSensorLineColor,
-                            fillColor = selectedSensorFillColor,
-                            backgroundColor = Color(0xFFF7F2FA),
-                            showFill = true,
-                            cornerRadius = 8.dp,
-                            labelTextSize = 12f
-                        )
-                        ChartLegend(
-                            color = selectedSensorLineColor,
-                            label = selectedSensorChartLabel
-                        )
-                        GenericDropdown(
-                            items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                            selectedItem = selectedDay,
-                            onItemSelected = { selectedDay = it },
-                            isTablet = false,
-                            placeHolder = "Ngày",
-                            leadingIcon = Icons.Default.Today // 👈 truyền icon vào
-                        )
-                    }
-
-                    Box {
-                        CustomTabRow(
-                            tabs = roomTabTitles,
-                            selectedTabIndex = selectedRoomTabIndex,
-                            onTabSelected = { selectedRoomTabIndex = it },
-                            modifier = Modifier
-                                .fillMaxWidth(),
-
-                        )
-                        // Divider nằm dưới cùng, phủ full chiều ngang
-                        Divider(
-                            color = Color(0xFFE0E0E0), // Xám nhạt
-                            thickness = 1.dp,
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .fillMaxWidth()
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp),
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        currentDeviceList.forEach { device ->
-                            DeviceStatusCard(
-                                title = device.title,
-                                type = device.type,
-                                isOn = device.status,
-                                powerConsumption = device.power,
-                                temperature = device.temp,
-                                onDetailsButtonClick = { /* Mở chi tiết thiết bị */ }
+                        Row (
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            GenericDropdown(
+                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                selectedItem = current,
+                                onItemSelected = { current = it },
+                                placeHolder = "Chọn nhóm",
+                                modifier = Modifier.weight(1f)
+                            )
+                            GenericDropdown(
+                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                selectedItem = current,
+                                onItemSelected = { current = it },
+                                placeHolder = "Chọn nhà",
+                                modifier = Modifier.weight(1f)
                             )
                         }
+                        RoomTabRow(
+                            activeRoom = activeRoom,
+                            onRoomChange = { activeRoom = it }
+                        )
+
+                        Column(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            chartNames.forEachIndexed { i, label ->
+                                TimeRangePicker() // Nếu cần 4 bộ lọc riêng cho từng biểu đồ
+                                CustomLineChart(
+                                    dataPoints = chartDataList[i],
+                                    chartWidth = 250.dp,
+                                    chartHeight = 140.dp,
+                                    yLabelCount = 5,
+                                    lineColor = chartColors[i],
+                                    fillColor = chartFillColors[i],
+                                    backgroundColor = Color(0xFFF7F2FA),
+                                    showFill = true,
+                                    cornerRadius = 8.dp,
+                                    labelTextSize = 12f
+                                )
+                                ChartLegend(
+                                    color = chartColors[i],
+                                    label = label
+                                )
+                            }
+                        }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -44,40 +45,78 @@ fun CustomTabRow(
     selectedTabIndex: Int,
     onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    tabPerScreen: Int = 4
 ) {
+    val useScrollable = tabs.size > tabPerScreen
     IoTHomeConnectAppTheme {
-        ScrollableTabRow (
-            selectedTabIndex = selectedTabIndex,
-            modifier = modifier.fillMaxWidth(),
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            edgePadding = 0.dp, // tùy chọn: bỏ khoảng trắng hai bên nếu muốn sát lề
-            divider = {},
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-            }
-        ) {
-            tabs.forEachIndexed { index, title ->
-                val isSelected = selectedTabIndex == index
-
-                Tab(
-                    selected = isSelected,
-                    onClick = { onTabSelected(index) },
-                    selectedContentColor = Color.Black,
-                    unselectedContentColor = Color.DarkGray,
-                    text = {
-                        Text(
-                            text  = title,
-                            style = MaterialTheme.typography.bodyMedium.copy(     // ← base = bodyMedium
-                                fontSize   = 18.sp,                               // ← cỡ chữ lớn hơn
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+        if (useScrollable) {
+            ScrollableTabRow(
+                selectedTabIndex = selectedTabIndex,
+                modifier = modifier.fillMaxWidth(),
+                containerColor = Color.White,
+                contentColor = Color.Black,
+                edgePadding = 0.dp,
+                divider = {},
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        height = 3.dp,
+                        color = Color(0xFF2979FF)
+                    )
+                }
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    val isSelected = selectedTabIndex == index
+                    Tab(
+                        selected = isSelected,
+                        onClick = { onTabSelected(index) },
+                        selectedContentColor = Color.Black,
+                        unselectedContentColor = Color.DarkGray,
+                        text = {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
                             )
-                        )
-                    }
-                )
+                        }
+                    )
+                }
+            }
+        } else {
+            TabRow (
+                selectedTabIndex = selectedTabIndex,
+                modifier = modifier.fillMaxWidth(),
+                containerColor = Color.White,
+                contentColor = Color.Black,
+                divider = {},
+                indicator = { tabPositions ->
+                    TabRowDefaults.SecondaryIndicator(
+                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                        height = 3.dp,
+                        color = Color(0xFF2979FF)
+                    )
+                }
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    val isSelected = selectedTabIndex == index
+                    Tab(
+                        selected = isSelected,
+                        onClick = { onTabSelected(index) },
+                        selectedContentColor = Color.Black,
+                        unselectedContentColor = Color.DarkGray,
+                        text = {
+                            Text(
+                                text = title,
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 18.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                )
+                            )
+                        }
+                    )
+                }
             }
         }
     }

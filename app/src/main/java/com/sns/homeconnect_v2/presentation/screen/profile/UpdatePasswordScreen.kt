@@ -264,7 +264,7 @@ fun UpdatePasswordScreen(
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    //ToDo: Trả về các điều kiện cần đạt được cácd mật khẩu
+                    //ToDo: Trả về các điều kiện cần đạt được cách mật khẩu
 
 
                     // Nút đăng nhập

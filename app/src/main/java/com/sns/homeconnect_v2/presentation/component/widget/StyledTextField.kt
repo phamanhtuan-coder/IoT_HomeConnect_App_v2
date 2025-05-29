@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.presentation.component.widget
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -67,12 +68,12 @@ fun StyledTextField(
                 placeholder = {
                     Text(
                         placeholderText,
-                        fontSize = 26.sp,
+                        fontSize = 16.sp,
                         color = if (errorText != null) Color(0xFFD32F2F) else Color(0xFF212121)
                     )
                 },
                 textStyle = androidx.compose.ui.text.TextStyle(
-                    fontSize = 26.sp,
+                    fontSize = 16.sp,
                     color = if (errorText != null) Color(0xFFD32F2F) else Color(0xFF212121)
                 ),
                 shape = RoundedCornerShape(16.dp),
@@ -83,7 +84,7 @@ fun StyledTextField(
                         Icon(
                             imageVector = leadingIcon,
                             contentDescription = null,
-                            modifier = Modifier.size(48.dp),
+                            modifier = Modifier.size(28.dp),
                             tint = Color(0xFF212121)
                         )
                     }
@@ -104,6 +105,7 @@ fun StyledTextField(
                     imeAction = ImeAction.Next
                 ),
                 modifier = Modifier
+                    .height(56.dp)
                     .width(if (isTablet) 500.dp else 400.dp),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = Color(0xFF212121),
@@ -149,12 +151,12 @@ fun PreviewTextFieldAndDialog() {
             leadingIcon = Icons.Default.Person
         )
     }
-    if (showDialog) {
-        ConfirmationDialog(
-            title = "Xác nhận xoá",
-            message = "Bạn có chắc muốn xoá thiết bị này?",
-            onConfirm = { showDialog = false },
-            onDismiss = { showDialog = false }
-        )
-    }
+//    if (showDialog) {
+//        ConfirmationDialog(
+//            title = "Xác nhận xoá",
+//            message = "Bạn có chắc muốn xoá thiết bị này?",
+//            onConfirm = { showDialog = false },
+//            onDismiss = { showDialog = false }
+//        )
+//    }
 }

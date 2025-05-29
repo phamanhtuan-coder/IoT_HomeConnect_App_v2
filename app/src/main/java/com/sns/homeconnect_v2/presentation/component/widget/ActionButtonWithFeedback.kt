@@ -79,10 +79,23 @@ fun ActionButtonWithFeedback(
         var errorMessage by remember { mutableStateOf<String?>(null) }
         val coroutineScope = rememberCoroutineScope()
 
+        val colorScheme = MaterialTheme.colorScheme
         val (containerColor, contentColor, border) = when (style) {
-            HCButtonStyle.PRIMARY -> Triple(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, null)
-            HCButtonStyle.SECONDARY -> Triple(MaterialTheme.colorScheme.onError, MaterialTheme.colorScheme.error, BorderStroke(2.dp, MaterialTheme.colorScheme.error))
-            HCButtonStyle.DISABLED -> Triple(Color(0xFFE0E0E0), Color(0xFF9E9E9E), null)
+            HCButtonStyle.PRIMARY -> Triple(
+                colorScheme.primary,
+                colorScheme.onPrimary,
+                null
+            )
+            HCButtonStyle.SECONDARY -> Triple(
+                colorScheme.onPrimary, // Thường là trắng
+                colorScheme.primary,
+                BorderStroke(2.dp, colorScheme.primary)
+            )
+            HCButtonStyle.DISABLED -> Triple(
+                Color(0xFFE0E0E0),
+                Color(0xFF9E9E9E),
+                null
+            )
         }
         val enabled = style != HCButtonStyle.DISABLED && !showLoadingIndicator
 

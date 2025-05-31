@@ -21,20 +21,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,14 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
-import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPassWordState
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPasswordViewModel
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 
 /** Giao diện màn hình Tạo mật khẩu mới (NewPassword Screen)
  * -----------------------------------------
@@ -77,38 +69,38 @@ import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPasswordViewModel
 fun NewPasswordScreen(
     navController: NavHostController,
     email: String,
-    viewModel: NewPasswordViewModel = hiltViewModel(),
+//    viewModel: NewPasswordViewModel = hiltViewModel(),
 ) {
-    val newPasswordState by viewModel.newPasswordState.collectAsState()
+//    val newPasswordState by viewModel.newPasswordState.collectAsState()
     val context = LocalContext.current
     val passwordErrorState = remember { mutableStateOf("") }
     val passwordConfirmErrorState = remember { mutableStateOf("") }
 
-    when (newPasswordState) {
-        is NewPassWordState.Success -> {
-            LaunchedEffect(Unit) {
-                navController.navigate(Screens.Login.route) {
-                    popUpTo(Screens.Login.route) {
-                        inclusive = true
-                    }
-                }
-            }
-        }
-
-        is NewPassWordState.Error -> {
-            passwordConfirmErrorState.value =
-                (newPasswordState as NewPassWordState.Error).error.toString()
-        }
-
-        is NewPassWordState.Loading -> {
-            CircularProgressIndicator()
-        }
-
-        else -> {
-            // Xử lý khi chưa làm gì
-        }
-    }
-
+//    when (newPasswordState) {
+//        is NewPassWordState.Success -> {
+//            LaunchedEffect(Unit) {
+//                navController.navigate(Screens.Login.route) {
+//                    popUpTo(Screens.Login.route) {
+//                        inclusive = true
+//                    }
+//                }
+//            }
+//        }
+//
+//        is NewPassWordState.Error -> {
+//            passwordConfirmErrorState.value =
+//                (newPasswordState as NewPassWordState.Error).error.toString()
+//        }
+//
+//        is NewPassWordState.Loading -> {
+//            CircularProgressIndicator()
+//        }
+//
+//        else -> {
+//            // Xử lý khi chưa làm gì
+//        }
+//    }
+//
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         val configuration = LocalConfiguration.current
@@ -202,13 +194,8 @@ fun NewPasswordScreen(
                                 unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
                             )
                         )
-                        Text(
-                            text = passwordErrorState.value,
-                            fontSize = 12.sp,
-                            color = colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         // NHẬP LẠI MẬT KHẨU MỚI
                         OutlinedTextField(
@@ -246,45 +233,17 @@ fun NewPasswordScreen(
                                 unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
                             )
                         )
-                        Text(
-                            text = passwordConfirmErrorState.value,
-                            fontSize = 12.sp,
-                            color = colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Nút tạo mật khẩu mới
-                        Button(
-                            onClick = {
-                                viewModel.newPassword(email, passwordState.value)
-                            },
-                            modifier = Modifier
-                                .width(if (isTablet(context)) 300.dp else 200.dp)
-                                .height(if (isTablet(context)) 56.dp else 48.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text(
-                                text = "Đổi mật khẩu",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.onPrimary
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         // Nút quay lại màn hình đăng nhập
-                        TextButton(onClick = {
-                            navController.popBackStack()
-                        }) {
-                            Text(
-                                text = "Quay lại màn hình đăng nhập",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.primary
-                            )
-                        }
+                        ActionButtonWithFeedback(
+                            label = "Đổi mật khẩu",
+                            style = HCButtonStyle.PRIMARY,
+                            onAction = { _, _ ->
+//                                viewModel.newPassword(email, passwordState.value)
+                            }
+                        )
                     }
                 }
             }

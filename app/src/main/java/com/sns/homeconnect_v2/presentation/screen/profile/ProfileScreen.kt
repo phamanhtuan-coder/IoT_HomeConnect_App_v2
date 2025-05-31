@@ -868,7 +868,7 @@ fun ProfileScreen(
                         }
                     }
 
-                    //Nếu thay dđổi ngày thì update
+                    //Nếu thay đổi ngày thì update
                     LaunchedEffect(datePickerState.selectedDateMillis) {
                         datePickerState.selectedDateMillis?.let { millis ->
                             try {

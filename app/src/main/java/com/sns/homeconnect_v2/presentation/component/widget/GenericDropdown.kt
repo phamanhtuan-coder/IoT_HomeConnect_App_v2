@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Room
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,8 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,6 +38,7 @@ import androidx.compose.ui.unit.sp
  * @param placeHolder Văn bản hiển thị khi không có mục nào được chọn. Mặc định là "Chọn...".
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenericDropdown(
     items: List<String>,
@@ -48,79 +47,95 @@ fun GenericDropdown(
     modifier: Modifier = Modifier,
     placeHolder: String = "Select...",
     isTablet: Boolean = false,
-    leadingIcon: ImageVector // ✅ THÊM icon
+    leadingIcon: ImageVector? = null // Icon đầu dòng (nếu có)
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    val bgColor = Color.White
-    val dropdownWidth = remember { mutableIntStateOf(0) }
-    val localDensity = LocalDensity.current
+    var showSheet by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier) {
-        Box(
-            modifier = Modifier
-                .onGloballyPositioned { coordinates ->
-                    dropdownWidth.intValue = coordinates.size.width
-                }
-                .width(if (isTablet) 500.dp else 400.dp)
-                .height(60.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .border(1.dp, Color(0xFF9E9E9E), RoundedCornerShape(16.dp))
-                .background(bgColor)
-                .clickable { expanded = !expanded }
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.CenterStart
+    // Vùng nhấn để mở sheet
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .border(1.dp, Color(0xFF9E9E9E), RoundedCornerShape(16.dp))
+            .background(Color.White)
+            .height(60.dp)
+            .fillMaxWidth()
+            .clickable { showSheet = true }
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            if (leadingIcon != null) {
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
                     tint = Color(0xFF212121),
-                    modifier = Modifier.size(48.dp) // ✅ CHO ICON TO LÊN
+                    modifier = Modifier.size(36.dp)
                 )
-
                 Spacer(modifier = Modifier.width(12.dp))
-
-                Text(
-                    text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
-                    fontSize = 26.sp,
-                    color = if (selectedItem.isNullOrBlank()) Color.Gray else Color(0xFF212121),
-                    modifier = Modifier.weight(1f)
-                )
-
-                Icon(
-                    imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = Color(0xFF212121),
-                    modifier = Modifier.size(24.dp)
-                )
             }
-        }
 
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier
-                .width(with(localDensity) { dropdownWidth.intValue.toDp() })
-                .background(Color.White)
+            Text(
+                text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
+                fontSize = 20.sp,
+                color = if (selectedItem.isNullOrBlank()) Color.Gray else Color(0xFF212121),
+                modifier = Modifier.weight(1f)
+            )
+
+            Icon(
+                imageVector = if (showSheet) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                contentDescription = null,
+                tint = Color(0xFF212121),
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+
+    if (showSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showSheet = false },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         ) {
-            items.forEach { item ->
-                DropdownMenuItem(
-                    text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+            ) {
+                // Title hiển thị placeholder
+                Text(
+                    text = placeHolder,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFF2979FF),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                items.forEach { item ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                onItemSelected(item)
+                                showSheet = false
+                            }
+                            .background(if (item == selectedItem) Color(0xFF2979FF).copy(alpha = 0.08f) else Color.Transparent)
+                            .padding(vertical = 18.dp, horizontal = 12.dp)
+                    ) {
                         Text(
                             text = item,
-                            fontSize = 26.sp,
-                            color = Color(0xFF212121)
+                            fontSize = 20.sp,
+                            color = if (item == selectedItem) Color(0xFF2979FF) else Color(0xFF212121),
+                            fontWeight = if (item == selectedItem) FontWeight.Bold else FontWeight.Normal
                         )
-                    },
-                    onClick = {
-                        expanded = false
-                        onItemSelected(item)
                     }
-                )
+                    if (item != items.last()) {
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+                    }
+                }
             }
         }
     }
@@ -130,7 +145,6 @@ fun GenericDropdown(
 @Composable
 private fun GenericDropdownPreview() {
     var current by remember { mutableStateOf<String?>(null) }
-
     MaterialTheme {
         Column(modifier = Modifier.padding(24.dp)) {
             GenericDropdown(
@@ -138,7 +152,8 @@ private fun GenericDropdownPreview() {
                 selectedItem = current,
                 onItemSelected = { current = it },
                 isTablet = false,
-                leadingIcon = Icons.Default.Room // 👈 truyền icon vào
+                leadingIcon = null,
+                placeHolder = "Chọn phòng"
             )
         }
     }

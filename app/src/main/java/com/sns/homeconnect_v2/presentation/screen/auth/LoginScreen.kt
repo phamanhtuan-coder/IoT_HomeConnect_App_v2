@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
@@ -24,11 +25,13 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeed
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-//    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel()
 ) {
     IoTHomeConnectAppTheme {
         val configuration = LocalConfiguration.current
@@ -39,7 +42,8 @@ fun LoginScreen(
 //        var passwordVisible by remember { mutableStateOf(false) }
         val emailErrorState = remember { mutableStateOf("") }
         val passwordErrorState = remember { mutableStateOf("") }
-//        val loginUiState by viewModel.loginState.collectAsState()
+        val loginUiState by viewModel.loginState.collectAsState()
+//        val isLoading = remember { mutableStateOf(false) }
 
         Scaffold(
             modifier = Modifier.fillMaxSize().background(colorScheme.background),
@@ -94,7 +98,10 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(
-                        onClick = { /* TODO */ },
+                        onClick = {
+                            /* TODO */
+                            navController.navigate(Screens.RecoverPassword.route)
+                        },
                         contentPadding = PaddingValues(0.dp) // Không bị thụt vào trong
                     ) {
                         Text(
@@ -105,33 +112,40 @@ fun LoginScreen(
                     }
                 }
 
-
                 ActionButtonWithFeedback(
                     label = "Đăng nhập",
                     style = HCButtonStyle.PRIMARY,
-                    onAction = { _, _ ->
-//                        viewModel.login(emailState.value, passwordState.value)
+                    onSuccess = {          // chạy SAU khi user bấm OK dialog thành công
+                        navController.navigate("home_graph") {
+                            popUpTo(Screens.Login.route) { inclusive = true }
+                        }
+                    },
+                    onAction = { ok, err ->
+                        val result = viewModel.quickLogin(emailState.value, passwordState.value)   // suspend
+                        result.fold(
+                            onSuccess = { ok("Đăng nhập thành công!") },
+                            onFailure = { e -> err(e.message ?: "Sai tài khoản hoặc mật khẩu!") }
+                        )
                     }
                 )
 
-
-//                when (loginUiState) {
-//                    is LoginUiState.Idle -> {}
-//                    is LoginUiState.Loading -> {}
-//                    is LoginUiState.Success -> {
-//                        LaunchedEffect(Unit) {
-//                            navController.navigate("home_graph") {
-//                                popUpTo(Screens.Welcome.route) { inclusive = true }
-//                            }
-//                        }
-//                    }
-//                    is LoginUiState.Error -> {
-//                        Text(
-//                            text = (loginUiState as LoginUiState.Error).message,
-//                            color = colorScheme.error
-//                        )
-//                    }
-//                }
+                when (loginUiState) {
+                    is LoginUiState.Idle -> {}
+                    is LoginUiState.Loading -> {}
+                    is LoginUiState.Success -> {
+                        LaunchedEffect(Unit) {
+                            navController.navigate("home_graph") {
+                                popUpTo(Screens.Welcome.route) { inclusive = true }
+                            }
+                        }
+                    }
+                    is LoginUiState.Error -> {
+                        Text(
+                            text = (loginUiState as LoginUiState.Error).message,
+                            color = colorScheme.error
+                        )
+                    }
+                }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(if (isTablet) 0.8f else 0.9f),

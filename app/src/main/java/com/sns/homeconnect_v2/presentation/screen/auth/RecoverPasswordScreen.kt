@@ -3,8 +3,6 @@ package com.sns.homeconnect_v2.presentation.screen.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -15,18 +13,17 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordViewModel
@@ -87,7 +84,7 @@ fun RecoverPasswordScreen(
                 color = colorScheme.onBackground.copy(alpha = 0.6f)
             )
 
-            OutlinedTextField(
+            StyledTextField(
                 value = uiModel.email,
                 onValueChange = {
                     viewModel.updateUiModel(
@@ -98,55 +95,32 @@ fun RecoverPasswordScreen(
                         )
                     )
                 },
-                placeholder = { Text("Nhập email của bạn") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
-                ),
-                modifier = Modifier
-                    .width(if (isTablet(context)) 500.dp else 400.dp)
-                    .height(if (isTablet(context)) 80.dp else 70.dp),
-                shape = RoundedCornerShape(25),
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = colorScheme.onBackground,
-                    unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                    focusedContainerColor = colorScheme.onPrimary,
-                    unfocusedContainerColor = colorScheme.onPrimary,
-                    focusedIndicatorColor = colorScheme.primary,
-                    unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                ),
-                leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) }
+                placeholderText = "Nhập email",
+                leadingIcon = Icons.Default.Email
             )
 
-            Text(
-                text = uiModel.emailError,
-                fontSize = 14.sp,
-                color = if (uiModel.emailError == "Email hợp lệ.") Color.Green else colorScheme.error
+//            Text(
+//                text = uiModel.emailError,
+//                fontSize = 14.sp,
+//                color = if (uiModel.emailError == "Email hợp lệ.") Color.Green else colorScheme.error
+//            )
+//
+//            Spacer(modifier = Modifier.height(24.dp))
+
+            ActionButtonWithFeedback(
+                label = "Khôi phục mật khẩu",
+                style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
+                onAction = { _, _ ->
+                    viewModel.checkEmail()
+                }
             )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Button(
-                onClick = { viewModel.checkEmail() },
-                enabled = uiModel.isValid(),
-                modifier = Modifier
-                    .width(if (isTablet(context)) 300.dp else 200.dp)
-                    .height(if (isTablet(context)) 56.dp else 48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text(
-                    text = "Khôi phục mật khẩu",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = colorScheme.onPrimary
-                )
-            }
 
             when (recoverPasswordState) {
                 is RecoverPasswordState.Success -> {
                     LaunchedEffect(Unit) {
+//                        navController.navigate(
+//                            Screens.OTP.createRoute("reset_password", uiModel.email)
+//                        )
                         navController.navigate(
                             Screens.OTP.createRoute("reset_password", uiModel.email)
                         )
@@ -160,7 +134,7 @@ fun RecoverPasswordScreen(
                     }
                 }
                 is RecoverPasswordState.Loading -> {
-                    CircularProgressIndicator()
+//                    CircularProgressIndicator()
                 }
                 is RecoverPasswordState.Idle -> {
                     // Do nothing

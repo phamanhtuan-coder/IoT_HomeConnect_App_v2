@@ -11,12 +11,13 @@ object ValidationUtils {
      * @return Thông báo xác định email hợp lệ hay không.
      */
     fun validateEmail(email: String): String {
-        return if (email.isBlank() || !ValidationRules.isValidEmailFormat(email)) {
-            "Email không hợp lệ." // Trả về thông báo nếu email không hợp lệ.
-        } else {
-            "Email hợp lệ." // Trả về thông báo nếu email hợp lệ.
+        return when {
+            email.isBlank() -> "Email không được để trống."
+            !ValidationRules.isValidEmailFormat(email) -> "Email không đúng định dạng."
+            else -> "" // HỢP LỆ: KHÔNG TRẢ VỀ GÌ CẢ (chuỗi rỗng)
         }
     }
+
 
     /**
      * Kiểm tra mật khẩu.

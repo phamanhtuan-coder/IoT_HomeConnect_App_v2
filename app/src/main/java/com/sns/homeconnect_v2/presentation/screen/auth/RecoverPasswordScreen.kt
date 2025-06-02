@@ -121,9 +121,7 @@ fun RecoverPasswordScreen(
 //                        navController.navigate(
 //                            Screens.OTP.createRoute("reset_password", uiModel.email)
 //                        )
-                        navController.navigate(
-                            Screens.OTP.createRoute("reset_password", uiModel.email)
-                        )
+                        navController.navigate(Screens.NewPassword.route)
                     }
                 }
                 is RecoverPasswordState.Error -> {

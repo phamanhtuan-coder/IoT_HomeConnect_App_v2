@@ -107,6 +107,7 @@ fun RecoverPasswordScreen(
 //
 //            Spacer(modifier = Modifier.height(24.dp))
 
+
             ActionButtonWithFeedback(
                 label = "Khôi phục mật khẩu",
                 style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
@@ -115,6 +116,8 @@ fun RecoverPasswordScreen(
                 }
             )
 
+            // TODO: Re-enable when API is ready
+            /*
             when (recoverPasswordState) {
                 is RecoverPasswordState.Success -> {
                     LaunchedEffect(Unit) {
@@ -138,6 +141,7 @@ fun RecoverPasswordScreen(
                     // Do nothing
                 }
             }
+            */
 
             if (uiModel.errorMessage.isNotBlank()) {
                 Text(

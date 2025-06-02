@@ -137,6 +137,8 @@ fun RegisterScreen(
         return errorMessage.isEmpty()
     }
 
+    // TODO: Re-enable when API is ready
+    /*
     when (registerState) {
         is RegisterState.Error -> {
             Text((registerState as RegisterState.Error).error, color = Color.Red)
@@ -148,9 +150,18 @@ fun RegisterScreen(
         is RegisterState.Success -> {
             LaunchedEffect(Unit) {
                 navController.navigate(Screens.Login.route) {
-                    popUpTo(Screens.Register.route) { inclusive = true }
+                    popUpTo(Screens.Welcome.route) { inclusive = false }
                 }
             }
+        }
+    }
+    */
+
+    // Function to handle registration for demo
+    fun handleRegistrationDemo() {
+        // Direct navigation for demo purposes without API call
+        navController.navigate(Screens.Login.route) {
+            popUpTo(Screens.Welcome.route) { inclusive = false }
         }
     }
 
@@ -412,6 +423,7 @@ fun RegisterScreen(
                             .weight(1f)
                     )
                 }
+
 
                 ActionButtonWithFeedback(
                     label = if (stage == 1) "Tiếp tục" else "Đăng ký",

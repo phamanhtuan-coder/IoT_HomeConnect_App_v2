@@ -40,11 +40,12 @@ import com.sns.homeconnect_v2.presentation.model.DeviceStatCardItem
 import com.sns.homeconnect_v2.presentation.model.FeatureButtonItem
 import com.sns.homeconnect_v2.presentation.model.SlideShowItem
 
+
 /** Giao diện màn hình Trang chủ (Home Screen)
  * -----------------------------------------
  * Người viết: Phạm Anh Tuấn
  * Ngày viết: 29/11/2024
- * Lần cập nhật cuối: 29/11/2024
+ * Lần cập nhật cuối: 23/05/2025
  * -----------------------------------------
 
  * @param modifier Modifier mở rộng để áp dụng cho layout (đã gán giá trị mặc dịnh).
@@ -180,11 +181,12 @@ fun HomeScreen(
                     item {
                         FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
                     }
-                }
+                )
             }
         )
     }
 }
+
 
 @Preview
 @Composable

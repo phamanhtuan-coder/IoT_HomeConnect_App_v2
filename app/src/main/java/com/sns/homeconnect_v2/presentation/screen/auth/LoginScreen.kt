@@ -112,6 +112,7 @@ fun LoginScreen(
                     }
                 }
 
+
                 ActionButtonWithFeedback(
                     label = "Đăng nhập",
                     style = HCButtonStyle.PRIMARY,
@@ -128,7 +129,9 @@ fun LoginScreen(
                         )
                     }
                 )
-
+                // Comment out the UI state handling since we're bypassing API calls
+                // TODO: Re-enable when API is ready
+                /*
                 when (loginUiState) {
                     is LoginUiState.Idle -> {}
                     is LoginUiState.Loading -> {}
@@ -146,6 +149,7 @@ fun LoginScreen(
                         )
                     }
                 }
+                */
 
                 Row(
                     modifier = Modifier.fillMaxWidth(if (isTablet) 0.8f else 0.9f),

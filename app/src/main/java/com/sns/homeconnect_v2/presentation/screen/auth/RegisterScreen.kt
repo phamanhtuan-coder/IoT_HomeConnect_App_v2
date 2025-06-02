@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
+import com.sns.homeconnect_v2.R
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -29,19 +29,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -57,6 +51,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 import androidx.core.graphics.scale
+import com.sns.homeconnect_v2.presentation.component.DatePickerTextField
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("InlinedApi")
@@ -71,8 +69,8 @@ fun RegisterScreen(
     val colorScheme = MaterialTheme.colorScheme
     val registerState by viewModel.registerState.collectAsState()
 
-    var passwordVisible by remember { mutableStateOf(false) }
-    var confirmPasswordVisible by remember { mutableStateOf(false) }
+//    var passwordVisible by remember { mutableStateOf(false) }
+//    var confirmPasswordVisible by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -82,7 +80,7 @@ fun RegisterScreen(
     var avatarUri by remember { mutableStateOf<Uri?>(null) }
     var selectedDate by remember { mutableStateOf("01/01/2004") }
     var profileImage by remember { mutableStateOf("") }
-    var stage by remember { mutableStateOf(1) }
+    var stage by remember { mutableIntStateOf(1) }
     var errorMessage by remember { mutableStateOf("") }
     var nameError by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf("") }
@@ -133,8 +131,8 @@ fun RegisterScreen(
                 errorMessage = "Mật khẩu cần ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
             confirmPassword != password ->
                 errorMessage = "Mật khẩu nhập lại không khớp."
-            avatarUri == null ->
-                errorMessage = "Vui lòng chọn ảnh đại diện."
+//            avatarUri == null ->
+//                errorMessage = "Vui lòng chọn ảnh đại diện."
         }
         return errorMessage.isEmpty()
     }
@@ -175,7 +173,6 @@ fun RegisterScreen(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
-                .padding(horizontal = if (isTablet) 32.dp else 16.dp)
                 .verticalScroll(rememberScrollState())
                 .imePadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
@@ -194,141 +191,72 @@ fun RegisterScreen(
             )
 
             if (stage == 1) {
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = name,
                     onValueChange = {
                         name = it
                         nameError = ValidationUtils.validateFullName(it)
                     },
-                    placeholder = { Text("Họ tên") },
-                    leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Họ tên",
+                    leadingIcon = Icons.Default.Person,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = email,
                     onValueChange = {
                         email = it
                         emailError = ValidationUtils.validateEmail(it)
                     },
-                    placeholder = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Filled.Email, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Nhập email",
+                    leadingIcon = Icons.Default.Email,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = phoneNumber,
                     onValueChange = {
                         phoneNumber = it
                         phoneError = ValidationUtils.validatePhoneNumber(it)
                     },
-                    placeholder = { Text("Số điện thoại") },
-                    leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Nhập số điện thoại",
+                    leadingIcon = Icons.Default.Phone,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = address,
                     onValueChange = {
                         address = it
                         addressError = ValidationUtils.validateAddress(it)
                     },
-                    placeholder = { Text("Địa chỉ") },
-                    leadingIcon = { Icon(Icons.Filled.Home, contentDescription = null) },
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Nhập địa chỉ",
+                    leadingIcon = Icons.Default.LocationOn,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                OutlinedTextField(
+                DatePickerTextField(
+                    label = "Ngày sinh",
                     value = selectedDate,
-                    onValueChange = { /* Read-only */ },
-                    placeholder = { Text("Ngày sinh (dd/mm/yyyy)") },
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
-                    readOnly = true,
-                    trailingIcon = {
-                        IconButton(onClick = { showDatePicker = !showDatePicker }) {
-                            Icon(Icons.Default.DateRange, contentDescription = "Chọn ngày")
-                        }
-                    },
                     modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    ),
-                    leadingIcon = { Icon(Icons.Filled.DateRange, contentDescription = null) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
+                        .padding(horizontal = 0.dp),
+                    onValueChange = { selectedDate = it }
                 )
 
-                if (showDatePicker) {
-                    Popup(onDismissRequest = { showDatePicker = false }, alignment = Alignment.TopStart) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .offset(y = 64.dp)
-                                .shadow(elevation = 4.dp)
-                                .background(colorScheme.background)
-                                .padding(16.dp)
-                        ) {
-                            DatePicker(state = datePickerState, showModeToggle = false)
-                        }
-                    }
-                }
+//                if (showDatePicker) {
+//                    Popup(onDismissRequest = { showDatePicker = false }, alignment = Alignment.TopStart) {
+//                        Box(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .offset(y = 64.dp)
+//                                .shadow(elevation = 4.dp)
+//                                .background(colorScheme.background)
+//                                .padding(16.dp)
+//                        ) {
+//                            DatePicker(state = datePickerState, showModeToggle = false)
+//                        }
+//                    }
+//                }
 
                 LaunchedEffect(datePickerState.selectedDateMillis) {
                     datePickerState.selectedDateMillis?.let { millis ->
@@ -381,7 +309,7 @@ fun RegisterScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 val requiredPermissions = when {
                     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
@@ -445,64 +373,26 @@ fun RegisterScreen(
                     }
                 }
 
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Mật khẩu") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                            )
-                        }
+                    onValueChange = {
+                        password = it
                     },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Nhập mật khẩu",
+                    leadingIcon = Icons.Default.LocationOn,
+                    isPassword = true,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
 
-                OutlinedTextField(
-                    shape = RoundedCornerShape(25),
-                    singleLine = true,
+                StyledTextField(
                     value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Nhập lại mật khẩu") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                    trailingIcon = {
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                            Icon(
-                                imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = if (confirmPasswordVisible) "Hide password" else "Show password"
-                            )
-                        }
+                    onValueChange = {
+                        confirmPassword = it
                     },
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    modifier = Modifier
-                        .width(if (isTablet) 500.dp else 400.dp)
-                        .height(if (isTablet) 80.dp else 70.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedTextColor = colorScheme.onBackground,
-                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                        focusedContainerColor = colorScheme.onPrimary,
-                        unfocusedContainerColor = colorScheme.onPrimary,
-                        focusedIndicatorColor = colorScheme.primary,
-                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                    )
+                    placeholderText = "Nhập mật khẩu",
+                    leadingIcon = Icons.Default.LocationOn,
+                    isPassword = true,
+                    modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
 
@@ -520,44 +410,62 @@ fun RegisterScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth(if (isTablet) 0.8f else 1f)
-                    .padding(horizontal = 16.dp)
             ) {
                 if (stage == 2) {
-                    OutlinedButton(
-                        onClick = { stage = 1 },
+                    ActionButtonWithFeedback(
+                        label = "Quay lại",
+                        style = HCButtonStyle.SECONDARY,
+                        onAction = { _, _ ->
+                            stage = 1
+                        },
                         modifier = Modifier
+                            .padding(start = 16.dp, end = 8.dp)
                             .weight(1f)
-                            .width(if (isTablet) 300.dp else 200.dp)
-                            .height(if (isTablet) 56.dp else 48.dp)
-                    ) {
-                        Text("Quay lại")
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
-
-                Button(
-                    onClick = {
-                        // Direct navigation for demo
-                        handleRegistrationDemo()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .width(if (isTablet) 300.dp else 200.dp)
-                        .height(if (isTablet) 56.dp else 48.dp)
-                        .align(Alignment.CenterVertically),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                    shape = RoundedCornerShape(50)
-                ) {
-                    Text(
-                        text = "Đăng ký",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorScheme.onPrimary
                     )
                 }
+
+
+                ActionButtonWithFeedback(
+                    label = if (stage == 1) "Tiếp tục" else "Đăng ký",
+                    style = HCButtonStyle.PRIMARY,
+                    onAction = { _, _ ->
+                        if (stage == 1) {
+                            stage = 2
+                            errorMessage = ""
+                        } else if (stage == 2 && validateInput()) {
+                            val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+                            val localDate = LocalDate.parse(selectedDate, formatter)
+                            // Nếu user không chọn ảnh thì lấy base64 ảnh mặc định từ drawable
+                            val imageBase64 = if (profileImage.isNotBlank()) {
+                                profileImage
+                            } else {
+                                drawableToBase64(context, R.drawable.person)
+                            }
+                            val user = RegisterRequest(
+                                Name = name,
+                                Email = email,
+                                PasswordHash = password,
+                                Phone = phoneNumber,
+                                Address = address,
+                                ProfileImage = imageBase64,
+                                DateOfBirth = localDate.toString()
+                            )
+                            viewModel.register(user)
+                        }
+                    },
+                    modifier = Modifier
+                        .then(
+                            if (stage == 2) {
+                                Modifier.padding(start = 8.dp, end = 16.dp)
+                            } else {
+                                Modifier.padding(horizontal = 16.dp) // hoặc giá trị mặc định khác nếu muốn
+                            }
+                        )
+                        .weight(1f)
+                )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(if (isTablet) 0.8f else 0.9f),
@@ -581,6 +489,26 @@ fun RegisterScreen(
             }
         }
     }
+}
+
+
+fun drawableToBase64(context: android.content.Context, drawableRes: Int, maxSizeKB: Int = 25): String {
+    val bitmap = BitmapFactory.decodeResource(context.resources, drawableRes)
+    val outputStream = ByteArrayOutputStream()
+    var currentQuality = 90
+    var tempBitmap = bitmap
+
+    // Nén giống logic compressImage
+    do {
+        outputStream.reset()
+        tempBitmap.compress(Bitmap.CompressFormat.JPEG, currentQuality, outputStream)
+        if (outputStream.size() / 1024 > maxSizeKB) {
+            tempBitmap = tempBitmap.scale(tempBitmap.width / 2, tempBitmap.height / 2, filter = true)
+        }
+        currentQuality -= 10
+    } while (outputStream.size() / 1024 > maxSizeKB && currentQuality > 10)
+
+    return Base64.encodeToString(outputStream.toByteArray(), Base64.NO_WRAP)
 }
 
 fun compressImage(inputImage: ByteArray, quality: Int, maxFileSizeKB: Int): ByteArray? {
@@ -610,7 +538,7 @@ fun uriToByteArray(context: android.content.Context, uri: Uri): ByteArray? {
         val byteArray = inputStream?.readBytes()
         inputStream?.close()
         byteArray
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 }

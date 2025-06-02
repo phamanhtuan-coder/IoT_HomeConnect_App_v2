@@ -25,6 +25,26 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
 
+/**
+ * Một hàm có thể kết hợp (composable function) hiển thị một thẻ có thể vuốt cho một không gian.
+ *
+ * Thẻ này hiển thị tên của không gian, số lượng thiết bị trong đó và một biểu tượng đại diện cho không gian.
+ * Nó hỗ trợ cử chỉ vuốt để hiển thị các hành động như chỉnh sửa và xóa.
+ *
+ * @param spaceName Tên của không gian sẽ được hiển thị.
+ * @param deviceCount Số lượng thiết bị trong không gian.
+ * @param icon [ImageVector] sẽ được sử dụng làm biểu tượng cho không gian. Mặc định là [Icons.Default.Group].
+ * @param iconColor [Color] của biểu tượng. Mặc định là màu chính của [MaterialTheme.colorScheme] hiện tại.
+ * @param isRevealed Một giá trị boolean cho biết các nút hành động (chỉnh sửa, xóa) có đang hiển thị hay không.
+ * @param onExpandOnly Một hàm lambda sẽ được gọi khi thẻ được vuốt để hiển thị các hành động và chỉ thẻ này nên được mở rộng.
+ * @param onCollapse Một hàm lambda sẽ được gọi khi thẻ được vuốt trở lại để ẩn các hành động.
+ * @param onDelete Một hàm lambda sẽ được gọi khi hành động xóa được kích hoạt.
+ * @param onEdit Một hàm lambda sẽ được gọi khi hành động chỉnh sửa được kích hoạt.
+ * @param onClick Một hàm lambda sẽ được gọi khi nội dung chính của thẻ được nhấp vào.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 26-05-2025
+ */
 @Composable
 fun SpaceCardSwipeable(
     spaceName: String,
@@ -43,6 +63,7 @@ fun SpaceCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),

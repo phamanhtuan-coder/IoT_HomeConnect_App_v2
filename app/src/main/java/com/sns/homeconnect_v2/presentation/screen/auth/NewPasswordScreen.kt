@@ -11,30 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.runtime.collectAsState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,9 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,6 +40,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPassWordState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPasswordViewModel
@@ -86,7 +73,7 @@ fun NewPasswordScreen(
 
     when (newPasswordState) {
         is NewPassWordState.Success -> {
-            LaunchedEffect(Unit) {
+            LaunchedEffect (Unit) {
                 navController.navigate(Screens.Login.route) {
                     popUpTo(Screens.Login.route) {
                         inclusive = true
@@ -101,7 +88,7 @@ fun NewPasswordScreen(
         }
 
         is NewPassWordState.Loading -> {
-            CircularProgressIndicator()
+//            CircularProgressIndicator()
         }
 
         else -> {
@@ -168,52 +155,21 @@ fun NewPasswordScreen(
                         )
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // MẬT KHẨU MỚI
-                        OutlinedTextField(
-                            shape = RoundedCornerShape(25),
-                            singleLine = true,
+                        StyledTextField(
                             value = passwordState.value,
                             onValueChange = {
                                 passwordState.value = it
                                 // Kiểm tra lỗi mật khẩu mới
                                 passwordErrorState.value = ValidationUtils.validatePassword(it)
                             },
-                            placeholder = { Text("Mật khẩu mới:") },
-                            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                            trailingIcon = {
-                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                    Icon(
-                                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
-                                    )
-                                }
-                            },
-                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            modifier = Modifier
-                                .width(if (isTablet(context)) 500.dp else 400.dp)
-                                .height(if (isTablet(context)) 80.dp else 70.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedTextColor = colorScheme.onBackground,
-                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                focusedContainerColor = colorScheme.onPrimary,
-                                unfocusedContainerColor = colorScheme.onPrimary,
-                                focusedIndicatorColor = colorScheme.primary,
-                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                            )
+                            placeholderText = "Mật khẩu mới",
+                            leadingIcon = Icons.Default.Password,
+                            isPassword = true
                         )
-                        Text(
-                            text = passwordErrorState.value,
-                            fontSize = 12.sp,
-                            color = colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        // MẬT KHẨU MỚI
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                        // NHẬP LẠI MẬT KHẨU MỚI
-                        OutlinedTextField(
-                            shape = RoundedCornerShape(25),
-                            singleLine = true,
+                        StyledTextField(
                             value = passwordState2.value,
                             onValueChange = {
                                 passwordState2.value = it
@@ -222,69 +178,21 @@ fun NewPasswordScreen(
                                     passwordState.value, it
                                 )
                             },
-                            placeholder = { Text("Nhập lại mật khẩu mới:") },
-                            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
-                            trailingIcon = {
-                                IconButton(onClick = { passwordVisible2 = !passwordVisible2 }) {
-                                    Icon(
-                                        imageVector = if (passwordVisible2) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                        contentDescription = if (passwordVisible2) "Hide password" else "Show password"
-                                    )
-                                }
-                            },
-                            visualTransformation = if (passwordVisible2) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                            modifier = Modifier
-                                .width(if (isTablet(context)) 500.dp else 400.dp)
-                                .height(if (isTablet(context)) 80.dp else 70.dp),
-                            colors = TextFieldDefaults.colors(
-                                focusedTextColor = colorScheme.onBackground,
-                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                focusedContainerColor = colorScheme.onPrimary,
-                                unfocusedContainerColor = colorScheme.onPrimary,
-                                focusedIndicatorColor = colorScheme.primary,
-                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                            )
-                        )
-                        Text(
-                            text = passwordConfirmErrorState.value,
-                            fontSize = 12.sp,
-                            color = colorScheme.error,
-                            modifier = Modifier.padding(top = 4.dp)
+                            placeholderText = "Nhập lại mật khẩu mới",
+                            leadingIcon = Icons.Default.Password,
+                            isPassword = true
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // Nút tạo mật khẩu mới
-                        Button(
-                            onClick = {
-                                viewModel.newPassword(email, passwordState.value)
-                            },
-                            modifier = Modifier
-                                .width(if (isTablet(context)) 300.dp else 200.dp)
-                                .height(if (isTablet(context)) 56.dp else 48.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                            shape = RoundedCornerShape(50)
-                        ) {
-                            Text(
-                                text = "Đổi mật khẩu",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.onPrimary
-                            )
-                        }
+                        Spacer(modifier = Modifier.height(24.dp))
 
                         // Nút quay lại màn hình đăng nhập
-                        TextButton(onClick = {
-                            navController.popBackStack()
-                        }) {
-                            Text(
-                                text = "Quay lại màn hình đăng nhập",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.primary
-                            )
-                        }
+                        ActionButtonWithFeedback(
+                            label = "Đổi mật khẩu",
+                            style = HCButtonStyle.PRIMARY,
+                            onAction = { _, _ ->
+                                viewModel.newPassword(email, passwordState.value)
+                            }
+                        )
                     }
                 }
             }

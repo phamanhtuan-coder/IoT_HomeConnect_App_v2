@@ -49,7 +49,7 @@ import com.sns.homeconnect_v2.presentation.model.FabChild
 fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostController) {
 //    val deviceList = remember {
 //        mutableStateListOf(
-//            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
+//            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Gr, Color.Blue),
 //            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
 //            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green)
 //        )

@@ -1,55 +1,44 @@
 package com.sns.homeconnect_v2.presentation.screen.home
 
 import IoTHomeConnectAppTheme
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BorderAll
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Memory
+import androidx.compose.material.icons.filled.PhoneAndroid
+import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.sns.homeconnect_v2.data.remote.dto.response.DeviceShare
-import com.sns.homeconnect_v2.data.remote.dto.response.SharedWithResponse
-import com.sns.homeconnect_v2.presentation.component.DeviceCard
+import com.sns.homeconnect_v2.presentation.component.DeviceStatCardCarousel
+import com.sns.homeconnect_v2.presentation.component.FeatureButtonRow
+import com.sns.homeconnect_v2.presentation.component.FeatureButtonSection
+import com.sns.homeconnect_v2.presentation.component.SlideShowBanner
+import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.navigation.DrawerWithContent
-import com.sns.homeconnect_v2.presentation.component.WeatherInfo
-import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.home.SharedWithState
-import com.sns.homeconnect_v2.presentation.viewmodel.profile.InfoProfileState
-import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewModel
+import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
+import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
+import com.sns.homeconnect_v2.presentation.model.DeviceStatCardItem
+import com.sns.homeconnect_v2.presentation.model.FeatureButtonItem
+import com.sns.homeconnect_v2.presentation.model.SlideShowItem
 
 
 /** Giao diện màn hình Trang chủ (Home Screen)
@@ -69,197 +58,128 @@ import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewMo
 fun HomeScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    homeViewModel: HomeScreenViewModel = hiltViewModel(),
-    profileViewModel: ProfileScreenViewModel = hiltViewModel()
+//    homeViewModel: HomeScreenViewModel = hiltViewModel(),
+//    profileViewModel: ProfileScreenViewModel = hiltViewModel()
 ) {
+    val dummyList = listOf(
+        SlideShowItem("https://picsum.photos/id/1/600/300"),
+        SlideShowItem("https://picsum.photos/id/2/600/300"),
+        SlideShowItem("https://picsum.photos/id/3/600/300")
+    )
+    val featureButtons = listOf(
+        FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {},
+        FeatureButtonItem(Icons.Default.Wifi, "Kết nối Wifi") {},
+        FeatureButtonItem(Icons.Default.Upload, "Chia sẻ thiết bị") {},
+        FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {}
+    )
+    val deviceStats = listOf(
+        DeviceStatCardItem(Icons.Default.Memory , Color(0xFFF54B63), "Tổng số thiết bị", "12 thiết bị"),
+        DeviceStatCardItem(Icons.Default.Wifi   , Color(0xFF23D37F), "Đang hoạt động" ,  "10 thiết bị"),
+        DeviceStatCardItem(Icons.Default.WifiOff, Color(0xFFF54B63), "Mất kết nối"     ,  "2 thiết bị")
+    )
+    val sampleItems = listOf(
+        FeatureButtonItem(Icons.Default.Warning, "Báo mất\nthiết bị") {},
+        FeatureButtonItem(Icons.Default.Sync, "Chuyển\nquyền sở hữu") {},
+        FeatureButtonItem(Icons.Default.Home, "Quản lý nhà") {},
+        FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
+        FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
+        FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
+        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {}
+    )
 
-    var userId by remember { mutableStateOf(1) } // Default userId for demo
-    val infoProfileState by profileViewModel.infoProfileState.collectAsState()
-
-    // TODO: Re-enable API call when new API is ready
-    /*
-    LaunchedEffect(Unit) {
-        profileViewModel.getInfoProfile()
-    }
-
-    when (infoProfileState) {
-        is InfoProfileState.Loading -> {
-
-        }
-
-        is InfoProfileState.Success -> {
-            userId = (infoProfileState as InfoProfileState.Success).user.UserID
-            Log.d("InfoProfileState", userId.toString())
-        }
-
-        is InfoProfileState.Error -> {
-            Log.d("InfoProfileState", (infoProfileState as InfoProfileState.Error).error)
-        }
-
-        else -> {}
-    }
-    */
-
-    val state by homeViewModel.sharedWithState.collectAsState()
-    var sharedUsers by remember { mutableStateOf<List<SharedWithResponse>?>(emptyList()) }
-
-    // TODO: Re-enable API call when new API is ready
-    /*
-    LaunchedEffect(userId) {
-        homeViewModel.fetchSharedWith(userId)
-    }
-
-    when (state) {
-        is SharedWithState.Loading -> {
-            // Loading state handling
-        }
-
-        is SharedWithState.Success -> {
-            sharedUsers = (state as SharedWithState.Success).sharedWith
-            Log.d("SharedWithState", sharedUsers.toString())
-        }
-
-        is SharedWithState.Error -> {
-            Log.d("SharedWithState", (state as SharedWithState.Error).error)
-        }
-
-        else -> {}
-    }
-    */
+//    var sharedUsers by remember { mutableStateOf<List<SharedWithResponse>?>(emptyList()) }
+//    var userId by remember { mutableIntStateOf(0) }
+//    val infoProfileState by profileViewModel.infoProfileState.collectAsState()
+//    LaunchedEffect(Unit) {
+//        profileViewModel.getInfoProfile()
+//    }
+//    when (infoProfileState) {
+//        is InfoProfileState.Loading -> {
+//
+//        }
+//
+//        is InfoProfileState.Success -> {
+//            userId = (infoProfileState as InfoProfileState.Success).user.UserID
+//            Log.d("InfoProfileState", userId.toString())
+//        }
+//
+//        is InfoProfileState.Error -> {
+//            Log.d("InfoProfileState", (infoProfileState as InfoProfileState.Error).error)
+//        }
+//
+//        else -> {}
+//    }
+//    val state by homeViewModel.sharedWithState.collectAsState()
+//    LaunchedEffect(userId) {
+//        homeViewModel.fetchSharedWith(userId)
+//    }
+//    when (state) {
+//        is SharedWithState.Loading -> {
+//            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                CircularProgressIndicator()
+//            }
+//        }
+//        is SharedWithState.Success -> {
+//           sharedUsers = (state as SharedWithState.Success).sharedWithResponse
+//            Log.e("SharedWithState.Success", "Thành công")
+//        }
+//        is SharedWithState.Error -> {
+//            val errorMessage = (state as SharedWithState.Error).error
+//            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                Text(text = errorMessage, color = MaterialTheme.colorScheme.error)
+//            }
+//            Log.e("SharedWithState.Error", "Thất bại")
+//        }
+//        else -> {}
+//    }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-
-        // Get username from profile state
-        val username = when (infoProfileState) {
-            is InfoProfileState.Success -> (infoProfileState as InfoProfileState.Success).user.Name
-            else -> "Chúc bạn có một ngày tốt lành!"
-        }
-
-        // Using DrawerWithContent instead of direct Scaffold
-        DrawerWithContent(
-            navController = navController,
-            type = "Home",
-            username = username,
+        Scaffold(containerColor = colorScheme.background,
+            modifier = modifier.fillMaxSize(),
+            topBar = {
+                /*
+                * Hiển thị Header
+                 */
+                Header(navController, "Home")
+            },
+            bottomBar = {
+                /*
+                * Hiển thị Thanh Menu dưới cùng
+                 */
+                MenuBottom(navController)
+            },
             content = {
-                Scaffold(
-                    containerColor = colorScheme.background,
-                    modifier = modifier.fillMaxSize(),
-                    bottomBar = {
-                        /*
-                        * Hiển thị Thanh Menu dưới cùng
-                        */
-                        MenuBottom(navController)
-                    },
-                    content = {  innerPadding ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState()),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                LazyColumn (
+                    modifier = Modifier
+                        .padding(it)
+                ) {
+                    item {
+                        ColoredCornerBox(
+                            cornerRadius = 24.dp
                         ) {
-                            WeatherInfo()
-
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            Box (
+                                modifier = Modifier
+                                    .padding(16.dp)
                             ) {
-                                // Thiết bị được chia sẻ
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp)
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Thiết bị được chia sẻ",
-                                            color = colorScheme.onBackground,
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        TextButton(
-                                            onClick = { /* TODO: Navigate to all devices */ },
-                                            colors = ButtonDefaults.textButtonColors(
-                                                contentColor = Color.Blue
-                                            )
-                                        ) {
-                                            Text(text = "Xem tất cả")
-                                        }
-                                    }
-
-                                    LazyRow(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        items(4) { index ->
-                                            val device = when (index) {
-                                                0 -> SharedWithResponse(
-                                                    PermissionID = 1,
-                                                    DeviceID = 101,
-                                                    SharedWithUserID = 1,
-                                                    CreatedAt = "2025-05-23",
-                                                    Device = DeviceShare(
-                                                        DeviceID = 101,
-                                                        Name = "Đèn phòng khách",
-                                                        TypeID = 2
-                                                    )
-                                                )
-                                                1 -> SharedWithResponse(
-                                                    PermissionID = 2,
-                                                    DeviceID = 102,
-                                                    SharedWithUserID = 1,
-                                                    CreatedAt = "2025-05-23",
-                                                    Device = DeviceShare(
-                                                        DeviceID = 102,
-                                                        Name = "Cảm biến khói",
-                                                        TypeID = 1
-                                                    )
-                                                )
-                                                2 -> SharedWithResponse(
-                                                    PermissionID = 3,
-                                                    DeviceID = 103,
-                                                    SharedWithUserID = 1,
-                                                    CreatedAt = "2025-05-23",
-                                                    Device = DeviceShare(
-                                                        DeviceID = 103,
-                                                        Name = "Đèn ngủ",
-                                                        TypeID = 2
-                                                    )
-                                                )
-                                                else -> SharedWithResponse(
-                                                    PermissionID = 4,
-                                                    DeviceID = 104,
-                                                    SharedWithUserID = 1,
-                                                    CreatedAt = "2025-05-23",
-                                                    Device = DeviceShare(
-                                                        DeviceID = 104,
-                                                        Name = "Cửa thông minh",
-                                                        TypeID = 3
-                                                    )
-                                                )
-                                            }
-
-                                            DeviceCard(
-                                                device = device,
-                                                navigator = navController,
-                                                deviceName = device.Device.Name,
-                                                deviceType = when (device.Device.TypeID) {
-                                                    1 -> "Báo cháy"
-                                                    2 -> "Đèn led"
-                                                    3 -> "Cửa thông minh"
-                                                    else -> "Không xác định"
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
+                                SlideShowBanner(listSlideShow = dummyList)
                             }
                         }
+                    }
+                    item {
+                        InvertedCornerHeader(
+                            backgroundColor = colorScheme.surface,
+                            overlayColor = colorScheme.primary
+                        ) {}
+                    }
+                    item {
+                        FeatureButtonRow(items = featureButtons, modifier = Modifier.padding(vertical = 8.dp))
+                    }
+                    item {
+                        DeviceStatCardCarousel(items = deviceStats)
+                    }
+                    item {
+                        FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
                     }
                 )
             }
@@ -267,9 +187,9 @@ fun HomeScreen(
     }
 }
 
-@Preview(showBackground = true, device = Devices.PIXEL_4)
+
+@Preview
 @Composable
 fun HomeScreenPreview() {
-    val navController = rememberNavController()
-    HomeScreen(navController)
+    HomeScreen(navController = rememberNavController())
 }

@@ -68,23 +68,22 @@ fun ActionButtonWithFeedback(
     isLoadingFromParent: Boolean = false
 ) {
     IoTHomeConnectAppTheme {
-        var isButtonLoading by remember { mutableStateOf(false) }
+        var isLoading by remember { mutableStateOf(false) }
+        var successMsg by remember { mutableStateOf<String?>(null) }
+        var errorMsg   by remember { mutableStateOf<String?>(null) }
+        val scope = rememberCoroutineScope()
 
-        // cập nhật khi cha thay đổi
-        LaunchedEffect(isLoadingFromParent) { isButtonLoading = isLoadingFromParent }
+        // nếu cha ép loading
+        LaunchedEffect(isLoadingFromParent) { isLoading = isLoadingFromParent }
 
-        var showLoadingIndicator = isButtonLoading
-
-        var successMessage by remember { mutableStateOf<String?>(null) }
-        var errorMessage by remember { mutableStateOf<String?>(null) }
-        val coroutineScope = rememberCoroutineScope()
-
-        val (containerColor, contentColor, border) = when (style) {
-            HCButtonStyle.PRIMARY -> Triple(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, null)
-            HCButtonStyle.SECONDARY -> Triple(MaterialTheme.colorScheme.onError, MaterialTheme.colorScheme.error, BorderStroke(2.dp, MaterialTheme.colorScheme.error))
-            HCButtonStyle.DISABLED -> Triple(Color(0xFFE0E0E0), Color(0xFF9E9E9E), null)
+        /* ---------- màu sắc ---------- */
+        val cs = MaterialTheme.colorScheme
+        val (bg, fg, border) = when (style) {
+            HCButtonStyle.PRIMARY   -> Triple(cs.primary, cs.onPrimary, null)
+            HCButtonStyle.SECONDARY -> Triple(cs.onPrimary, cs.primary, BorderStroke(2.dp, cs.primary))
+            HCButtonStyle.DISABLED  -> Triple(Color(0xFFE0E0E0), Color(0xFF9E9E9E), null)
         }
-        val enabled = style != HCButtonStyle.DISABLED && !showLoadingIndicator
+        val enabled = style != HCButtonStyle.DISABLED && !isLoading
 
         Box(
             modifier = modifier.then(
@@ -97,13 +96,14 @@ fun ActionButtonWithFeedback(
             /* ---------- Nút chính ---------- */
             Button(
                 onClick = {
-                    coroutineScope.launch {
-                        showLoadingIndicator = true
-                        successMessage = null
-                        errorMessage = null
+                    scope.launch {
+                        isLoading = true
+
+                        delay(500)
+
                         onAction(
-                            { message -> successMessage = message; showLoadingIndicator = false; onSuccess() },
-                            { error -> errorMessage = error; showLoadingIndicator = false }
+                            { msg -> isLoading = false; successMsg = msg },
+                            { msg -> isLoading = false; errorMsg   = msg }
                         )
                     }
                 },
@@ -111,53 +111,47 @@ fun ActionButtonWithFeedback(
                 shape = shape,
                 border = border,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = containerColor,
-                    contentColor = contentColor,
-                    disabledContainerColor = containerColor,
-                    disabledContentColor = contentColor
+                    containerColor = bg,
+                    contentColor   = fg,
+                    disabledContainerColor = bg,
+                    disabledContentColor   = fg
                 ),
                 modifier = Modifier
                     .height(height)
                     .fillMaxWidth()
             ) {
-                if (showLoadingIndicator) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = contentColor,
-                            strokeWidth = 2.dp,
-                            modifier = Modifier
-                                .size(20.dp)
-                        )
-                        Spacer(modifier= Modifier.width(8.dp))
-                        Text("Đang xử lý…", fontSize = textSize, fontWeight = FontWeight.Medium)
-                    }
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = fg,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Đang xử lý…", fontSize = textSize, fontWeight = FontWeight.Medium)
                 } else {
                     Text(label, fontSize = textSize, fontWeight = FontWeight.Medium)
                 }
             }
 
             /* ---------- Dialog thành công ---------- */
-            successMessage?.let { message ->
+            successMsg?.let { msg ->
                 ConfirmationDialog(
                     title       = successDialogTitle,
-                    message     = message,
-                    onConfirm   = { successMessage = null; onSuccess(); isButtonLoading = false},
-                    onDismiss   = { successMessage = null },
+                    message     = msg,
+                    onConfirm   = { successMsg = null; onSuccess() },
+                    onDismiss   = { successMsg = null },
                     confirmText = "OK",
                     dismissText = ""
                 )
             }
 
             /* ---------- Dialog lỗi ---------- */
-            errorMessage?.let { error ->
+            errorMsg?.let { msg ->
                 ConfirmationDialog(
                     title       = errorDialogTitle,
-                    message     = error,
-                    onConfirm   = { successMessage = null; onSuccess(); isButtonLoading = false},
-                    onDismiss   = { successMessage = null },
+                    message     = msg,
+                    onConfirm   = { errorMsg = null },
+                    onDismiss   = { errorMsg = null },
                     confirmText = "OK",
                     dismissText = ""
                 )

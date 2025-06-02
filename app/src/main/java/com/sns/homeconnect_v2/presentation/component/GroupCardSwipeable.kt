@@ -23,6 +23,26 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.GroupUi
 
+/**
+ * Một hàm Composable hiển thị thẻ nhóm với các hành động có thể vuốt.
+ *
+ * Thẻ này hiển thị tên nhóm, số lượng thành viên và một biểu tượng. Nó có thể được vuốt
+ * để hiển thị các hành động như chỉnh sửa và xóa.
+ *
+ * @param groupName Tên của nhóm.
+ * @param memberCount Số lượng thành viên trong nhóm.
+ * @param icon Biểu tượng hiển thị cho nhóm. Mặc định là `Icons.Default.Group`.
+ * @param iconColor Màu của biểu tượng nhóm. Mặc định là `MaterialTheme.colorScheme.primary`.
+ * @param isRevealed Một giá trị boolean cho biết liệu các hành động vuốt hiện có đang được hiển thị hay không.
+ * @param onExpandOnly Một hàm lambda sẽ được gọi khi mục được vuốt để hiển thị các hành động.
+ *                     Thường được sử dụng để đảm bảo chỉ có một mục được mở rộng tại một thời điểm.
+ * @param onCollapse Một hàm lambda sẽ được gọi khi các hành động đã hiển thị được vuốt lại để ẩn đi.
+ * @param onDelete Một hàm lambda sẽ được gọi khi hành động xóa được nhấp.
+ * @param onEdit Một hàm lambda sẽ được gọi khi hành động chỉnh sửa được nhấp.
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 26-05-2025
+ */
 @Composable
 fun GroupCardSwipeable(
     groupName: String,
@@ -40,6 +60,7 @@ fun GroupCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
+            Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),

@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.sp
  * Trường này thường được sử dụng để thu thập thông tin chi tiết về một sự kiện hoặc hoàn cảnh cụ thể.
  * Nó có văn bản giữ chỗ (placeholder), các góc bo tròn và kiểu dáng cụ thể cho trạng thái khi được chọn (focused) và không được chọn (unfocused).
  *
+ * Trường văn bản sẽ có chiều cao tối thiểu là 2 dòng và chiều cao tối đa là 5 dòng.
+ * Nếu nội dung vượt quá 5 dòng, trường sẽ trở nên có thể cuộn được.
+ *
  * @param value Giá trị văn bản hiện tại của trường.
  * @param onValueChange Một hàm callback được gọi khi giá trị văn bản thay đổi.
  * Nó nhận giá trị văn bản mới dưới dạng một String.
@@ -36,6 +39,10 @@ import androidx.compose.ui.unit.sp
  *
  * @author Nguyễn Thanh Sang
  * @since 20-05-2025
+ * @see <a href="https://www.figma.com/file/your_figma_link_here">Thiết kế trên Figma</a>
+ * @see <a href="https://your_jira_ticket_link_here">Yêu cầu trên Jira</a>
+ * @updatedBy Nguyễn Thanh Sang
+ * @updatedDate 26-05-2025
  */
 
 @Composable
@@ -48,20 +55,22 @@ fun SituationDescriptionField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(
-            placeholder,
-            fontSize = 24.sp           // <— cỡ placeholder
-        ) },
-        modifier = modifier
-            .fillMaxWidth()
-            .height(120.dp),
+        placeholder = {
+            Text(
+                placeholder,
+                fontSize = 24.sp,
+                lineHeight = 36.sp
+            )
+        },
+        modifier = modifier.fillMaxWidth(),   // KHÔNG set .height()
         shape = RoundedCornerShape(12.dp),
-        maxLines = 5,
-        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 24.sp),
+        minLines = 2,    // option: luôn cao ít nhất 2 dòng
+        maxLines = 5,    // tối đa 5 dòng, sau đó sẽ scroll
+        textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 24.sp, lineHeight = 36.sp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor        = Color.Gray,
-            unfocusedBorderColor      = Color.LightGray,
-            focusedPlaceholderColor   = Color.Gray,
+            focusedBorderColor = Color.Gray,
+            unfocusedBorderColor = Color.LightGray,
+            focusedPlaceholderColor = Color.Gray,
             unfocusedPlaceholderColor = Color.Gray
         )
     )

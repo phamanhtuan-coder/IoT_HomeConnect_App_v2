@@ -30,9 +30,9 @@ object ValidationRules {
      * @return `true` nếu định dạng hợp lệ, `false` nếu không.
      */
     fun isValidEmailFormat(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        val regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+(\\.[A-Za-z]{2,})+$"
+        return email.matches(regex.toRegex()) && !email.endsWith(".")
     }
-
     /**
      * Kiểm tra xem mật khẩu có chứa ít nhất một ký tự đặc biệt không.
      * Ký tự đặc biệt được định nghĩa trong `PASSWORD_SPECIAL_CHARS`.

@@ -1,17 +1,16 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
-import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 sealed class LoginUiState {
@@ -45,6 +44,22 @@ class LoginViewModel @Inject constructor(
                     _loginState.value = LoginUiState.Error(e.message ?: "Đăng nhập thất bại!")
                 }
             )
+        }
+    }
+
+    suspend fun quickLogin(email: String, password: String): Result<String> {
+        // 1. Gọi use-case đăng nhập
+        val loginResult = loginUseCase(email, password)
+
+        // 2. Nếu thành công → gửi FCM rồi trả tiếp Result
+        return loginResult.mapCatching { token ->
+            // gửi FCM, bỏ qua lỗi (không ảnh hưởng đăng nhập)
+            runCatching {
+                val fcm = FirebaseMessaging
+                    .getInstance().token.await()
+                sendFcmTokenUseCase(fcm)
+            }
+            token
         }
     }
 

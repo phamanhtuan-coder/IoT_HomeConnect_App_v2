@@ -35,7 +35,7 @@ fun NavigationGraph(navController: NavHostController) {
 
         // Login screen
         composable(Screens.Login.route) {
-//            LoginScreen(navController)
+            LoginScreen(navController)
         }
 
         // Recover password screen

@@ -72,6 +72,23 @@ class OTPViewModel @Inject constructor(
         }
     }
 
+    suspend fun verifyOTPAndReturnResult(email: String, otp: String): Result<Boolean> {
+        return try {
+            val result = verifyOtpUseCase(email, otp)
+            result.fold(
+                onSuccess = { response ->
+                    if (response.success) Result.success(true)
+                    else Result.failure(Exception(response.message.ifEmpty { "Mã OTP không đúng hoặc đã hết hạn!" }))
+                },
+                onFailure = { e ->
+                    Result.failure(Exception(e.message ?: "OTP verification failed"))
+                }
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
     fun confirmEmail(email: String) {
         // Reset state

@@ -181,7 +181,7 @@ fun HomeScreen(
                     item {
                         FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
                     }
-                )
+                }
             }
         )
     }

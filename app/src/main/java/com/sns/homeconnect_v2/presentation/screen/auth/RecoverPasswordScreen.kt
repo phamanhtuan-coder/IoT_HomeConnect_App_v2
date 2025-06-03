@@ -117,14 +117,13 @@ fun RecoverPasswordScreen(
             )
 
             // TODO: Re-enable when API is ready
-            /*
+
             when (recoverPasswordState) {
                 is RecoverPasswordState.Success -> {
                     LaunchedEffect(Unit) {
-//                        navController.navigate(
-//                            Screens.OTP.createRoute("reset_password", uiModel.email)
-//                        )
-                        navController.navigate(Screens.NewPassword.route)
+                        navController.navigate(
+                            Screens.OTP.createRoute("reset_password", uiModel.email)
+                        )
                     }
                 }
                 is RecoverPasswordState.Error -> {
@@ -141,7 +140,6 @@ fun RecoverPasswordScreen(
                     // Do nothing
                 }
             }
-            */
 
             if (uiModel.errorMessage.isNotBlank()) {
                 Text(

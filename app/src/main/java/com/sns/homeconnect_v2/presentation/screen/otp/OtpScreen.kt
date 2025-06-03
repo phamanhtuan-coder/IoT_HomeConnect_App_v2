@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPState
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.VerifyEmailState
@@ -38,7 +40,7 @@ fun OtpScreen(
     val verifyEmailState by viewModel.verifyEmailState.collectAsState()
 
     // TODO: Re-enable API call when new API is ready
-    /*
+
     LaunchedEffect(Unit) {
         viewModel.sendOTP(email)
     }
@@ -49,7 +51,6 @@ fun OtpScreen(
             verifyEmailState is VerifyEmailState.Success -> onVerificationSuccess()
         }
     }
-    */
 
     // Mock successful OTP for demo
     val mockSuccessMessage = "Mã OTP đã được gửi tới Email của bạn."
@@ -142,6 +143,7 @@ fun OtpScreen(
                     onClick = {
                         otpValue.forEachIndexed { index, _ -> otpValue[index] = "" }
                         focusRequesters[0].requestFocus()
+                        viewModel.sendOTP(email)
                     }
                 ) {
                     Text(
@@ -155,25 +157,35 @@ fun OtpScreen(
                     focusRequesters[0].requestFocus()
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Button(
-                    onClick = {
+                ActionButtonWithFeedback(
+                    label = "Xác nhận",
+                    style = HCButtonStyle.PRIMARY,
+                    onSuccess = {  // Chỉ gọi khi user bấm OK ở dialog thành công
                         onVerificationSuccess()
                     },
-                    modifier = Modifier.size(
-                        width = if (isTablet) 300.dp else 200.dp,
-                        height = if (isTablet) 56.dp else 48.dp
-                    ),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(
-                        text = "Xác nhận",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorScheme.onPrimary
-                    )
+                    onAction = { ok, err ->
+                        val otp = otpValue.joinToString("")
+                        if (otp.length != otpLength) {
+                            err("Vui lòng nhập đủ $otpLength ký tự OTP!")
+                            return@ActionButtonWithFeedback
+                        }
+                        // Gọi suspend fun kiểm tra OTP
+                        val result = viewModel.verifyOTPAndReturnResult(email, otp)
+                        result.fold(
+                            onSuccess = {
+                                ok("Xác thực OTP thành công!")
+                            },
+                            onFailure = { e ->
+                                err(e.message ?: "Mã OTP không đúng hoặc đã hết hạn!")
+                            }
+                        )
+                    }
+                )
+
+                LaunchedEffect(verifyOTPState) {
+                    if (verifyOTPState is OTPState.Success && (verifyOTPState as OTPState.Success).success) {
+                        onVerificationSuccess()
+                    }
                 }
             }
         }

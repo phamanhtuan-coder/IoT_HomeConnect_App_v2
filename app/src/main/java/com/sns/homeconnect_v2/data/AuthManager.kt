@@ -6,22 +6,18 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.core.content.edit
 
-@Singleton
 class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    fun getJwtToken(): String {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        return sharedPrefs.getString("JWT_TOKEN", "") ?: ""
-    }
+    private val prefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
 
-    fun saveJwtToken(token: String) {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        sharedPrefs.edit { putString("JWT_TOKEN", token) }
-    }
+    fun getJwtToken(): String = prefs.getString("JWT_TOKEN", "") ?: ""
+    fun saveJwtToken(token: String) = prefs.edit().putString("JWT_TOKEN", token).apply()
+    fun clearJwtToken() = prefs.edit().remove("JWT_TOKEN").apply()
 
-    fun clearJwtToken() {
-        val sharedPrefs = context.getSharedPreferences("MY_APP_PREFS", Context.MODE_PRIVATE)
-        sharedPrefs.edit { remove("JWT_TOKEN") }
-    }
+    fun getRefreshToken(): String = prefs.getString("JWT_TOKEN_REFRESH", "") ?: ""
+    fun saveRefreshToken(token: String) = prefs.edit().putString("JWT_TOKEN_REFRESH", token).apply()
+
+    fun getDeviceUuid(): String = prefs.getString("JWT_TOKEN_DEVICE_UUID", "") ?: ""
+    fun saveDeviceUuid(uuid: String) = prefs.edit().putString("JWT_TOKEN_DEVICE_UUID", uuid).apply()
 }

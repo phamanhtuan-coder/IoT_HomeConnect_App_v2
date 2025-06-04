@@ -31,7 +31,6 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPState
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun OtpScreen(
@@ -41,9 +40,9 @@ fun OtpScreen(
     description: String = "Vui lòng nhập mã OTP vừa được gửi tới Email",
     viewModel: OTPViewModel = hiltViewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    var sendOTPState by remember { mutableStateOf<OTPState?>(null) }
-    var verifyOTPState by remember { mutableStateOf<OTPState?>(null) }
+//    val coroutineScope = rememberCoroutineScope()
+//    var sendOTPState by remember { mutableStateOf<OTPState?>(null) }
+//    var verifyOTPState by remember { mutableStateOf<OTPState?>(null) }
 
     // Send OTP when screen launches
     LaunchedEffect(Unit) {

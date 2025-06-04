@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
-import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,17 +30,17 @@ sealed class VerifyEmailState {
 class OTPViewModel @Inject constructor(
     private val sendOtpUseCase: SendOtpUseCase,
     private val verifyOtpUseCase: VerifyOtpUseCase,
-    private val confirmEmailUseCase: ConfirmEmailUseCase
+//    private val confirmEmailUseCase: ConfirmEmailUseCase
 ) : ViewModel() {
 
     private val _sendOtpState = MutableStateFlow<OTPState>(OTPState.Idle)
     val sendOtpState = _sendOtpState.asStateFlow()
 
-    private val _verifyOtpState = MutableStateFlow<OTPState>(OTPState.Idle)
-    val verifyOtpState = _verifyOtpState.asStateFlow()
+//    private val _verifyOtpState = MutableStateFlow<OTPState>(OTPState.Idle)
+//    val verifyOtpState = _verifyOtpState.asStateFlow()
 
-    private val _verifyEmailState = MutableStateFlow<VerifyEmailState>(VerifyEmailState.Idle)
-    val verifyEmailState = _verifyEmailState.asStateFlow()
+//    private val _verifyEmailState = MutableStateFlow<VerifyEmailState>(VerifyEmailState.Idle)
+//    val verifyEmailState = _verifyEmailState.asStateFlow()
 
     fun sendOTP(email: String) {
         _sendOtpState.value = OTPState.Loading
@@ -58,19 +56,19 @@ class OTPViewModel @Inject constructor(
         }
     }
 
-    fun verifyOTP(email: String, otp: String) {
-        _verifyOtpState.value = OTPState.Loading
-        viewModelScope.launch {
-            verifyOtpUseCase(email, otp).fold(
-                onSuccess = { response ->
-                    _verifyOtpState.value = OTPState.Success(response.message)
-                },
-                onFailure = { e ->
-                    _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
-                }
-            )
-        }
-    }
+//    fun verifyOTP(email: String, otp: String) {
+//        _verifyOtpState.value = OTPState.Loading
+//        viewModelScope.launch {
+//            verifyOtpUseCase(email, otp).fold(
+//                onSuccess = { response ->
+//                    _verifyOtpState.value = OTPState.Success(response.message)
+//                },
+//                onFailure = { e ->
+//                    _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
+//                }
+//            )
+//        }
+//    }
 
     suspend fun verifyOTPAndReturnResult(email: String, otp: String): Result<Boolean> {
         return try {
@@ -98,20 +96,20 @@ class OTPViewModel @Inject constructor(
         }
     }
 
-    fun confirmEmail(email: String) {
-        // Reset state
-        _verifyEmailState.value = VerifyEmailState.Loading
-        viewModelScope.launch {
-           confirmEmailUseCase(email).fold(
-                onSuccess = { response ->
-                    Log.d("OTPViewModel", "Success: ${response.message}")
-                    _verifyEmailState.value = VerifyEmailState.Success(response)
-                },
-                onFailure = { e ->
-                    Log.e("OTPViewModel", "Error: ${e.message}")
-                    _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email confirmation failed")
-                }
-            )
-        }
-    }
+//    fun confirmEmail(email: String) {
+//        // Reset state
+//        _verifyEmailState.value = VerifyEmailState.Loading
+//        viewModelScope.launch {
+//           confirmEmailUseCase(email).fold(
+//                onSuccess = { response ->
+//                    Log.d("OTPViewModel", "Success: ${response.message}")
+//                    _verifyEmailState.value = VerifyEmailState.Success(response)
+//                },
+//                onFailure = { e ->
+//                    Log.e("OTPViewModel", "Error: ${e.message}")
+//                    _verifyEmailState.value = VerifyEmailState.Error(e.message ?: "Email confirmation failed")
+//                }
+//            )
+//        }
+//    }
 }

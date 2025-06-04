@@ -96,7 +96,11 @@ import java.util.TimeZone
 import com.sns.homeconnect_v2.core.util.processing.ImageProcessing
 import com.sns.homeconnect_v2.data.remote.dto.request.UserRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
+import com.sns.homeconnect_v2.presentation.component.DatePickerTextField
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.InfoProfileState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.PutInfoProfileState
@@ -121,7 +125,7 @@ fun ProfileScreen(
     val context = LocalContext.current
     val isTablet = isTablet(context)
     val nameState = remember { mutableStateOf("Nguyễn Thanh Sang") }
-    val phoneState = remember { mutableStateOf("0123456789") }
+    val phoneState = remember { mutableStateOf("0993456789") }
     val locationState = remember { mutableStateOf("TP. Hồ Chí Minh") }
     val emailState = remember { mutableStateOf("example@gmail.com") }
     var selectedDate by remember { mutableStateOf("01/01/2004") }
@@ -168,7 +172,6 @@ fun ProfileScreen(
     val infoProfileState by profileViewModel.infoProfileState.collectAsState()
 
     // TODO: Re-enable API call when new API is ready
-    /*
     when (infoProfileState) {
         is InfoProfileState.Error -> {
             Log.d("Error Profile", (infoProfileState as InfoProfileState.Error).error)
@@ -187,7 +190,6 @@ fun ProfileScreen(
     LaunchedEffect(1) {
         profileViewModel.getInfoProfile()
     }
-    */
 
     // Mock data for demo
     LaunchedEffect(1) {
@@ -674,100 +676,34 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    OutlinedTextField(
+                    StyledTextField(
                         value = nameState.value,
                         onValueChange = {
                             nameState.value = it
                             nameErrorState.value = ValidationUtils.validateFullName(it)
                         },
-                        placeholder = { Text("Họ và tên") },
-                        shape = RoundedCornerShape(25),
-                        singleLine = true,
-                        modifier = Modifier
-                            .width(if (isTablet) 500.dp else 400.dp)
-                            .height(if (isTablet) 80.dp else 70.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorScheme.onBackground,  // Màu text khi TextField được focus
-                            unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),  // Màu text khi TextField không được focus
-                            focusedContainerColor = colorScheme.onPrimary,
-                            unfocusedContainerColor = colorScheme.onPrimary,
-                            focusedIndicatorColor = colorScheme.primary,
-                            unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.Person,
-                                contentDescription = null
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
+                        placeholderText = "Họ và tên",
+                        leadingIcon = Icons.Filled.Person
                     )
 
-                    OutlinedTextField(
+                    StyledTextField(
                         value = phoneState.value,
                         onValueChange = {
                             phoneState.value = it
                             phoneErrorState.value = ValidationUtils.validatePhoneNumber(it)
                         },
-                        placeholder = { Text("Số điện thoại") },
-                        shape = RoundedCornerShape(25),
-                        singleLine = true,
-                        modifier = Modifier
-                            .width(if (isTablet) 500.dp else 400.dp)
-                            .height(if (isTablet) 80.dp else 70.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorScheme.onBackground,  // Màu text khi TextField được focus
-                            unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),  // Màu text khi TextField không được focus
-                            focusedContainerColor = colorScheme.onPrimary,
-                            unfocusedContainerColor = colorScheme.onPrimary,
-                            focusedIndicatorColor = colorScheme.primary,
-                            unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.PhoneAndroid,
-                                contentDescription = null
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Phone,
-                            imeAction = ImeAction.Next
-                        ),
+                        placeholderText = "Số điện thoại",
+                        leadingIcon = Icons.Filled.PhoneAndroid,
                     )
 
-                    OutlinedTextField(
+                    StyledTextField(
                         value = locationState.value,
                         onValueChange = {
                             locationState.value = it
                             locationErrorState.value = ValidationUtils.validateAddress(it)
                         },
-                        placeholder = { Text("Nơi sống hiện tại") },
-                        shape = RoundedCornerShape(25),
-                        singleLine = true,
-                        modifier = Modifier
-                            .width(if (isTablet) 500.dp else 400.dp)
-                            .height(if (isTablet) 80.dp else 70.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorScheme.onBackground,  // Màu text khi TextField được focus
-                            unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),  // Màu text khi TextField không được focus
-                            focusedContainerColor = colorScheme.onPrimary,
-                            unfocusedContainerColor = colorScheme.onPrimary,
-                            focusedIndicatorColor = colorScheme.primary,
-                            unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.AddLocation,
-                                contentDescription = null
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
+                        placeholderText = "Số điện thoại",
+                        leadingIcon = Icons.Filled.AddLocation,
                     )
 
                     OutlinedTextField(
@@ -821,88 +757,33 @@ fun ProfileScreen(
                         ),
                     )
 
+                    DatePickerTextField(
+                        label = "Ngày sinh (dd/MM/yyyy)",
+                        value = dateCreated.value,
+                        onValueChange = {
 
-                    // Trường ngày sinh
-                    OutlinedTextField(
-                        value = dateCreated.value, // Chỗ này bị bug chưa load được ngày từ biến
-                        onValueChange = { /* Không cần xử lý vì đây là trường chỉ đọc */ },
-                        placeholder = { Text("Ngày sinh (dd/MM/yyyy)") },
-                        shape = RoundedCornerShape(25),
-                        singleLine = true,
-                        readOnly = true,
-                        trailingIcon = {
-                            // Nút chọn ngày
-                            IconButton(onClick = { showDatePicker = !showDatePicker }) {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Chọn ngày"
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .width(if (isTablet) 500.dp else 400.dp)
-                            .height(if (isTablet) 80.dp else 70.dp),
-                        colors = TextFieldDefaults.colors(
-                            focusedTextColor = colorScheme.onBackground,  // Màu text khi TextField được focus
-                            unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),  // Màu text khi TextField không được focus
-                            focusedContainerColor = colorScheme.onPrimary,
-                            unfocusedContainerColor = colorScheme.onPrimary,
-                            focusedIndicatorColor = colorScheme.primary,
-                            unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                        ),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Filled.DateRange,
-                                contentDescription = null
-                            )
-                        },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        )
+                        }
                     )
 
-                    Log.e("dateCreated.value 5", dateCreated.value.toString())
-
-                    if (showDatePicker) {
-                        Popup(
-                            onDismissRequest = { showDatePicker = false },
-                            alignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .offset(y = 64.dp)
-                                    .shadow(elevation = 4.dp)
-                                    .background(colorScheme.background)
-                                    .padding(16.dp)
-                            ) {
-                                DatePicker(
-                                    state = datePickerState,
-                                    showModeToggle = false
-                                )
-                            }
-                        }
-                    }
-
                     //Nếu thay đổi ngày thì update
-                    LaunchedEffect(datePickerState.selectedDateMillis) {
-                        datePickerState.selectedDateMillis?.let { millis ->
-                            try {
-                                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                selectedDate =
-                                    formatter.format(Date(millis)) // Hiển thị theo định dạng
-                                dateCreated.value = selectedDate // Cập nhật giá trị trường nhập
-                                Log.e("SelectedDate", "Ngày chọn: $selectedDate")
-                            } catch (e: Exception) {
-                                Log.e("DatePickerError", "Lỗi xử lý ngày chọn: ${e.message}")
-                            }
-                        }
-                    }
+//                    LaunchedEffect(datePickerState.selectedDateMillis) {
+//                        datePickerState.selectedDateMillis?.let { millis ->
+//                            try {
+//                                val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+//                                selectedDate =
+//                                    formatter.format(Date(millis)) // Hiển thị theo định dạng
+//                                dateCreated.value = selectedDate // Cập nhật giá trị trường nhập
+//                                Log.e("SelectedDate", "Ngày chọn: $selectedDate")
+//                            } catch (e: Exception) {
+//                                Log.e("DatePickerError", "Lỗi xử lý ngày chọn: ${e.message}")
+//                            }
+//                        }
+//                    }
 
-                    // Save Button
-                    Button(
-                        onClick = {
+                    ActionButtonWithFeedback(
+                        label =  "Lưu thông tin",
+                        style = HCButtonStyle.PRIMARY,
+                        onAction = { _, _ ->
                             try {
                                 val inputFormat =
                                     SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -930,20 +811,8 @@ fun ProfileScreen(
                             } catch (e: Exception) {
                                 Log.e("SaveError", "Lỗi lưu thông tin: ${e.message}")
                             }
-                        },
-                        modifier = Modifier
-                            .width(if (isTablet) 300.dp else 200.dp)
-                            .height(if (isTablet) 56.dp else 48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        Text(
-                            "Lưu thông tin",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = colorScheme.onPrimary
-                        )
-                    }
+                        }
+                    )
                 }
             }
         }

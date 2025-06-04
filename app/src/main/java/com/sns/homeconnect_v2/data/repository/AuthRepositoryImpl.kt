@@ -19,12 +19,30 @@ class AuthRepositoryImpl @Inject constructor(
     private val context: Context
 ) : AuthRepository {
 
-    override suspend fun login(email: String, password: String): LoginResponse {
-        val request = LoginRequest(
-            Email = email,
-            PasswordHash = password
+    override suspend fun login(username: String, password: String): LoginResponse {
+        val deviceId = android.provider.Settings.Secure.getString(
+            context.contentResolver,
+            android.provider.Settings.Secure.ANDROID_ID
         )
-        return apiService.login(request)
+        val deviceUuid = authManager.getDeviceUuid()
+
+        val request = LoginRequest(
+            username = username,
+            password = password,
+            rememberMe = true,
+            deviceName = "Android_${android.os.Build.MODEL}",
+            deviceId = deviceId,
+            deviceUuid = deviceUuid
+        )
+
+        val response = apiService.login(request)
+
+        // Lưu token và deviceUuid
+        authManager.saveJwtToken(response.accessToken)
+        authManager.saveRefreshToken(response.refreshToken)
+        authManager.saveDeviceUuid(response.deviceUuid)
+
+        return response
     }
 
     override suspend fun logout() {

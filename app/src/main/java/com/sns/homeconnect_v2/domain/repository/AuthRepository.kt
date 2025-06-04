@@ -8,7 +8,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.User
 
 
 interface AuthRepository {
-    suspend fun login(email: String, password: String): LoginResponse
+    suspend fun login(username: String, password: String): LoginResponse
     suspend fun logout()
     suspend fun register(user: RegisterRequest): RegisterResponse
     suspend fun getInfoProfile(): User

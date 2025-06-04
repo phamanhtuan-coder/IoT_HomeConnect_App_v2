@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -22,18 +23,37 @@ import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupState
+import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupViewModel
 
 @Composable
-fun CreateGroupScreen(navController: NavHostController) {
+fun CreateGroupScreen(
+    navController: NavHostController,
+    viewModel: CreateGroupViewModel = hiltViewModel()
+) {
+    val createGroupState by viewModel.createGroupState.collectAsState()
+
+    when (createGroupState) {
+        is CreateGroupState.Success -> {
+            LaunchedEffect(Unit) {
+                navController.navigate("home") {
+                    popUpTo("create_group") { inclusive = true }
+                }
+            }
+        }
+
+        is CreateGroupState.Error -> {
+            // Bạn có thể show lỗi UI hoặc snackbar
+        }
+
+        else -> Unit
+    }
+
     var groupName by remember { mutableStateOf("") }
     var groupDesc by remember { mutableStateOf("") }
-    val scope = rememberCoroutineScope()
 
     // ---------------- icon + color state ----------------
     var selectedLabel by remember { mutableStateOf("Nhà") }
-
     val iconOptions = listOf(
         Icons.Default.Home      to "Nhà",
         Icons.Default.Work      to "Cơ quan",
@@ -46,7 +66,6 @@ fun CreateGroupScreen(navController: NavHostController) {
         Icons.Default.Castle        to "Lâu đài",
         Icons.Default.LocalLibrary  to "Thư viện"
     )
-
     var selectedColor by remember { mutableStateOf("blue") }
 
     val colorOptions = listOf(
@@ -185,19 +204,37 @@ fun CreateGroupScreen(navController: NavHostController) {
 
                 // ---------- button ----------
                 item {
-                    ActionButtonWithFeedback(
-                        label = "Hoàn tất",
-                        style = HCButtonStyle.PRIMARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    ActionButtonWithFeedback(
-                        label = "Huỷ bỏ",
-                        style = HCButtonStyle.SECONDARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
+                    Row {
+                        ActionButtonWithFeedback(
+                            label = "Huỷ bỏ",
+                            style = HCButtonStyle.SECONDARY,
+                            onAction = { onS, _ ->
+                                navController.popBackStack()
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp, start = 16.dp)
+                        )
+                        ActionButtonWithFeedback(
+                            label = "Tạo nhóm",
+                            style = HCButtonStyle.PRIMARY,
+                            onAction = { ok, err ->
+                                viewModel.createGroup(
+                                    groupName = groupName,
+                                    onSuccess = { msg -> ok(msg) },
+                                    onError = { msg -> err(msg) }
+                                )
+                            },
+                            onSuccess = {
+                                navController.navigate("home") {
+                                    popUpTo("create_group") { inclusive = true }
+                                }
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 16.dp, start = 8.dp)
+                        )
+                    }
                 }
             }
         }

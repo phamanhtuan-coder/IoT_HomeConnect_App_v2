@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.remote.api
 
+import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
@@ -20,6 +21,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
@@ -223,6 +225,12 @@ interface ApiService {
         @Body request: CreateGroupRequest,
         @Header("Authorization") token: String
     ): CreateGroupResponse
+
+    @GET("groups/my-groups")
+    suspend fun getMyGroups(
+        @Header("Authorization") token: String
+    ): ApiResponse<List<GroupResponse>>
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

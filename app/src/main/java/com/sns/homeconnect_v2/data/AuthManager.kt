@@ -3,8 +3,6 @@ package com.sns.homeconnect_v2.data
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import javax.inject.Singleton
-import androidx.core.content.edit
 
 class AuthManager @Inject constructor(
     @ApplicationContext private val context: Context

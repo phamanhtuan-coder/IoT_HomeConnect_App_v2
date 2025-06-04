@@ -25,7 +25,6 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeed
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginViewModel
 
 @Composable

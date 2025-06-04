@@ -33,7 +33,6 @@ import com.sns.homeconnect_v2.presentation.component.FeatureButtonRow
 import com.sns.homeconnect_v2.presentation.component.FeatureButtonSection
 import com.sns.homeconnect_v2.presentation.component.SlideShowBanner
 import com.sns.homeconnect_v2.presentation.component.navigation.DrawerWithContent
-import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader

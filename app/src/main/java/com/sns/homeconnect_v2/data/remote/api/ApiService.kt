@@ -62,12 +62,12 @@ interface ApiService {
         @Body request: EmailRequest
     ): EmailResponse
 
-    @POST("/api/notifications/otp")
+    @POST("notifications/otp")
     suspend fun sendOTP(
         @Body request: EmailRequest
     ): EmailResponse
 
-    @POST("/api/notifications/otp/verify")
+    @POST("notifications/otp/verify")
     suspend fun verifyOTP(
         @Body request: EmailRequest
     ): EmailResponse

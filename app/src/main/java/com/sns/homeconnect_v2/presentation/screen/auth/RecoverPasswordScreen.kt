@@ -111,8 +111,16 @@ fun RecoverPasswordScreen(
             ActionButtonWithFeedback(
                 label = "Khôi phục mật khẩu",
                 style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
-                onAction = { _, _ ->
-                    viewModel.checkEmail()
+                onAction = { ok, err ->
+                    if (!uiModel.isValid()) {
+                        err("Email không hợp lệ!")
+                        return@ActionButtonWithFeedback
+                    }
+                    // Navigate directly to OTP screen
+                    navController.navigate(
+                        Screens.OTP.createRoute("reset_password", uiModel.email)
+                    )
+                    ok("Đang chuyển đến trang xác thực OTP")
                 }
             )
 
@@ -121,9 +129,7 @@ fun RecoverPasswordScreen(
             when (recoverPasswordState) {
                 is RecoverPasswordState.Success -> {
                     LaunchedEffect(Unit) {
-                        navController.navigate(
-                            Screens.OTP.createRoute("reset_password", uiModel.email)
-                        )
+
                     }
                 }
                 is RecoverPasswordState.Error -> {
@@ -160,3 +166,4 @@ fun RecoverPasswordScreen(
         }
     }
 }
+

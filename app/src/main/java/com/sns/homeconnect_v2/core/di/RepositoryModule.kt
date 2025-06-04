@@ -7,6 +7,7 @@ import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.GroupRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
@@ -16,6 +17,7 @@ import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AlertRepository
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
+import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
@@ -28,6 +30,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
+import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.CreateHouseUseCase
@@ -99,6 +102,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSharedRepository(sharedRepositoryImpl: SharedRepositoryImpl): SharedRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindGroupRepository(
+        groupRepositoryImpl: GroupRepositoryImpl
+    ): GroupRepository
 
     companion object {
         @Provides
@@ -301,6 +310,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideRevokePermissionUseCase(sharedRepository: SharedRepository): RevokePermissionUseCase {
             return RevokePermissionUseCase(sharedRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideCreateGroupUseCase(createGroupRepository: GroupRepository): CreateGroupUseCase {
+            return CreateGroupUseCase(createGroupRepository)
         }
     }
 }

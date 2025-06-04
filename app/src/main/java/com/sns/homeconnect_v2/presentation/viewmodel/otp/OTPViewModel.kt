@@ -17,7 +17,7 @@ import javax.inject.Inject
 sealed class OTPState {
     object Idle : OTPState()
     object Loading : OTPState()
-    data class Success(val success: Boolean, val message: String) : OTPState()
+    data class Success(val message: String) : OTPState()
     data class Error(val message: String) : OTPState()
 }
 
@@ -49,7 +49,7 @@ class OTPViewModel @Inject constructor(
         viewModelScope.launch {
             sendOtpUseCase(email).fold(
                 onSuccess = { response ->
-                    _sendOtpState.value = OTPState.Success(response.success, response.message)
+                    _sendOtpState.value = OTPState.Success(response.message)
                 },
                 onFailure = { e ->
                     _sendOtpState.value = OTPState.Error(e.message ?: "Failed to send OTP")
@@ -63,7 +63,7 @@ class OTPViewModel @Inject constructor(
         viewModelScope.launch {
             verifyOtpUseCase(email, otp).fold(
                 onSuccess = { response ->
-                    _verifyOtpState.value = OTPState.Success(response.success, response.message)
+                    _verifyOtpState.value = OTPState.Success(response.message)
                 },
                 onFailure = { e ->
                     _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
@@ -77,18 +77,26 @@ class OTPViewModel @Inject constructor(
             val result = verifyOtpUseCase(email, otp)
             result.fold(
                 onSuccess = { response ->
-                    if (response.success) Result.success(true)
-                    else Result.failure(Exception(response.message.ifEmpty { "Mã OTP không đúng hoặc đã hết hạn!" }))
+                    Log.d("OTP_DEBUG", " message=${response.message}")
+                    if (response.status != "error") {
+                        Result.success(true)
+                    } else {
+                        val errorMessage = when {
+                            response.message.contains("INVALID", ignoreCase = true) -> "Mã OTP không đúng!"
+                            response.message.contains("EXPIRED", ignoreCase = true) -> "Mã OTP đã hết hạn!"
+                            else -> "Xác thực OTP thất bại!"
+                        }
+                        Result.failure(Exception(errorMessage))
+                    }
                 },
-                onFailure = { e ->
-                    Result.failure(Exception(e.message ?: "OTP verification failed"))
+                onFailure = {
+                    Result.failure(Exception("Xác thực OTP thất bại!"))
                 }
             )
-        } catch (e: Exception) {
-            Result.failure(e)
+        } catch (_: Exception) {
+            Result.failure(Exception("Đã xảy ra lỗi không xác định khi xác thực OTP!"))
         }
     }
-
 
     fun confirmEmail(email: String) {
         // Reset state

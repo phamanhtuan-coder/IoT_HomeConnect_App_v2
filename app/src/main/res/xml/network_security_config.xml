@@ -2,7 +2,7 @@
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
         <!-- Không đặt port trong thẻ domain -->
-        <domain includeSubdomains="true">10.0.2.2:3000</domain>
+        <domain includeSubdomains="true">iothomeconnectapiv2-production.up.railway.app</domain>
     </domain-config>
     <!-- Có thể thêm base-config để cho phép cleartext traffic cho tất cả domain (chỉ dùng cho dev) -->
     <base-config cleartextTrafficPermitted="true" />

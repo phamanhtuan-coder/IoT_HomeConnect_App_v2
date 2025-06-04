@@ -60,12 +60,12 @@ interface ApiService {
         @Body request: EmailRequest
     ): EmailResponse
 
-    @POST("/api/otp/send")
+    @POST("/api/notifications/otp")
     suspend fun sendOTP(
         @Body request: EmailRequest
     ): EmailResponse
 
-    @POST("/api/otp/verify")
+    @POST("/api/notifications/otp/verify")
     suspend fun verifyOTP(
         @Body request: EmailRequest
     ): EmailResponse

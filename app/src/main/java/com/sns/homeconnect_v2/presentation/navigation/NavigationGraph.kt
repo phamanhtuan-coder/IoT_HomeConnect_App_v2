@@ -71,6 +71,7 @@ fun NavigationGraph(navController: NavHostController) {
             val type = backStackEntry.arguments?.getString("type") ?: "reset_password"
             val email = backStackEntry.arguments?.getString("email") ?: ""
             OtpScreen(
+                navController = navController,
                 email = email,
                 title = when (type) {
                     "reset_password" -> "Nhập mã OTP"
@@ -83,12 +84,6 @@ fun NavigationGraph(navController: NavHostController) {
                     "email_verification" -> "Nhập mã xác thực được gửi tới email của bạn"
                     "transaction" -> "Nhập mã OTP để xác nhận giao dịch"
                     else -> "Vui lòng nhập mã OTP vừa được gửi tới Email"
-                },
-                onVerificationSuccess = {
-                    when (type) {
-                        "reset_password" -> navController.navigate("${Screens.NewPassword.route}?email=$email")
-                        "email_verification" -> navController.navigate(Screens.Profile.route)
-                    }
                 }
             )
         }
@@ -256,3 +251,4 @@ fun NavigationGraph(navController: NavHostController) {
         }
     }
 }
+

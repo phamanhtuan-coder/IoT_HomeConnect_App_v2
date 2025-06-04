@@ -193,7 +193,7 @@ fun OtpScreen(
                         style = HCButtonStyle.PRIMARY,
                         textSize = if (isTablet) 18.sp else 16.sp,
                         onSuccess = {
-                            navController.navigate("home_graph") {
+                            navController.navigate(Screens.Login.route) {
                                 popUpTo(Screens.Login.route) { inclusive = true }
                             }
                         },
@@ -203,8 +203,6 @@ fun OtpScreen(
                                 err("Vui lòng nhập đủ $otpLength ký tự OTP!")
                                 return@ActionButtonWithFeedback
                             }
-
-                            // KHÔNG CẦN coroutineScope.launch
                             try {
                                 val result = viewModel.verifyOTPAndReturnResult(email, otp)
                                 result.fold(

@@ -32,7 +32,7 @@ import com.sns.homeconnect_v2.presentation.component.DeviceStatCardCarousel
 import com.sns.homeconnect_v2.presentation.component.FeatureButtonRow
 import com.sns.homeconnect_v2.presentation.component.FeatureButtonSection
 import com.sns.homeconnect_v2.presentation.component.SlideShowBanner
-import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.DrawerWithContent
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
@@ -135,58 +135,65 @@ fun HomeScreen(
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        Scaffold(containerColor = colorScheme.background,
-            modifier = modifier.fillMaxSize(),
-            topBar = {
-                /*
-                * Hiển thị Header
-                 */
-                Header(navController, "Home")
-            },
-            bottomBar = {
-                /*
-                * Hiển thị Thanh Menu dưới cùng
-                 */
-                MenuBottom(navController)
-            },
+        DrawerWithContent(
+            navController = navController,
+            type="Home",
+            username="Sang",
             content = {
-                LazyColumn (
-                    modifier = Modifier
-                        .padding(it)
-                ) {
-                    item {
-                        ColoredCornerBox(
-                            cornerRadius = 24.dp
+                Scaffold(
+                    containerColor = colorScheme.background,
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        /*
+                        * Hiển thị Thanh Menu dưới cùng
+                         */
+                        MenuBottom(navController)
+                    },
+                    content = {innerPadding ->
+                        LazyColumn (
+                            modifier = Modifier
+                                .padding(innerPadding).fillMaxSize()
                         ) {
-                            Box (
-                                modifier = Modifier
-                                    .padding(16.dp)
-                            ) {
-                                SlideShowBanner(listSlideShow = dummyList)
+                            item {
+                                ColoredCornerBox(
+                                    cornerRadius = 24.dp
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(16.dp)
+                                    ) {
+                                        SlideShowBanner(listSlideShow = dummyList)
+                                    }
+                                }
+                            }
+                            item {
+                                InvertedCornerHeader(
+                                    backgroundColor = colorScheme.surface,
+                                    overlayColor = colorScheme.primary
+                                ) {}
+                            }
+                            item {
+                                FeatureButtonRow(
+                                    items = featureButtons,
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                )
+                            }
+                            item {
+                                DeviceStatCardCarousel(items = deviceStats)
+                            }
+                            item {
+                                FeatureButtonSection(
+                                    items = sampleItems,
+                                    modifier = Modifier.padding(16.dp)
+                                )
                             }
                         }
-                    }
-                    item {
-                        InvertedCornerHeader(
-                            backgroundColor = colorScheme.surface,
-                            overlayColor = colorScheme.primary
-                        ) {}
-                    }
-                    item {
-                        FeatureButtonRow(items = featureButtons, modifier = Modifier.padding(vertical = 8.dp))
-                    }
-                    item {
-                        DeviceStatCardCarousel(items = deviceStats)
-                    }
-                    item {
-                        FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
                     }
                 )
             }
         )
     }
 }
-
 
 @Preview
 @Composable

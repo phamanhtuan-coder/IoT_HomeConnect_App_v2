@@ -1,16 +1,22 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
+import android.app.Application
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
+import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 sealed class LoginUiState {
@@ -22,18 +28,21 @@ sealed class LoginUiState {
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
+    application: Application,
     private val loginUseCase: LoginUseCase,
     private val sendFcmTokenUseCase: SendFcmTokenUseCase,
-) : ViewModel() {
+    private val apiService: ApiService,
+    private val authManager: AuthManager
+) : AndroidViewModel(application) {
 
     private val _loginState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val loginState = _loginState.asStateFlow()
 
-    fun login(email: String, password: String) {
+    fun login(username: String, password: String) {
         _loginState.value = LoginUiState.Loading
 
         viewModelScope.launch {
-            loginUseCase(email, password).fold(
+            loginUseCase(username, password).fold(
                 onSuccess = { token ->
                     sendFcmTokenToServer {
                         _loginState.value = LoginUiState.Success(token)
@@ -47,19 +56,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    suspend fun quickLogin(email: String, password: String): Result<String> {
-        // 1. Gọi use-case đăng nhập
-        val loginResult = loginUseCase(email, password)
+    suspend fun quickLogin(username: String, password: String): Result<LoginResponse> {
+        return runCatching {
+            val context = getApplication<Application>()
+            val deviceId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+            val deviceUuid = authManager.getDeviceUuid()
 
-        // 2. Nếu thành công → gửi FCM rồi trả tiếp Result
-        return loginResult.mapCatching { token ->
-            // gửi FCM, bỏ qua lỗi (không ảnh hưởng đăng nhập)
-            runCatching {
-                val fcm = FirebaseMessaging
-                    .getInstance().token.await()
-                sendFcmTokenUseCase(fcm)
-            }
-            token
+            val request = LoginRequest(
+                username = username,
+                password = password,
+                rememberMe = true,
+                deviceName = "Android_${Build.MODEL}",
+                deviceId = deviceId,
+                deviceUuid = deviceUuid
+            )
+
+            val response = apiService.login(request)
+
+            authManager.saveJwtToken(response.accessToken)
+            authManager.saveRefreshToken(response.refreshToken)
+            authManager.saveDeviceUuid(response.deviceUuid)
+
+            response
         }
     }
 
@@ -67,7 +85,7 @@ class LoginViewModel @Inject constructor(
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Log.w("LoginViewModel", "Fetching FCM token failed", task.exception)
-                onSuccess() // Proceed even if FCM token fetch fails
+                onSuccess()
                 return@addOnCompleteListener
             }
 
@@ -76,13 +94,13 @@ class LoginViewModel @Inject constructor(
 
             viewModelScope.launch {
                 sendFcmTokenUseCase(fcmToken).fold(
-                    onSuccess = { message ->
-                        Log.d("LoginViewModel", "FCM Token sent to server: $message")
+                    onSuccess = {
+                        Log.d("LoginViewModel", "FCM Token sent to server")
                         onSuccess()
                     },
-                    onFailure = { e ->
-                        Log.e("LoginViewModel", "Failed to send FCM token: ${e.message}")
-                        onSuccess() // Proceed even if FCM token send fails
+                    onFailure = {
+                        Log.e("LoginViewModel", "Failed to send FCM token: ${it.message}")
+                        onSuccess()
                     }
                 )
             }

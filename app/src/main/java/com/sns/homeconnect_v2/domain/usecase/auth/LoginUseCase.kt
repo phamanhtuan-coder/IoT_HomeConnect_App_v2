@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.domain.usecase.auth
 
 import com.sns.homeconnect_v2.data.AuthManager
-import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import javax.inject.Inject
 
@@ -9,13 +8,18 @@ class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val authManager: AuthManager
 ) {
-    suspend operator fun invoke(email: String, password: String): Result<String> {
+    suspend operator fun invoke(username: String, password: String): Result<String> {
         return try {
-            val response = authRepository.login(email, password)
-            if (response.token.isNotEmpty()) {
-               authManager.saveJwtToken(response.token)
+            val response = authRepository.login(username, password)
+
+            // Lưu token vào shared preferences nếu có
+            if (response.accessToken.isNotEmpty()) {
+                authManager.saveJwtToken(response.accessToken)
+                authManager.saveRefreshToken(response.refreshToken)
+                authManager.saveDeviceUuid(response.deviceUuid)
             }
-            Result.success(response.token)
+
+            Result.success(response.accessToken)
         } catch (e: Exception) {
             Result.failure(e)
         }

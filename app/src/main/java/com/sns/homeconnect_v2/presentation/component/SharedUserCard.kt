@@ -30,6 +30,7 @@ import com.sns.homeconnect_v2.core.util.rememberResponsiveLayoutConfig
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -63,6 +64,7 @@ fun SharedUserCard(
 //    permissionId: Int,
 //    onRevokeClick: (Int) -> Unit
     modifier: Modifier = Modifier,
+    snackbarViewModel: SnackbarViewModel = SnackbarViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     /* state hiển thị dialog xác nhận */
@@ -135,7 +137,8 @@ fun SharedUserCard(
                         style = HCButtonStyle.SECONDARY,
                         onAction = { _, _ -> },
                         modifier = Modifier.weight(1f),
-                        textSize = 20.sp
+                        textSize = 20.sp,
+                        snackbarViewModel = snackbarViewModel
                     )
 
                     ActionButtonWithFeedback(
@@ -149,11 +152,10 @@ fun SharedUserCard(
                             showConfirm      = true
                         },
                         // 2) Tùy chỉnh tiêu đề dialog
-                        successDialogTitle = "✅ Thành công",
-                        errorDialogTitle   = "⚠️ Lỗi",
                         isLoadingFromParent = isButtonLoading,
                         modifier = Modifier.weight(1f),
-                        textSize = 20.sp
+                        textSize = 20.sp,
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
                 if (showConfirm) {

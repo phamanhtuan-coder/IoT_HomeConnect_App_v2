@@ -10,6 +10,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +21,10 @@ import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.viewmodel.user_activity.UserActivityViewModel
+import com.sns.homeconnect_v2.presentation.model.DeviceSession
+import com.sns.homeconnect_v2.presentation.model.SecurityEvent
+import com.sns.homeconnect_v2.presentation.model.SyncHistoryItem
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Hàm Composable cho Màn hình Quản lý Hoạt động Người dùng.
@@ -45,10 +52,10 @@ import com.sns.homeconnect_v2.presentation.viewmodel.user_activity.UserActivityV
  * @since 27-05-2025
  */
 @Composable
-fun UserActivityScreen(
+fun UserActivityManagementScreen(
     navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
     viewModel: UserActivityViewModel = hiltViewModel()
-
 ) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -119,7 +126,8 @@ fun UserActivityScreen(
                         ActionButtonWithFeedback(
                             label = "Đổi mật khẩu",
                             style = HCButtonStyle.PRIMARY,
-                            onAction = { _, _ -> }
+                            onAction = { _, _ -> },
+                            snackbarViewModel = snackbarViewModel
                         )
 //                        Text(
 //                            text        = "Cảnh báo bảo mật",
@@ -153,6 +161,6 @@ fun UserActivityScreen(
 @Composable
 fun ReportLostDeviceScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        UserActivityScreen(navController = rememberNavController())
+        UserActivityManagementScreen(navController = rememberNavController())
     }
 }

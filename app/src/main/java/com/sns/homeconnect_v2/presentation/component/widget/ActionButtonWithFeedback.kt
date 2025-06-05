@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -15,8 +16,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sns.homeconnect_v2.presentation.component.dialog.ConfirmationDialog
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.presentation.component.TopSnackbar
+
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -63,20 +67,17 @@ fun ActionButtonWithFeedback(
     width: Dp = 200.dp,
     textSize: TextUnit = 18.sp,
     shape: RoundedCornerShape = RoundedCornerShape(50),
-    successDialogTitle: String = "🎉 Thành công",
-    errorDialogTitle: String = "❌ Lỗi",
-    isLoadingFromParent: Boolean = false
+    isLoadingFromParent: Boolean = false,
+    snackbarViewModel: SnackbarViewModel // Thêm tham số này!
 ) {
     IoTHomeConnectAppTheme {
         var isLoading by remember { mutableStateOf(false) }
-        var successMsg by remember { mutableStateOf<String?>(null) }
-        var errorMsg   by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
 
-        // nếu cha ép loading
+        // Nếu cha ép loading
         LaunchedEffect(isLoadingFromParent) { isLoading = isLoadingFromParent }
 
-        /* ---------- màu sắc ---------- */
+        // Màu sắc button
         val cs = MaterialTheme.colorScheme
         val (bg, fg, border) = when (style) {
             HCButtonStyle.PRIMARY   -> Triple(cs.primary, cs.onPrimary, null)
@@ -85,25 +86,22 @@ fun ActionButtonWithFeedback(
         }
         val enabled = style != HCButtonStyle.DISABLED && !isLoading
 
-        Box(
-            modifier = modifier.then(
-                Modifier
-                    .fillMaxWidth()
-                    .then(if (width != Dp.Unspecified) Modifier.width(width) else Modifier)
-            ),
-            contentAlignment = Alignment.Center
-        ) {
-            /* ---------- Nút chính ---------- */
+        Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Button(
                 onClick = {
                     scope.launch {
                         isLoading = true
-
                         delay(500)
-
                         onAction(
-                            { msg -> isLoading = false; successMsg = msg },
-                            { msg -> isLoading = false; errorMsg   = msg }
+                            { msg ->
+                                isLoading = false
+                                snackbarViewModel.showSnackbar(msg, SnackbarVariant.SUCCESS)
+                                onSuccess()
+                            },
+                            { msg ->
+                                isLoading = false
+                                snackbarViewModel.showSnackbar(msg, SnackbarVariant.ERROR)
+                            }
                         )
                     }
                 },
@@ -112,9 +110,9 @@ fun ActionButtonWithFeedback(
                 border = border,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = bg,
-                    contentColor   = fg,
+                    contentColor = fg,
                     disabledContainerColor = bg,
-                    disabledContentColor   = fg
+                    disabledContentColor = fg
                 ),
                 modifier = Modifier
                     .height(height)
@@ -131,30 +129,6 @@ fun ActionButtonWithFeedback(
                 } else {
                     Text(label, fontSize = textSize, fontWeight = FontWeight.Medium)
                 }
-            }
-
-            /* ---------- Dialog thành công ---------- */
-            successMsg?.let { msg ->
-                ConfirmationDialog(
-                    title       = successDialogTitle,
-                    message     = msg,
-                    onConfirm   = { successMsg = null; onSuccess() },
-                    onDismiss   = { successMsg = null },
-                    confirmText = "OK",
-                    dismissText = ""
-                )
-            }
-
-            /* ---------- Dialog lỗi ---------- */
-            errorMsg?.let { msg ->
-                ConfirmationDialog(
-                    title       = errorDialogTitle,
-                    message     = msg,
-                    onConfirm   = { errorMsg = null },
-                    onDismiss   = { errorMsg = null },
-                    confirmText = "OK",
-                    dismissText = ""
-                )
             }
         }
     }
@@ -176,21 +150,21 @@ private fun ActionButtonStylesPreview() {
         modifier = Modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ActionButtonWithFeedback(
-            label  = "Hoàn tất",
-            style  = HCButtonStyle.PRIMARY,
-            // 1) Hành động thật của bạn
-            onAction = { onSuccessCallback, onErrorCallback ->
-                /* 1. Lưu callback → chờ xác nhận */
-                pendingOnSuccess = onSuccessCallback
-                pendingOnError   = onErrorCallback
-                showConfirm      = true
-            },
-            // 2) Tùy chỉnh tiêu đề dialog
-            successDialogTitle = "✅ Thành công",
-            errorDialogTitle   = "⚠️ Lỗi",
-            isLoadingFromParent = isButtonLoading
-        )
+//        ActionButtonWithFeedback(
+//            label  = "Hoàn tất",
+//            style  = HCButtonStyle.PRIMARY,
+//            // 1) Hành động thật của bạn
+//            onAction = { onSuccessCallback, onErrorCallback ->
+//                /* 1. Lưu callback → chờ xác nhận */
+//                pendingOnSuccess = onSuccessCallback
+//                pendingOnError   = onErrorCallback
+//                showConfirm      = true
+//            },
+//            // 2) Tùy chỉnh tiêu đề dialog
+//            successDialogTitle = "✅ Thành công",
+//            errorDialogTitle   = "⚠️ Lỗi",
+//            isLoadingFromParent = isButtonLoading
+//        )
 
         /* 2. ConfirmationDialog — hỏi người dùng */
         if (showConfirm) {
@@ -222,33 +196,33 @@ private fun ActionButtonStylesPreview() {
             )
         }
 
-        ActionButtonWithFeedback(
-            label  = "Hoàn tất",
-            style  = HCButtonStyle.PRIMARY,
-
-            // 1) Hành động thật của bạn
-            onAction = { onSuccess, onError ->
-
-                coroutineScope.launch {
-                    // mô phỏng call API → delay 1 giây
-                    delay(1000)
-
-                    val isActionSuccessful = true // ← kết quả thật ở đây
-                    if (isActionSuccessful)   onSuccess("Thiết bị đã thêm thành công!")
-                    else        onError("Thao tác thất bại, vui lòng thử lại.")
-                }
-            },
-        )
-        ActionButtonWithFeedback(
-            label = "Yes",
-            style = HCButtonStyle.SECONDARY,
-            onAction = { _, _ -> }
-        )
-
-        ActionButtonWithFeedback(
-            label = "Yes",
-            style = HCButtonStyle.DISABLED,
-            onAction = { _, _ -> }
-        )
+//        ActionButtonWithFeedback(
+//            label  = "Hoàn tất",
+//            style  = HCButtonStyle.PRIMARY,
+//
+//            // 1) Hành động thật của bạn
+//            onAction = { onSuccess, onError ->
+//
+//                coroutineScope.launch {
+//                    // mô phỏng call API → delay 1 giây
+//                    delay(1000)
+//
+//                    val isActionSuccessful = true // ← kết quả thật ở đây
+//                    if (isActionSuccessful)   onSuccess("Thiết bị đã thêm thành công!")
+//                    else        onError("Thao tác thất bại, vui lòng thử lại.")
+//                }
+//            },
+//        )
+//        ActionButtonWithFeedback(
+//            label = "Yes",
+//            style = HCButtonStyle.SECONDARY,
+//            onAction = { _, _ -> }
+//        )
+//
+//        ActionButtonWithFeedback(
+//            label = "Yes",
+//            style = HCButtonStyle.DISABLED,
+//            onAction = { _, _ -> }
+//        )
     }
 }

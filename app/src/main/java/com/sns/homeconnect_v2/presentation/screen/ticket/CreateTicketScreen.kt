@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.ImagePickerBox
@@ -23,11 +24,15 @@ import com.sns.homeconnect_v2.presentation.component.SituationDescriptionField
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateTicketScreen(navController: NavHostController) {
+fun CreateTicketScreen(
+    navController: NavHostController,
+    snackbarViewModel : SnackbarViewModel = hiltViewModel()
+) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         var fullName by remember { mutableStateOf("") }
@@ -134,7 +139,8 @@ fun CreateTicketScreen(navController: NavHostController) {
                         ActionButtonWithFeedback(
                             label = "Gửi",
                             style = HCButtonStyle.PRIMARY,
-                            onAction = { onSend, _ -> scope.launch { delay(1000); onSend("Done") } }
+                            onAction = { onSend, _ -> scope.launch { delay(1000); onSend("Done") } },
+                            snackbarViewModel = snackbarViewModel
                         )
                     }
                 }

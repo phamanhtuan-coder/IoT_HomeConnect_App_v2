@@ -25,11 +25,13 @@ import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupState
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun CreateGroupScreen(
     navController: NavHostController,
-    viewModel: CreateGroupViewModel = hiltViewModel()
+    viewModel: CreateGroupViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val createGroupState by viewModel.createGroupState.collectAsState()
 
@@ -213,7 +215,8 @@ fun CreateGroupScreen(
                             },
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(end = 8.dp, start = 16.dp)
+                                .padding(end = 8.dp, start = 16.dp),
+                            snackbarViewModel = snackbarViewModel
                         )
                         ActionButtonWithFeedback(
                             label = "Tạo nhóm",
@@ -232,7 +235,8 @@ fun CreateGroupScreen(
                             },
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(end = 16.dp, start = 8.dp)
+                                .padding(end = 16.dp, start = 8.dp),
+                            snackbarViewModel = snackbarViewModel
                         )
                     }
                 }

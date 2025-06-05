@@ -104,6 +104,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.InfoProfileState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.PutInfoProfileState
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /***
  * Người viết: Nguyễn Thanh Sang
@@ -121,6 +122,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.profile.PutInfoProfileState
 fun ProfileScreen(
     navController: NavHostController,
     profileViewModel: ProfileScreenViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val isTablet = isTablet(context)
@@ -811,7 +813,8 @@ fun ProfileScreen(
                             } catch (e: Exception) {
                                 Log.e("SaveError", "Lỗi lưu thông tin: ${e.message}")
                             }
-                        }
+                        },
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
             }

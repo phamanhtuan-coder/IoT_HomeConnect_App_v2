@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -22,11 +23,15 @@ import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateHouseScreen(navController: NavHostController) {
+fun CreateHouseScreen(
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+) {
     var houseName by remember { mutableStateOf("") }
     var houseAddress by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
@@ -184,14 +189,16 @@ fun CreateHouseScreen(navController: NavHostController) {
                         label = "Hoàn tất",
                         style = HCButtonStyle.PRIMARY,
                         onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        snackbarViewModel = snackbarViewModel
                     )
                     Spacer(Modifier.height(8.dp))
                     ActionButtonWithFeedback(
                         label = "Huỷ bỏ",
                         style = HCButtonStyle.SECONDARY,
                         onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
             }

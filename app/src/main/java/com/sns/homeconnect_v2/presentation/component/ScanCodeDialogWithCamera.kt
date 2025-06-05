@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 
 /**
@@ -87,7 +88,8 @@ fun ScanCodeDialog(
                     onSuccess("Thành công")
                     onOk()         // gọi callback OK
                     onDismiss()    // đóng dialog
-                }
+                },
+                snackbarViewModel = SnackbarViewModel() // Mock ViewModel cho snackbar
             )
         }
     }

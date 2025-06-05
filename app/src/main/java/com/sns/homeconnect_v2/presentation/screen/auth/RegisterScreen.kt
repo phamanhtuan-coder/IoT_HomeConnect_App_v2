@@ -55,13 +55,15 @@ import com.sns.homeconnect_v2.presentation.component.DatePickerTextField
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("InlinedApi")
 @Composable
 fun RegisterScreen(
     navController: NavHostController,
-    viewModel: RegisterViewModel = hiltViewModel()
+    viewModel: RegisterViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -420,7 +422,8 @@ fun RegisterScreen(
                         },
                         modifier = Modifier
                             .padding(start = 16.dp, end = 8.dp)
-                            .weight(1f)
+                            .weight(1f),
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
 
@@ -461,7 +464,8 @@ fun RegisterScreen(
                                 Modifier.padding(horizontal = 16.dp) // hoặc giá trị mặc định khác nếu muốn
                             }
                         )
-                        .weight(1f)
+                        .weight(1f),
+                    snackbarViewModel = snackbarViewModel
                 )
             }
 

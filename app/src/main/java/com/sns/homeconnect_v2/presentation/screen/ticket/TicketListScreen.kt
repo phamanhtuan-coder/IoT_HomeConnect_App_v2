@@ -30,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
@@ -44,6 +45,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.model.TicketStatus
 import com.sns.homeconnect_v2.presentation.model.TicketUi
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -73,7 +75,10 @@ import java.util.Locale
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TicketListScreen(navController: NavHostController) {
+fun TicketListScreen(
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+) {
     val tickets = remember {
         mutableStateListOf(
             TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
@@ -278,7 +283,8 @@ fun TicketListScreen(navController: NavHostController) {
                                 ActionButtonWithFeedback(
                                     label = "Xác nhận",
                                     style = HCButtonStyle.PRIMARY,
-                                    onAction = { _, _ -> isSheetVisible = false}
+                                    onAction = { _, _ -> isSheetVisible = false},
+                                    snackbarViewModel = snackbarViewModel
                                 )
                             }
                         )

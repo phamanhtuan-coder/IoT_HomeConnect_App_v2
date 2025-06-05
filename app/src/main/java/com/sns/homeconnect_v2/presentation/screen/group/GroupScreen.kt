@@ -18,45 +18,67 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
+import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.model.GroupUi
+import com.sns.homeconnect_v2.presentation.viewmodel.group.UpdateGroupViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
 
 @Composable
 fun GroupScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    viewModel: GroupListViewModel = hiltViewModel()
+    updateGroup: UpdateGroupViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val groups by viewModel.groupList.collectAsState()
-//    val error by viewModel.error.collectAsState()
+    val groups = remember {
+        mutableStateListOf(
+            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue,role = "member"),
+            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red, role = "owned"),
+            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green, role = "vice")
+        )
+    }
 
     LaunchedEffect(Unit) {
         viewModel.fetchGroups()
     }
 
-//    val context = LocalContext.current
-//    val isTablet = isTablet(context)
-//
-//    // Track the last selected route
-//    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    // Track the last selected route
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+
+    // State to control the visibility of the bottom sheet
+    var isSheetVisible by remember { mutableStateOf(false) }
+
+    // State to hold the group being edited
+    var nameGroup by remember { mutableStateOf("") }
+    var idGroup by remember { mutableIntStateOf(-1) }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-
         val fabChildren = listOf(
             FabChild(
                 icon = Icons.Default.Edit,
-                onClick = { /* TODO: sửa */ },
+                onClick = { /* TODO: sửa */
+
+                },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             ),
@@ -146,22 +168,75 @@ fun GroupScreen(
                             icon = group.icon,
                             iconColor = group.iconColor,
                             isRevealed = group.isRevealed,
+                            role = group.role,
                             onExpandOnly = {
                                 viewModel.updateRevealState(index)
                             },
                             onCollapse = {
                                 viewModel.collapseItem(index)
                             },
-                            onDelete = { /* TODO: Call delete use case */ },
-                            onEdit = { /* TODO */ }
+                            onDelete = { groups.removeAt(index) },
+                            onEdit = {
+                                idGroup = group.id
+                                nameGroup = group.name
+                                isSheetVisible = true
+                            }
                         )
                     }
                 }
+
+                BottomSheetWithTrigger(
+                    isSheetVisible = isSheetVisible,
+                    onDismiss = { isSheetVisible = false },
+                    sheetContent = {
+                        Column (
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                        ) {
+                            StyledTextField(
+                                value = nameGroup,
+                                onValueChange = { nameGroup = it },
+                                placeholderText = "Group name",
+                                leadingIcon = Icons.Default.Person
+                            )
+                            Spacer(modifier.height(8.dp))
+                            ActionButtonWithFeedback(
+                                label = "Cập nhật",
+                                style = HCButtonStyle.PRIMARY,
+                                onAction = { ok, err ->
+                                    if (nameGroup.isBlank()) {
+                                        err("Tên nhóm không được để trống!")
+                                        return@ActionButtonWithFeedback
+                                    }
+
+                                    updateGroup.updateGroup(
+                                        groupId = idGroup,
+                                        groupName = nameGroup,
+                                        onSuccess = {
+                                            ok(it)
+                                            val index = groups.indexOfFirst { it.id == idGroup }
+                                            if (index != -1) {
+                                                groups[index] = groups[index].copy(name = nameGroup)
+                                            }
+                                            isSheetVisible = false
+                                        },
+                                        onError = {
+                                            err(it)
+                                        }
+                                    )
+                                },
+                                snackbarViewModel = snackbarViewModel
+                            )
+
+                        }
+                    }
+                )
             }
         }
     }
 }
-
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "GroupScreen - Phone")
 @Composable

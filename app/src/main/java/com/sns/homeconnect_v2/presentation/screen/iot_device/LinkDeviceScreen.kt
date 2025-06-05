@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
@@ -44,6 +45,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Composable function đại diện cho màn hình liên kết thiết bị IoT mới.
@@ -81,6 +83,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 @Composable
 fun LinkDeviceScreen(
     navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 //    sharedViewModel: SharedViewModel = hiltViewModel(),
 //    deviceViewModel : DeviceViewModel = hiltViewModel(),
 //    addDeviceViewModel : AddDeviceViewModel = hiltViewModel()
@@ -221,7 +224,8 @@ fun LinkDeviceScreen(
                             ActionButtonWithFeedback(
                                 label = "Quét mã QR",
                                 style = HCButtonStyle.PRIMARY,
-                                onAction = { onS, _ -> onS("Mở camera"); showDialog = true }
+                                onAction = { onS, _ -> onS("Mở camera"); showDialog = true },
+                                snackbarViewModel = snackbarViewModel
                             )
 
                             if (showDialog) {
@@ -271,7 +275,8 @@ fun LinkDeviceScreen(
                                     } catch (e: Exception) {
                                         onE("Lỗi: ${e.message}")
                                     }
-                                }
+                                },
+                                snackbarViewModel = snackbarViewModel
                             )
                         }
                     }

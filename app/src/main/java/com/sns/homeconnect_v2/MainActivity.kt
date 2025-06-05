@@ -5,10 +5,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.presentation.component.TopSnackbar
 import com.sns.homeconnect_v2.presentation.navigation.NavigationGraph
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -26,7 +33,27 @@ class MainActivity : ComponentActivity() {
         setContent {
             IoTHomeConnectAppTheme {
                 val navController = rememberNavController()
-                NavigationGraph(navController = navController)
+                NavigationGraph(navController = navController, snackbarViewModel = hiltViewModel())
+
+                val snackbarViewModel: SnackbarViewModel = hiltViewModel()
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // 2. Giao diện chính (navigation, các màn hình)
+                    NavigationGraph(navController = navController, snackbarViewModel = snackbarViewModel)
+
+                    // 3. Snackbar toàn cục (ở trên tất cả các màn hình)
+                    val message = snackbarViewModel.snackbarMessage.collectAsState().value
+                    val variant = snackbarViewModel.snackbarVariant.collectAsState().value
+
+                    // Có message thì show, không có thì không show
+                    if (message != null) {
+                        TopSnackbar(
+                            message = message,
+                            variant = variant,
+                            onDismiss = { snackbarViewModel.hideSnackbar() }
+                        )
+                    }
+                }
+
             }
         }
     }

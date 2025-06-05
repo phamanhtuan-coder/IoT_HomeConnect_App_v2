@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Một Composable function hiển thị thông tin chi tiết về một thiết bị dưới dạng thẻ.
@@ -38,7 +39,8 @@ fun DeviceDetailCard(
     ip: String,
     location: String,
     lastAccess: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    snackbarViewModel: SnackbarViewModel
 ) {
     Box(
         modifier = modifier
@@ -68,7 +70,8 @@ fun DeviceDetailCard(
             ActionButtonWithFeedback(
                 label = "Đăng xuất",
                 style = HCButtonStyle.PRIMARY,
-                onAction = { _, _ -> }
+                onAction = { _, _ -> },
+                snackbarViewModel = snackbarViewModel
             )
         }
     }
@@ -108,6 +111,7 @@ fun DeviceDetailCardPreview() {
             ip = "192.168.1.1",
             location = "Hà Nội, VN",
             lastAccess = "2 giờ trước",
+            snackbarViewModel = SnackbarViewModel() // Giả lập ViewModel cho preview
         )
     }
 }

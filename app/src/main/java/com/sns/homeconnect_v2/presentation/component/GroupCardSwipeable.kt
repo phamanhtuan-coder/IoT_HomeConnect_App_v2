@@ -19,6 +19,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.GroupUi
@@ -50,11 +52,15 @@ fun GroupCardSwipeable(
     icon: ImageVector = Icons.Default.Group,
     iconColor: Color = MaterialTheme.colorScheme.primary,
     isRevealed: Boolean,
+    role: String,
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
+    val canEdit = hasPermission(role, RoleLevel.VICE)
+    val canDelete = hasPermission(role, RoleLevel.VICE)
+
     SwipeableItemWithActions(
         isRevealed = isRevealed,
         onExpanded = onExpandOnly,
@@ -64,13 +70,15 @@ fun GroupCardSwipeable(
             ActionIcon(
                 onClick = onEdit,
                 backgroundColor = Color(0xFF4CAF50),
-                icon = Icons.Default.Edit
+                icon = Icons.Default.Edit,
+                enabled = canEdit
             )
             Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onDelete,
                 backgroundColor = Color(0xFFF44336),
-                icon = Icons.Default.Delete
+                icon = Icons.Default.Delete,
+                enabled = canDelete,
             )
         }
     ) {
@@ -132,6 +140,7 @@ fun GroupCardSwipeablePreview() {
                 icon = group.icon,
                 iconColor = group.iconColor,
                 isRevealed = group.isRevealed,
+                role = "admin", // Giả sử vai trò là admin
                 onExpandOnly = {
                     groups.indices.forEach { i ->
                         groups[i] = groups[i].copy(isRevealed = i == index)

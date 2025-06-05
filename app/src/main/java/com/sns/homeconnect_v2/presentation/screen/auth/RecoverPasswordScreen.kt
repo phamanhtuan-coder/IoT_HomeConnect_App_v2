@@ -27,6 +27,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Màn hình Khôi phục mật khẩu
@@ -50,7 +51,8 @@ import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordViewMod
 @Composable
 fun RecoverPasswordScreen(
     navController: NavHostController,
-    viewModel: RecoverPasswordViewModel = hiltViewModel()
+    viewModel: RecoverPasswordViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val recoverPasswordState by viewModel.checkEmailState.collectAsState()
     val uiModel by viewModel.uiModel.collectAsState()
@@ -113,7 +115,8 @@ fun RecoverPasswordScreen(
                 style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
                 onAction = { _, _ ->
                     viewModel.checkEmail()
-                }
+                },
+                snackbarViewModel = snackbarViewModel
             )
 
             // TODO: Re-enable when API is ready

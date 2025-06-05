@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
@@ -42,6 +43,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -85,6 +87,7 @@ import kotlinx.coroutines.launch
 fun ShareDeviceScreen(
 //    navController: NavHostController,
     id: Int,
+    snackbarViewModel : SnackbarViewModel = hiltViewModel(),
 //    viewModel: DeviceSharingViewModel = hiltViewModel(),
 ) {
 //    val addSharedUserState by viewModel.addSharedUserState.collectAsState()
@@ -236,9 +239,8 @@ fun ShareDeviceScreen(
                                 showConfirm      = true
                             },
                             // 2) Tùy chỉnh tiêu đề dialog
-                            successDialogTitle = "Thành công",
-                            errorDialogTitle   = "Lỗi",
-                            isLoadingFromParent = isButtonLoading
+                            isLoadingFromParent = isButtonLoading,
+                            snackbarViewModel = snackbarViewModel
                         )
 
                         /* 2. ConfirmationDialog — hỏi người dùng */

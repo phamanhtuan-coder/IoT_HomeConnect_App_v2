@@ -4,6 +4,8 @@ import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import javax.inject.Inject
 
@@ -22,6 +24,11 @@ class GroupRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun updateGroup(groupId: Int, request: UpdateGroupRequest): UpdateGroupResponse {
+        val token = authManager.getJwtToken()
+        return apiService.updateGroup(groupId, request, "Bearer $token")
     }
 }
 

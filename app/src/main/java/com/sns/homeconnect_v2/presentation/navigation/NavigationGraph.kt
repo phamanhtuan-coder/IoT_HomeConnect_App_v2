@@ -35,16 +35,20 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScre
 import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipScreen
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
-fun NavigationGraph(navController: NavHostController) {
+fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel) {
     NavHost(navController = navController, startDestination = Screens.Welcome.route) {
         // --- Auth screens ---
         composable(Screens.Welcome.route) {
             WelcomeScreen(navController)
         }
         composable(Screens.Login.route) {
-            LoginScreen(navController)
+            LoginScreen(
+                navController = navController,
+                snackbarViewModel = snackbarViewModel
+            )
         }
         composable(Screens.Register.route) {
             RegisterScreen(navController)

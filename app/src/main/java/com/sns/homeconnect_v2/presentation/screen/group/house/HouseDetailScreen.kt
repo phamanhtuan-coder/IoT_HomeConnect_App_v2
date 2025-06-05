@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -29,6 +30,7 @@ import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,7 +40,8 @@ fun HouseDetailScreen(
     houseIcon: ImageVector,
     colorIcon: Color,
     houseName: String,
-    houseAddress: String
+    houseAddress: String,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     val spaces = remember {
@@ -260,14 +263,16 @@ fun HouseDetailScreen(
                             label = "Cập nhật",
                             style = HCButtonStyle.PRIMARY,
                             onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            snackbarViewModel = snackbarViewModel
                         )
                         Spacer(Modifier.height(8.dp))
                         ActionButtonWithFeedback(
                             label = "Xoá",
                             style = HCButtonStyle.DISABLED,
                             onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            snackbarViewModel = snackbarViewModel
                         )
                     }
                 }

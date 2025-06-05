@@ -30,18 +30,22 @@ fun ActionIcon(
     icon: ImageVector,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    tint: Color = Color.White
+    tint: Color = Color.White,
+    enabled: Boolean = true
 ) {
+    val actualBackgroundColor = if (enabled) backgroundColor else Color(0xFFB0BEC5) // Màu xám nhạt
+
     IconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .size(48.dp)
-            .background(backgroundColor, shape = RoundedCornerShape(12.dp))
+            .background(actualBackgroundColor, shape = RoundedCornerShape(12.dp))
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint
+            tint = tint.copy(alpha = if (enabled) 1f else 0.5f) // mờ khi disable
         )
     }
 }

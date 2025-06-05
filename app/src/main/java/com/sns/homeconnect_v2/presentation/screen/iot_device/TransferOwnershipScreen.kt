@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
@@ -23,6 +24,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -58,7 +60,10 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun TransferOwnershipScreen(navController: NavHostController) {
+fun TransferOwnershipScreen(
+    navController: NavHostController,
+    snackbarViewModel : SnackbarViewModel = hiltViewModel()
+) {
     val scope = rememberCoroutineScope()
 
     var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
@@ -125,7 +130,8 @@ fun TransferOwnershipScreen(navController: NavHostController) {
                             pendingOnSuccess = onS
                             pendingOnError   = onE
                             showConfirm      = true
-                        }
+                        },
+                        snackbarViewModel = snackbarViewModel
                     )
 
                     if (showConfirm) {

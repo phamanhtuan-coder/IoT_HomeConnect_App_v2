@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.ChangeLogCard
@@ -20,6 +21,7 @@ import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -34,7 +36,10 @@ import kotlinx.coroutines.launch
  */
 
 @Composable
-fun SoftwareVersionScreen(navController: NavHostController) {
+fun SoftwareVersionScreen(
+    navController: NavHostController,
+    snackbarViewModel : SnackbarViewModel = hiltViewModel()
+) {
     val scope = rememberCoroutineScope()
 
     var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
@@ -121,7 +126,8 @@ fun SoftwareVersionScreen(navController: NavHostController) {
                                 pendingOnSuccess = onS
                                 pendingOnError   = onE
                                 showConfirm      = true
-                            }
+                            },
+                            snackbarViewModel = snackbarViewModel
                         )
 
                         // Dialog xác nhận

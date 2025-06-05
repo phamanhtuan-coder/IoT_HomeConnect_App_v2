@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -35,6 +36,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.component.SimpleUserCard
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -59,6 +61,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddUserScreen(
     navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val scope = rememberCoroutineScope()
     var current by remember { mutableStateOf<String?>(null) }
@@ -195,7 +198,8 @@ fun AddUserScreen(
                     ActionButtonWithFeedback(
                         label = "Thêm",
                         style = HCButtonStyle.PRIMARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } }
+                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
             }

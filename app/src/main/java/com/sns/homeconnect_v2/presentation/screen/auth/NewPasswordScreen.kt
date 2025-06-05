@@ -46,6 +46,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPassWordState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPasswordViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /** Giao diện màn hình Tạo mật khẩu mới (NewPassword Screen)
  * -----------------------------------------
@@ -65,6 +66,7 @@ fun NewPasswordScreen(
     navController: NavHostController,
     email: String,
     viewModel: NewPasswordViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val newPasswordState by viewModel.newPasswordState.collectAsState()
     val context = LocalContext.current
@@ -191,7 +193,8 @@ fun NewPasswordScreen(
                             style = HCButtonStyle.PRIMARY,
                             onAction = { _, _ ->
                                 viewModel.newPassword(email, passwordState.value)
-                            }
+                            },
+                            snackbarViewModel = snackbarViewModel
                         )
                     }
                 }

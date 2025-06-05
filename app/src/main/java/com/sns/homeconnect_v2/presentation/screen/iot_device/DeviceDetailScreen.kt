@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
@@ -88,13 +89,15 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
 fun DeviceDetailScreen(
-    navController: NavHostController
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
@@ -424,7 +427,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK
+                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK,
+                                        snackbarViewModel = snackbarViewModel
                                     )
 
                                     ActionButtonWithFeedback(
@@ -441,7 +445,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK
+                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK,
+                                        snackbarViewModel = snackbarViewModel
                                     )
                                 }
 
@@ -465,7 +470,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE
+                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE,
+                                        snackbarViewModel = snackbarViewModel
                                     )
 
                                     ActionButtonWithFeedback(
@@ -482,7 +488,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.RESET
+                                        isLoadingFromParent = loadingAction == DeviceAction.RESET,
+                                        snackbarViewModel = snackbarViewModel
                                     )
                                 }
 
@@ -506,7 +513,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER
+                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER,
+                                        snackbarViewModel = snackbarViewModel
                                     )
 
                                     ActionButtonWithFeedback(
@@ -523,7 +531,8 @@ fun DeviceDetailScreen(
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION
+                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION,
+                                        snackbarViewModel = snackbarViewModel
                                     )
                                 }
 
@@ -543,7 +552,8 @@ fun DeviceDetailScreen(
                                     height = 62.dp,
                                     textSize = 20.sp,
                                     modifier = Modifier.fillMaxWidth(0.8f),
-                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST
+                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST,
+                                    snackbarViewModel = snackbarViewModel
                                 )
                             }
 

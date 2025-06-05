@@ -1,8 +1,10 @@
 package com.sns.homeconnect_v2.domain.repository
 
 
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 
 
 interface SpaceRepository {

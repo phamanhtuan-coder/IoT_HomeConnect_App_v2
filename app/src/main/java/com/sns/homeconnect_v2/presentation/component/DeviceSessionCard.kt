@@ -1,137 +1,251 @@
 package com.sns.homeconnect_v2.presentation.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.sns.homeconnect_v2.R
+import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
+import java.time.OffsetDateTime
 
-/**
- * Một hàm composable hiển thị một thẻ mini cho một phiên thiết bị.
- *
- * @param checked Liệu hộp kiểm có được chọn hay không.
- * @param onCheckedChange Hàm callback khi trạng thái hộp kiểm thay đổi.
- * @param deviceName Tên của thiết bị.
- * @param browser Trình duyệt được sử dụng cho phiên.
- * @param ip Địa chỉ IP của thiết bị.
- * @param lastAccess Thời gian truy cập cuối cùng của phiên.
- * @param onLogout Hàm callback khi nút đăng xuất được nhấp.
- * @param modifier Modifier để áp dụng cho composable.
- *
- * @author Nguyễn Thanh Sang
- * @since 27-05-2025
- */
+fun getDeviceIconRes(deviceName: String): Int {
+    val browserKeywords = setOf("browser", "chrome", "firefox", "safari", "edge", "opera")
+    val deviceNameLower = deviceName.lowercase()
+
+    return when {
+        browserKeywords.any { it in deviceNameLower } -> R.drawable.windows
+        else -> R.drawable.android
+    }
+}
+
+fun isLoggedIn(lastOut: String?): Boolean {
+    // Nếu lastOut là null, thiết bị vẫn đang đăng nhập
+    return lastOut.isNullOrBlank()
+}
+
+fun timeSinceLogout(lastOut: String?): String {
+    if (lastOut.isNullOrBlank()) return ""
+    val outTime = OffsetDateTime.parse(lastOut)
+    val now = OffsetDateTime.now()
+    val duration = java.time.Duration.between(outTime, now)
+    val hours = duration.toHours()
+    val minutes = duration.toMinutes() % 60
+    return when {
+        hours > 0 -> "$hours giờ trước"
+        minutes > 0 -> "$minutes phút trước"
+        else -> "vừa xong"
+    }
+}
+
 @Composable
-fun DeviceSessionMiniCard(
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    deviceName: String,
-    browser: String,
-    ip: String,
-    lastAccess: String,
-    onLogout: () -> Unit,
-    modifier: Modifier = Modifier
+fun DeviceSessionCard(
+    modifier: Modifier = Modifier,
+    userActivityResponse: UserActivityResponse,
+    onLogout: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
-    Row(
+    var isHovered by remember { mutableStateOf(false) }
+    var isLogoutPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val hoverInteraction = remember { MutableInteractionSource() }
+    val red = Color(0xFFFF6666)
+    val redBg = Color(0xFFFFF0F0)
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val isDeviceLoggedIn = isLoggedIn(userActivityResponse.last_out)
+    val lastActive = timeSinceLogout(userActivityResponse.last_out)
+
+    LaunchedEffect(interactionSource) {
+        interactionSource.interactions.collect { interaction ->
+            isLogoutPressed = interaction is androidx.compose.foundation.interaction.PressInteraction.Press
+        }
+    }
+
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = if (isHovered) Color(0xFFB8C4C8) else Color(0xFFD8E4E8),
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .border(
+                width = 1.dp,
+                color = Color(0xFFF2F5F8),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .hoverable(
+                interactionSource = hoverInteraction,
+                enabled = true
+            )
+            .clickable(onClick = { onClick?.invoke() })
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange,
-            modifier = Modifier.padding(end = 6.dp)
-        )
+        LaunchedEffect(hoverInteraction) {
+            hoverInteraction.interactions.collect { interaction ->
+                when (interaction) {
+                    is androidx.compose.foundation.interaction.HoverInteraction.Enter -> isHovered = true
+                    is androidx.compose.foundation.interaction.HoverInteraction.Exit -> isHovered = false
+                }
+            }
+        }
 
-        Surface(
-            shape = RoundedCornerShape(12.dp),
-            color = Color(0xFFD8E4E8),
-            shadowElevation = 1.dp,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Devices,
-                    contentDescription = null,
-                    tint = Color(0xFF607D8B),
+                Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .padding(end = 6.dp)
-                )
+                        .size(44.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .background(Color(0xFFD8E4E8), shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(getDeviceIconRes(userActivityResponse.device_name)),
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+
+                Spacer(Modifier.width(16.dp))
+
                 Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.Center
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "$deviceName - $browser",
+                        text = userActivityResponse.device_name,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = Color.Black,
-                        maxLines = 1
+                        fontSize = 18.sp,
+                        color = Color(0xFF222222),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text = ip,
-                        color = Color(0xFF757575),
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = lastAccess,
-                        color = Color(0xFFB0B0B0),
-                        fontSize = 13.sp
-                    )
+                    Spacer(Modifier.height(4.dp))
+
+                    if (isDeviceLoggedIn) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .background(Color(0xFF21D375), shape = CircleShape)
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(
+                                text = "Đang đăng nhập",
+                                fontSize = 14.sp,
+                                color = Color(0xFF21D375),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.width(IntrinsicSize.Max)
+                        ) {
+                            Text(
+                                text = "Đăng xuất $lastActive",
+                                fontSize = 14.sp,
+                                color = Color(0xFFB0B0B0),
+                                fontWeight = FontWeight.Medium,
+                                softWrap = false,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
                 }
-                Spacer(Modifier.width(8.dp))
-                TextButton(
-                    onClick = onLogout,
-                    contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
-                ) {
-                    Text(
-                        "Đăng xuất",
-                        color = Color(0xFFD32F2F),
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+            }
+
+            ElevatedButton(
+                onClick = { onLogout?.invoke() },
+                modifier = Modifier
+                    .height(42.dp)
+                    .padding(start = 16.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = if (isPressed) redBg else Color.White,
+                    contentColor = red
+                ),
+                elevation = ButtonDefaults.elevatedButtonElevation(
+                    defaultElevation = 1.dp,
+                    pressedElevation = 0.dp,
+                    hoveredElevation = 2.dp
+                ),
+                interactionSource = interactionSource,
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = red
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = "Đăng xuất",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = red
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true, widthDp = 400)
+@Preview(showBackground = true, widthDp = 370)
 @Composable
-fun DeviceSessionMiniCardPreview() {
-    var checked by remember { mutableStateOf(false) }
-
-    DeviceSessionMiniCard(
-        checked = checked,
-        onCheckedChange = { checked = it },
-        deviceName = "Android",
-        browser = "Chrome",
-        ip = "192.168.1.2",
-        lastAccess = "2 giờ trước",
-        onLogout = {}
+fun DeviceCardPreview() {
+    val userActivity = UserActivityResponse(
+        user_device_id = 1,
+        user_id = "CUST4E040TZCD017N1YK6B2OMNYX",
+        device_name = "iPhone 13 Pro",
+        device_id = "device123",
+        device_uuid = "UDVCE4I2EUDTUCQXXILDZMR62GJO",
+        device_token = null,
+        last_login = "2025-06-05T02:46:39.000Z",
+        last_out = "2025-06-05T03:46:39.000Z",
+        created_at = "2025-06-04T03:49:35.000Z",
+        updated_at = "2025-06-05T02:46:39.000Z",
+        is_deleted = false
+    )
+    DeviceSessionCard(
+        userActivityResponse = userActivity,
+        onLogout = { /* Handle logout */ },
+        onClick = { /* Handle click */ }
     )
 }
-

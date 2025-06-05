@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.remote.api
 
+import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
@@ -21,6 +22,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
@@ -33,6 +35,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
+import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -233,6 +236,16 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UpdateGroupResponse
 
+
+    @GET("user-devices/me")
+    suspend fun getUserActivities(
+        @Header("Authorization") token: String
+    ): List<UserActivityResponse>
+
+    @GET("groups/my-groups")
+    suspend fun getMyGroups(
+        @Header("Authorization") token: String
+    ): ApiResponse<List<GroupResponse>>
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

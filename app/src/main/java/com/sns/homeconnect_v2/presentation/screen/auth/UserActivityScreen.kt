@@ -13,14 +13,14 @@ import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.DeviceSessionListCard
-import com.sns.homeconnect_v2.presentation.component.SecurityEventListCard
-import com.sns.homeconnect_v2.presentation.component.SyncHistoryItemListCard
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.presentation.viewmodel.user_activity.UserActivityViewModel
 import com.sns.homeconnect_v2.presentation.model.DeviceSession
 import com.sns.homeconnect_v2.presentation.model.SecurityEvent
 import com.sns.homeconnect_v2.presentation.model.SyncHistoryItem
@@ -54,33 +54,31 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 @Composable
 fun UserActivityManagementScreen(
     navController: NavHostController,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+    viewModel: UserActivityViewModel = hiltViewModel()
 ) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        val fakeSessions = List(5) {
-            DeviceSession(
-                id = it,
-                deviceName = "Android",
-                browser = "Chrome",
-                ip = "192.168.1.2",
-                lastAccess = "2 giờ trước"
-            )
+        val activities by viewModel.activities.collectAsState()
+
+        // Gọi API khi vào màn hình
+        LaunchedEffect(Unit) {
+            viewModel.loadActivities()
         }
-        val fakeItems = listOf(
-            SyncHistoryItem("Windows - Edge", "16/05/2025 15:40", true),
-            SyncHistoryItem("Android - Chrome", "15/05/2025 10:15", true),
-            SyncHistoryItem("Mac - Safari", "14/05/2025 09:20", false),
-            SyncHistoryItem("iOS - Safari", "13/05/2025 11:05", true),
-            SyncHistoryItem("Linux - Firefox", "12/05/2025 08:00", false)
-        )
-        val fakeEvents = listOf(
-            SecurityEvent("Đăng nhập bất thường", "15/05/2025", true),
-            SecurityEvent("IP lạ", "14/05/2025", true),
-            SecurityEvent("Thiết bị mới", "13/05/2025", false),
-            SecurityEvent("Mật khẩu sai nhiều lần", "12/05/2025", true),
-            SecurityEvent("Trình duyệt mới", "11/05/2025", false)
-        )
+//        val fakeItems = listOf(
+//            SyncHistoryItem("Windows - Edge", "16/05/2025 15:40", true),
+//            SyncHistoryItem("Android - Chrome", "15/05/2025 10:15", true),
+//            SyncHistoryItem("Mac - Safari", "14/05/2025 09:20", false),
+//            SyncHistoryItem("iOS - Safari", "13/05/2025 11:05", true),
+//            SyncHistoryItem("Linux - Firefox", "12/05/2025 08:00", false)
+//        )
+//        val fakeEvents = listOf(
+//            SecurityEvent("Đăng nhập bất thường", "15/05/2025", true),
+//            SecurityEvent("IP lạ", "14/05/2025", true),
+//            SecurityEvent("Thiết bị mới", "13/05/2025", false),
+//            SecurityEvent("Mật khẩu sai nhiều lần", "12/05/2025", true),
+//            SecurityEvent("Trình duyệt mới", "11/05/2025", false)
+//        )
 
         Scaffold(
             topBar = {
@@ -121,16 +119,9 @@ fun UserActivityManagementScreen(
                         horizontalAlignment = Alignment.Start,
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text        = "Bản cập mới",
-                            color       = Color.Black,
-                            fontSize    = 20.sp,
-                            fontWeight  = FontWeight.Bold,
-                            letterSpacing = 0.5.sp,
-                        )
                         DeviceSessionListCard(
-                            sessions = fakeSessions,
-                            onLogout = {}
+                            sessions = activities, // <-- Đã lấy từ server
+                            onLogout = { /* Xử lý logout */ }
                         )
                         ActionButtonWithFeedback(
                             label = "Đổi mật khẩu",
@@ -138,27 +129,27 @@ fun UserActivityManagementScreen(
                             onAction = { _, _ -> },
                             snackbarViewModel = snackbarViewModel
                         )
-                        Text(
-                            text        = "Cảnh báo bảo mật",
-                            color       = Color.Black,
-                            fontSize    = 20.sp,
-                            fontWeight  = FontWeight.Bold,
-                            letterSpacing = 0.5.sp,
-                        )
-
-                        SecurityEventListCard(
-                            events = fakeEvents
-                        )
-
-                        Text(
-                            text        = "Lịch sử đồng bộ",
-                            color       = Color.Black,
-                            fontSize    = 20.sp,
-                            fontWeight  = FontWeight.Bold,
-                            letterSpacing = 0.5.sp,
-                        )
-
-                        SyncHistoryItemListCard(items = fakeItems)
+//                        Text(
+//                            text        = "Cảnh báo bảo mật",
+//                            color       = Color.Black,
+//                            fontSize    = 20.sp,
+//                            fontWeight  = FontWeight.Bold,
+//                            letterSpacing = 0.5.sp,
+//                        )
+//
+//                        SecurityEventListCard(
+//                            events = fakeEvents
+//                        )
+//
+//                        Text(
+//                            text        = "Lịch sử đồng bộ",
+//                            color       = Color.Black,
+//                            fontSize    = 20.sp,
+//                            fontWeight  = FontWeight.Bold,
+//                            letterSpacing = 0.5.sp,
+//                        )
+//
+//                        SyncHistoryItemListCard(items = fakeItems)
                     }
                 }
             }

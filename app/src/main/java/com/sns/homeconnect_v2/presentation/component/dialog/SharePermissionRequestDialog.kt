@@ -18,8 +18,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Một hộp thoại nhắc người dùng xác nhận hoặc từ chối yêu cầu chia sẻ quyền.
@@ -38,7 +40,8 @@ fun SharePermissionRequestDialog(
     userName: String,
     deviceId: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -94,6 +97,7 @@ fun SharePermissionRequestDialog(
                         onAction = { _, _ -> onDismiss() },
                         modifier = Modifier.weight(1f),
                         textSize = 17.sp,
+                        snackbarViewModel = snackbarViewModel
                     )
                     ActionButtonWithFeedback(
                         label = "Đồng ý",
@@ -101,6 +105,7 @@ fun SharePermissionRequestDialog(
                         onAction = { _, _ -> onConfirm() },
                         modifier = Modifier.weight(1f),
                         textSize = 17.sp,
+                        snackbarViewModel = snackbarViewModel
                     )
                 }
             }

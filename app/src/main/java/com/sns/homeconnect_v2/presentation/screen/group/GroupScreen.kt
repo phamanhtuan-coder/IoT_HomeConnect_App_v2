@@ -3,8 +3,6 @@ package com.sns.homeconnect_v2.presentation.screen.group
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,55 +11,44 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
-import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.FabChild
-import com.sns.homeconnect_v2.presentation.model.GroupUi
+import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
 
 @Composable
-fun GroupScreen(modifier: Modifier = Modifier, navController: NavHostController) {
-    val groups = remember {
-        mutableStateListOf(
-            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue),
-            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red),
-            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green)
-        )
+fun GroupScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    viewModel: GroupListViewModel = hiltViewModel()
+) {
+    val groups by viewModel.groupList.collectAsState()
+//    val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchGroups()
     }
 
-    val items = listOf(
-        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices" to Pair(Icons.Filled.Devices, "devices"),
-        "Home" to Pair(Icons.Filled.Home, "home"),
-        "Profile" to Pair(Icons.Filled.Person, "profile"),
-        "Settings" to Pair(Icons.Filled.Settings, "settings")
-    )
-    val context = LocalContext.current
-    val isTablet = isTablet(context)
-
-    // Track the last selected route
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+//    val context = LocalContext.current
+//    val isTablet = isTablet(context)
+//
+//    // Track the last selected route
+//    val currentRoute = navController.currentBackStackEntry?.destination?.route
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -107,37 +94,7 @@ fun GroupScreen(modifier: Modifier = Modifier, navController: NavHostController)
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {
-                BottomAppBar(
-                    tonalElevation = 4.dp,
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.height(120.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        items.forEach { item ->
-                            val isSelected = currentRoute == item.second.second
-                            MenuItem(
-                                text = item.first,
-                                icon = item.second.first,
-                                isSelected = isSelected,
-                                onClick = {
-                                    navController.navigate(item.second.second) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                isTablet = isTablet,
-                            )
-                        }
-                    }
-                }
+                MenuBottom(navController)
             }
         ) { inner ->
             Column (
@@ -175,14 +132,12 @@ fun GroupScreen(modifier: Modifier = Modifier, navController: NavHostController)
                     ) {
                         LabeledBox(
                             label = "Số nhóm",
-                            value = "4"
+                            value = groups.size.toString(),
                         )
                     }
                 }
-                
-                LazyColumn(modifier = modifier
-                    .fillMaxSize()
-                ) {
+
+                LazyColumn(modifier = modifier.fillMaxSize()) {
                     itemsIndexed(groups) { index, group ->
                         Spacer(Modifier.height(8.dp))
                         GroupCardSwipeable(
@@ -192,14 +147,12 @@ fun GroupScreen(modifier: Modifier = Modifier, navController: NavHostController)
                             iconColor = group.iconColor,
                             isRevealed = group.isRevealed,
                             onExpandOnly = {
-                                groups.indices.forEach { i ->
-                                    groups[i] = groups[i].copy(isRevealed = i == index)
-                                }
+                                viewModel.updateRevealState(index)
                             },
                             onCollapse = {
-                                groups[index] = group.copy(isRevealed = false)
+                                viewModel.collapseItem(index)
                             },
-                            onDelete = { groups.removeAt(index) },
+                            onDelete = { /* TODO: Call delete use case */ },
                             onEdit = { /* TODO */ }
                         )
                     }

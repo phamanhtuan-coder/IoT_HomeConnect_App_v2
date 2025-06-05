@@ -4,6 +4,7 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
@@ -12,6 +13,7 @@ import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.UserActivityRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AlertRepository
@@ -22,6 +24,7 @@ import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
+import com.sns.homeconnect_v2.domain.repository.UserActivityRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.repository.WeatherRepository
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
@@ -55,6 +58,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -108,6 +112,12 @@ abstract class RepositoryModule {
     abstract fun bindGroupRepository(
         groupRepositoryImpl: GroupRepositoryImpl
     ): GroupRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserActivityRepository(
+        impl: UserActivityRepositoryImpl
+    ): UserActivityRepository
 
     companion object {
         @Provides
@@ -316,6 +326,14 @@ abstract class RepositoryModule {
         @Singleton
         fun provideCreateGroupUseCase(createGroupRepository: GroupRepository): CreateGroupUseCase {
             return CreateGroupUseCase(createGroupRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetUserActivitiesUseCase(
+            repo: UserActivityRepository
+        ): GetUserActivitiesUseCase {
+            return GetUserActivitiesUseCase(repo)
         }
     }
 }

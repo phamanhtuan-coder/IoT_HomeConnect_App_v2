@@ -49,13 +49,15 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.UpdatePasswordState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.UpdatePasswordViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 
 @Composable
 fun UpdatePasswordScreen(
     navController: NavHostController,
     userId: Int,
-    viewModel: UpdatePasswordViewModel = hiltViewModel()
+    viewModel: UpdatePasswordViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
     val updatePasswordState by viewModel.updatePasswordState.collectAsState()
 
@@ -311,7 +313,8 @@ fun UpdatePasswordScreen(
                                     newPassword = newPasswordState
                                 )
                             )
-                        }
+                        },
+                        snackbarViewModel = snackbarViewModel
                     )
 
 //                    Button(

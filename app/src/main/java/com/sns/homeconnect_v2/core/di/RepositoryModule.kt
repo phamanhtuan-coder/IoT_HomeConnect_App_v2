@@ -34,6 +34,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
+import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.CreateHouseUseCase
@@ -70,7 +71,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-
     @Binds
     @Singleton
     abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
@@ -331,9 +331,14 @@ abstract class RepositoryModule {
         @Provides
         @Singleton
         fun provideGetUserActivitiesUseCase(
-            repo: UserActivityRepository
+            repository: UserActivityRepository
         ): GetUserActivitiesUseCase {
-            return GetUserActivitiesUseCase(repo)
+            return GetUserActivitiesUseCase(repository)
+
+        @Provides
+        @Singleton
+        fun provideGetMyGroupsUseCase(repository: GroupRepository): GetMyGroupsUseCase {
+            return GetMyGroupsUseCase(repository)
         }
     }
 }

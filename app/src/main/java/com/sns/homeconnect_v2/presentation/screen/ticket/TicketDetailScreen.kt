@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.TicketDetailCard
@@ -20,6 +21,7 @@ import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.ChatMessageUi
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Composable function hiển thị màn hình chi tiết yêu cầu.
@@ -34,7 +36,10 @@ import com.sns.homeconnect_v2.presentation.model.ChatMessageUi
  * @since 26-05-2025
  */
 @Composable
-fun TicketDetailScreen(navController: NavHostController) {
+fun TicketDetailScreen(
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+) {
     IoTHomeConnectAppTheme {
         // Các biến dữ liệu
         val colorScheme = MaterialTheme.colorScheme
@@ -120,7 +125,8 @@ fun TicketDetailScreen(navController: NavHostController) {
                         ActionButtonWithFeedback(
                             label = buttonLabel,
                             style = HCButtonStyle.PRIMARY,
-                            onAction = { _, _ -> }
+                            onAction = { _, _ -> },
+                            snackbarViewModel = snackbarViewModel
                         )
                     }
                 }

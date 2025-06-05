@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.DeviceSessionListCard
@@ -23,6 +24,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.DeviceSession
 import com.sns.homeconnect_v2.presentation.model.SecurityEvent
 import com.sns.homeconnect_v2.presentation.model.SyncHistoryItem
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**
  * Hàm Composable cho Màn hình Quản lý Hoạt động Người dùng.
@@ -50,7 +52,10 @@ import com.sns.homeconnect_v2.presentation.model.SyncHistoryItem
  * @since 27-05-2025
  */
 @Composable
-fun UserActivityManagementScreen(navController: NavHostController) {
+fun UserActivityManagementScreen(
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         val fakeSessions = List(5) {
@@ -130,7 +135,8 @@ fun UserActivityManagementScreen(navController: NavHostController) {
                         ActionButtonWithFeedback(
                             label = "Đổi mật khẩu",
                             style = HCButtonStyle.PRIMARY,
-                            onAction = { _, _ -> }
+                            onAction = { _, _ -> },
+                            snackbarViewModel = snackbarViewModel
                         )
                         Text(
                             text        = "Cảnh báo bảo mật",

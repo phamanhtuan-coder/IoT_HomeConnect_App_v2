@@ -26,11 +26,13 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel
 ) {
     IoTHomeConnectAppTheme {
         val configuration = LocalConfiguration.current
@@ -115,19 +117,17 @@ fun LoginScreen(
                 ActionButtonWithFeedback(
                     label = "Đăng nhập",
                     style = HCButtonStyle.PRIMARY,
-                    onSuccess = {          // chạy SAU khi user bấm OK dialog thành công
-                        navController.navigate("home_graph") {
-                            popUpTo(Screens.Login.route) { inclusive = true }
-                        }
-                    },
+                    snackbarViewModel = snackbarViewModel,  // <-- truyền vào đây
+                    onSuccess = { navController.navigate("home_graph") { popUpTo(Screens.Login.route) { inclusive = true } } },
                     onAction = { ok, err ->
-                        val result = viewModel.quickLogin(emailState.value, passwordState.value)   // suspend
+                        val result = viewModel.quickLogin(emailState.value, passwordState.value)
                         result.fold(
                             onSuccess = { ok("Đăng nhập thành công!") },
                             onFailure = { e -> err(e.message ?: "Sai tài khoản hoặc mật khẩu!") }
                         )
                     }
                 )
+
                 // Comment out the UI state handling since we're bypassing API calls
                 // TODO: Re-enable when API is ready
                 /*
@@ -178,5 +178,5 @@ fun LoginScreen(
 @Preview
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen(navController = rememberNavController())
+    LoginScreen(navController = rememberNavController(), snackbarViewModel = hiltViewModel<SnackbarViewModel>())
 }

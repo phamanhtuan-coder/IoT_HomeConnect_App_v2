@@ -33,6 +33,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
+import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -226,11 +227,15 @@ interface ApiService {
         @Header("Authorization") token: String
     ): CreateGroupResponse
 
+    @GET("user-devices/me")
+    suspend fun getUserActivities(
+        @Header("Authorization") token: String
+    ): List<UserActivityResponse>
+
     @GET("groups/my-groups")
     suspend fun getMyGroups(
         @Header("Authorization") token: String
     ): ApiResponse<List<GroupResponse>>
-
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

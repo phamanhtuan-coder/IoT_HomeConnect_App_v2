@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.presentation.screen.setting
 
 import IoTHomeConnectAppTheme
-import android.app.Application
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -70,7 +71,7 @@ fun SettingsScreen(
 
     var showAlertDialog by remember { mutableStateOf(false) }
 
-    var profileId by remember { mutableStateOf(-1) } // Lắng nghe danh sách thiết bị
+    var profileId by remember { mutableIntStateOf(-1) } // Lắng nghe danh sách thiết bị
     val infoProfileState by viewModel.infoProfileState.collectAsState()
 
     when(infoProfileState){
@@ -128,6 +129,13 @@ fun SettingsScreen(
                                     ),
                                 horizontalAlignment = Alignment.CenterHorizontally // Căn giữa các phần tử con theo chiều ngang
                             ) {
+                                CardSettings(
+                                    icon = Icons.Default.Devices,
+                                    title = "Lịch sử hoạt động người dùng",
+                                    onClick = {
+                                        navController.navigate(Screens.UserActivity.route)
+                                    }
+                                )
                                 CardSettings(
                                     icon = Icons.Default.Password,
                                     title = "Đổi mật khẩu",

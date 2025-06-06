@@ -168,7 +168,6 @@ fun CreateHouseScreen(
 
                 item {
                     IconPicker(
-                        iconOptions = iconOptions,
                         selectedIconLabel = selectedLabel,
                         onIconSelected = { selectedLabel = it }
                     )
@@ -177,7 +176,6 @@ fun CreateHouseScreen(
                 item {
                     Spacer(Modifier.height(8.dp))
                     ColorPicker(
-                        colors = colorOptions,
                         selectedColorLabel = selectedColor,
                         onColorSelected = { selectedColor = it }
                     )

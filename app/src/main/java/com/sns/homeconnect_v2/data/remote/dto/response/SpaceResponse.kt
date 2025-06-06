@@ -1,6 +1,6 @@
 package com.sns.homeconnect_v2.data.remote.dto.response
 
 data class SpaceResponse(
-    val SpaceID: Int,
-    val Name: String
+    val space_id: Int,
+    val space_name: String
 )

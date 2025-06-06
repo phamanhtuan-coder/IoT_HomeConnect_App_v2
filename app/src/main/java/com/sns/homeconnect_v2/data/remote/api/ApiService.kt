@@ -22,7 +22,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse

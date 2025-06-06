@@ -28,8 +28,8 @@ suspend fun mapGroupResponseToUi(
         name = group.group_name,
         members = members.size,
         isRevealed = false,
-        icon = getIconByName(group.icon_name),
-        iconColor = parseColorOrDefault(group.icon_color),
+        iconName = group.icon_name ?: "home",
+        iconColorName = group.icon_color ?: "gray",
         description = group.group_description,
         role = role
     )

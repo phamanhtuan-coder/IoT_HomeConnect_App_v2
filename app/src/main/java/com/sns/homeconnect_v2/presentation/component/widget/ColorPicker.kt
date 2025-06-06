@@ -44,10 +44,22 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun ColorPicker(
-    colors: List<Pair<Color, String>>,
     selectedColorLabel: String,
     onColorSelected: (String) -> Unit
 ) {
+    val colors = listOf(
+        Color.Red to "red",
+        Color.Green to "green",
+        Color.Blue to "blue",
+        Color.Yellow to "yellow",
+        Color.Cyan to "cyan",
+        Color.Magenta to "magenta",
+        Color.Gray to "gray",
+        Color.Black to "black",
+        Color.White to "white",
+        Color(0xFF2196F3) to "customBlue"
+    )
+
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
             text = "Chọn màu sắc:",
@@ -97,7 +109,6 @@ fun PreviewColorPickerCombined() {
     )
 
     ColorPicker(
-        colors = colorOptions,
         selectedColorLabel = selectedLabel,
         onColorSelected = { selectedLabel = it }
     )

@@ -239,7 +239,6 @@ fun DetailGroupScreen(navController: NavHostController) {
                                 modifier = Modifier
                                     .align(Alignment.CenterEnd),
                             ) {
-                                /*  Phần phải: avatar chồng lên nhau  */
                                 IconButton(
                                     onClick = { /* TODO: rời group */ },
                                     modifier = Modifier

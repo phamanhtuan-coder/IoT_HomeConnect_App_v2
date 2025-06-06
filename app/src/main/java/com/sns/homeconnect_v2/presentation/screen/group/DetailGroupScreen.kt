@@ -24,6 +24,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.toHouseUi
 import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.UserCardSwipeable
@@ -45,10 +46,19 @@ fun DetailGroupScreen(
 ) {
     val viewModel: DetailGroupViewModel = hiltViewModel()
     val members by viewModel.members.collectAsState()
+    val housesResponse by viewModel.houses.collectAsState()
     val refreshTrigger = navController.currentBackStackEntry
         ?.savedStateHandle
         ?.getStateFlow("refresh", false)
         ?.collectAsState()
+
+    val housesUi = remember { mutableStateListOf<HouseUi>() }
+    LaunchedEffect(housesResponse) {
+        housesUi.clear()
+        housesUi.addAll(housesResponse.map { it.toHouseUi() })
+    }
+
+
 
     LaunchedEffect(refreshTrigger?.value) {
         if (refreshTrigger?.value == true) {
@@ -57,14 +67,6 @@ fun DetailGroupScreen(
                 ?.savedStateHandle
                 ?.set("refresh", false) // Reset flag
         }
-    }
-
-    val houses = remember {
-        mutableStateListOf(
-            HouseUi(1, "Main house", 3, false, Icons.Default.Home, Color.Black),
-            HouseUi(2, "Villa", 5, false, Icons.Default.Castle, Color.Red),
-            HouseUi(3, "Office", 2, false, Icons.Default.Home, Color.DarkGray)
-        )
     }
 
     val selectedIcon = Icons.Default.Home
@@ -291,7 +293,7 @@ fun DetailGroupScreen(
                     1 -> {
                         // ✅ Tab Nhà gọi HouseTabContent tại đây 👇
                         HouseTabContent(
-                            houses = houses
+                            houses = housesUi
                         )
                     }
                 }
@@ -341,7 +343,8 @@ fun HouseTabContent(
                     onCollapse = {
                         houses[index] = house.copy(isRevealed = false)
                     },
-                    onDelete = { houses.removeAt(index) },
+                    onDelete = {
+                        houses.removeAt(index) },
                     onEdit = { /* TODO */ }
                 )
             }

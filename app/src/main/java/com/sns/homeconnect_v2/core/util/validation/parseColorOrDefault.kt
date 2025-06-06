@@ -6,7 +6,7 @@ import android.graphics.Color as AndroidColor
 fun parseColorOrDefault(hex: String?, fallback: Color = Color.Gray): Color {
     return try {
         if (hex.isNullOrBlank()) fallback else Color(AndroidColor.parseColor(hex))
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         fallback
     }
 }

@@ -119,39 +119,3 @@ fun GroupCardSwipeable(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun GroupCardSwipeablePreview() {
-    val groups = remember {
-        mutableStateListOf(
-            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue),
-            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red),
-            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green)
-        )
-    }
-
-    LazyColumn {
-        itemsIndexed(groups) { index, group ->
-            Spacer(Modifier.height(8.dp))
-            GroupCardSwipeable(
-                groupName = group.name,
-                memberCount = group.members,
-                icon = group.icon,
-                iconColor = group.iconColor,
-                isRevealed = group.isRevealed,
-                role = "admin", // Giả sử vai trò là admin
-                onExpandOnly = {
-                    groups.indices.forEach { i ->
-                        groups[i] = groups[i].copy(isRevealed = i == index)
-                    }
-                },
-                onCollapse = {
-                    groups[index] = group.copy(isRevealed = false)
-                },
-                onDelete = { groups.removeAt(index) },
-                onEdit = { /* TODO */ }
-            )
-        }
-    }
-}

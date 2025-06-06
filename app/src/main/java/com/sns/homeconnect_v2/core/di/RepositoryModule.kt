@@ -59,6 +59,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import dagger.Binds
@@ -347,6 +348,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideGetGroupMembersUseCase(repository: GroupRepository): GetGroupMembersUseCase {
             return GetGroupMembersUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetHousesByGroupUseCase( houseRepository: HouseRepository): GetHousesByGroupUseCase {
+            return GetHousesByGroupUseCase(houseRepository)
         }
     }
 }

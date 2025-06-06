@@ -11,10 +11,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
+import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
+import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 
 @HiltViewModel
 class DetailGroupViewModel @Inject constructor(
     private val memberUseCase: GetGroupMembersUseCase,
+    private val getHousesByGroupUseCase: GetHousesByGroupUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -23,11 +26,15 @@ class DetailGroupViewModel @Inject constructor(
     private val _members = MutableStateFlow<List<MemberResponse>>(emptyList())
     val members = _members.asStateFlow()
 
+    private val _houses = MutableStateFlow<List<HouseWithSpacesResponse>>(emptyList())
+    val houses = _houses.asStateFlow()
+
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
     init {
         fetchGroupMembers()
+        fetchHouses()
     }
 
     fun fetchGroupMembers() {
@@ -37,6 +44,21 @@ class DetailGroupViewModel @Inject constructor(
             result.fold(
                 onSuccess = { _members.value = it },
                 onFailure = { _members.value = emptyList() }
+            )
+            _isLoading.value = false
+        }
+    }
+
+    fun fetchHouses() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            getHousesByGroupUseCase(groupId).fold(
+                onSuccess = {
+                    _houses.value = it
+                },
+                onFailure = {
+                    _houses.value = emptyList()
+                }
             )
             _isLoading.value = false
         }

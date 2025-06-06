@@ -7,7 +7,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -22,7 +21,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.validation.getIconByName
 import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
@@ -41,6 +39,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.group.UpdateGroupViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
@@ -190,6 +189,10 @@ fun GroupScreen(
                                 selectedLabel = group.iconName
                                 selectedColor = group.iconColorName
                                 isSheetVisible = true
+                            },
+                            onClick = {
+                                navController.navigate(Screens.GroupDetail.createRoute(group.id))
+
                             }
                         )
                     }

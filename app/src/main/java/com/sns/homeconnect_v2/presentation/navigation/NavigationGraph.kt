@@ -28,6 +28,7 @@ import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
+import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
@@ -150,9 +151,25 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 arguments = listOf(navArgument("groupId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
-                DetailGroupScreen(navController) //Todo: Pass groupId to DetailGroupScreen
+                DetailGroupScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = groupId
+                )
             }
             // TODO: Add AddGroupUser screen with route "add_group_user/{groupId}"
+
+            composable(
+                route = Screens.AddUser.route,
+                arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
+                AddUserScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = groupId
+                )
+            }
 
             // --- IoT Device screens ---
             composable(Screens.AddDevice.route) {
@@ -265,3 +282,4 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
         }
     }
 }
+

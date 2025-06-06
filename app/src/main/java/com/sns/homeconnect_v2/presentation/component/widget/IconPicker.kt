@@ -14,8 +14,15 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Apartment
+import androidx.compose.material.icons.filled.Castle
+import androidx.compose.material.icons.filled.Cottage
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.LocalLibrary
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Villa
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIcon
 
 /**
  * Một hàm Composable hiển thị một lưới các biểu tượng để người dùng lựa chọn.
@@ -43,10 +51,23 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun IconPicker(
-    iconOptions: List<Pair<ImageVector, String>>,
     selectedIconLabel: String,
     onIconSelected: (String) -> Unit
 ) {
+    val iconOptions = listOf(
+        GroupIcon.Vector(Icons.Default.Home, "Nhà"),
+        GroupIcon.Vector(Icons.Default.Work, "Cơ quan"),
+        GroupIcon.Vector(Icons.Default.School, "Trường"),
+        GroupIcon.Vector(Icons.Default.AccountBalance, "Ngân hàng"),
+        GroupIcon.Vector(Icons.Default.Apartment, "Căn hộ"),
+        GroupIcon.Vector(Icons.Default.Hotel, "Khách sạn"),
+        GroupIcon.Vector(Icons.Default.Villa, "Biệt thự"),
+        GroupIcon.Vector(Icons.Default.Cottage, "Nhà gỗ"),
+        GroupIcon.Vector(Icons.Default.Castle, "Lâu đài"),
+        GroupIcon.Vector(Icons.Default.LocalLibrary, "Thư viện")
+    )
+
+
     Column(
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
@@ -63,13 +84,13 @@ fun IconPicker(
             horizontalArrangement = Arrangement.spacedBy(24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            items(iconOptions, key = { it.second }) { (icon, label) ->
-                val isSelected = label == selectedIconLabel
+            items(iconOptions, key = { it.label }) { icon ->
+                val isSelected = icon.label == selectedIconLabel
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .size(72.dp)
-                        .clickable { onIconSelected(label) }
+                        .clickable { onIconSelected(icon.label) }
                 ) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
@@ -77,16 +98,22 @@ fun IconPicker(
                         border = if (isSelected) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null,
                         modifier = Modifier.size(48.dp)
                     ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = label,
-                            tint = Color(0xFF212121),
-                            modifier = Modifier.padding(8.dp)
-                        )
+                        when (icon) {
+                            is GroupIcon.Vector -> Icon(
+                                imageVector = icon.icon,
+                                contentDescription = icon.label,
+                                tint = Color(0xFF212121),
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            is GroupIcon.Image -> androidx.compose.foundation.Image(
+                                painter = icon.painter,
+                                contentDescription = icon.label,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
                     }
                     Spacer(Modifier.height(4.dp))
-                    Text(label, style = MaterialTheme.typography.bodySmall,fontSize = 18.sp
-                    )
+                    Text(icon.label, style = MaterialTheme.typography.bodySmall, fontSize = 18.sp)
                 }
             }
         }
@@ -97,14 +124,8 @@ fun IconPicker(
 @Composable
 fun IconPickerCombinedPreview() {
     var selectedLabel by remember { mutableStateOf("Nhà") }
-    val iconOptions = listOf(
-        Icons.Default.Home to "Nhà",
-        Icons.Default.Work to "Cơ quan",
-        Icons.Default.School to "Trường"
-    )
 
     IconPicker(
-        iconOptions = iconOptions,
         selectedIconLabel = selectedLabel,
         onIconSelected = { selectedLabel = it }
     )

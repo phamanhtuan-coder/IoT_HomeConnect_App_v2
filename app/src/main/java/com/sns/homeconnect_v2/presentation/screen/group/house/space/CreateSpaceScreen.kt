@@ -212,6 +212,8 @@ fun CreateGroupScreen(
 @Composable
 fun CreateGroupScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        CreateGroupScreen(navController = rememberNavController())
+        CreateGroupScreen(
+            navController = rememberNavController(),
+        )
     }
 }

@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -56,7 +57,8 @@ fun GroupCardSwipeable(
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onClick: () -> Unit
 ) {
     val canEdit = hasPermission(role, RoleLevel.VICE)
     val canDelete = hasPermission(role, RoleLevel.VICE)
@@ -86,6 +88,7 @@ fun GroupCardSwipeable(
             modifier = Modifier
                 .background(color = Color(0xFFD8E4E8))
                 .fillMaxWidth()
+                .clickable { onClick() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

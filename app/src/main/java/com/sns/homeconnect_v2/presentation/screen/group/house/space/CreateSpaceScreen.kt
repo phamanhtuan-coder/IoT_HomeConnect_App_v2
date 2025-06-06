@@ -168,7 +168,6 @@ fun CreateGroupScreen(
 
                 item {
                     IconPicker(
-                        iconOptions = iconOptions,
                         selectedIconLabel = selectedIconLabel,
                         onIconSelected = { selectedIconLabel = it }
                     )
@@ -176,7 +175,6 @@ fun CreateGroupScreen(
 
                 item {
                     ColorPicker(
-                        colors = colorOptions,
                         selectedColorLabel = selectedColorLabel,
                         onColorSelected = { selectedColorLabel = it }
                     )

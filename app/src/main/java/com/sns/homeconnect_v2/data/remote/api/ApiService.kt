@@ -2,6 +2,7 @@ package com.sns.homeconnect_v2.data.remote.api
 
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
@@ -37,6 +38,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -255,6 +257,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): ApiResponse<List<MemberResponse>>
 
+    @POST("groups/members")
+    suspend fun addGroupMember(
+        @Body request: AddGroupMemberRequest,
+        @Header("Authorization") token: String
+    ): UserGroupResponse
+
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,
@@ -353,3 +361,4 @@ interface ApiService {
 //
 //    data class UpdateSpaceRequest(val Name: String)
 }
+

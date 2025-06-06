@@ -25,6 +25,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.MyGroupsWrapper
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
@@ -236,7 +238,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UpdateGroupResponse
 
-
     @GET("user-devices/me")
     suspend fun getUserActivities(
         @Header("Authorization") token: String
@@ -244,8 +245,16 @@ interface ApiService {
 
     @GET("groups/my-groups")
     suspend fun getMyGroups(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
         @Header("Authorization") token: String
-    ): ApiResponse<List<GroupResponse>>
+    ): MyGroupsWrapper
+
+    @GET("groups/{groupId}/members")
+    suspend fun getGroupMembers(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): ApiResponse<List<MemberResponse>>
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

@@ -9,11 +9,13 @@ fun getIconByName(name: String?): ImageVector {
         "home" -> Icons.Default.Home
         "work" -> Icons.Default.Work
         "school" -> Icons.Default.School
-        "group" -> Icons.Default.Group
-        "settings" -> Icons.Default.Settings
-        "person" -> Icons.Default.Person
-        "info" -> Icons.Default.Info
-        "lock" -> Icons.Default.Lock
-        else -> Icons.Default.Group
+        "account_balance" -> Icons.Default.AccountBalance
+        "apartment" -> Icons.Default.Apartment
+        "hotel" -> Icons.Default.Hotel
+        "villa" -> Icons.Default.Villa
+        "cottage" -> Icons.Default.Cottage
+        "castle" -> Icons.Default.Castle
+        "library" -> Icons.Default.LocalLibrary
+        else -> Icons.Default.Home // fallback về home
     }
 }

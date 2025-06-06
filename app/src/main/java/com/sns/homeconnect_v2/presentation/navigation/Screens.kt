@@ -63,6 +63,9 @@ sealed class Screens(val route: String) {
     data object AddGroupUser : Screens("add_group_user/{groupId}") {
         fun createRoute(groupId: Int) = "add_group_user/$groupId"
     }
+    data object AddUser : Screens("add_user/{groupId}") {
+        fun createRoute(groupId: Int) = "add_user/$groupId"
+    }
 
     // --- IoT Device screens ---
     data object Devices : Screens("devices")
@@ -120,3 +123,4 @@ sealed class Screens(val route: String) {
     // --- Other screens ---
     // ...add more here if needed...
 }
+

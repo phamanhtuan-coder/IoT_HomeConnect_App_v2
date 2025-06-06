@@ -10,5 +10,6 @@ data class GroupUi(
     val isRevealed: Boolean,
     val icon: ImageVector,
     val iconColor: Color,
+    val description: String? = null,
     val role: String = "member"
 )

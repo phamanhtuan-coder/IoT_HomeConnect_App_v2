@@ -334,6 +334,7 @@ abstract class RepositoryModule {
             repository: UserActivityRepository
         ): GetUserActivitiesUseCase {
             return GetUserActivitiesUseCase(repository)
+        }
 
         @Provides
         @Singleton

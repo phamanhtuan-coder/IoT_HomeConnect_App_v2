@@ -561,12 +561,10 @@ fun AddHousePopup(
                             modifier = Modifier.fillMaxWidth()
                         )
                         IconPicker(
-                            iconOptions = iconOptions,
                             selectedIconLabel = selectedLabel.value,
                             onIconSelected = { selectedLabel.value = it }
                         )
                         ColorPicker(
-                            colors = colorOptions,
                             selectedColorLabel = selectedColor.value,
                             onColorSelected = { selectedColor.value = it }
                         )

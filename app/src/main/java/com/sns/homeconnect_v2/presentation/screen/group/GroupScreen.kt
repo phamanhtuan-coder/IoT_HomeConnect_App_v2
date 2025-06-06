@@ -12,18 +12,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
@@ -46,23 +45,19 @@ import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
 fun GroupScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    groupViewModel: GroupListViewModel = hiltViewModel(),
     updateGroup: UpdateGroupViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val groups = remember {
-        mutableStateListOf(
-            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue,role = "member"),
-            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red, role = "owned"),
-            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green, role = "vice")
-        )
-    }
+    val groups by groupViewModel.groupList.collectAsState()
 
+    // Gọi fetchGroups một lần khi mở màn hình
     LaunchedEffect(Unit) {
-        viewModel.fetchGroups()
+        groupViewModel.fetchGroups()
     }
 
     // Track the last selected route
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    //val currentRoute = navController.currentBackStackEntry?.destination?.route
 
     // State to control the visibility of the bottom sheet
     var isSheetVisible by remember { mutableStateOf(false) }
@@ -170,12 +165,14 @@ fun GroupScreen(
                             isRevealed = group.isRevealed,
                             role = group.role,
                             onExpandOnly = {
-                                viewModel.updateRevealState(index)
+                                groupViewModel.updateRevealState(index)
                             },
                             onCollapse = {
-                                viewModel.collapseItem(index)
+                                groupViewModel.collapseItem(index)
                             },
-                            onDelete = { groups.removeAt(index) },
+                            onDelete = {
+
+                            },
                             onEdit = {
                                 idGroup = group.id
                                 nameGroup = group.name
@@ -216,10 +213,6 @@ fun GroupScreen(
                                         groupName = nameGroup,
                                         onSuccess = {
                                             ok(it)
-                                            val index = groups.indexOfFirst { it.id == idGroup }
-                                            if (index != -1) {
-                                                groups[index] = groups[index].copy(name = nameGroup)
-                                            }
                                             isSheetVisible = false
                                         },
                                         onError = {

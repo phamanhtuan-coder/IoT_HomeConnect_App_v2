@@ -1,8 +1,5 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.group
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
@@ -12,10 +9,15 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.sns.homeconnect_v2.core.util.validation.mapGroupResponseToUi
+import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 
 @HiltViewModel
 class GroupListViewModel @Inject constructor(
-    private val getMyGroupsUseCase: GetMyGroupsUseCase
+    private val getMyGroupsUseCase: GetMyGroupsUseCase,
+    private val getGroupMembersUseCase: GetGroupMembersUseCase,
+    private val authManager: AuthManager
 ) : ViewModel() {
 
     private val _groupList = MutableStateFlow<List<GroupUi>>(emptyList())
@@ -26,23 +28,16 @@ class GroupListViewModel @Inject constructor(
             val result = getMyGroupsUseCase()
             result.fold(
                 onSuccess = { list ->
-                    _groupList.value = list.mapIndexed { i, group ->
-                        GroupUi(
-                            id = group.group_id,
-                            name = group.group_name,
-                            members = 0, // chưa có số lượng thành viên => tạm gán 0
-                            isRevealed = false,
-                            icon = Icons.Default.Group,
-                            iconColor = when (i % 3) {
-                                0 -> Color.Blue
-                                1 -> Color.Red
-                                else -> Color.Green
-                            }
+                    val groupUis = list.map { group ->
+                        mapGroupResponseToUi(
+                            group = group,
+                            memberUseCase = getGroupMembersUseCase,
+                            authManager = authManager
                         )
                     }
+                    _groupList.value = groupUis
                 },
                 onFailure = {
-                    // TODO: xử lý lỗi nếu cần
                 }
             )
         }
@@ -59,5 +54,4 @@ class GroupListViewModel @Inject constructor(
             if (i == index) item.copy(isRevealed = false) else item
         }
     }
-
 }

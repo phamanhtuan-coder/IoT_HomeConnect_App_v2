@@ -8,6 +8,6 @@ data class MemberResponse(
     val joined_at: String,
     val username: String,
     val email: String,
-    val full_name: String,
+    val full_name: String?,
     val avatar: String?
 )

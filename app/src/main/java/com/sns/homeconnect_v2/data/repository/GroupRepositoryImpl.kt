@@ -8,6 +8,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
 import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
@@ -36,7 +37,21 @@ class GroupRepositoryImpl @Inject constructor(
     override suspend fun getMyGroups(): Result<List<GroupResponse>> {
         val token = authManager.getJwtToken()
         return try {
-            val response = apiService.getMyGroups("Bearer $token")
+            val response = apiService.getMyGroups(
+                page = 1,
+                limit = 10,
+                token = "Bearer $token"
+            )
+            Result.success(response.data)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getGroupMembers(groupId: Int): Result<List<MemberResponse>> {
+        val token = authManager.getJwtToken()
+        return try {
+            val response = apiService.getGroupMembers(groupId, "Bearer $token")
             Result.success(response.data ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)

@@ -34,6 +34,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
+import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
@@ -340,6 +341,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideGetMyGroupsUseCase(repository: GroupRepository): GetMyGroupsUseCase {
             return GetMyGroupsUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetGroupMembersUseCase(repository: GroupRepository): GetGroupMembersUseCase {
+            return GetGroupMembersUseCase(repository)
         }
     }
 }

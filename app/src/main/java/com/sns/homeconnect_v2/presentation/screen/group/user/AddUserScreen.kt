@@ -28,8 +28,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.viewmodel.group.user.AddUserUiState
-import com.sns.homeconnect_v2.presentation.viewmodel.group.user.AddUserViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.group.AddUserUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.group.AddUserViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /**

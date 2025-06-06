@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.viewmodel.group.user
+package com.sns.homeconnect_v2.presentation.viewmodel.group
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

@@ -11,7 +11,7 @@ import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
-import com.sns.homeconnect_v2.presentation.screen.auth.UserActivityScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.UserActivityManagementScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseManagementScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.LinkDeviceScreen
@@ -107,7 +107,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             // TODO: Add DashboardDeviceScreen
 
             composable(Screens.UserActivity.route) {
-                UserActivityScreen(navController)
+                UserActivityManagementScreen(navController, snackbarViewModel)
             }
 
             // --- Profile screens ---

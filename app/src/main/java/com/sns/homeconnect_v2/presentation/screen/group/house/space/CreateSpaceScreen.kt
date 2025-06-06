@@ -37,32 +37,6 @@ fun CreateGroupScreen(
     var selectedIconLabel by remember { mutableStateOf("Nhà") }
     var selectedColorLabel by remember { mutableStateOf("blue") }
 
-    val iconOptions = listOf(
-        Icons.Default.Home to "Nhà",
-        Icons.Default.Work to "Cơ quan",
-        Icons.Default.School to "Trường",
-        Icons.Default.AccountBalance to "Ngân hàng",
-        Icons.Default.Apartment to "Căn hộ",
-        Icons.Default.Hotel to "Khách sạn",
-        Icons.Default.Villa to "Biệt thự",
-        Icons.Default.Cottage to "Nhà gỗ",
-        Icons.Default.Castle to "Lâu đài",
-        Icons.Default.LocalLibrary to "Thư viện"
-    )
-
-    val colorOptions = listOf(
-        Color.Red to "red",
-        Color.Green to "green",
-        Color.Blue to "blue",
-        Color.Yellow to "yellow",
-        Color.Cyan to "cyan",
-        Color.Magenta to "magenta",
-        Color.Gray to "gray",
-        Color.Black to "black",
-        Color.White to "white",
-        Color(0xFF2196F3) to "customBlue"
-    )
-
     val roles = listOf("Owner", "Vice", "Admin", "Member")
     val items = listOf(
         "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),

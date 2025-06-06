@@ -4,7 +4,6 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
-import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl

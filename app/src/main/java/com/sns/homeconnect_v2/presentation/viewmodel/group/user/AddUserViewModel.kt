@@ -32,12 +32,12 @@ class AddUserViewModel @Inject constructor(
     val addUserState = _addUserState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
-
-    fun onSearchQueryChanged(query: String) {
-        _searchQuery.value = query
-        // TODO: Implement search logic
-    }
+//    val searchQuery = _searchQuery.asStateFlow()
+//
+//    fun onSearchQueryChanged(query: String) {
+//        _searchQuery.value = query
+//        // TODO: Implement search logic
+//    }
 
     fun resetAddUserState() {
         _addUserState.value = AddUserUiState.Idle

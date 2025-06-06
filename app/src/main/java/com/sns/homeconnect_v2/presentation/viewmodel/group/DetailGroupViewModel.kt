@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
 import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
-import com.sns.homeconnect_v2.data.AuthManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

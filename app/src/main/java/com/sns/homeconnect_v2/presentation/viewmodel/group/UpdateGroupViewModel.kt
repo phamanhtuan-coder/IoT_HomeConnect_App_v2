@@ -15,12 +15,12 @@ class UpdateGroupViewModel @Inject constructor(
 
     fun updateGroup(
         groupId: Int,
-        groupName: String,
+        request: UpdateGroupRequest,
         onSuccess: (String) -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
-            val result = updateGroupUseCase(groupId, UpdateGroupRequest(group_name = groupName))
+            val result = updateGroupUseCase(groupId, request)
             result.fold(
                 onSuccess = {
                     onSuccess("Cập nhật nhóm thành công!")

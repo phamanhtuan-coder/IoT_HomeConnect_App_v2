@@ -2,6 +2,7 @@ package com.sns.homeconnect_v2.data.remote.api
 
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
@@ -22,9 +23,11 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ChangePasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceTokenResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.MyGroupsWrapper
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
@@ -36,6 +39,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -236,7 +240,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UpdateGroupResponse
 
-
     @GET("user-devices/me")
     suspend fun getUserActivities(
         @Header("Authorization") token: String
@@ -244,8 +247,29 @@ interface ApiService {
 
     @GET("groups/my-groups")
     suspend fun getMyGroups(
+        @Query("page") page: Int,
+        @Query("limit") limit: Int,
         @Header("Authorization") token: String
-    ): ApiResponse<List<GroupResponse>>
+    ): MyGroupsWrapper
+
+    @GET("groups/{groupId}/members")
+    suspend fun getGroupMembers(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): ApiResponse<List<MemberResponse>>
+
+    @POST("groups/members")
+    suspend fun addGroupMember(
+        @Body request: AddGroupMemberRequest,
+        @Header("Authorization") token: String
+    ): UserGroupResponse
+
+    @GET("houses/group/{groupId}")
+    suspend fun getHousesByGroupId(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): List<HouseWithSpacesResponse>
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
@@ -345,3 +369,4 @@ interface ApiService {
 //
 //    data class UpdateSpaceRequest(val Name: String)
 }
+

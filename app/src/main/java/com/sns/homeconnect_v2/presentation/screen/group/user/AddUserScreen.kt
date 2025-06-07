@@ -3,42 +3,34 @@ package com.sns.homeconnect_v2.presentation.screen.group.user
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Devices
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Room
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
-import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
-import com.sns.homeconnect_v2.presentation.component.SimpleUserCard
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.viewmodel.group.AddUserUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.group.AddUserViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * Hàm Composable đại diện cho màn hình "Thêm người dùng".
@@ -61,27 +53,44 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddUserScreen(
     navController: NavHostController,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+    viewModel: AddUserViewModel = hiltViewModel(),
+    groupId: Int
 ) {
-    val scope = rememberCoroutineScope()
-    var current by remember { mutableStateOf<String?>(null) }
-    val list = listOf("Owner", "Vice", "Admin", "Member")
-    val users = listOf(
-        "Trần Thị B" to "https://i.pravatar.cc/150?img=8"
-    )
+    val roleState = remember { mutableStateOf("") }
+    val searchState = remember { mutableStateOf("") }
+    var accountId by remember { mutableStateOf("") }
+    val list = listOf("Vice", "Admin", "Member")
 
-    val items = listOf(
-        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices" to Pair(Icons.Filled.Devices, "devices"),
-        "Home" to Pair(Icons.Filled.Home, "home"),
-        "Profile" to Pair(Icons.Filled.Person, "profile"),
-        "Settings" to Pair(Icons.Filled.Settings, "settings")
-    )
-    val context = LocalContext.current
-    val isTablet = isTablet(context)
 
-    // Track the last selected route
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    val isTablet = isTablet(LocalContext.current)
+
+    val addUserUiState by viewModel.addUserState.collectAsState()
+
+    LaunchedEffect(addUserUiState) {
+        when (val state = addUserUiState) {
+            is AddUserUiState.Success -> {
+                snackbarViewModel.showSnackbar("Thêm thành viên thành công!", SnackbarVariant.SUCCESS)
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("refresh", true)
+
+                viewModel.resetAddUserState()
+                navController.navigateUp()
+            }
+            is AddUserUiState.Error -> {
+                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.ERROR)
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.set("refresh", true)
+
+                viewModel.resetAddUserState()
+                navController.navigateUp()
+            }
+            else -> Unit
+        }
+    }
+
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -96,37 +105,7 @@ fun AddUserScreen(
             },
             containerColor = Color.White,
             bottomBar = {
-                BottomAppBar(
-                    tonalElevation = 4.dp,
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.height(120.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        items.forEach { item ->
-                            val isSelected = currentRoute == item.second.second
-                            MenuItem(
-                                text = item.first,
-                                icon = item.second.first,
-                                isSelected = isSelected,
-                                onClick = {
-                                    navController.navigate(item.second.second) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                isTablet = isTablet,
-                            )
-                        }
-                    }
-                }
+                MenuBottom(navController)
             }
         ) { inner ->
             Column(
@@ -142,10 +121,9 @@ fun AddUserScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         SearchBar(
-                            modifier = Modifier
-                                .fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth(),
                             onSearch = { query ->
-                                /* TODO: điều kiện search */
+                                searchState.value = query
                             }
                         )
                     }
@@ -171,10 +149,12 @@ fun AddUserScreen(
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    users.forEach { (name, avatar) ->
+                    // Comment out searchedUsers display temporarily
+                    /*
+                    searchedUsers.forEach { (name, avatar) ->
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = Color(0xFFD8E4E8), // cùng màu như trước
+                            color = Color(0xFFD8E4E8),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             SimpleUserCard(
@@ -186,32 +166,50 @@ fun AddUserScreen(
                             )
                         }
                     }
+                    */
+
+                    // Add TextField for accountId
+                    OutlinedTextField(
+                        value = accountId,
+                        onValueChange = { accountId = it },
+                        label = { Text("Account ID") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+
                     Spacer(Modifier.height(8.dp))
+
                     GenericDropdown(
                         items = list,
-                        selectedItem = current,
-                        onItemSelected = { current = it },
+                        selectedItem = roleState.value,
+                        onItemSelected = { selectedRole ->
+                            roleState.value = selectedRole
+                        },
                         isTablet = isTablet,
                         leadingIcon = Icons.Default.Room
                     )
+
+
                     Spacer(Modifier.height(8.dp))
+
                     ActionButtonWithFeedback(
                         label = "Thêm",
                         style = HCButtonStyle.PRIMARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
-                        snackbarViewModel = snackbarViewModel
+                        snackbarViewModel = snackbarViewModel,
+                        isLoadingFromParent = addUserUiState is AddUserUiState.Loading,
+                        onAction = { _, onError ->
+                            if (accountId.isBlank()) {
+                                onError("Vui lòng nhập Account ID")
+                            } else if (roleState.value.isBlank()) {
+                                onError("Vui lòng chọn vai trò")
+                            } else {
+                                viewModel.addMemberToGroup(accountId, roleState.value)
+                            }
+                        }
                     )
                 }
             }
         }
-    }
-}
-
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "CreateUserScreen - Phone")
-@Composable
-fun CreateUserScreenPhonePreview() {
-    IoTHomeConnectAppTheme {
-        AddUserScreen(navController = rememberNavController())
     }
 }

@@ -1,8 +1,8 @@
 package com.sns.homeconnect_v2.data.repository
 
-import android.content.Context
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
@@ -44,5 +44,10 @@ class HouseRepositoryImpl @Inject constructor(
 
         // Gọi API với token
         return apiService.createHouse(request, "Bearer $token")
+    }
+
+    override suspend fun getHousesByGroupId(groupId: Int): List<HouseWithSpacesResponse> {
+        val token = authManager.getJwtToken()
+        return apiService.getHousesByGroupId(groupId, "Bearer $token")
     }
 }

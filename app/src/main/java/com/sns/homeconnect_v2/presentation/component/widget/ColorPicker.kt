@@ -35,8 +35,6 @@ import androidx.compose.ui.unit.dp
  * Các tùy chọn màu được hiển thị dưới dạng các bề mặt hình tròn. Khi một màu được chọn,
  * nó sẽ có đường viền sử dụng `MaterialTheme.colorScheme.primary`.
  *
- * @param colors Danh sách các cặp, trong đó mỗi cặp chứa một [Color] và nhãn [String] tương ứng của nó.
- *               Danh sách này xác định các tùy chọn màu có sẵn.
  * @param selectedColorLabel Nhãn của màu hiện được chọn. Điều này được sử dụng để làm nổi bật
  *                           màu đang hoạt động trong giao diện người dùng.
  * @param onColorSelected Một hàm lambda được gọi khi một màu mới được chọn.
@@ -44,10 +42,22 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun ColorPicker(
-    colors: List<Pair<Color, String>>,
     selectedColorLabel: String,
     onColorSelected: (String) -> Unit
 ) {
+    val colors = listOf(
+        Color.Red to "#FF0000",
+        Color.Green to "#00FF00",
+        Color.Blue to "#0000FF",
+        Color.Yellow to "#FFFF00",
+        Color.Cyan to "#00FFFF",
+        Color.Magenta to "#FF00FF",
+        Color.Gray to "#808080",
+        Color.Black to "#000000",
+        Color.White to "#FFFFFF",
+        Color(0xFF2196F3) to "#2196F3"
+    )
+
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Text(
             text = "Chọn màu sắc:",
@@ -83,21 +93,7 @@ fun ColorPicker(
 fun PreviewColorPickerCombined() {
     var selectedLabel by remember { mutableStateOf("blue") }
 
-    val colorOptions = listOf(
-        Color.Red to "red",
-        Color.Green to "green",
-        Color.Blue to "blue",
-        Color.Yellow to "yellow",
-        Color.Cyan to "cyan",
-        Color.Magenta to "magenta",
-        Color.Gray to "gray",
-        Color.Black to "black",
-        Color.White to "white",
-        Color(0xFF2196F3) to "customBlue"
-    )
-
     ColorPicker(
-        colors = colorOptions,
         selectedColorLabel = selectedLabel,
         onColorSelected = { selectedLabel = it }
     )

@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,7 +12,7 @@ import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
-import com.sns.homeconnect_v2.presentation.screen.auth.UserActivityScreen
+import com.sns.homeconnect_v2.presentation.screen.auth.UserActivityManagementScreen
 import com.sns.homeconnect_v2.presentation.screen.home.HomeScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseManagementScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.LinkDeviceScreen
@@ -28,6 +29,8 @@ import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
+import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
+import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
@@ -107,7 +110,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             // TODO: Add DashboardDeviceScreen
 
             composable(Screens.UserActivity.route) {
-                UserActivityScreen(navController)
+                UserActivityManagementScreen(navController, snackbarViewModel)
             }
 
             // --- Profile screens ---
@@ -127,6 +130,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             // TODO: Add AddHouse screen
             // TODO: Add EditHouse screen with route "edit_house/{houseId}"
 
+            composable(Screens.HouseSearch.route) {
+                HouseSearchScreen(
+                    modifier = Modifier,
+                    navController = navController,
+                )
+            }
+
             // --- Space screens ---
             // TODO: Add Spaces screen
             // TODO: Add AddSpace screen
@@ -139,6 +149,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             composable(Screens.Groups.route) {
                 GroupScreen(
                     navController = navController,
+                    snackbarViewModel = snackbarViewModel
                 )
             }
             composable(Screens.CreateGroup.route) {
@@ -149,9 +160,25 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 arguments = listOf(navArgument("groupId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
-                DetailGroupScreen(navController) //Todo: Pass groupId to DetailGroupScreen
+                DetailGroupScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = groupId
+                )
             }
             // TODO: Add AddGroupUser screen with route "add_group_user/{groupId}"
+
+            composable(
+                route = Screens.AddUser.route,
+                arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
+                AddUserScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = groupId
+                )
+            }
 
             // --- IoT Device screens ---
             composable(Screens.AddDevice.route) {
@@ -264,3 +291,4 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
         }
     }
 }
+

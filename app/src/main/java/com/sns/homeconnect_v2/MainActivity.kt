@@ -33,18 +33,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             IoTHomeConnectAppTheme {
                 val navController = rememberNavController()
-                NavigationGraph(navController = navController, snackbarViewModel = hiltViewModel())
-
                 val snackbarViewModel: SnackbarViewModel = hiltViewModel()
-                Box(modifier = Modifier.fillMaxSize()) {
-                    // 2. Giao diện chính (navigation, các màn hình)
-                    NavigationGraph(navController = navController, snackbarViewModel = snackbarViewModel)
 
-                    // 3. Snackbar toàn cục (ở trên tất cả các màn hình)
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // 1. Giao diện chính
+                    NavigationGraph(
+                        navController = navController,
+                        snackbarViewModel = snackbarViewModel
+                    )
+
+                    // 2. Snackbar toàn cục
                     val message = snackbarViewModel.snackbarMessage.collectAsState().value
                     val variant = snackbarViewModel.snackbarVariant.collectAsState().value
 
-                    // Có message thì show, không có thì không show
                     if (message != null) {
                         TopSnackbar(
                             message = message,
@@ -53,7 +54,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
             }
         }
     }

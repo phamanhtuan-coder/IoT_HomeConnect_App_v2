@@ -13,86 +13,77 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.toHouseUi
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.UserCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
-import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.HouseUi
+import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.group.DetailGroupViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
-fun DetailGroupScreen(navController: NavHostController) {
-    /* ---------------------------------------------------------
-       1.  Toàn bộ dữ liệu “cứng” đưa thành biến ở đầu hàm.
-           Khi dùng ViewModel, bạn chỉ cần thay thế giá trị cho
-           các biến này (hoặc truyền chúng qua tham số).
-    ----------------------------------------------------------*/
-    val houses = remember {
-        mutableStateListOf(
-            HouseUi(1, "Main house", 3, false, Icons.Default.Home, Color.Black),
-            HouseUi(2, "Villa", 5, false, Icons.Default.Castle, Color.Red),
-            HouseUi(3, "Office", 2, false, Icons.Default.Home, Color.DarkGray)
-        )
+fun DetailGroupScreen(
+    navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel,
+    groupId: Int
+) {
+    val viewModel: DetailGroupViewModel = hiltViewModel()
+    val members by viewModel.members.collectAsState()
+    val housesResponse by viewModel.houses.collectAsState()
+    val refreshTrigger = navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getStateFlow("refresh", false)
+        ?.collectAsState()
+
+    val housesUi = remember { mutableStateListOf<HouseUi>() }
+    LaunchedEffect(housesResponse) {
+        housesUi.clear()
+        housesUi.addAll(housesResponse.map { it.toHouseUi() })
+    }
+
+
+
+    LaunchedEffect(refreshTrigger?.value) {
+        if (refreshTrigger?.value == true) {
+            viewModel.fetchGroupMembers()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("refresh", false) // Reset flag
+        }
     }
 
     val selectedIcon = Icons.Default.Home
 
     val groupName        = "Family Group"
     val groupDescription = "Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group "
-    val users = listOf(
-        Triple("Nguyễn Văn A", "Owner",  ""),
-        Triple("Trần Thị B" , "Vice" ,  "https://i.pravatar.cc/150?img=8"),
-        Triple("Lê Văn C"   , "Admin",  "https://i.pravatar.cc/150?img=12"),
-        Triple("Phạm Thị D" , "Member", ""),
-        Triple("Hoàng Văn E", "Member", "https://i.pravatar.cc/150?img=20")
-    )
 
-    val memberCount = users.size.toString()
+    val memberCount = members.size.toString()
 
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Thành viên", "Nhà")
 
-    val items = listOf(
-        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices" to Pair(Icons.Filled.Devices, "devices"),
-        "Home" to Pair(Icons.Filled.Home, "home"),
-        "Profile" to Pair(Icons.Filled.Person, "profile"),
-        "Settings" to Pair(Icons.Filled.Settings, "settings")
-    )
-    val context = LocalContext.current
-    val isTablet = isTablet(context)
-
-    // Track the last selected route
     val currentRoute = navController.currentBackStackEntry?.destination?.route
-    /* ---------------------------------------------------------
-       2.  State chỉ dùng cho UI (điều khiển swipe).
-    ----------------------------------------------------------*/
-    val revealStates = remember { users.map { mutableStateOf(false) } }
+    val revealStates = remember(members) {
+        members.map { mutableStateOf(false) }.toMutableStateList()
+    }
 
-
-    /* ---------------------------------------------------------
-       4.  UI chính
-    ----------------------------------------------------------*/
     IoTHomeConnectAppTheme {
-        /* ---------------------------------------------------------
-        3.  Các nút FAB con.
-        ----------------------------------------------------------*/
-
         val fabChildren = listOf(
             FabChild(
-                icon = Icons.Default.Edit,
-                onClick = { /* TODO: sửa */ },
+                icon = Icons.Default.Add,
+                onClick = {
+                    navController.navigate(Screens.AddUser.createRoute(groupId))
+                },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             ),
@@ -109,7 +100,6 @@ fun DetailGroupScreen(navController: NavHostController) {
                 contentColor = colorScheme.onPrimary
             )
         )
-
         Scaffold(
             topBar = {
                 Header(
@@ -130,37 +120,7 @@ fun DetailGroupScreen(navController: NavHostController) {
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {
-                BottomAppBar(
-                    tonalElevation = 4.dp,
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.height(120.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        items.forEach { item ->
-                            val isSelected = currentRoute == item.second.second
-                            MenuItem(
-                                text = item.first,
-                                icon = item.second.first,
-                                isSelected = isSelected,
-                                onClick = {
-                                    navController.navigate(item.second.second) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                isTablet = isTablet,
-                            )
-                        }
-                    }
-                }
+                MenuBottom(navController)
             }
         ) { innerPadding ->
             Column(
@@ -206,9 +166,7 @@ fun DetailGroupScreen(navController: NavHostController) {
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
-
                                 Spacer(Modifier.height(12.dp))
-
                                 // Mô tả
                                 Row(
                                     modifier = Modifier
@@ -239,7 +197,6 @@ fun DetailGroupScreen(navController: NavHostController) {
                                 modifier = Modifier
                                     .align(Alignment.CenterEnd),
                             ) {
-                                /*  Phần phải: avatar chồng lên nhau  */
                                 IconButton(
                                     onClick = { /* TODO: rời group */ },
                                     modifier = Modifier
@@ -307,12 +264,11 @@ fun DetailGroupScreen(navController: NavHostController) {
                                 bottom = bottomPadding-32.dp       // ❶  đẩy cao hơn BottomBar/FAB
                             )
                         ) {
-                            items(users.size) { index ->
-                                val (name, role, avatar) = users[index]
+                            itemsIndexed(members) { index, member ->
                                 UserCardSwipeable(
-                                    userName = name,
-                                    role = role,
-                                    avatarUrl = avatar,
+                                    userName = member.full_name?: member.username,
+                                    role = member.role,
+                                    avatarUrl = member.avatar ?: "", // hoặc null-safe xử lý nếu avatar là null
                                     isRevealed = revealStates[index].value,
                                     onExpandOnly = {
                                         revealStates.forEachIndexed { i, state ->
@@ -320,16 +276,17 @@ fun DetailGroupScreen(navController: NavHostController) {
                                         }
                                     },
                                     onCollapse = { revealStates[index].value = false },
-                                    onDelete = { /* xoá user */ },
-                                    onEdit = { /* chỉnh sửa role */ }
+                                    onDelete = { /* Xoá user */ },
+                                    onEdit = { /* Chỉnh sửa role */ }
                                 )
                             }
+
                         }
                     }
                     1 -> {
                         // ✅ Tab Nhà gọi HouseTabContent tại đây 👇
                         HouseTabContent(
-                            houses = houses
+                            houses = housesUi
                         )
                     }
                 }
@@ -379,7 +336,8 @@ fun HouseTabContent(
                     onCollapse = {
                         houses[index] = house.copy(isRevealed = false)
                     },
-                    onDelete = { houses.removeAt(index) },
+                    onDelete = {
+                        houses.removeAt(index) },
                     onEdit = { /* TODO */ }
                 )
             }
@@ -387,13 +345,3 @@ fun HouseTabContent(
     }
 }
 
-@Preview(
-    name          = "Phone – 360 × 800",
-    showBackground = true,
-    widthDp       = 360,
-    heightDp      = 800
-)
-@Composable
-fun DetailGroupPhonePreview() {
-    DetailGroupScreen(navController = rememberNavController())
-}

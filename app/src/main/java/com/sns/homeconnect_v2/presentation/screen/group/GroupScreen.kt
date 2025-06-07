@@ -2,42 +2,44 @@ package com.sns.homeconnect_v2.presentation.screen.group
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.NoteAlt
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.getIconByName
+import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
+import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.model.FabChild
-import com.sns.homeconnect_v2.presentation.model.GroupUi
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.group.UpdateGroupViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
@@ -46,23 +48,19 @@ import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
 fun GroupScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
+    groupViewModel: GroupListViewModel = hiltViewModel(),
     updateGroup: UpdateGroupViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val groups = remember {
-        mutableStateListOf(
-            GroupUi(1, "Gia đình", 5, false, Icons.Default.Group, Color.Blue,role = "member"),
-            GroupUi(2, "Marketing", 3, false, Icons.Default.Home, Color.Red, role = "owned"),
-            GroupUi(3, "Kỹ thuật", 7, false, Icons.Default.Group, Color.Green, role = "vice")
-        )
-    }
+    val groups by groupViewModel.groupList.collectAsState()
 
+    // Gọi fetchGroups một lần khi mở màn hình
     LaunchedEffect(Unit) {
-        viewModel.fetchGroups()
+        groupViewModel.fetchGroups()
     }
 
     // Track the last selected route
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
+    //val currentRoute = navController.currentBackStackEntry?.destination?.route
 
     // State to control the visibility of the bottom sheet
     var isSheetVisible by remember { mutableStateOf(false) }
@@ -70,6 +68,12 @@ fun GroupScreen(
     // State to hold the group being edited
     var nameGroup by remember { mutableStateOf("") }
     var idGroup by remember { mutableIntStateOf(-1) }
+
+    var groupDesc by remember { mutableStateOf("") }
+
+    // ---------------- icon + color state ----------------
+    var selectedLabel by remember { mutableStateOf("Nhà") }
+    var selectedColor by remember { mutableStateOf("blue") }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -165,21 +169,30 @@ fun GroupScreen(
                         GroupCardSwipeable(
                             groupName = group.name,
                             memberCount = group.members,
-                            icon = group.icon,
-                            iconColor = group.iconColor,
+                            icon = getIconByName(group.iconName),
+                            iconColor = parseColorOrDefault(group.iconColorName),
                             isRevealed = group.isRevealed,
                             role = group.role,
                             onExpandOnly = {
-                                viewModel.updateRevealState(index)
+                                groupViewModel.updateRevealState(index)
                             },
                             onCollapse = {
-                                viewModel.collapseItem(index)
+                                groupViewModel.collapseItem(index)
                             },
-                            onDelete = { groups.removeAt(index) },
+                            onDelete = {
+                                // TODO
+                            },
                             onEdit = {
                                 idGroup = group.id
                                 nameGroup = group.name
+                                groupDesc = group.description ?: ""
+                                selectedLabel = group.iconName
+                                selectedColor = group.iconColorName
                                 isSheetVisible = true
+                            },
+                            onClick = {
+                                navController.navigate(Screens.GroupDetail.createRoute(group.id))
+
                             }
                         )
                     }
@@ -189,59 +202,77 @@ fun GroupScreen(
                     isSheetVisible = isSheetVisible,
                     onDismiss = { isSheetVisible = false },
                     sheetContent = {
-                        Column (
+                        LazyColumn (
                             modifier = Modifier
-                                .padding(16.dp)
                                 .fillMaxWidth()
-                                .wrapContentHeight(),
+                                .height(400.dp),
                         ) {
-                            StyledTextField(
-                                value = nameGroup,
-                                onValueChange = { nameGroup = it },
-                                placeholderText = "Group name",
-                                leadingIcon = Icons.Default.Person
-                            )
-                            Spacer(modifier.height(8.dp))
-                            ActionButtonWithFeedback(
-                                label = "Cập nhật",
-                                style = HCButtonStyle.PRIMARY,
-                                onAction = { ok, err ->
-                                    if (nameGroup.isBlank()) {
-                                        err("Tên nhóm không được để trống!")
-                                        return@ActionButtonWithFeedback
-                                    }
-
-                                    updateGroup.updateGroup(
-                                        groupId = idGroup,
-                                        groupName = nameGroup,
-                                        onSuccess = {
-                                            ok(it)
-                                            val index = groups.indexOfFirst { it.id == idGroup }
-                                            if (index != -1) {
-                                                groups[index] = groups[index].copy(name = nameGroup)
-                                            }
-                                            isSheetVisible = false
-                                        },
-                                        onError = {
-                                            err(it)
+                            item {
+                                StyledTextField(
+                                    value = nameGroup,
+                                    onValueChange = { nameGroup = it },
+                                    placeholderText = "Group name",
+                                    leadingIcon = Icons.Default.Person,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                StyledTextField(
+                                    value = groupDesc,
+                                    onValueChange = { groupDesc = it },
+                                    placeholderText = "Mô tả của group",
+                                    leadingIcon = Icons.Default.NoteAlt,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                IconPicker(
+                                    selectedIconLabel = selectedLabel,
+                                    onIconSelected = { selectedLabel = it }
+                                )
+                                Spacer(Modifier.height(8.dp))
+                                ColorPicker(
+                                    selectedColorLabel = selectedColor,
+                                    onColorSelected = { selectedColor = it }
+                                )
+                                Spacer(Modifier.height(16.dp))
+                                ActionButtonWithFeedback(
+                                    label = "Cập nhật",
+                                    style = HCButtonStyle.PRIMARY,
+                                    snackbarViewModel = snackbarViewModel,
+                                    onAction = { ok, err ->
+                                        if (nameGroup.isBlank()) {
+                                            err("Tên nhóm không được để trống!")
+                                            return@ActionButtonWithFeedback
                                         }
-                                    )
-                                },
-                                snackbarViewModel = snackbarViewModel
-                            )
 
+                                        updateGroup.updateGroup(
+                                            groupId = idGroup,
+                                            request = UpdateGroupRequest(
+                                                group_name = nameGroup,
+                                                icon_name = selectedLabel,
+                                                icon_color = selectedColor,
+                                                group_description = groupDesc
+                                            ),
+                                            onSuccess = {
+                                                isSheetVisible = false
+                                                groupViewModel.fetchGroups()
+                                                ok("Cập nhật nhóm thành công!")
+                                            },
+                                            onError = {
+                                                err("Cập nhật nhóm thất bại: $it")
+                                            }
+                                        )
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
+                                )
+
+
+                            }
                         }
                     }
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "GroupScreen - Phone")
-@Composable
-fun GroupScreenPhonePreview() {
-    IoTHomeConnectAppTheme {
-        GroupScreen(navController = rememberNavController())
     }
 }

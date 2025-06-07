@@ -4,7 +4,6 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
-import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
@@ -34,6 +33,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
+import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
@@ -58,6 +58,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import dagger.Binds
@@ -334,11 +335,24 @@ abstract class RepositoryModule {
             repository: UserActivityRepository
         ): GetUserActivitiesUseCase {
             return GetUserActivitiesUseCase(repository)
+        }
 
         @Provides
         @Singleton
         fun provideGetMyGroupsUseCase(repository: GroupRepository): GetMyGroupsUseCase {
             return GetMyGroupsUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetGroupMembersUseCase(repository: GroupRepository): GetGroupMembersUseCase {
+            return GetGroupMembersUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetHousesByGroupUseCase( houseRepository: HouseRepository): GetHousesByGroupUseCase {
+            return GetHousesByGroupUseCase(houseRepository)
         }
     }
 }

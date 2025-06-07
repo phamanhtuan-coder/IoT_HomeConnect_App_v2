@@ -38,33 +38,7 @@ fun CreateHouseScreen(
 
     var selectedLabel by remember { mutableStateOf("Nhà") }
 
-    val iconOptions = listOf(
-        Icons.Default.Home to "Nhà",
-        Icons.Default.Work to "Cơ quan",
-        Icons.Default.School to "Trường",
-        Icons.Default.AccountBalance to "Ngân hàng",
-        Icons.Default.Apartment to "Căn hộ",
-        Icons.Default.Hotel to "Khách sạn",
-        Icons.Default.Villa to "Biệt thự",
-        Icons.Default.Cottage to "Nhà gỗ",
-        Icons.Default.Castle to "Lâu đài",
-        Icons.Default.LocalLibrary to "Thư viện"
-    )
-
     var selectedColor by remember { mutableStateOf("blue") }
-
-    val colorOptions = listOf(
-        Color.Red to "red",
-        Color.Green to "green",
-        Color.Blue to "blue",
-        Color.Yellow to "yellow",
-        Color.Cyan to "cyan",
-        Color.Magenta to "magenta",
-        Color.Gray to "gray",
-        Color.Black to "black",
-        Color.White to "white",
-        Color(0xFF2196F3) to "customBlue"
-    )
 
     val items = listOf(
         "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
@@ -168,7 +142,6 @@ fun CreateHouseScreen(
 
                 item {
                     IconPicker(
-                        iconOptions = iconOptions,
                         selectedIconLabel = selectedLabel,
                         onIconSelected = { selectedLabel = it }
                     )
@@ -177,7 +150,6 @@ fun CreateHouseScreen(
                 item {
                     Spacer(Modifier.height(8.dp))
                     ColorPicker(
-                        colors = colorOptions,
                         selectedColorLabel = selectedColor,
                         onColorSelected = { selectedColor = it }
                     )

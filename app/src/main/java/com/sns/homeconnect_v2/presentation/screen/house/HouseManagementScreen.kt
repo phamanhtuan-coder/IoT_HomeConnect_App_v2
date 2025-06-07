@@ -454,33 +454,6 @@ fun AddHousePopup(
     val selectedLabel = remember { mutableStateOf("Nhà") }
     val selectedColor = remember { mutableStateOf("blue") }
 
-
-    val iconOptions = listOf(
-        Icons.Default.Home      to "Nhà",
-        Icons.Default.Work      to "Cơ quan",
-        Icons.Default.School    to "Trường",
-        Icons.Default.AccountBalance to "Ngân hàng",
-        Icons.Default.Apartment     to "Căn hộ",
-        Icons.Default.Hotel         to "Khách sạn",
-        Icons.Default.Villa         to "Biệt thự",
-        Icons.Default.Cottage       to "Nhà gỗ",
-        Icons.Default.Castle        to "Lâu đài",
-        Icons.Default.LocalLibrary  to "Thư viện"
-    )
-
-    val colorOptions = listOf(
-        Color.Red to "red",
-        Color.Green to "green",
-        Color.Blue to "blue",
-        Color.Yellow to "yellow",
-        Color.Cyan to "cyan",
-        Color.Magenta to "magenta",
-        Color.Gray to "gray",
-        Color.Black to "black",
-        Color.White to "white",
-        Color(0xFF2196F3) to "customBlue"
-    )
-
     val houseName = remember { mutableStateOf(houseData.name) }
     val houseAddress = remember { mutableStateOf(houseData.address) }
     val selectedIcon = remember { mutableStateOf(houseData.iconName) }
@@ -561,12 +534,10 @@ fun AddHousePopup(
                             modifier = Modifier.fillMaxWidth()
                         )
                         IconPicker(
-                            iconOptions = iconOptions,
                             selectedIconLabel = selectedLabel.value,
                             onIconSelected = { selectedLabel.value = it }
                         )
                         ColorPicker(
-                            colors = colorOptions,
                             selectedColorLabel = selectedColor.value,
                             onColorSelected = { selectedColor.value = it }
                         )

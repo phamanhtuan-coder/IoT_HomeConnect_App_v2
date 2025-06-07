@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,6 +30,7 @@ import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
+import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
@@ -127,6 +129,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             }
             // TODO: Add AddHouse screen
             // TODO: Add EditHouse screen with route "edit_house/{houseId}"
+
+            composable(Screens.HouseSearch.route) {
+                HouseSearchScreen(
+                    modifier = Modifier,
+                    navController = navController,
+                )
+            }
 
             // --- Space screens ---
             // TODO: Add Spaces screen

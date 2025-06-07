@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.filled.Castle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
@@ -33,8 +32,6 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.model.FabChild
-import com.sns.homeconnect_v2.presentation.model.HouseUi
-import com.sns.homeconnect_v2.presentation.screen.group.HouseTabContent
 import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseSearchViewModel
 
 @Composable

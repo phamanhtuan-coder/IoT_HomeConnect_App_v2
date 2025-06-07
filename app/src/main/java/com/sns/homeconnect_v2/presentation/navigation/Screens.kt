@@ -37,6 +37,7 @@ sealed class Screens(val route: String) {
     data object EditHouse : Screens("edit_house/{houseId}") {
         fun createRoute(houseId: Int) = "edit_house/$houseId"
     }
+    data object HouseSearch : Screens("house_search")
 
     // --- Space screens ---
     data object Spaces : Screens("spaces")

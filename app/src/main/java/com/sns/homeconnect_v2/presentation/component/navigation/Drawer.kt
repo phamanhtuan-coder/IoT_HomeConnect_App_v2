@@ -216,7 +216,7 @@ fun AppDrawerContent(
             )
 
             val houseGroup = listOf(
-                Triple(Icons.Filled.AddHomeWork, "Quản lý nhà", Screens.HouseManagement.route)
+                Triple(Icons.Filled.AddHomeWork, "Quản lý nhà", Screens.HouseSearch.route),
             )
 
             DrawerMenuGroup(

@@ -72,9 +72,9 @@ fun HouseSelection(
             houseDropDownViewModel.getListHouse()
         }
 
-        var selectedItem by remember {
-            mutableStateOf(House(houseId = -1, name = "Không có nhà", address = ""))
-        }
+//        var selectedItem by remember {
+//            mutableStateOf(House(houseId = -1, name = "Không có nhà", address = ""))
+//        }
 
         when (housesListState) {
             is HouseState.Error -> {
@@ -84,14 +84,14 @@ fun HouseSelection(
                 houses = (housesListState as HouseState.Success).houseList
                 Log.d("List House", houses.toString())
 
-                if (houses.isNotEmpty() && selectedItem.houseId == -1) {
-                    val firstHouse = houses.first().data
-                    if (firstHouse != null) {
-                        selectedItem = firstHouse
-                        onTabSelected(firstHouse.houseId)
-                        sharedViewModel.setHouseId(firstHouse.houseId)
-                    }
-                }
+//                if (houses.isNotEmpty() && selectedItem.houseId == -1) {
+//                    val firstHouse = houses.first().data
+//                    if (firstHouse != null) {
+//                        selectedItem = firstHouse
+//                        onTabSelected(firstHouse.houseId)
+//                        sharedViewModel.setHouseId(firstHouse.houseId)
+//                    }
+//                }
             }
             else -> {
                 /* Do nothing */
@@ -119,12 +119,12 @@ fun HouseSelection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = selectedItem.name,
-                        color = colorScheme.onSurface,
-                        fontSize = 18.sp
-                    )
-                    Log.d("SelectedItem", "Name: ${selectedItem.name}, ID: ${selectedItem.houseId}")
+//                    Text(
+//                        text = selectedItem.name,
+//                        color = colorScheme.onSurface,
+//                        fontSize = 18.sp
+//                    )
+//                    Log.d("SelectedItem", "Name: ${selectedItem.name}, ID: ${selectedItem.houseId}")
                     Icon(
                         imageVector = if (isDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                         contentDescription = null,
@@ -143,22 +143,22 @@ fun HouseSelection(
                 ) {
                     houses.forEach { houseResponse ->
                         val house = houseResponse.data
-                        if (house != null) {
-                            Text(
-                                text = house.name,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        selectedItem = house
-                                        onTabSelected(house.houseId)
-                                        sharedViewModel.setHouseId(house.houseId)
-                                        isDropdownExpanded = false
-                                    }
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                fontSize = 16.sp,
-                                color = colorScheme.onSurface
-                            )
-                        }
+//                        if (house != null) {
+//                            Text(
+//                                text = house.name,
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .clickable {
+//                                        selectedItem = house
+//                                        onTabSelected(house.houseId)
+//                                        sharedViewModel.setHouseId(house.houseId)
+//                                        isDropdownExpanded = false
+//                                    }
+//                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+//                                fontSize = 16.sp,
+//                                color = colorScheme.onSurface
+//                            )
+//                        }
                     }
 
                     Box(

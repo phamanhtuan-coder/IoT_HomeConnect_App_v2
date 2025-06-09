@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.group
 
 import IoTHomeConnectAppTheme
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -20,8 +21,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.core.util.validation.toHouseUi
+import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.UserCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -32,6 +35,8 @@ import com.sns.homeconnect_v2.presentation.model.HouseUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.group.DetailGroupViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.group.UpdateGroupMemberRoleUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.group.UpdateGroupMemberRoleViewModel
 
 @Composable
 fun DetailGroupScreen(
@@ -40,6 +45,7 @@ fun DetailGroupScreen(
     groupId: Int
 ) {
     val viewModel: DetailGroupViewModel = hiltViewModel()
+    val updateRoleViewModel: UpdateGroupMemberRoleViewModel = hiltViewModel()
     val members by viewModel.members.collectAsState()
     val housesResponse by viewModel.houses.collectAsState()
     val refreshTrigger = navController.currentBackStackEntry
@@ -73,9 +79,41 @@ fun DetailGroupScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabTitles = listOf("Thành viên", "Nhà")
 
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
     val revealStates = remember(members) {
         members.map { mutableStateOf(false) }.toMutableStateList()
+    }
+
+    // State for role editing
+    var isRoleSheetVisible by remember { mutableStateOf(false) }
+    var selectedMemberId by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf("") }
+
+    // Available roles (excluding "owned")
+    val availableRoles = listOf("admin", "vice", "member")
+
+    // Handle role update state
+    val roleUpdateState by updateRoleViewModel.updateState.collectAsState()
+    LaunchedEffect(roleUpdateState) {
+        when (roleUpdateState) {
+            is UpdateGroupMemberRoleUiState.Success -> {
+                snackbarViewModel.showSnackbar(
+                    msg = "Cập nhật quyền thành công",
+                    variant = SnackbarVariant.SUCCESS
+                )
+                viewModel.fetchGroupMembers()
+                isRoleSheetVisible = false
+            }
+            is UpdateGroupMemberRoleUiState.Error -> {
+                val errorState = roleUpdateState as? UpdateGroupMemberRoleUiState.Error
+                errorState?.let { error ->
+                    snackbarViewModel.showSnackbar(
+                        msg = error.message,
+                        variant = SnackbarVariant.ERROR
+                    )
+                }
+            }
+            else -> Unit
+        }
     }
 
     IoTHomeConnectAppTheme {
@@ -285,10 +323,68 @@ fun DetailGroupScreen(
                                     },
                                     onCollapse = { revealStates[index].value = false },
                                     onDelete = { /* Xoá user */ },
-                                    onEdit = { /* Chỉnh sửa role */ }
+                                    onEdit = {
+                                        if (member.role != "owned") {
+                                            selectedMemberId = member.account_id
+                                            selectedRole = member.role
+                                            isRoleSheetVisible = true
+                                        }
+                                    }
                                 )
                             }
                         }
+
+                        // BottomSheet for role selection
+                        BottomSheetWithTrigger(
+                            isSheetVisible = isRoleSheetVisible,
+                            onDismiss = { isRoleSheetVisible = false },
+                            sheetContent = {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(
+                                        text = "Chọn quyền",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        modifier = Modifier.padding(bottom = 16.dp)
+                                    )
+
+                                    availableRoles.forEach { role ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    selectedRole = role
+                                                    updateRoleViewModel.updateMemberRole(
+                                                        groupId = groupId,
+                                                        accountId = selectedMemberId,
+                                                        role = role.lowercase()
+                                                    )
+                                                }
+                                                .padding(vertical = 12.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = role.capitalize(),
+                                                style = MaterialTheme.typography.bodyLarge
+                                            )
+                                            if (role == selectedRole) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Check,
+                                                    contentDescription = "Selected",
+                                                    tint = MaterialTheme.colorScheme.primary
+                                                )
+                                            }
+                                        }
+                                        if (role != availableRoles.last()) {
+                                            Divider()
+                                        }
+                                    }
+                                }
+                            }
+                        )
                     }
                     1 -> {
                         Column(
@@ -409,4 +505,5 @@ fun DetailGroupScreen(
 //            }
 //        }
 //    }
+
 //}

@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
@@ -43,7 +44,7 @@ fun HouseSearchScreen(
     var current by remember { mutableStateOf<String?>(null) }
 
     val houses by viewModel.houses.collectAsState()
-    val housesUi = houses.map { it.toHouseUi() }
+    val housesUi = houses.map { it.toHouseUi(role = "member") } //ToDo sau này sửa quyền
 
     LaunchedEffect(Unit) {
         viewModel.loadHousesByGroup() // mặc định groupId = 5
@@ -58,8 +59,10 @@ fun HouseSearchScreen(
         val colorScheme = MaterialTheme.colorScheme
         val fabChildren = listOf(
             FabChild(
-                icon = Icons.Default.Edit,
-                onClick = { /* TODO: sửa */ },
+                icon = Icons.Default.Add,
+                onClick = { /* TODO: sửa */
+
+                },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             ),
@@ -143,14 +146,15 @@ fun HouseSearchScreen(
                 LazyColumn(modifier = modifier
                     .fillMaxSize()
                 ) {
-                    itemsIndexed( housesUi) { index, house ->
+                    itemsIndexed(housesUi) { index, house ->
                         Spacer(Modifier.height(8.dp))
                         HouseCardSwipeable(
-                            houseName  = house.name,        // HouseUi.name
-                            spaceCount = house.spaces,      // HouseUi.spaces
-                            icon       = house.icon,        // HouseUi.icon
-                            iconColor  = house.iconColor,   // HouseUi.iconColor
-                            isRevealed = house.isRevealed,  // HouseUi.isRevealed
+                            houseName  = house.name,
+                            spaceCount = house.spaces,
+                            icon       = house.icon,
+                            iconColor  = house.iconColor,
+                            isRevealed = house.isRevealed,
+                            role       = house.role,
                             onExpandOnly = { /* ... */ },
                             onCollapse   = { /* ... */ },
                             onDelete     = { /* ... */ },

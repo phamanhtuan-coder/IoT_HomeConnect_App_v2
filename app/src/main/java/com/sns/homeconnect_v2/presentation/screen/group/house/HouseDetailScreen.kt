@@ -26,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
@@ -51,18 +52,6 @@ fun HouseDetailScreen(
             SpaceUi(3, "Lounge", 7, false, Icons.Default.Group, Color.Green)
         )
     }
-
-    val bottomNavItems = listOf(
-        "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
-        "Devices" to Pair(Icons.Filled.Devices, "devices"),
-        "Home" to Pair(Icons.Filled.Home, "home"),
-        "Profile" to Pair(Icons.Filled.Person, "profile"),
-        "Settings" to Pair(Icons.Filled.Settings, "settings")
-    )
-
-    val context = LocalContext.current
-    val isTabletDevice = isTablet(context)
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
 
     IoTHomeConnectAppTheme {
         val fabOptions = listOf(
@@ -106,37 +95,7 @@ fun HouseDetailScreen(
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {
-                BottomAppBar(
-                    tonalElevation = 4.dp,
-                    contentPadding = PaddingValues(16.dp),
-                    modifier = Modifier.height(120.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        bottomNavItems.forEach { (label, iconAndRoute) ->
-                            val isSelected = currentRoute == iconAndRoute.second
-                            MenuItem(
-                                text = label,
-                                icon = iconAndRoute.first,
-                                isSelected = isSelected,
-                                onClick = {
-                                    navController.navigate(iconAndRoute.second) {
-                                        popUpTo(navController.graph.findStartDestination().id) {
-                                            saveState = true
-                                            inclusive = false
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                isTablet = isTabletDevice,
-                            )
-                        }
-                    }
-                }
+                MenuBottom(navController)
             }
         ) { innerPadding ->
             Column(

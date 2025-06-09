@@ -61,17 +61,17 @@ import androidx.navigation.NavHostController
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.viewmodel.house.CreateHouseState
-import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseManagementState
-import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseManagementViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.house.UpdateHouseState
+//import com.sns.homeconnect_v2.presentation.viewmodel.house.CreateHouseState
+//import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseManagementState
+//import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseManagementViewModel
+//import com.sns.homeconnect_v2.presentation.viewmodel.house.UpdateHouseState
 
 /**
  * Màn hình quản lý nhà
@@ -89,7 +89,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.house.UpdateHouseState
 fun HouseManagementScreen(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    viewModel: HouseManagementViewModel = hiltViewModel()
+//    viewModel: HouseManagementViewModel = hiltViewModel()
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp
     val isTablet = screenWidth > 600
@@ -145,9 +145,9 @@ fun HouseManagementScreen(
     }
 
     // Use mock state instead of real API state for demo
-    val mockState = remember {
-        mutableStateOf<HouseManagementState>(HouseManagementState.Success(mockHouses))
-    }
+//    val mockState = remember {
+//        mutableStateOf<HouseManagementState>(HouseManagementState.Success(mockHouses))
+//    }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -181,39 +181,39 @@ fun HouseManagementScreen(
                     )
 
                     // Use mockState instead of state for demo
-                    when (val currentState = mockState.value) {
-                        is HouseManagementState.Loading -> {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                CircularProgressIndicator()
-                            }
-                        }
-                        is HouseManagementState.Success -> {
-                            val houses = currentState.houses
-                            LazyColumn(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(3 * 100.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                items(houses) { house ->
-                                    CardHouse(
-                                        isTablet = isTablet,
-                                        house = house
-                                    ) { selectedHouse ->
-                                        editingData.value = selectedHouse
-                                        isEditing.value = true
-                                        isPopupVisible.value = true
-                                    }
-                                }
-                            }
-                        }
-                        is HouseManagementState.Error -> {
-                            Text("Error: ${currentState.error}")
-                        }
-                        else -> {
-                            /* Do Nothing */
-                        }
-                    }
+//                    when (val currentState = mockState.value) {
+//                        is HouseManagementState.Loading -> {
+//                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//                                CircularProgressIndicator()
+//                            }
+//                        }
+//                        is HouseManagementState.Success -> {
+//                            val houses = currentState.houses
+//                            LazyColumn(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .height(3 * 100.dp),
+//                                verticalArrangement = Arrangement.spacedBy(8.dp),
+//                            ) {
+//                                items(houses) { house ->
+//                                    CardHouse(
+//                                        isTablet = isTablet,
+//                                        house = house
+//                                    ) { selectedHouse ->
+//                                        editingData.value = selectedHouse
+//                                        isEditing.value = true
+//                                        isPopupVisible.value = true
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        is HouseManagementState.Error -> {
+//                            Text("Error: ${currentState.error}")
+//                        }
+//                        else -> {
+//                            /* Do Nothing */
+//                        }
+//                    }
 
                     Box(
                         modifier = Modifier.fillMaxWidth(),
@@ -248,39 +248,41 @@ fun HouseManagementScreen(
                         }
                     }
 
-                    val updateState by viewModel.updateHouseState.collectAsState()
-                    when (updateState) {
-                        is UpdateHouseState.Loading -> CircularProgressIndicator()
-                        is UpdateHouseState.Success -> {
-                            val successState = updateState as UpdateHouseState.Success
-                            Text("Cập nhật thành công: ${successState.message}")
-                            LaunchedEffect(Unit) {
-                                viewModel.fetchHouses()
-                            }
-                        }
-                        is UpdateHouseState.Error -> {
-                            val errorState = updateState as UpdateHouseState.Error
-                            Text("Lỗi cập nhật: ${errorState.error}")
-                        }
-                        else -> {}
-                    }
-
-                    val createState by viewModel.createHouseState.collectAsState()
-                    when (createState) {
-                        is CreateHouseState.Loading -> CircularProgressIndicator()
-                        is CreateHouseState.Success -> {
-                            val successState = createState as CreateHouseState.Success
-                            Text("Nhà tạo thành công: ${successState.message}")
-                            LaunchedEffect(Unit) {
-                                viewModel.fetchHouses()
-                            }
-                        }
-                        is CreateHouseState.Error -> {
-                            val errorState = createState as CreateHouseState.Error
-                            Text("Lỗi tạo nhà: ${errorState.error}")
-                        }
-                        else -> {}
-                    }
+//                    val updateState by viewModel.updateHouseState.collectAsState()
+//                    when (updateState) {
+//                        is UpdateHouseState.Loading -> CircularProgressIndicator()
+//                        is UpdateHouseState.Success -> {
+//                            val successState = updateState as UpdateHouseState.Success
+//                            Text("Cập nhật thành công: ${successState.message}")
+//                            LaunchedEffect(Unit) {
+//                                viewModel.fetchHouses()
+//                            }
+//                        }
+//
+//                        is UpdateHouseState.Error -> {
+//                            val errorState = updateState as UpdateHouseState.Error
+//                            Text("Lỗi cập nhật: ${errorState.error}")
+//                        }
+//
+//                        else -> {}
+//                    }
+//
+//                    val createState by viewModel.createHouseState.collectAsState()
+//                    when (createState) {
+//                        is CreateHouseState.Loading -> CircularProgressIndicator()
+//                        is CreateHouseState.Success -> {
+//                            val successState = createState as CreateHouseState.Success
+//                            Text("Nhà tạo thành công: ${successState.message}")
+//                            LaunchedEffect(Unit) {
+//                                viewModel.fetchHouses()
+//                            }
+//                        }
+//                        is CreateHouseState.Error -> {
+//                            val errorState = createState as CreateHouseState.Error
+//                            Text("Lỗi tạo nhà: ${errorState.error}")
+//                        }
+//                        else -> {}
+//                    }
 
                     if (isPopupVisible.value) {
                         AddHousePopup(
@@ -289,24 +291,24 @@ fun HouseManagementScreen(
                             onDismiss = { isPopupVisible.value = false },
                             onAddOrUpdateHouse = { name, address, icon, color ->
                                 if (isEditing.value) {
-                                    viewModel.updateHouse(
-                                        houseId = editingData.value.houseId,
-                                        request = UpdateHouseRequest(
-                                            name = name,
-                                            address = address,
-                                            iconName = icon,
-                                            iconColor = color
-                                        )
-                                    )
+//                                    viewModel.updateHouse(
+//                                        houseId = editingData.value.houseId,
+//                                        request = UpdateHouseRequest(
+//                                            name = name,
+//                                            address = address,
+//                                            iconName = icon,
+//                                            iconColor = color
+//                                        )
+//                                    )
                                 } else {
-                                    viewModel.createHouse(
-                                        CreateHouseRequest(
-                                            name = name,
-                                            address = address,
-                                            iconName = icon,
-                                            iconColor = color
-                                        )
-                                    )
+//                                    viewModel.createHouse(
+//                                        CreateHouseRequest(
+//                                            name = name,
+//                                            address = address,
+//                                            iconName = icon,
+//                                            iconColor = color
+//                                        )
+//                                    )
                                 }
                                 isPopupVisible.value = false
                             },

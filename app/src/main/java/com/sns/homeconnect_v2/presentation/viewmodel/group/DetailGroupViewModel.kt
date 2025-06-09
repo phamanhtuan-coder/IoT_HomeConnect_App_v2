@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import androidx.lifecycle.SavedStateHandle
+import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
 import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 
@@ -17,7 +18,8 @@ import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 class DetailGroupViewModel @Inject constructor(
     private val memberUseCase: GetGroupMembersUseCase,
     private val getHousesByGroupUseCase: GetHousesByGroupUseCase,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val authManager: AuthManager
 ) : ViewModel() {
 
     val groupId: Int = savedStateHandle["groupId"] ?: -1
@@ -30,6 +32,8 @@ class DetailGroupViewModel @Inject constructor(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
+
+    val currentUserId: String = authManager.getCurrentUserId()
 
     init {
         fetchGroupMembers()
@@ -63,3 +67,6 @@ class DetailGroupViewModel @Inject constructor(
         }
     }
 }
+
+
+

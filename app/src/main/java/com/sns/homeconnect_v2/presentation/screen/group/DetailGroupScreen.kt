@@ -10,7 +10,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,9 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.sns.homeconnect_v2.core.util.validation.RoleLevel
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
-import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.core.util.validation.toHouseUi
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable

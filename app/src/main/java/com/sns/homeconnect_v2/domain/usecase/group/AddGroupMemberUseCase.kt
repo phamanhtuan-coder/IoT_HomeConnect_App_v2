@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.domain.usecase.group
 
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
-import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import javax.inject.Inject

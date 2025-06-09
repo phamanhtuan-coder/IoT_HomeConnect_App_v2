@@ -6,7 +6,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 
-
 interface AuthRepository {
     suspend fun login(username: String, password: String): LoginResponse
     suspend fun logout()

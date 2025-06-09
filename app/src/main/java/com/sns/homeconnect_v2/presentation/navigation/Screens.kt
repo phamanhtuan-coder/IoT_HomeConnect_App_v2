@@ -34,6 +34,9 @@ sealed class Screens(val route: String) {
     // --- House screens ---
     data object HouseManagement : Screens("house_management")
     data object AddHouse : Screens("add_house")
+    data object CreateHouse : Screens("create_house/{groupId}") {
+        fun createRoute(groupId: Int) = "create_house/$groupId"
+    }
     data object EditHouse : Screens("edit_house/{houseId}") {
         fun createRoute(houseId: Int) = "edit_house/$houseId"
     }
@@ -124,4 +127,3 @@ sealed class Screens(val route: String) {
     // --- Other screens ---
     // ...add more here if needed...
 }
-

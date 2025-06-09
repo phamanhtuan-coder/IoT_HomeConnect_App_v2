@@ -29,6 +29,7 @@ import com.sns.homeconnect_v2.presentation.screen.welcome.WelcomeScreen
 import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
+import com.sns.homeconnect_v2.presentation.screen.group.house.CreateHouseScreen
 import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
@@ -127,8 +128,26 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             composable(Screens.HouseManagement.route) {
                 HouseManagementScreen(navController)
             }
-            // TODO: Add AddHouse screen
-            // TODO: Add EditHouse screen with route "edit_house/{houseId}"
+
+            composable(Screens.AddHouse.route) {
+                CreateHouseScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = -1 // Default value for groupId when creating a new house
+                )
+            }
+
+            composable(
+                route = Screens.CreateHouse.route,
+                arguments = listOf(navArgument("groupId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val groupId = backStackEntry.arguments?.getInt("groupId") ?: -1
+                CreateHouseScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    groupId = groupId
+                )
+            }
 
             composable(Screens.HouseSearch.route) {
                 HouseSearchScreen(
@@ -291,4 +310,3 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
         }
     }
 }
-

@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.data
 
 import android.content.Context
+import com.sns.homeconnect_v2.core.util.validation.getUserIdFromToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -18,4 +19,10 @@ class AuthManager @Inject constructor(
 
     fun getDeviceUuid(): String = prefs.getString("JWT_TOKEN_DEVICE_UUID", "") ?: ""
     fun saveDeviceUuid(uuid: String) = prefs.edit().putString("JWT_TOKEN_DEVICE_UUID", uuid).apply()
+
+    fun getCurrentUserId(): String {
+        val token = getJwtToken()
+        return getUserIdFromToken(token) ?: ""
+    }
 }
+

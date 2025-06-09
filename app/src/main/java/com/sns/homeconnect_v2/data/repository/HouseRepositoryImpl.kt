@@ -3,7 +3,7 @@ package com.sns.homeconnect_v2.data.repository
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse

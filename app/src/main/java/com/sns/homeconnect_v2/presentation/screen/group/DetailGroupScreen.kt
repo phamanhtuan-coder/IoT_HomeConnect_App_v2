@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.core.util.validation.toHouseUi
 import com.sns.homeconnect_v2.presentation.component.HouseCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.UserCardSwipeable
@@ -48,14 +50,13 @@ fun DetailGroupScreen(
     val housesUi = remember { mutableStateListOf<HouseUi>() }
     LaunchedEffect(housesResponse) {
         housesUi.clear()
-        housesUi.addAll(housesResponse.map { it.toHouseUi() })
+        housesUi.addAll(housesResponse.map { it.toHouseUi(role = "member") }) // ToDo: Sửa quyền sau này
     }
-
-
 
     LaunchedEffect(refreshTrigger?.value) {
         if (refreshTrigger?.value == true) {
             viewModel.fetchGroupMembers()
+            viewModel.fetchHouses()  // Thêm fetch houses
             navController.currentBackStackEntry
                 ?.savedStateHandle
                 ?.set("refresh", false) // Reset flag
@@ -65,7 +66,7 @@ fun DetailGroupScreen(
     val selectedIcon = Icons.Default.Home
 
     val groupName        = "Family Group"
-    val groupDescription = "Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group "
+    val groupDescription = "Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group Mô tả group "
 
     val memberCount = members.size.toString()
 
@@ -82,7 +83,14 @@ fun DetailGroupScreen(
             FabChild(
                 icon = Icons.Default.Add,
                 onClick = {
-                    navController.navigate(Screens.AddUser.createRoute(groupId))
+                    when (selectedTab) {
+                        0 -> {
+                            navController.navigate(Screens.AddUser.createRoute(groupId))
+                        }
+                        1 -> {
+                            navController.navigate(Screens.CreateHouse.createRoute(groupId))
+                        }
+                    }
                 },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
@@ -266,9 +274,9 @@ fun DetailGroupScreen(
                         ) {
                             itemsIndexed(members) { index, member ->
                                 UserCardSwipeable(
-                                    userName = member.full_name?: member.username,
+                                    userName = member.full_name ?: member.username,
                                     role = member.role,
-                                    avatarUrl = member.avatar ?: "", // hoặc null-safe xử lý nếu avatar là null
+                                    avatarUrl = member.avatar ?: "",
                                     isRevealed = revealStates[index].value,
                                     onExpandOnly = {
                                         revealStates.forEachIndexed { i, state ->
@@ -280,68 +288,125 @@ fun DetailGroupScreen(
                                     onEdit = { /* Chỉnh sửa role */ }
                                 )
                             }
-
                         }
                     }
                     1 -> {
-                        // ✅ Tab Nhà gọi HouseTabContent tại đây 👇
-                        HouseTabContent(
-                            houses = housesUi
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Spacer(Modifier.height(8.dp))
+                            // --- thống kê số lượng nhà ---
+                            LabeledBox(
+                                label = "Số lượng nhà",
+                                value = housesUi.size.toString(),
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+
+                            LazyColumn(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(
+                                    bottom = innerPadding.calculateBottomPadding()-32.dp
+                                )
+                            ) {
+                                itemsIndexed(housesUi) { index, house ->
+                                    HouseCardSwipeable(
+                                        houseName = house.name,
+                                        spaceCount = house.spaces,
+                                        icon = house.icon,
+                                        iconColor = house.iconColor,
+                                        isRevealed = house.isRevealed,
+                                        role = members.find { it.account_id == viewModel.currentUserId }?.role ?: "",
+                                        onExpandOnly = {
+                                            housesUi.indices.forEach { i ->
+                                                housesUi[i] = housesUi[i].copy(isRevealed = i == index)
+                                            }
+                                        },
+                                        onCollapse = {
+                                            housesUi[index] = house.copy(isRevealed = false)
+                                        },
+                                        onDelete = {
+                                            housesUi.removeAt(index)
+                                        },
+                                        onEdit = {
+                                            navController.navigate(Screens.EditHouse.createRoute(house.id))
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-
-
             }
         }
     }
 }
 
-@Composable
-fun HouseTabContent(
-    houses: SnapshotStateList<HouseUi>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Spacer(Modifier.height(8.dp))
-        // --- thống kê số lượng nhà ---
-        LabeledBox(
-            label = "Số lượng nhà",
-            value = houses.size.toString(),
-            modifier = Modifier.padding(start = 16.dp)
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            itemsIndexed(houses) { index, house ->
-                HouseCardSwipeable(
-                    houseName = house.name,
-                    spaceCount = house.spaces,
-                    icon = house.icon,
-                    iconColor = house.iconColor,
-                    isRevealed = house.isRevealed,
-                    onExpandOnly = {
-                        houses.indices.forEach { i ->
-                            houses[i] = houses[i].copy(isRevealed = i == index)
-                        }
-                    },
-                    onCollapse = {
-                        houses[index] = house.copy(isRevealed = false)
-                    },
-                    onDelete = {
-                        houses.removeAt(index) },
-                    onEdit = { /* TODO */ }
-                )
-            }
-        }
-    }
-}
-
+//@Composable
+//fun HouseTabContent(
+//    houses: SnapshotStateList<HouseUi>,
+//    modifier: Modifier = Modifier,
+//    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+//    navController: NavHostController
+//) {
+//    val viewModel: DetailGroupViewModel = hiltViewModel()
+//
+//    val canEdit = hasPermission(currentUserRole, RoleLevel.VICE)
+//    val canDelete = hasPermission(currentUserRole, RoleLevel.VICE)
+//
+//    Column(
+//        modifier = modifier
+//            .fillMaxWidth()
+//    ) {
+//        Spacer(Modifier.height(8.dp))
+//        // --- thống kê số lượng nhà ---
+//        LabeledBox(
+//            label = "Số lượng nhà",
+//            value = houses.size.toString(),
+//            modifier = Modifier.padding(start = 16.dp)
+//        )
+//
+//        Spacer(Modifier.height(8.dp))
+//
+//        LazyColumn(
+//            modifier = Modifier
+//                .fillMaxWidth(),
+//            verticalArrangement = Arrangement.spacedBy(8.dp),
+//        ) {
+//            itemsIndexed(houses) { index, house ->
+//                HouseCardSwipeable(
+//                    houseName = house.name,
+//                    spaceCount = house.spaces,
+//                    icon = house.icon,
+//                    iconColor = house.iconColor,
+////                    isRevealed = house.isRevealed,
+////                    role = currentUserRole,  // Thêm role vào để kiểm tra quyền
+//                    onExpandOnly = {
+//                        houses.indices.forEach { i ->
+//                            houses[i] = houses[i].copy(isRevealed = i == index)
+//                        }
+//                    },
+//                    onCollapse = {
+//                        houses[index] = house.copy(isRevealed = false)
+//                    },
+////                    onDelete = {
+////                        if (canDelete) {
+////                            viewModel.deleteHouse(house.id)
+////                            houses.removeAt(index)
+////                        }
+////                    },
+////                    onEdit = {
+////                        if (canEdit) {
+////                            navController.navigate(Screens.EditHouse.createRoute(house.id))
+////                        }
+////                    }
+//                )
+//            }
+//        }
+//    }
+//}

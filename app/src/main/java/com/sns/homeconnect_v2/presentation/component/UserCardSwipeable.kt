@@ -16,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
@@ -49,6 +51,8 @@ fun UserCardSwipeable(
     onDelete: () -> Unit,
     onEdit: () -> Unit
 ) {
+    val canEdit = hasPermission(role, RoleLevel.VICE)
+    val canDelete = hasPermission(role, RoleLevel.VICE)
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,
@@ -58,15 +62,18 @@ fun UserCardSwipeable(
             Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onEdit,
-                backgroundColor = Color(0xFF4CAF50),
-                icon = Icons.Default.Edit
+                backgroundColor = if (canEdit) Color(0xFF4CAF50) else Color.Gray,
+                icon = Icons.Default.Edit,
+                enabled = canEdit
             )
             Spacer(Modifier.width(8.dp))
             ActionIcon(
                 onClick = onDelete,
-                backgroundColor = Color(0xFFF44336),
-                icon = Icons.Default.Delete
+                backgroundColor = if (canDelete) Color(0xFFF44336) else Color.Gray,
+                icon = Icons.Default.Delete,
+                enabled = canDelete
             )
+
         }
     ) {
         Row(
@@ -92,44 +99,6 @@ fun UserCardSwipeable(
                     color = Color.Black
                 )
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun UserCardSwipeablePreview() {
-    val users = listOf(
-        Triple("Nguyễn Văn A", "Owner", ""),
-        Triple("Trần Thị B", "Vice", "https://i.pravatar.cc/150?img=8"),
-        Triple("Lê Văn C", "Admin", "https://i.pravatar.cc/150?img=12"),
-        Triple("Phạm Thị D", "Member", ""),
-        Triple("Hoàng Văn E", "Member", "https://i.pravatar.cc/150?img=20")
-    )
-
-    val revealStates = remember { users.map { mutableStateOf(false) } }
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.padding(top = 16.dp)
-    ) {
-        users.forEachIndexed { index, (name, role, avatar) ->
-            UserCardSwipeable(
-                userName = name,
-                role = role,
-                avatarUrl = avatar,
-                isRevealed = revealStates[index].value,
-                onExpandOnly = {
-                    revealStates.forEachIndexed { i, state ->
-                        state.value = i == index
-                    }
-                },
-                onCollapse = {
-                    revealStates[index].value = false
-                },
-                onDelete = {},
-                onEdit = {}
-            )
         }
     }
 }

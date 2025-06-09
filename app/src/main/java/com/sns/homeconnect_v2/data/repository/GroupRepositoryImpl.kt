@@ -3,14 +3,16 @@ package com.sns.homeconnect_v2.data.repository
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
-import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
-import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
-import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
+import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import javax.inject.Inject
 
 class GroupRepositoryImpl @Inject constructor(
@@ -69,5 +71,14 @@ class GroupRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
     }
-}
 
+    override suspend fun updateGroupMemberRole(
+        groupId: Int,
+        accountId: String,
+        role: String
+    ): Result<UpdateGroupMemberRoleResponse> = runCatching {
+        val token = authManager.getJwtToken()
+        val request = UpdateGroupMemberRoleRequest(accountId, role)
+        apiService.updateGroupMemberRole(groupId, request, "Bearer $token")
+    }
+}

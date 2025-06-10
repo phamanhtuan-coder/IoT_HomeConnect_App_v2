@@ -7,4 +7,5 @@ interface OTPRepository {
     suspend fun sendOTP(email: String): EmailResponse
     suspend fun verifyOTP(email: String, otp: String): EmailResponse
     suspend fun checkEmail(email: String): EmailResponse
+    suspend fun sendOtp(email: String): EmailResponse
 }

@@ -8,8 +8,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,15 +22,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.CheckEmailUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.CheckEmailViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
-import kotlinx.coroutines.launch
 
 /**
  * Màn hình Khôi phục mật khẩu
@@ -51,14 +53,28 @@ import kotlinx.coroutines.launch
 @Composable
 fun RecoverPasswordScreen(
     navController: NavHostController,
-    viewModel: RecoverPasswordViewModel = hiltViewModel(),
+    viewModel: CheckEmailViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val recoverPasswordState by viewModel.checkEmailState.collectAsState()
-    val uiModel by viewModel.uiModel.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
-    val context =  LocalContext.current
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val emailState = remember { mutableStateOf("") }
+    val emailErrorState = remember { mutableStateOf("") }
+    val isTablet = com.google.android.gms.common.util.DeviceProperties.isTablet(context)
+    val uiState by viewModel.uiState.collectAsState()
+
+    when (uiState) {
+        is CheckEmailUiState.Idle -> { /* ... */ }
+        is CheckEmailUiState.Loading -> CircularProgressIndicator()
+        is CheckEmailUiState.Error -> Text((uiState as CheckEmailUiState.Error).message, color = MaterialTheme.colorScheme.error)
+        is CheckEmailUiState.Success -> {
+            LaunchedEffect(Unit) {
+                snackbarViewModel.showSnackbar("Email hợp lệ, chuyển sang OTP")
+                navController.navigate(Screens.OTP.createRoute("reset_password", emailState.value))
+            }
+        }
+    }
+
 
     Scaffold(
         modifier = Modifier
@@ -70,14 +86,14 @@ fun RecoverPasswordScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = if (isTablet(context)) 32.dp else 16.dp)
+                .padding(horizontal = if (isTablet) 32.dp else 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
             Text(
                 text = "Khôi phục mật khẩu",
-                fontSize = if (isTablet(context)) 28.sp else 24.sp,
+                fontSize = if (isTablet) 28.sp else 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = colorScheme.primary
             )
@@ -88,85 +104,30 @@ fun RecoverPasswordScreen(
             )
 
             StyledTextField(
-                value = uiModel.email,
+                value = emailState.value,
                 onValueChange = {
-                    viewModel.updateUiModel(
-                        uiModel.copy(
-                            email = it,
-                            emailError = ValidationUtils.validateEmail(it),
-                            errorMessage = ""
-                        )
-                    )
+                    emailState.value = it
+                    emailErrorState.value = ValidationUtils.validateEmail(it)
                 },
                 placeholderText = "Nhập email",
                 leadingIcon = Icons.Default.Email
             )
 
-//            Text(
-//                text = uiModel.emailError,
-//                fontSize = 14.sp,
-//                color = if (uiModel.emailError == "Email hợp lệ.") Color.Green else colorScheme.error
-//            )
-//
-//            Spacer(modifier = Modifier.height(24.dp))
-
             ActionButtonWithFeedback(
-                label = "Gửi OTP",
-                style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
+                label = "Xác nhận email",
+                style = if (emailErrorState.value.isEmpty() && emailState.value.isNotBlank())
+                    HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
                 snackbarViewModel = snackbarViewModel,
+                onAction = { ok, err ->
+                    viewModel.checkEmail(emailState.value, ok, err)
+                },
                 onSuccess = {
                     navController.navigate(
-                        Screens.OTP.createRoute("reset_password", uiModel.email)
+                        Screens.OTP.createRoute("reset_password", emailState.value)
                     )
-                },
-                onAction = { onSuccess, onError ->
-                    scope.launch {
-                        viewModel.sendOtp(uiModel.email).fold(
-                            onSuccess = { response ->
-                                onSuccess("Đã gửi OTP tới email của bạn!")
-                            },
-                            onFailure = { e ->
-                                onError(e.message ?: "Có lỗi xảy ra khi gửi OTP")
-                            }
-                        )
-                    }
                 }
             )
 
-            // TODO: Re-enable when API is ready
-            /*
-            when (recoverPasswordState) {
-                is RecoverPasswordState.Success -> {
-                    LaunchedEffect(Unit) {
-//                        navController.navigate(
-//                            Screens.OTP.createRoute("reset_password", uiModel.email)
-//                        )
-                        navController.navigate(Screens.NewPassword.route)
-                    }
-                }
-                is RecoverPasswordState.Error -> {
-                    LaunchedEffect(recoverPasswordState) {
-                        viewModel.updateUiModel(
-                            uiModel.copy(errorMessage = (recoverPasswordState as RecoverPasswordState.Error).message)
-                        )
-                    }
-                }
-                is RecoverPasswordState.Loading -> {
-//                    CircularProgressIndicator()
-                }
-                is RecoverPasswordState.Idle -> {
-                    // Do nothing
-                }
-            }
-            */
-
-            if (uiModel.errorMessage.isNotBlank()) {
-                Text(
-                    text = uiModel.errorMessage,
-                    fontSize = 14.sp,
-                    color = colorScheme.error
-                )
-            }
 
             TextButton(onClick = { navController.popBackStack() }) {
                 Text(
@@ -179,3 +140,4 @@ fun RecoverPasswordScreen(
         }
     }
 }
+

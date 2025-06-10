@@ -78,11 +78,6 @@ interface ApiService {
         @Body request: EmailRequest
     ): EmailResponse
 
-    @POST("otp/verify")
-    suspend fun verifyOTP(
-        @Body request: EmailRequest
-    ): EmailResponse
-
     @POST("users/confirm-email")
     suspend fun confirmEmail(
         @Body request: EmailRequest,
@@ -278,6 +273,19 @@ interface ApiService {
         @Body request: UpdateGroupMemberRoleRequest,
         @Header("Authorization") token: String
     ): UpdateGroupMemberRoleResponse
+
+    @POST("notifications/otp")
+    suspend fun sendOtp(@Body request: EmailRequest): EmailResponse
+
+    @POST("otp/verify")
+    suspend fun verifyOTPOld(
+        @Body request: EmailRequest
+    ): EmailResponse
+
+    @POST("notifications/otp/verify")
+    suspend fun verifyOTPNew(
+        @Body request: EmailRequest
+    ): EmailResponse
 
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")

@@ -50,6 +50,10 @@ fun OtpScreen(
 
     val verifyOTPState by viewModel.verifyOtpState.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.sendOTP(email)
+    }
+
     LaunchedEffect(verifyOTPState) {
         when (verifyOTPState) {
             is OTPState.Success -> {

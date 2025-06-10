@@ -9,10 +9,11 @@ class SendOtpUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(email: String): Result<EmailResponse> {
         return try {
-            val response = otpRepository.sendOTP(email)
+            val response = otpRepository.sendOtp(email)
             Result.success(response)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 }
+

@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CheckEmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
@@ -43,6 +44,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
@@ -287,6 +289,10 @@ interface ApiService {
         @Body request: EmailRequest
     ): EmailResponse
 
+    @POST("auth/check-email")
+    suspend fun checkEmail(
+        @Body request: CheckEmailRequest
+    ): CheckEmailResponse
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

@@ -8,9 +8,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,9 +25,9 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeed
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoverPasswordViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Màn hình Khôi phục mật khẩu
@@ -58,6 +58,7 @@ fun RecoverPasswordScreen(
     val uiModel by viewModel.uiModel.collectAsState()
     val colorScheme = MaterialTheme.colorScheme
     val context =  LocalContext.current
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier
@@ -109,14 +110,27 @@ fun RecoverPasswordScreen(
 //
 //            Spacer(modifier = Modifier.height(24.dp))
 
-
             ActionButtonWithFeedback(
-                label = "Khôi phục mật khẩu",
+                label = "Gửi OTP",
                 style = if (uiModel.isValid()) HCButtonStyle.PRIMARY else HCButtonStyle.DISABLED,
-                onAction = { _, _ ->
-                    viewModel.checkEmail()
+                snackbarViewModel = snackbarViewModel,
+                onSuccess = {
+                    navController.navigate(
+                        Screens.OTP.createRoute("reset_password", uiModel.email)
+                    )
                 },
-                snackbarViewModel = snackbarViewModel
+                onAction = { onSuccess, onError ->
+                    scope.launch {
+                        viewModel.sendOtp(uiModel.email).fold(
+                            onSuccess = { response ->
+                                onSuccess("Đã gửi OTP tới email của bạn!")
+                            },
+                            onFailure = { e ->
+                                onError(e.message ?: "Có lỗi xảy ra khi gửi OTP")
+                            }
+                        )
+                    }
+                }
             )
 
             // TODO: Re-enable when API is ready

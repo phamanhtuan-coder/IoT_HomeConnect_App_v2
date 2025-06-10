@@ -161,7 +161,9 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideCheckEmailUseCase(repository: OTPRepository): CheckEmailUseCase {
+        fun provideCheckEmailUseCase(
+            repository: AuthRepository
+        ): CheckEmailUseCase {
             return CheckEmailUseCase(repository)
         }
 

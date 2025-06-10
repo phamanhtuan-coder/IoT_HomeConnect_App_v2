@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.repository
 
+import android.util.Log
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
@@ -17,13 +18,30 @@ class OTPRepositoryImpl @Inject constructor(
     }
 
     override suspend fun verifyOTP(email: String, otp: String): EmailResponse {
-        val request = EmailRequest(email = email, otp = otp)
-        return apiService.verifyOTP(request)
+        try {
+            Log.d("OTPRepository", "Creating request - Email: $email, OTP: $otp")
+            val request = EmailRequest(email = email, otp = otp)
+            Log.d("OTPRepository", "Sending request to API: $request")
+
+            // Sử dụng endpoint mới
+            val response = apiService.verifyOTPNew(request)
+            Log.d("OTPRepository", "API Response received: Success=${response.status}, Message=${response.message}")
+
+            return response
+        } catch (e: Exception) {
+            Log.e("OTPRepository", "Error in verifyOTP", e)
+            throw e
+        }
     }
 
     override suspend fun checkEmail(email: String): EmailResponse {
         val request = EmailRequest(email = email)
         return apiService.checkEmail(request)
+    }
+
+    override suspend fun sendOtp(email: String): EmailResponse {
+        val request = EmailRequest(email = email)
+        return apiService.sendOtp(request)
     }
 
 

@@ -3,9 +3,11 @@ package com.sns.homeconnect_v2.data.repository
 import android.content.Context
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.request.CheckEmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.NewPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
@@ -68,5 +70,10 @@ class AuthRepositoryImpl @Inject constructor(
         )
         // Gọi API
         return apiService.newPassword(request)
+    }
+
+    override suspend fun checkEmail(email: String): CheckEmailResponse {
+        val request = CheckEmailRequest(email)
+        return apiService.checkEmail(request)
     }
 }

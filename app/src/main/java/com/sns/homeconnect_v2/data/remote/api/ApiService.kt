@@ -42,6 +42,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
@@ -270,6 +272,13 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<HouseWithSpacesResponse>
 
+    @PUT("groups/{groupId}/members/role")
+    suspend fun updateGroupMemberRole(
+        @Path("groupId") groupId: Int,
+        @Body request: UpdateGroupMemberRoleRequest,
+        @Header("Authorization") token: String
+    ): UpdateGroupMemberRoleResponse
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
@@ -369,4 +378,3 @@ interface ApiService {
 //
 //    data class UpdateSpaceRequest(val Name: String)
 }
-

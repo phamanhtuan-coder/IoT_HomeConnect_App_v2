@@ -1,21 +1,28 @@
 package com.sns.homeconnect_v2.domain.usecase.auth
 
-import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.domain.repository.OTPRepository
+import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import javax.inject.Inject
 
+sealed class CheckEmailResult {
+    object NotFound : CheckEmailResult()
+    object NotVerified : CheckEmailResult()
+    object Verified : CheckEmailResult()
+    data class Failure(val message: String) : CheckEmailResult()
+}
+
 class CheckEmailUseCase @Inject constructor(
-    private val otpRepository: OTPRepository
+    private val authRepository: AuthRepository
 ) {
-    suspend operator fun invoke(email: String): Result<EmailResponse> {
+    suspend operator fun invoke(email: String): CheckEmailResult {
         return try {
-            if (!email.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"))) {
-                throw IllegalArgumentException("Invalid email")
+            val resp = authRepository.checkEmail(email)
+            when {
+                !resp.exists     -> CheckEmailResult.NotFound
+                !resp.isVerified -> CheckEmailResult.NotVerified
+                else             -> CheckEmailResult.Verified
             }
-            val response = otpRepository.sendOTP(email)
-            Result.success(response)
         } catch (e: Exception) {
-            Result.failure(e)
+            CheckEmailResult.Failure(e.message ?: "Lỗi khi kiểm tra email")
         }
     }
 }

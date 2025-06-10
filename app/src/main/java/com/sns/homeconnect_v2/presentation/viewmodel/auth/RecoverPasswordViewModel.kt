@@ -3,7 +3,9 @@ package com.sns.homeconnect_v2.presentation.viewmodel.auth
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
+import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.presentation.model.RecoverPasswordUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,7 @@ sealed class RecoverPasswordState {
 @HiltViewModel
 class RecoverPasswordViewModel @Inject constructor(
     private val checkEmailUseCase: CheckEmailUseCase,
+    private val sendOtpUseCase: SendOtpUseCase,
 ) : ViewModel() {
 
     private val _checkEmailState = MutableStateFlow<RecoverPasswordState>(RecoverPasswordState.Idle)
@@ -45,6 +48,20 @@ class RecoverPasswordViewModel @Inject constructor(
                 onFailure = { e ->
                     Log.e("RecoverPasswordViewModel", "Error: ${e.message}")
                     _checkEmailState.value = RecoverPasswordState.Error(e.message ?: "Xác thực email thất bại!")
+                }
+            )
+        }
+    }
+
+    suspend fun sendOtp(email: String): Result<EmailResponse> {
+        _checkEmailState.value = RecoverPasswordState.Loading
+        return sendOtpUseCase(email).also { result ->
+            result.fold(
+                onSuccess = { response ->
+                    _checkEmailState.value = RecoverPasswordState.Success(response.message)
+                },
+                onFailure = { e ->
+                    _checkEmailState.value = RecoverPasswordState.Error(e.message ?: "Failed to send OTP")
                 }
             )
         }

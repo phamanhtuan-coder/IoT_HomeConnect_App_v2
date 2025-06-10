@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.domain.repository
 
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
@@ -12,4 +13,5 @@ interface AuthRepository {
     suspend fun register(user: RegisterRequest): RegisterResponse
     suspend fun getInfoProfile(): User
     suspend fun newPassword(email: String, password: String): NewPasswordResponse
+    suspend fun checkEmail(email: String): CheckEmailResponse
 }

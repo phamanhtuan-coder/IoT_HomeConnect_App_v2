@@ -63,8 +63,8 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun NewPasswordScreen(
-    navController: NavHostController,
     email: String,
+    navController: NavHostController,
     viewModel: NewPasswordViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
@@ -201,10 +201,4 @@ fun NewPasswordScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true,showSystemUi = true)
-@Composable
-fun NewPasswordScreenPreiview(){
-    NewPasswordScreen(navController = rememberNavController(),"" )
 }

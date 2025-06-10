@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.otp
 
 import IoTHomeConnectAppTheme
+import android.net.Uri
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -17,13 +18,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
+import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPState
 import com.sns.homeconnect_v2.presentation.viewmodel.otp.OTPViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.otp.VerifyEmailState
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 
 @Composable
 fun OtpScreen(
@@ -31,37 +36,40 @@ fun OtpScreen(
     title: String = "Nhập mã OTP",
     description: String = "Vui lòng nhập mã OTP vừa được gửi tới Email",
     onVerificationSuccess: () -> Unit,
-    viewModel: OTPViewModel = hiltViewModel()
+    navController: NavHostController,
+    viewModel: OTPViewModel = hiltViewModel(),
+    snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val sendOTPState by viewModel.sendOtpState.collectAsState()
+    val colorScheme = MaterialTheme.colorScheme
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 600
+
+    val otpLength = 6
+    val otpValue = remember { mutableStateListOf(*Array(otpLength) { "" }) }
+    val focusRequesters = List(otpLength) { FocusRequester() }
+
     val verifyOTPState by viewModel.verifyOtpState.collectAsState()
-    val verifyEmailState by viewModel.verifyEmailState.collectAsState()
 
-    // TODO: Re-enable API call when new API is ready
-    /*
-    LaunchedEffect(Unit) {
-        viewModel.sendOTP(email)
-    }
-
-    LaunchedEffect(verifyOTPState, verifyEmailState) {
-        when {
-            verifyOTPState is OTPState.Success && title != "Xác thực Email" -> onVerificationSuccess()
-            verifyEmailState is VerifyEmailState.Success -> onVerificationSuccess()
+    LaunchedEffect(verifyOTPState) {
+        when (verifyOTPState) {
+            is OTPState.Success -> {
+                snackbarViewModel.showSnackbar(
+                    (verifyOTPState as OTPState.Success).message,
+                    SnackbarVariant.SUCCESS
+                )
+                onVerificationSuccess()
+            }
+            is OTPState.Error -> {
+                snackbarViewModel.showSnackbar(
+                    (verifyOTPState as OTPState.Error).message,
+                    SnackbarVariant.ERROR
+                )
+            }
+            else -> Unit
         }
     }
-    */
-
-    // Mock successful OTP for demo
-    val mockSuccessMessage = "Mã OTP đã được gửi tới Email của bạn."
 
     IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
-        val configuration = LocalConfiguration.current
-        val isTablet = configuration.screenWidthDp >= 600
-        val otpLength = 6
-        val otpValue = remember { mutableStateListOf(*Array(otpLength) { "" }) }
-        val focusRequesters = List(otpLength) { FocusRequester() }
-
         Scaffold(
             containerColor = colorScheme.background
         ) { paddingValues ->
@@ -82,7 +90,7 @@ fun OtpScreen(
                 )
 
                 Text(
-                    text = mockSuccessMessage,
+                    text = "Mã OTP đã được gửi tới Email của bạn.",
                     fontSize = 14.sp,
                     color = Color.Green
                 )
@@ -140,7 +148,8 @@ fun OtpScreen(
                         .align(Alignment.End)
                         .padding(end = 16.dp),
                     onClick = {
-                        otpValue.forEachIndexed { index, _ -> otpValue[index] = "" }
+                        viewModel.sendOTP(email)
+                        otpValue.indices.forEach { otpValue[it] = "" }
                         focusRequesters[0].requestFocus()
                     }
                 ) {
@@ -155,33 +164,27 @@ fun OtpScreen(
                     focusRequesters[0].requestFocus()
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    onClick = {
-                        onVerificationSuccess()
+                ActionButtonWithFeedback(
+                    label = "Xác nhận",
+                    style = HCButtonStyle.PRIMARY,
+                    snackbarViewModel = snackbarViewModel,
+                    onAction = { _, _ ->
+                        val otpString = otpValue.joinToString("")
+                        if (otpString.length == otpLength) {
+                            viewModel.verifyOTP(email, otpString)
+                        } else {
+                            snackbarViewModel.showSnackbar("Vui lòng nhập đủ mã OTP", SnackbarVariant.ERROR)
+                        }
                     },
-                    modifier = Modifier.size(
-                        width = if (isTablet) 300.dp else 200.dp,
-                        height = if (isTablet) 56.dp else 48.dp
-                    ),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                    shape = MaterialTheme.shapes.large
-                ) {
-                    Text(
-                        text = "Xác nhận",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = colorScheme.onPrimary
-                    )
-                }
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    height = if (isTablet) 56.dp else 48.dp,
+                    width = if (isTablet) 300.dp else 200.dp,
+                    textSize = 16.sp
+                )
             }
         }
     }
 }
 
-@Preview
-@Composable
-fun Preview(){
-    OtpScreen("0306221391@gmail.com", "Nhập mã OTP", "Vui lòng nhập mã OTP vừa được gửi tới Email", {})
-}

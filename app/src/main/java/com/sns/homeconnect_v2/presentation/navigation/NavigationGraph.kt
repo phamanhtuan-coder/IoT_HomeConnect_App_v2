@@ -172,7 +172,10 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 )
             }
             composable(Screens.CreateGroup.route) {
-                CreateGroupScreen(navController)
+                CreateGroupScreen(
+                    navController,
+                    snackbarViewModel = snackbarViewModel,
+                )
             }
             composable(
                 route = Screens.GroupDetail.route,

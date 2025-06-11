@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CheckEmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceTokenRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.EmailRequest
@@ -42,7 +43,10 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.RecoveryPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
@@ -75,11 +79,6 @@ interface ApiService {
 
     @POST("otp/send")
     suspend fun sendOTP(
-        @Body request: EmailRequest
-    ): EmailResponse
-
-    @POST("otp/verify")
-    suspend fun verifyOTP(
         @Body request: EmailRequest
     ): EmailResponse
 
@@ -279,7 +278,28 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UpdateGroupMemberRoleResponse
 
+    @POST("notifications/otp")
+    suspend fun sendOtp(@Body request: EmailRequest): EmailResponse
 
+    @POST("otp/verify")
+    suspend fun verifyOTPOld(
+        @Body request: EmailRequest
+    ): EmailResponse
+
+    @POST("notifications/otp/verify")
+    suspend fun verifyOTPNew(
+        @Body request: EmailRequest
+    ): EmailResponse
+
+    @POST("auth/check-email")
+    suspend fun checkEmail(
+        @Body request: CheckEmailRequest
+    ): CheckEmailResponse
+
+    @POST("auth/recovery-password")
+    suspend fun recoveryPassword(
+        @Body request: RecoveryPasswordRequest
+    ): RecoveryPasswordResponse
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

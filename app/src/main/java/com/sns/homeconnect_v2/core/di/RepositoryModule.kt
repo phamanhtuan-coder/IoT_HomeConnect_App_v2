@@ -31,7 +31,7 @@ import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
-import com.sns.homeconnect_v2.domain.usecase.auth.NewPasswordUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.RecoveryPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
@@ -161,15 +161,17 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideCheckEmailUseCase(repository: OTPRepository): CheckEmailUseCase {
+        fun provideCheckEmailUseCase(
+            repository: AuthRepository
+        ): CheckEmailUseCase {
             return CheckEmailUseCase(repository)
         }
 
-        @Provides
-        @Singleton
-        fun provideNewPasswordUseCase(repository: AuthRepository): NewPasswordUseCase {
-            return NewPasswordUseCase(repository)
-        }
+//        @Provides
+//        @Singleton
+//        fun provideNewPasswordUseCase(repository: AuthRepository): NewPasswordUseCase {
+//            return NewPasswordUseCase(repository)
+//        }
 
         @Provides
         @Singleton
@@ -354,5 +356,14 @@ abstract class RepositoryModule {
         fun provideGetHousesByGroupUseCase( houseRepository: HouseRepository): GetHousesByGroupUseCase {
             return GetHousesByGroupUseCase(houseRepository)
         }
+
+        @Provides
+        @Singleton
+        fun provideRecoveryPasswordUseCase(
+            authRepository: AuthRepository
+        ): RecoveryPasswordUseCase {
+            return RecoveryPasswordUseCase(authRepository)
+        }
+
     }
 }

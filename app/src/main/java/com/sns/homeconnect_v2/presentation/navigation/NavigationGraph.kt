@@ -58,14 +58,17 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             RegisterScreen(navController)
         }
         composable(Screens.RecoverPassword.route) {
-            RecoverPasswordScreen(navController)
+            RecoverPasswordScreen(
+                navController,
+                snackbarViewModel = snackbarViewModel
+            )
         }
         composable(
             route = "${Screens.NewPassword.route}?email={email}",
-            arguments = listOf(navArgument("email") { type = NavType.StringType; defaultValue = "" })
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            NewPasswordScreen(navController, email)
+            NewPasswordScreen(email = email, navController = navController, snackbarViewModel = snackbarViewModel)
         }
 
         // --- OTP screens ---
@@ -97,7 +100,9 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                         "reset_password" -> navController.navigate("${Screens.NewPassword.route}?email=$email")
                         "email_verification" -> navController.navigate(Screens.Profile.route)
                     }
-                }
+                },
+                snackbarViewModel = snackbarViewModel,
+                navController = navController
             )
         }
 

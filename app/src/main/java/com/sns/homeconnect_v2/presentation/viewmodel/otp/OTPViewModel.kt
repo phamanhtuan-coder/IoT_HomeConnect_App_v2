@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.EmailResponse
-import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.ConfirmEmailUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.SendOtpUseCase
 import com.sns.homeconnect_v2.domain.usecase.otp.VerifyOtpUseCase
@@ -44,12 +43,23 @@ class OTPViewModel @Inject constructor(
     private val _verifyEmailState = MutableStateFlow<VerifyEmailState>(VerifyEmailState.Idle)
     val verifyEmailState = _verifyEmailState.asStateFlow()
 
+    private var lastOtpRequestTime: Long = 0
+    private val otpCooldownPeriod = 60000L // 60 seconds
+
     fun sendOTP(email: String) {
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastOtpRequestTime < otpCooldownPeriod) {
+            val remainingSeconds = (otpCooldownPeriod - (currentTime - lastOtpRequestTime)) / 1000
+            _sendOtpState.value = OTPState.Error("Vui lòng đợi ${remainingSeconds}s trước khi gửi lại mã OTP")
+            return
+        }
+
         _sendOtpState.value = OTPState.Loading
         viewModelScope.launch {
             sendOtpUseCase(email).fold(
                 onSuccess = { response ->
-                    _sendOtpState.value = OTPState.Success(response.success, response.message)
+                    lastOtpRequestTime = currentTime
+                    _sendOtpState.value = OTPState.Success(true, response.message)
                 },
                 onFailure = { e ->
                     _sendOtpState.value = OTPState.Error(e.message ?: "Failed to send OTP")
@@ -62,16 +72,15 @@ class OTPViewModel @Inject constructor(
         _verifyOtpState.value = OTPState.Loading
         viewModelScope.launch {
             verifyOtpUseCase(email, otp).fold(
-                onSuccess = { response ->
-                    _verifyOtpState.value = OTPState.Success(response.success, response.message)
+                onSuccess = { message ->
+                    _verifyOtpState.value = OTPState.Success(true, message)
                 },
                 onFailure = { e ->
-                    _verifyOtpState.value = OTPState.Error(e.message ?: "OTP verification failed")
+                    _verifyOtpState.value = OTPState.Error(e.message ?: "Xác thực OTP thất bại")
                 }
             )
         }
     }
-
 
     fun confirmEmail(email: String) {
         // Reset state

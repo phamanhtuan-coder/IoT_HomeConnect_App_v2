@@ -37,15 +37,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPassWordState
-import com.sns.homeconnect_v2.presentation.viewmodel.auth.NewPasswordViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.AuthViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.RecoveryPasswordUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /** Giao diện màn hình Tạo mật khẩu mới (NewPassword Screen)
@@ -63,39 +62,34 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun NewPasswordScreen(
-    navController: NavHostController,
     email: String,
-    viewModel: NewPasswordViewModel = hiltViewModel(),
+    navController: NavHostController,
+    viewModel: AuthViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val newPasswordState by viewModel.newPasswordState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val passwordErrorState = remember { mutableStateOf("") }
     val passwordConfirmErrorState = remember { mutableStateOf("") }
 
-    when (newPasswordState) {
-        is NewPassWordState.Success -> {
-            LaunchedEffect (Unit) {
+    when (uiState) {
+        is RecoveryPasswordUiState.Success -> {
+            LaunchedEffect(Unit) {
+                snackbarViewModel.showSnackbar((uiState as RecoveryPasswordUiState.Success).message)
                 navController.navigate(Screens.Login.route) {
-                    popUpTo(Screens.Login.route) {
-                        inclusive = true
-                    }
+                    popUpTo(Screens.Login.route) { inclusive = true }
                 }
             }
         }
-
-        is NewPassWordState.Error -> {
-            passwordConfirmErrorState.value =
-                (newPasswordState as NewPassWordState.Error).error.toString()
+        is RecoveryPasswordUiState.Error -> {
+            LaunchedEffect(uiState) {
+                snackbarViewModel.showSnackbar((uiState as RecoveryPasswordUiState.Error).message)
+            }
         }
-
-        is NewPassWordState.Loading -> {
-//            CircularProgressIndicator()
+        is RecoveryPasswordUiState.Loading -> {
+            // Show loading UI nếu muốn
         }
-
-        else -> {
-            // Xử lý khi chưa làm gì
-        }
+        RecoveryPasswordUiState.Idle -> {}
     }
 
     IoTHomeConnectAppTheme {
@@ -192,7 +186,7 @@ fun NewPasswordScreen(
                             label = "Đổi mật khẩu",
                             style = HCButtonStyle.PRIMARY,
                             onAction = { _, _ ->
-                                viewModel.newPassword(email, passwordState.value)
+                                viewModel.recoveryPassword(email, passwordState.value)
                             },
                             snackbarViewModel = snackbarViewModel
                         )
@@ -201,10 +195,4 @@ fun NewPasswordScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true,showSystemUi = true)
-@Composable
-fun NewPasswordScreenPreiview(){
-    NewPasswordScreen(navController = rememberNavController(),"" )
 }

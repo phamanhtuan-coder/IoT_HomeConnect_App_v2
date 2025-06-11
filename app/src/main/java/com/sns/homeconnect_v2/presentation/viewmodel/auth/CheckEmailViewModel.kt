@@ -2,7 +2,6 @@ package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailResult
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel

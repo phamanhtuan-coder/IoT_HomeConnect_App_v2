@@ -91,7 +91,7 @@ fun ColorPicker(
 @Preview(showBackground = true)
 @Composable
 fun PreviewColorPickerCombined() {
-    var selectedLabel by remember { mutableStateOf("blue") }
+    var selectedLabel by remember { mutableStateOf("#0000FF") } // ✅ dùng mã hex
 
     ColorPicker(
         selectedColorLabel = selectedLabel,

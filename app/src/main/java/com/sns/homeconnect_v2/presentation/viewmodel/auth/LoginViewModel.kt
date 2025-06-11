@@ -1,16 +1,12 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
 import android.app.Application
-import android.os.Build
-import android.provider.Settings
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
-import com.sns.homeconnect_v2.data.remote.dto.request.LoginRequest
-import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +16,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed class LoginUiState {
-    data object Idle : LoginUiState()
-    data object Loading : LoginUiState()
+    object Idle : LoginUiState()
+    object Loading : LoginUiState()
     data class Success(val token: String) : LoginUiState()
     data class Error(val message: String) : LoginUiState()
 }
@@ -49,35 +45,9 @@ class LoginViewModel @Inject constructor(
                     }
                 },
                 onFailure = { e ->
-                    Log.e("LoginViewModel", "Login error: ${e.message}")
                     _loginState.value = LoginUiState.Error(e.message ?: "Đăng nhập thất bại!")
                 }
             )
-        }
-    }
-
-    suspend fun quickLogin(username: String, password: String): Result<LoginResponse> {
-        return runCatching {
-            val context = getApplication<Application>()
-            val deviceId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
-            val deviceUuid = authManager.getDeviceUuid()
-
-            val request = LoginRequest(
-                username = username,
-                password = password,
-                rememberMe = true,
-                deviceName = "Android_${Build.MODEL}",
-                deviceId = deviceId,
-                deviceUuid = deviceUuid
-            )
-
-            val response = apiService.login(request)
-
-            authManager.saveJwtToken(response.accessToken)
-            authManager.saveRefreshToken(response.refreshToken)
-            authManager.saveDeviceUuid(response.deviceUuid)
-
-            response
         }
     }
 

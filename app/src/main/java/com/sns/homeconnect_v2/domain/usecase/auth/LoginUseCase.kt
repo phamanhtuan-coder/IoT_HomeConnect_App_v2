@@ -12,7 +12,6 @@ class LoginUseCase @Inject constructor(
         return try {
             val response = authRepository.login(username, password)
 
-            // Lưu token vào shared preferences nếu có
             if (response.accessToken.isNotEmpty()) {
                 authManager.saveJwtToken(response.accessToken)
                 authManager.saveRefreshToken(response.refreshToken)

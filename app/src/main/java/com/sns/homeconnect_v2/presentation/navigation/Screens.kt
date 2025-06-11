@@ -8,8 +8,8 @@ sealed class Screens(val route: String) {
     data object UpdatePassword : Screens("update_password/{id}") {
         fun createRoute(id: Int) = "update_password/$id"
     }
-    data object NewPassword : Screens("new_password?email={email}") {
-        fun createRoute(email: String) = "new_password?email=$email"
+    data object ForgotPassword : Screens("ForgotPassword?email={email}") {
+        fun createRoute(email: String) = "ForgotPassword?email=$email"
     }
     data object PasswordAuth : Screens("password_auth")
     data object Welcome : Screens("welcome")

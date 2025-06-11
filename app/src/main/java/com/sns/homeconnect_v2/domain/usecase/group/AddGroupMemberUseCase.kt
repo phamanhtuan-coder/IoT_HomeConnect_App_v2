@@ -9,11 +9,15 @@ class AddGroupMemberUseCase @Inject constructor(
     private val repository: GroupRepository
 ) {
     suspend operator fun invoke(groupId: Int, accountId: String, role: String): Result<UserGroupResponse> {
-        val request = AddGroupMemberRequest(
-            groupId = groupId,
-            accountId = accountId,
-            role = role.lowercase()
-        )
-        return repository.addGroupMember(request)
+        return try {
+            val request = AddGroupMemberRequest(
+                groupId = groupId,
+                accountId = accountId,
+                role = role.lowercase()
+            )
+            repository.addGroupMember(request)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

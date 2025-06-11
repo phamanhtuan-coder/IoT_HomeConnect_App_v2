@@ -91,16 +91,16 @@ fun ActionButtonWithFeedback(
                 onClick = {
                     scope.launch {
                         isLoading = true
-                        delay(500)
+                        delay(2000)
                         onAction(
                             { msg ->
                                 isLoading = false
                                 snackbarViewModel.showSnackbar(msg, SnackbarVariant.SUCCESS)
                                 onSuccess()
                             },
-                            { msg ->
+                            { err ->
                                 isLoading = false
-                                snackbarViewModel.showSnackbar(msg, SnackbarVariant.ERROR)
+                                snackbarViewModel.showSnackbar(err, SnackbarVariant.ERROR)
                             }
                         )
                     }

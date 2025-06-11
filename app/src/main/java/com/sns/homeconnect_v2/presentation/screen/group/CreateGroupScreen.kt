@@ -18,11 +18,16 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
+import com.sns.homeconnect_v2.core.util.validation.toColor
+import com.sns.homeconnect_v2.core.util.validation.toColorString
+import com.sns.homeconnect_v2.core.util.validation.toIcon
+import com.sns.homeconnect_v2.core.util.validation.toIconString
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupState
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
@@ -38,6 +43,7 @@ fun CreateGroupScreen(
     when (createGroupState) {
         is CreateGroupState.Success -> {
             LaunchedEffect(Unit) {
+                snackbarViewModel.showSnackbar("Thêm nhóm thành cộng!", SnackbarVariant.SUCCESS)
                 navController.navigate("home") {
                     popUpTo("create_group") { inclusive = true }
                 }
@@ -45,6 +51,7 @@ fun CreateGroupScreen(
         }
 
         is CreateGroupState.Error -> {
+            snackbarViewModel.showSnackbar("Thêm nhóm không thành công!", SnackbarVariant.ERROR)
             // Bạn có thể show lỗi UI hoặc snackbar
         }
 
@@ -56,7 +63,7 @@ fun CreateGroupScreen(
 
     // ---------------- icon + color state ----------------
     var selectedLabel by remember { mutableStateOf("Nhà") }
-    var selectedColor by remember { mutableStateOf("blue") }
+    var selectedColor by remember { mutableStateOf("#0000FF") }
 
     val items = listOf(
         "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
@@ -172,8 +179,13 @@ fun CreateGroupScreen(
                     Spacer(Modifier.height(8.dp))
                     ColorPicker(
                         selectedColorLabel = selectedColor,
-                        onColorSelected = { selectedColor = it }
+                        onColorSelected = { selectedColor = it } // << Bạn đã truyền đúng callback này
                     )
+
+                    LaunchedEffect(selectedColor) {
+                        println("Selected color is: $selectedColor")
+                    }
+
                     Spacer(Modifier.height(32.dp))
                 }
 
@@ -197,8 +209,17 @@ fun CreateGroupScreen(
                             onAction = { ok, err ->
                                 viewModel.createGroup(
                                     groupName = groupName,
-                                    onSuccess = { msg -> ok(msg) },
-                                    onError = { msg -> err(msg) }
+                                    groupDesc = groupDesc,
+                                    iconName = selectedLabel,
+                                    iconColor = selectedColor,
+                                    onSuccess = { msg ->
+                                        ok(msg)
+                                        snackbarViewModel.showSnackbar(msg)
+                                    },
+                                    onError = { msg ->
+                                        err(msg)
+                                        snackbarViewModel.showSnackbar(msg)
+                                    }
                                 )
                             },
                             onSuccess = {

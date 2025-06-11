@@ -36,12 +36,12 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel
 ) {
-    val loginUiState by viewModel.loginState.collectAsState() // <-- Phải đặt TRƯỚC LaunchedEffect
+    val loginUiState by viewModel.loginState.collectAsState()
 
     LaunchedEffect(loginUiState) {
         when (loginUiState) {
             is LoginUiState.Success -> {
-                snackbarViewModel.showSnackbar("Đăng nhập thành công", SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Đăng nhập thành công!", SnackbarVariant.SUCCESS)
                 navController.navigate("home_graph") {
                     popUpTo(Screens.Login.route) { inclusive = true }
                 }
@@ -56,18 +56,17 @@ fun LoginScreen(
         }
     }
 
-
     IoTHomeConnectAppTheme {
         val configuration = LocalConfiguration.current
         val isTablet = configuration.screenWidthDp >= 600
         val colorScheme = MaterialTheme.colorScheme
         val emailState = remember { mutableStateOf("thanhsang09121") }
         val passwordState = remember { mutableStateOf("123@123Q") }
-//        var passwordVisible by remember { mutableStateOf(false) }
+        //        var passwordVisible by remember { mutableStateOf(false) }
         val emailErrorState = remember { mutableStateOf("") }
         val passwordErrorState = remember { mutableStateOf("") }
-//        val loginUiState by viewModel.loginState.collectAsState()
-//        val isLoading = remember { mutableStateOf(false) }
+        //        val loginUiState by viewModel.loginState.collectAsState()
+        //        val isLoading = remember { mutableStateOf(false) }
 
         Scaffold(
             modifier = Modifier.fillMaxSize().background(colorScheme.background),
@@ -141,9 +140,12 @@ fun LoginScreen(
                     label = "Đăng nhập",
                     style = HCButtonStyle.PRIMARY,
                     snackbarViewModel = snackbarViewModel,
-                    onSuccess = {}, // không dùng vì đã show snackbar trong `LaunchedEffect`
-                    onAction = { ok, err ->
+                    isLoadingFromParent = loginUiState is LoginUiState.Loading,
+                    onAction = { _, _ ->
                         viewModel.login(emailState.value, passwordState.value)
+                    },
+                    onSuccess = {
+
                     }
                 )
 

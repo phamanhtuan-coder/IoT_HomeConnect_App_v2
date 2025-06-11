@@ -46,7 +46,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.RecoveryPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
@@ -299,7 +299,7 @@ interface ApiService {
     @POST("auth/recovery-password")
     suspend fun recoveryPassword(
         @Body request: RecoveryPasswordRequest
-    ): RecoveryPasswordResponse
+    ): ForgotPasswordResponse
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

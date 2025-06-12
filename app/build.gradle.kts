@@ -61,6 +61,8 @@ dependencies {
     // ML Kit Barcode
     implementation ("com.google.mlkit:barcode-scanning:17.1.0")
     implementation(libs.hilt.android)
+    implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.room.runtime.android)
     kapt(libs.hilt.android.compiler)
     kapt(libs.jetbrains.kotlinx.metadata.jvm)
     implementation(libs.androidx.hilt.navigation.compose)

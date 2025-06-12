@@ -30,7 +30,9 @@ ui = "1.7.8"
 wifiutils = "1.6.6"
 googleGmsGoogleServices = "4.4.2"
 firebaseMessaging = "24.1.1"
-kotlinxMetadata = "0.9.0" # Latest compatible with Kotlin 2.1.0
+kotlinxMetadata = "0.9.0"
+roomCommonJvm = "2.7.1"
+roomRuntimeAndroid = "2.7.1" # Latest compatible with Kotlin 2.1.0
 
 [libraries]
 jetbrains-kotlinx-metadata-jvm = { group = "org.jetbrains.kotlinx", name = "kotlinx-metadata-jvm", version.ref = "kotlinxMetadata" }
@@ -71,6 +73,8 @@ retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref =
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 wifiutils = { module = "io.github.thanosfisherman.wifiutils:wifiutils", version.ref = "wifiutils" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
+androidx-room-runtime-android = { group = "androidx.room", name = "room-runtime-android", version.ref = "roomRuntimeAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

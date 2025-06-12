@@ -13,7 +13,7 @@ class SpaceRepositoryImpl @Inject constructor(
 ) : SpaceRepository {
     override suspend fun getSpacesByHomeId(homeId: Int): List<SpaceResponse> {
         val token = authManager.getJwtToken()
-        return apiService.getSpacesByHomeId(homeId, token = "Bearer $token")
+        return apiService.getSpaces(homeId, token = "Bearer $token")
     }
 
     override suspend fun getDevicesBySpaceId(spaceId: Int): List<DeviceResponse> {

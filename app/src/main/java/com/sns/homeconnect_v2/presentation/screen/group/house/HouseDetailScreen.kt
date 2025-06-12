@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.group.house
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,6 +25,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.toColor
+import com.sns.homeconnect_v2.core.util.validation.toIcon
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
@@ -32,26 +35,39 @@ import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun HouseDetailScreen(
     navController: NavHostController,
-    houseIcon: ImageVector,
-    colorIcon: Color,
-    houseName: String,
-    houseAddress: String,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+//    houseIcon: ImageVector,
+//    colorIcon: Color,
+//    houseName: String,
+//    houseAddress: String,
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+    spaceViewModel:SpaceScreenViewModel = hiltViewModel(),
+    houseId:Int
 ) {
+
     val scope = rememberCoroutineScope()
-    val spaces = remember {
-        mutableStateListOf(
-            SpaceUi(1, "Bathroom", 5, false, Icons.Default.BedroomBaby, Color.Blue),
-            SpaceUi(2, "Bedroom", 3, false, Icons.Default.Home, Color.Red),
-            SpaceUi(3, "Lounge", 7, false, Icons.Default.Group, Color.Green)
-        )
+
+
+    LaunchedEffect(Unit) {
+        spaceViewModel.getSpaces(houseId)
     }
+    val spaces by spaceViewModel.spaces.collectAsState()
+    Log.d("spaces", spaces.toString())
+    Log.d("houseId", houseId.toString())
+
+//    val spaces = remember {
+//        mutableStateListOf(
+//            SpaceUi(1, "Bathroom", 5, false, Icons.Default.BedroomBaby, Color.Blue),
+//            SpaceUi(2, "Bedroom", 3, false, Icons.Default.Home, Color.Red),
+//            SpaceUi(3, "Lounge", 7, false, Icons.Default.Group, Color.Green)
+//        )
+//    }
 
     IoTHomeConnectAppTheme {
         val fabOptions = listOf(
@@ -120,14 +136,14 @@ fun HouseDetailScreen(
                             Column(modifier = Modifier.align(Alignment.CenterStart)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = houseIcon,
+                                        imageVector = Icons.Default.Home,
                                         contentDescription = "House Icon",
-                                        tint = colorIcon,
+                                        tint = Color.White,
                                         modifier = Modifier.size(32.dp)
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = houseName,
+                                        text =  "Nhà của tôi",
                                         color = Color.White,
                                         fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold
@@ -148,7 +164,7 @@ fun HouseDetailScreen(
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text = houseAddress,
+                                        text =  "123 Đường ABC, Quận 1, TP.HCM",
                                         modifier = Modifier.weight(1f),
                                         color = Color.White,
                                         fontSize = 16.sp,
@@ -196,20 +212,20 @@ fun HouseDetailScreen(
                         Spacer(Modifier.height(8.dp))
 
                         SpaceCardSwipeable(
-                            spaceName = space.name,
-                            deviceCount = space.device,
-                            icon = space.icon,
-                            iconColor = space.iconColor,
+                            spaceName = space.space_name?: "không có tên",
+                            deviceCount = space.space_id,
+                            icon = space.icon_name?.toIcon() ?: Icons.Default.Home,
+                            iconColor = space.icon_color?.toColor()?: Color.Gray,
                             isRevealed = space.isRevealed,
                             onExpandOnly = {
                                 spaces.indices.forEach { i ->
-                                    spaces[i] = spaces[i].copy(isRevealed = i == index)
+                                    spaceViewModel.updateRevealState(i)
                                 }
                             },
                             onCollapse = {
-                                spaces[index] = space.copy(isRevealed = false)
+                                spaceViewModel.collapseItem(index)
                             },
-                            onDelete = { spaces.removeAt(index) },
+                            onDelete = {  },
                             onEdit = { /* TODO */ },
                             onClick = { /* TODO */ }
                         )
@@ -240,19 +256,3 @@ fun HouseDetailScreen(
     }
 }
 
-@Preview(
-    name = "Phone – 360 × 800",
-    showBackground = true,
-    widthDp = 360,
-    heightDp = 800
-)
-@Composable
-fun HouseDetailScreenPreview() {
-    HouseDetailScreen(
-        navController = rememberNavController(),
-        houseIcon = Icons.Default.Home,
-        colorIcon = Color.Blue,
-        houseName = "Nhà của tôi",
-        houseAddress = "123 Đường ABC, Quận 1, TP.HCM"
-    )
-}

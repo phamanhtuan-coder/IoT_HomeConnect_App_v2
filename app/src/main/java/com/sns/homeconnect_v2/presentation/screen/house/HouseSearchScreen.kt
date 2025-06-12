@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +32,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.house.HouseSearchViewModel
 
 @Composable
@@ -47,7 +47,7 @@ fun HouseSearchScreen(
     val housesUi = houses.map { it.toHouseUi(role = "member") } //ToDo sau này sửa quyền
 
     LaunchedEffect(Unit) {
-        viewModel.loadHousesByGroup() // mặc định groupId = 5
+        viewModel.loadHousesByGroup(5) // mặc định groupId = 5
     }
 
     Log.d("HouseSearchScreen", "Houses: $houses")
@@ -158,7 +158,10 @@ fun HouseSearchScreen(
                             onExpandOnly = { /* ... */ },
                             onCollapse   = { /* ... */ },
                             onDelete     = { /* ... */ },
-                            onEdit       = { /* ... */ }
+                            onEdit       = { /* ... */ },
+                            onClick = {
+                                //navController.navigate(Screens.HouseDetail.createRoute(house.id))
+                            }
                         )
                     }
                 }

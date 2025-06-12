@@ -2,9 +2,9 @@ package com.sns.homeconnect_v2.presentation.component
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Castle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
@@ -49,7 +49,8 @@ fun HouseCardSwipeable(
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onClick: () -> Unit
 ){
     Log.d("HouseCardSwipeable", "role: $role, isRevealed: $isRevealed")
     val canEdit = hasPermission(role, RoleLevel.VICE)
@@ -80,6 +81,7 @@ fun HouseCardSwipeable(
             modifier = Modifier
                 .background(color = Color(0xFFD8E4E8))
                 .fillMaxWidth()
+                .clickable { onClick() }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

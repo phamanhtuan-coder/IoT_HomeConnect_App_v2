@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     // 1. Giao diện chính
                     NavigationGraph(
                         navController = navController,
-                        snackbarViewModel = snackbarViewModel
+                        snackbarViewModel = snackbarViewModel,
                     )
 
                     // 2. Snackbar toàn cục

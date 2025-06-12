@@ -13,7 +13,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
@@ -69,7 +69,7 @@ fun RecoverPasswordScreen(
         is CheckEmailUiState.Error -> Text((uiState as CheckEmailUiState.Error).message, color = MaterialTheme.colorScheme.error)
         is CheckEmailUiState.Success -> {
             LaunchedEffect(Unit) {
-                snackbarViewModel.showSnackbar("Email hợp lệ, chuyển sang OTP")
+                snackbarViewModel.showSnackbar("Email hợp lệ, chuyển sang OTP",  SnackbarVariant.SUCCESS)
                 navController.navigate(Screens.OTP.createRoute("reset_password", emailState.value))
             }
         }
@@ -127,7 +127,6 @@ fun RecoverPasswordScreen(
                     )
                 }
             )
-
 
             TextButton(onClick = { navController.popBackStack() }) {
                 Text(

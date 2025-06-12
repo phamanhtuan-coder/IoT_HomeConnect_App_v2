@@ -2,7 +2,6 @@ package com.sns.homeconnect_v2.presentation.viewmodel.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailResult
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,12 +24,19 @@ class CheckEmailViewModel @Inject constructor(
         err: (String) -> Unit
     ) {
         viewModelScope.launch {
-            when (val res = useCase(email)) {           // UseCase đã tính NotFound, NotVerified, Verified
-                CheckEmailResult.Verified    -> ok("Email hợp lệ, chuyển OTP")
-                CheckEmailResult.NotFound    -> err("Email không tồn tại")
-                CheckEmailResult.NotVerified -> err("Email chưa được xác thực")
-                is CheckEmailResult.Failure  -> err(res.message)
-            }
+            useCase(email).fold(
+                onSuccess = { result ->
+                    when (result) {
+                        is CheckEmailResult.Verified    -> ok("Email hợp lệ, chuyển OTP")
+                        is CheckEmailResult.NotFound    -> err("Email không tồn tại")
+                        is CheckEmailResult.NotVerified -> err("Email chưa được xác thực")
+                        is CheckEmailResult.Failure     -> err(result.message) // 👈 bắt buộc có dòng này để tránh lỗi
+                    }
+                },
+                onFailure = { e ->
+                    err(e.message ?: "Có lỗi xảy ra khi kiểm tra email")
+                }
+            )
         }
     }
 }

@@ -11,6 +11,10 @@ class UpdateGroupMemberRoleUseCase @Inject constructor(
         accountId: String,
         role: String
     ): Result<Boolean> {
-        return groupRepository.updateGroupMemberRole(groupId, accountId, role).map { true }
+        return try {
+            groupRepository.updateGroupMemberRole(groupId, accountId, role).map { true }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

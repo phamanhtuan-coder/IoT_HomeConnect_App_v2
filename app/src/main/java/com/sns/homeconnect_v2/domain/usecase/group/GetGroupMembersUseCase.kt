@@ -8,6 +8,11 @@ class GetGroupMembersUseCase @Inject constructor(
     private val groupRepository: GroupRepository
 ) {
     suspend operator fun invoke(groupId: Int): Result<List<MemberResponse>> {
-        return groupRepository.getGroupMembers(groupId)
+        return try {
+            val result = groupRepository.getGroupMembers(groupId)
+            result
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

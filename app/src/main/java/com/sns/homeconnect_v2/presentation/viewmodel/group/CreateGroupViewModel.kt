@@ -3,12 +3,10 @@ package com.sns.homeconnect_v2.presentation.viewmodel.group
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
-import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupResult
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -45,17 +43,17 @@ class CreateGroupViewModel @Inject constructor(
                 icon_color = iconColor
             )
 
-            when (val result = createGroupUseCase(request)) {
-                is CreateGroupResult.Success -> {
+            createGroupUseCase(request).fold(
+                onSuccess = {
                     _createGroupState.value = CreateGroupState.Success
-                    onSuccess(result.message)
+                    onSuccess(it)
+                },
+                onFailure = {
+                    _createGroupState.value = CreateGroupState.Error(it.message ?: "Tạo nhóm thất bại")
+                    onError(it.message ?: "Tạo nhóm thất bại")
                 }
-
-                is CreateGroupResult.Failure -> {
-                    _createGroupState.value = CreateGroupState.Error(result.message)
-                    onError(result.message)
-                }
-            }
+            )
         }
     }
 }
+

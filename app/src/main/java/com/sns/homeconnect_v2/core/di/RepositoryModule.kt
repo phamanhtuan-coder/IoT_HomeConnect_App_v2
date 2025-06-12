@@ -30,8 +30,8 @@ import com.sns.homeconnect_v2.domain.usecase.SendFcmTokenUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LoginUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.RegisterUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.CheckEmailUseCase
+import com.sns.homeconnect_v2.domain.usecase.auth.ForgotPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.auth.LogOutUseCase
-import com.sns.homeconnect_v2.domain.usecase.auth.RecoveryPasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
@@ -361,8 +361,8 @@ abstract class RepositoryModule {
         @Singleton
         fun provideRecoveryPasswordUseCase(
             authRepository: AuthRepository
-        ): RecoveryPasswordUseCase {
-            return RecoveryPasswordUseCase(authRepository)
+        ): ForgotPasswordUseCase {
+            return ForgotPasswordUseCase(authRepository)
         }
 
     }

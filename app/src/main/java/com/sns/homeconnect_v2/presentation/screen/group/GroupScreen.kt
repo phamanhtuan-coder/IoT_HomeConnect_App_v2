@@ -192,7 +192,6 @@ fun GroupScreen(
                             },
                             onClick = {
                                 navController.navigate(Screens.GroupDetail.createRoute(group.id))
-
                             }
                         )
                     }

@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.domain.usecase.auth
 
+import android.util.Log
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import javax.inject.Inject
@@ -12,7 +13,6 @@ class LoginUseCase @Inject constructor(
         return try {
             val response = authRepository.login(username, password)
 
-            // Lưu token vào shared preferences nếu có
             if (response.accessToken.isNotEmpty()) {
                 authManager.saveJwtToken(response.accessToken)
                 authManager.saveRefreshToken(response.refreshToken)

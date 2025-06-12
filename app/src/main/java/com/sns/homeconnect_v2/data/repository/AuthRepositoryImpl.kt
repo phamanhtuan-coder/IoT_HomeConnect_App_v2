@@ -9,9 +9,9 @@ import com.sns.homeconnect_v2.data.remote.dto.request.NewPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RegisterRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LoginResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.NewPasswordResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.RecoveryPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RegisterResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.User
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
@@ -79,7 +79,7 @@ class AuthRepositoryImpl @Inject constructor(
         return apiService.checkEmail(request)
     }
 
-    override suspend fun recoveryPassword(email: String, newPassword: String): RecoveryPasswordResponse {
+    override suspend fun forgotPassword(email: String, newPassword: String): ForgotPasswordResponse {
         val req = RecoveryPasswordRequest(email, newPassword)
         return apiService.recoveryPassword(req)
     }

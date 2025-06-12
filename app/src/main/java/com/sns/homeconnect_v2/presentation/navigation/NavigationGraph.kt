@@ -8,8 +8,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
-import com.sns.homeconnect_v2.presentation.screen.auth.NewPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RegisterScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.UserActivityManagementScreen
@@ -64,11 +64,11 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             )
         }
         composable(
-            route = "${Screens.NewPassword.route}?email={email}",
+            route = "${Screens.ForgotPassword.route}?email={email}",
             arguments = listOf(navArgument("email") { type = NavType.StringType })
         ) { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
-            NewPasswordScreen(email = email, navController = navController, snackbarViewModel = snackbarViewModel)
+            ForgotPasswordScreen(email = email, navController = navController, snackbarViewModel = snackbarViewModel)
         }
 
         // --- OTP screens ---
@@ -97,7 +97,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 },
                 onVerificationSuccess = {
                     when (type) {
-                        "reset_password" -> navController.navigate("${Screens.NewPassword.route}?email=$email")
+                        "reset_password" -> navController.navigate("${Screens.ForgotPassword.route}?email=$email")
                         "email_verification" -> navController.navigate(Screens.Profile.route)
                     }
                 },

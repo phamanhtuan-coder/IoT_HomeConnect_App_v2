@@ -20,11 +20,13 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.ValidationUtils
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.auth.LoginViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
@@ -34,17 +36,37 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel
 ) {
+    val loginUiState by viewModel.loginState.collectAsState()
+
+    LaunchedEffect(loginUiState) {
+        when (loginUiState) {
+            is LoginUiState.Success -> {
+                snackbarViewModel.showSnackbar("Đăng nhập thành công!", SnackbarVariant.SUCCESS)
+                navController.navigate("home_graph") {
+                    popUpTo(Screens.Login.route) { inclusive = true }
+                }
+            }
+            is LoginUiState.Error -> {
+                snackbarViewModel.showSnackbar(
+                    (loginUiState as LoginUiState.Error).message,
+                    SnackbarVariant.ERROR
+                )
+            }
+            else -> Unit
+        }
+    }
+
     IoTHomeConnectAppTheme {
         val configuration = LocalConfiguration.current
         val isTablet = configuration.screenWidthDp >= 600
         val colorScheme = MaterialTheme.colorScheme
         val emailState = remember { mutableStateOf("thanhsang09121") }
-        val passwordState = remember { mutableStateOf("Pass@1234") }
-//        var passwordVisible by remember { mutableStateOf(false) }
+        val passwordState = remember { mutableStateOf("Test@123") }
+        //        var passwordVisible by remember { mutableStateOf(false) }
         val emailErrorState = remember { mutableStateOf("") }
         val passwordErrorState = remember { mutableStateOf("") }
-        val loginUiState by viewModel.loginState.collectAsState()
-//        val isLoading = remember { mutableStateOf(false) }
+        //        val loginUiState by viewModel.loginState.collectAsState()
+        //        val isLoading = remember { mutableStateOf(false) }
 
         Scaffold(
             modifier = Modifier.fillMaxSize().background(colorScheme.background),
@@ -117,14 +139,13 @@ fun LoginScreen(
                 ActionButtonWithFeedback(
                     label = "Đăng nhập",
                     style = HCButtonStyle.PRIMARY,
-                    snackbarViewModel = snackbarViewModel,  // <-- truyền vào đây
-                    onSuccess = { navController.navigate("home_graph") { popUpTo(Screens.Login.route) { inclusive = true } } },
-                    onAction = { ok, err ->
-                        val result = viewModel.quickLogin(emailState.value, passwordState.value)
-                        result.fold(
-                            onSuccess = { ok("Đăng nhập thành công!") },
-                            onFailure = { e -> err(e.message ?: "Sai tài khoản hoặc mật khẩu!") }
-                        )
+                    snackbarViewModel = snackbarViewModel,
+                    isLoadingFromParent = loginUiState is LoginUiState.Loading,
+                    onAction = { _, _ ->
+                        viewModel.login(emailState.value, passwordState.value)
+                    },
+                    onSuccess = {
+
                     }
                 )
 

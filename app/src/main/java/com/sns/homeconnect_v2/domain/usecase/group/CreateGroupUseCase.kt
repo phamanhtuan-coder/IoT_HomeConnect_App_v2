@@ -13,12 +13,13 @@ sealed class CreateGroupResult {
 class CreateGroupUseCase @Inject constructor(
     private val groupRepository: GroupRepository
 ) {
-    suspend operator fun invoke(request: CreateGroupRequest): CreateGroupResult {
+    suspend operator fun invoke(request: CreateGroupRequest): Result<String> {
         return try {
             groupRepository.createGroup(request)
-            CreateGroupResult.Success("Tạo nhóm thành công!")
+            Result.success("Tạo nhóm thành công!")
         } catch (e: Exception) {
-            CreateGroupResult.Failure(e.message ?: "Tạo nhóm thất bại")
+            Result.failure(Exception(e.message ?: "Tạo nhóm thất bại"))
         }
     }
 }
+

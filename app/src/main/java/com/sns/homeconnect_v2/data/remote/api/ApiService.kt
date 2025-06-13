@@ -47,6 +47,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -301,6 +302,11 @@ interface ApiService {
     suspend fun recoveryPassword(
         @Body request: RecoveryPasswordRequest
     ): ForgotPasswordResponse
+
+    @GET("devices/account")
+    suspend fun getUserOwnedDevices(
+        @Header("Authorization") token: String
+    ): List<OwnedDeviceResponse>
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

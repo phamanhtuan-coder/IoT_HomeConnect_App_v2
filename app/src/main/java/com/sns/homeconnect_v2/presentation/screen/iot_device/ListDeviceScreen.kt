@@ -21,6 +21,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.DeviceCardSwipeable
@@ -42,6 +45,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
 
 /** Giao diện màn hình Device Screen
  * -----------------------------------------
@@ -68,32 +73,39 @@ import com.sns.homeconnect_v2.presentation.model.DeviceUi
 @Composable
 fun ListDeviceScreen(
     navController: NavHostController = rememberNavController(),
+    listOfUserOwnedDevicesViewModel: ListOfUserOwnedDevicesViewModel = hiltViewModel(),
 //    deviceViewModel: DeviceViewModel = hiltViewModel(),
 //    sharedViewModel: SharedViewModel = hiltViewModel(),
 ) {
+    val ownedDevicesState by listOfUserOwnedDevicesViewModel.listOfUserOwnedDevicesState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val deviceOwnershipTabs = listOf("Sở hữu", "Chia sẽ")
 
-    val ownedDevices = remember {
-        mutableStateListOf(
-            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
-            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
-            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green),
-            DeviceUi(4, "Tài chính", "office", false, Icons.Default.Info, Color.Magenta),
-            DeviceUi(5, "Quản lý", "garage", false, Icons.Default.Settings, Color.Gray),
-            DeviceUi(6, "Sản xuất", "bathroom", false, Icons.Default.Star, Color.Cyan),
-            DeviceUi(7, "Kế toán", "dining room", false, Icons.Default.Home, Color.Yellow),
-            DeviceUi(8, "Nhân sự", "bedroom", false, Icons.Default.Group, Color.LightGray),
-            DeviceUi(9, "Kho vận", "living room", false, Icons.Default.Info, Color.Blue),
-            DeviceUi(10, "Kinh doanh", "office", false, Icons.Default.Star, Color.Red),
-            DeviceUi(11, "Chăm sóc KH", "kitchen", false, Icons.Default.Group, Color.Green),
-            DeviceUi(12, "Thiết kế", "studio", false, Icons.Default.Settings, Color.Magenta),
-            DeviceUi(13, "Ban giám đốc", "bedroom", false, Icons.Default.Group, Color.Cyan),
-            DeviceUi(14, "PR", "conference", false, Icons.Default.Home, Color.Blue),
-            DeviceUi(15, "Đối ngoại", "office", false, Icons.Default.Info, Color.Red),
-            DeviceUi(16, "CNTT", "server room", false, Icons.Default.Settings, Color.Gray)
-        )
+    LaunchedEffect(Unit) {
+        // Lấy danh sách thiết bị đã sở hữu
+        listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
     }
+
+//    val ownedDevices = remember {
+//        mutableStateListOf(
+//            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
+//            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
+//            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green),
+//            DeviceUi(4, "Tài chính", "office", false, Icons.Default.Info, Color.Magenta),
+//            DeviceUi(5, "Quản lý", "garage", false, Icons.Default.Settings, Color.Gray),
+//            DeviceUi(6, "Sản xuất", "bathroom", false, Icons.Default.Star, Color.Cyan),
+//            DeviceUi(7, "Kế toán", "dining room", false, Icons.Default.Home, Color.Yellow),
+//            DeviceUi(8, "Nhân sự", "bedroom", false, Icons.Default.Group, Color.LightGray),
+//            DeviceUi(9, "Kho vận", "living room", false, Icons.Default.Info, Color.Blue),
+//            DeviceUi(10, "Kinh doanh", "office", false, Icons.Default.Star, Color.Red),
+//            DeviceUi(11, "Chăm sóc KH", "kitchen", false, Icons.Default.Group, Color.Green),
+//            DeviceUi(12, "Thiết kế", "studio", false, Icons.Default.Settings, Color.Magenta),
+//            DeviceUi(13, "Ban giám đốc", "bedroom", false, Icons.Default.Group, Color.Cyan),
+//            DeviceUi(14, "PR", "conference", false, Icons.Default.Home, Color.Blue),
+//            DeviceUi(15, "Đối ngoại", "office", false, Icons.Default.Info, Color.Red),
+//            DeviceUi(16, "CNTT", "server room", false, Icons.Default.Settings, Color.Gray)
+//        )
+//    }
 
     val sharedDevices = remember {
         mutableStateListOf(
@@ -212,6 +224,11 @@ fun ListDeviceScreen(
 
                     when(selectedTabIndex) {
                         0 -> {
+                            val ownedDevices = when (ownedDevicesState) {
+                                is ListOfUserOwnedDevicesState.Success -> (ownedDevicesState as ListOfUserOwnedDevicesState.Success).deviceList
+                                else -> emptyList()
+                            }
+
                             LabeledBox(
                                 label = "Thiết bị đã sở hữu",
                                 value = ownedDevices.size.toString(),
@@ -219,35 +236,27 @@ fun ListDeviceScreen(
                             )
 
                             if (ownedDevices.isNotEmpty()) {
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .padding(vertical = 8.dp)
-                                ) {
+                                LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                                     itemsIndexed(ownedDevices) { index, device ->
                                         Spacer(modifier = Modifier.height(8.dp))
                                         DeviceCardSwipeable(
-                                            deviceName = device.name,
-                                            roomName = device.room,
-                                            isRevealed = device.isRevealed,
+                                            deviceName = device.name?: "Thiết bị $index",
+                                            roomName = "Rom",
+                                            isRevealed = true,
                                             onExpandOnly = {
-                                                ownedDevices.indices.forEach { i ->
-                                                    ownedDevices[i] = ownedDevices[i].copy(isRevealed = i == index)
-                                                }
                                             },
                                             onCollapse = {
-                                                ownedDevices[index] = device.copy(isRevealed = false)
                                             },
-                                            onDelete = { ownedDevices.removeAt(index) },
-                                            onEdit = { /* TODO */ }
+                                            onDelete = {
+                                            },
+                                            onEdit = { }
                                         )
                                     }
                                 }
                             } else {
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Text("Không tìm thấy")
                                 }
@@ -300,10 +309,4 @@ fun ListDeviceScreen(
             }
         )
     }
-}
-
-@Preview(showBackground = true, heightDp = 640)
-@Composable
-fun ListDeviceScreenPreview() {
-    ListDeviceScreen()
 }

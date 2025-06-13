@@ -20,7 +20,7 @@ class HouseSearchViewModel @Inject constructor(
     private val _houses = MutableStateFlow<List<HouseWithSpacesResponse>>(emptyList())
     val houses = _houses.asStateFlow()
 
-    fun loadHousesByGroup(groupId: Int = 5) {
+    fun loadHousesByGroup(groupId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
             getHousesByGroupUseCase(groupId).fold(

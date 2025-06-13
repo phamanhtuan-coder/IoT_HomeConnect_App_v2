@@ -427,7 +427,15 @@ fun DetailGroupScreen(
                                             housesUi.removeAt(index)
                                         },
                                         onEdit = {
-                                            navController.navigate(Screens.EditHouse.createRoute(house.id))
+                                            navController.navigate(
+                                                Screens.EditHouse.createRoute(
+                                                    house.id
+                                                )
+                                            )
+                                        },
+                                        onClick= {
+                                            //chuyển sang danh sách space của house
+                                            navController.navigate(Screens.ListSpace.createRoute(house.id))
                                         }
                                     )
                                 }

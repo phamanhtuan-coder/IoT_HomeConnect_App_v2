@@ -2,6 +2,7 @@ package com.sns.homeconnect_v2.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -30,6 +31,7 @@ import com.sns.homeconnect_v2.presentation.screen.group.GroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.house.CreateHouseScreen
+import com.sns.homeconnect_v2.presentation.screen.group.house.HouseDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
@@ -40,9 +42,11 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScre
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 
 @Composable
-fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel) {
+fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
+                    ) {
     NavHost(navController = navController, startDestination = Screens.Welcome.route) {
         // --- Auth screens ---
         composable(Screens.Welcome.route) {
@@ -193,6 +197,23 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     groupId = groupId
                 )
             }
+
+
+            composable(
+                route = Screens.ListSpace.route,
+                arguments = listOf(navArgument("houseId") { type = NavType.IntType })
+            ) {
+                backStackEntry ->
+                val spaceViewModel: SpaceScreenViewModel= hiltViewModel()
+                val houseId = backStackEntry.arguments?.getInt("houseId") ?: -1
+                HouseDetailScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    spaceViewModel = spaceViewModel,
+                    houseId = houseId
+                )
+            }
+
             // TODO: Add AddGroupUser screen with route "add_group_user/{groupId}"
 
             composable(

@@ -7,7 +7,7 @@ fun HouseWithSpacesResponse.toHouseUi(role: String): HouseUi {
     return HouseUi(
         id         = house_id,
         name       = house_name,
-        spaces     = spaces?.size?:0,
+        spaces     = spaces?.size ?:0,
         role       = role,
         isRevealed = false,
         icon       = getIconByName(icon_name),

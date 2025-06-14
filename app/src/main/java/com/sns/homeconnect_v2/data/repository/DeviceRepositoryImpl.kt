@@ -8,6 +8,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
@@ -50,13 +51,13 @@ class DeviceRepositoryImpl @Inject constructor(
         return apiService.unlinkDevice(deviceId, token = "Bearer $token")
     }
 
-    override suspend fun linkDevice(
-        deviceId: String,
-        spaceId: String,
-        deviceName: String
-    ): LinkDeviceResponse {
+    override suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse {
         val token = authManager.getJwtToken()
-        val linkDeviceRequest = LinkDeviceRequest(deviceId, spaceId, deviceName)
-        return apiService.linkDevice(linkDeviceRequest, token = "Bearer $token")
+        return apiService.linkDevice(request, "Bearer $token")
+    }
+
+    override suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse> {
+        val token = authManager.getJwtToken()
+        return apiService.getUserOwnedDevices(token = "Bearer $token")
     }
 }

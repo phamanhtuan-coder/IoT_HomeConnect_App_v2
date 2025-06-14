@@ -31,38 +31,46 @@ import kotlinx.coroutines.delay
  */
 @Composable
 fun ScanCodeDialog(
-    code: String,
     onDismiss: () -> Unit,
-    onOk: () -> Unit,
+    onOk: (String) -> Unit
 ) = Dialog(onDismissRequest = onDismiss) {
+    var scannedCode by remember { mutableStateOf("") }
+    var hasScanned by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
 
-    /* Khung dialog – bạn kiểm soát padding / màu / bo góc */
+    // Tự động đóng sau khi quét thành công
+    LaunchedEffect(scannedCode) {
+        if (scannedCode.isNotBlank() && !hasScanned) {
+            hasScanned = true
+            showSuccess = true
+            delay(1500) // chờ 1.5s rồi tự động xử lý
+            onOk(scannedCode)
+            onDismiss()
+        }
+    }
+
     Surface(
-        shape  = RoundedCornerShape(20.dp),
-        color  = Color(0xFFF4F0F8),           // nền tím nhạt
-        tonalElevation = 8.dp,                // đổ bóng nhẹ
-        modifier = Modifier                   // 16 dp sát viền như bạn muốn
-            .padding(16.dp)
-            .fillMaxWidth()
+        modifier = Modifier
+            .width(320.dp)
+            .wrapContentHeight(),
+        shape = RoundedCornerShape(20.dp),
+        color = Color(0xFFF4F0F8),
+        tonalElevation = 8.dp
     ) {
-
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(16.dp)              // <-- padding bên trong tuỳ ý
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            /* Camera preview */
             QrCameraPreview(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-                    .clip(RoundedCornerShape(12.dp))
-            ) { /* handle scan */ }
+                    .width(280.dp)
+                    .height(210.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                onCodeScanned = { code -> scannedCode = code }
+            )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            /* Mã quét */
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -71,40 +79,40 @@ fun ScanCodeDialog(
                     .padding(vertical = 14.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(code, fontSize = 18.sp)
+                Text(
+                    when {
+                        showSuccess -> "✅ Quét thành công!"
+                        scannedCode.isNotBlank() -> scannedCode
+                        else -> "Đang quét..."
+                    },
+                    fontSize = 18.sp
+                )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            /* Nút OK dùng ActionButtonWithFeedback */
             ActionButtonWithFeedback(
-                label  = "OK",
-                style  = HCButtonStyle.PRIMARY,
+                label = "Huỷ",
+                style = HCButtonStyle.SECONDARY,
                 height = 56.dp,
-                width  = 200.dp,
-                onAction = { onSuccess, _ ->
-                    // Loading 2 s
-                    delay(2000)
-                    onSuccess("Thành công")
-                    onOk()         // gọi callback OK
-                    onDismiss()    // đóng dialog
+                width = 200.dp,
+                onAction = { _, _ ->
+                    onDismiss()
                 },
-                snackbarViewModel = SnackbarViewModel() // Mock ViewModel cho snackbar
+                snackbarViewModel = SnackbarViewModel()
             )
         }
     }
 }
 
-/* -------- Preview: dùng previewMode = true để mock camera -------- */
 @Preview(showBackground = true, widthDp = 360)
 @Composable
 fun ScanCodeDialogPreview() {
-    /* Khi preview, Compose set LocalInspectionMode = true  */
     CompositionLocalProvider(LocalInspectionMode provides true) {
         ScanCodeDialog(
-            code      = "1234-5678-6565-3333",
             onDismiss = {},
-            onOk      = {}
+            onOk = { /* Handle scanned code */ }
         )
     }
 }
+

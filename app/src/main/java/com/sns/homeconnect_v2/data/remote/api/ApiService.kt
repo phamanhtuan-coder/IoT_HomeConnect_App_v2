@@ -48,6 +48,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleReque
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -139,16 +140,23 @@ interface ApiService {
         @Path("deviceId") deviceId: Int,
         @Header("Authorization") token: String
     ): UnlinkResponse
-
-    @POST("devices/link")
+  
+   @POST("devices/link")
     suspend fun linkDevice(
         @Body body: LinkDeviceRequest,
         @Header("Authorization") token: String
     ): LinkDeviceResponse
-
+  
+  
     @GET("houses/{houseId}")
     suspend fun getHouseId(
         @Path("houseId") houseId: Int,
+        @Header("Authorization") token: String
+    ): House
+
+    @GET("spaces/{homeId}")
+    suspend fun getSpacesByHomeId(
+        @Path("homeId") homeId: Int,
         @Header("Authorization") token: String
     ): House
 
@@ -304,6 +312,18 @@ interface ApiService {
     suspend fun recoveryPassword(
         @Body request: RecoveryPasswordRequest
     ): ForgotPasswordResponse
+
+    @GET("devices/account")
+    suspend fun getUserOwnedDevices(
+        @Header("Authorization") token: String
+    ): List<OwnedDeviceResponse>
+
+    @POST("devices/link")
+    suspend fun linkDevice(
+        @Body body: LinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): LinkDeviceResponse
+
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

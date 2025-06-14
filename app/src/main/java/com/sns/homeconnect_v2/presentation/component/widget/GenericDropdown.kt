@@ -57,7 +57,7 @@ fun GenericDropdown(
             .clip(RoundedCornerShape(16.dp))
             .border(1.dp, Color(0xFF9E9E9E), RoundedCornerShape(16.dp))
             .background(Color.White)
-            .height(60.dp)
+            .height(56.dp)
             .fillMaxWidth()
             .clickable { showSheet = true }
             .padding(horizontal = 16.dp),

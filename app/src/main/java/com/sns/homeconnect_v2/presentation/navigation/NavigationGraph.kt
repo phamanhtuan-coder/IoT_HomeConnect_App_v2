@@ -243,7 +243,10 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
 
             // --- IoT Device screens ---
             composable(Screens.AddDevice.route) {
-                LinkDeviceScreen(navController)
+                LinkDeviceScreen(
+                    navController,
+                    snackbarViewModel = snackbarViewModel,
+                )
             }
             composable(
                 route = "${Screens.AccessPoint.route}?id={id}&name={name}",

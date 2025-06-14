@@ -61,6 +61,7 @@ import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
@@ -113,15 +114,11 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindGroupRepository(
-        groupRepositoryImpl: GroupRepositoryImpl
-    ): GroupRepository
+    abstract fun bindGroupRepository(groupRepositoryImpl: GroupRepositoryImpl): GroupRepository
 
     @Binds
     @Singleton
-    abstract fun bindUserActivityRepository(
-        impl: UserActivityRepositoryImpl
-    ): UserActivityRepository
+    abstract fun bindUserActivityRepository(impl: UserActivityRepositoryImpl): UserActivityRepository
 
     companion object {
         @Provides
@@ -381,5 +378,12 @@ abstract class RepositoryModule {
             return ForgotPasswordUseCase(authRepository)
         }
 
+        @Provides
+        @Singleton
+        fun provideListOfUserOwnedDevicesUseCase(
+            deviceRepository: DeviceRepository
+        ): ListOfUserOwnedDevicesUseCase {
+            return ListOfUserOwnedDevicesUseCase(deviceRepository)
+        }
     }
 }

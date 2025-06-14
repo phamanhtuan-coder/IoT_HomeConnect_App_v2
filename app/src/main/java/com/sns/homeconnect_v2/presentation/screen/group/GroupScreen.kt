@@ -81,7 +81,6 @@ fun GroupScreen(
             FabChild(
                 icon = Icons.Default.Edit,
                 onClick = { /* TODO: sửa */
-
                 },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary

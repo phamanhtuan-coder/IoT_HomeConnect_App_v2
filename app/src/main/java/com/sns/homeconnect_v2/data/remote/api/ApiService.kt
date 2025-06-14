@@ -46,6 +46,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
@@ -149,11 +150,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<SpaceResponse>
 
-    @GET("spaces/{spaceId}/devices")
+    @GET("devices/space/{spaceId}")
     suspend fun getDevicesBySpaceId(
         @Path("spaceId") spaceId: Int,
         @Header("Authorization") token: String
-    ): List<DeviceResponse>
+    ): List<DeviceResponseSpace>
 
     @GET("houses")
     suspend fun getListHome(

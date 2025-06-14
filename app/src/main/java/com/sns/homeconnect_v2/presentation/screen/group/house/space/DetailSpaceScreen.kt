@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.group.house.space
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.DeviceCardSwipeable
@@ -30,6 +32,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
 import com.sns.homeconnect_v2.presentation.model.FabChild
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenDetailViewModel
 
 /**
  * Hàm Composable đại diện cho màn hình chi tiết của một không gian/nhóm.
@@ -46,7 +50,12 @@ import com.sns.homeconnect_v2.presentation.model.FabChild
  */
 
 @Composable
-fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostController) {
+fun DetailSpaceScreen(
+    modifier: Modifier = Modifier,
+    navController: NavHostController,
+    spaceId: Int,
+
+) {
 //    val deviceList = remember {
 //        mutableStateListOf(
 //            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Gr, Color.Blue),
@@ -54,8 +63,17 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
 //            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green)
 //        )
 //    }
+    val spaceViewModel: SpaceScreenDetailViewModel = hiltViewModel()
 
-    val deviceList = remember { mutableStateListOf<DeviceUi>() }
+    LaunchedEffect(Unit) {
+        spaceViewModel.getSpaces(spaceId)
+    }
+    Log.d("DetailSpaceScreen", "spaceId: $spaceId")
+
+    val deviceList by spaceViewModel.spacesDevice.collectAsState()
+
+    Log.d("DetailSpaceScreen", "deviceList: $deviceList")
+    //val deviceList = remember { mutableStateListOf<DeviceUi>() }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -151,18 +169,18 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
                         itemsIndexed(deviceList) { deviceIndex, deviceUi ->
                             Spacer(Modifier.height(8.dp))
                             DeviceCardSwipeable(
-                                deviceName = deviceUi.name,
-                                roomName = deviceUi.room,
+                                deviceName = deviceUi.name?: "Thiết bị không tên,",
+                                roomName = deviceUi.serial_number,
                                 isRevealed = deviceUi.isRevealed,
                                 onExpandOnly = {
                                     deviceList.indices.forEach { i ->
-                                        deviceList[i] = deviceList[i].copy(isRevealed = i == deviceIndex)
+                                        spaceViewModel.updateRevealState(i)
                                     }
                                 },
                                 onCollapse = {
-                                    deviceList[deviceIndex] = deviceUi.copy(isRevealed = false)
+                                    spaceViewModel.updateRevealState(deviceIndex)
                                 },
-                                onDelete = { deviceList.removeAt(deviceIndex) },
+                                onDelete = {  },
                                 onEdit = { /* TODO */ }
                             )
                         }
@@ -179,13 +197,5 @@ fun DetailSpaceScreen(modifier: Modifier = Modifier, navController: NavHostContr
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "GroupScreen - Phone")
-@Composable
-fun DetailSpaceScreenPhonePreview() {
-    IoTHomeConnectAppTheme {
-        DetailSpaceScreen(navController = rememberNavController())
     }
 }

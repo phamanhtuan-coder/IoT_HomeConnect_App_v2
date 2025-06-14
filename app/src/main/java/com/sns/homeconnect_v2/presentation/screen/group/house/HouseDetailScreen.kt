@@ -34,6 +34,7 @@ import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import kotlinx.coroutines.delay
@@ -227,7 +228,10 @@ fun HouseDetailScreen(
                             },
                             onDelete = {  },
                             onEdit = { /* TODO */ },
-                            onClick = { /* TODO */ }
+                            onClick = {
+                                navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
+                                Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
+                            }
                         )
                     }
 

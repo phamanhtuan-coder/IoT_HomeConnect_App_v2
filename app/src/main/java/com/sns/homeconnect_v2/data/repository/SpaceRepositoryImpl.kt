@@ -4,6 +4,7 @@ import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import javax.inject.Inject
 
@@ -16,7 +17,7 @@ class SpaceRepositoryImpl @Inject constructor(
         return apiService.getSpaces(homeId, token = "Bearer $token")
     }
 
-    override suspend fun getDevicesBySpaceId(spaceId: Int): List<DeviceResponse> {
+    override suspend fun getDevicesBySpaceId(spaceId: Int): List<DeviceResponseSpace> {
         val token = authManager.getJwtToken()
         return apiService.getDevicesBySpaceId(spaceId, token = "Bearer $token")
     }

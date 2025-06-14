@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDevicesBySpaceIdUseCase
@@ -20,7 +21,7 @@ import javax.inject.Inject
 sealed class DeviceState {
     data object Idle : DeviceState()               // Chưa làm gì
     data object Loading : DeviceState()            // Đang loading
-    data class Success(val deviceList: List<DeviceResponse>) : DeviceState()
+    data class Success(val deviceList: List<DeviceResponseSpace>) : DeviceState()
     data class Error(val error: String) : DeviceState()
 }
 

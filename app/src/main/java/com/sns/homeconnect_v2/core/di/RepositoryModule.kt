@@ -61,6 +61,7 @@ import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
+import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import dagger.Binds
 import dagger.Module
@@ -270,6 +271,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideGetHousesByGroupUseCase(spaceRepository: SpaceRepository): GetListSpaceUseCase {
             return GetListSpaceUseCase(spaceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceBySpaceUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {
+            return GetSpaceDetailUseCase(spaceRepository)
         }
 
         @Provides

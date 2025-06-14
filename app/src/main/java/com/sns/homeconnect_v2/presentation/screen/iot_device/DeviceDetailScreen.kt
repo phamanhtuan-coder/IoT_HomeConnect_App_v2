@@ -126,12 +126,12 @@ fun DeviceDetailScreen(
     }
 
     var safeDevice = DeviceResponse(
-        DeviceID = 0,
-        TypeID = 0,
-        Name = "Dining Room",
-        PowerStatus = false,
-        SpaceID = 0,
-        Attribute = ""
+        DeviceID = 1,
+        TypeID = 2,
+        Name = "Đèn LED thông minh",
+        PowerStatus = true,
+        SpaceID = 1,
+        Attribute = """{"brightness":80, "color":"#ffffff"}""" // Dữ liệu mẫu
     )
 
     Log.e("safeDevice", safeDevice.toString())

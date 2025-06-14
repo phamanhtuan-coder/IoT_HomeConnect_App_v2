@@ -138,12 +138,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UnlinkResponse
 
-    @POST("devices/link")
-    suspend fun linkDevice(
-        @Body body: LinkDeviceRequest,
-        @Header("Authorization") token: String
-    ): LinkDeviceResponse
-
     @GET("spaces/{homeId}")
     suspend fun getSpacesByHomeId(
         @Path("homeId") homeId: Int,
@@ -307,6 +301,13 @@ interface ApiService {
     suspend fun getUserOwnedDevices(
         @Header("Authorization") token: String
     ): List<OwnedDeviceResponse>
+
+    @POST("devices/link")
+    suspend fun linkDevice(
+        @Body body: LinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): LinkDeviceResponse
+
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
 //        @Path("deviceId") deviceId: Int,

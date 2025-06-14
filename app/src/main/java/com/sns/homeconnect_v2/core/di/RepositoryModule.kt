@@ -58,6 +58,7 @@ import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
@@ -265,6 +266,12 @@ abstract class RepositoryModule {
         @Singleton
         fun provideGetListHouseUseCase(houseRepository: HouseRepository): GetListHouseUseCase {
             return GetListHouseUseCase(houseRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetHouseUseCase(houseRepository: HouseRepository): GetHouseUseCase {
+            return GetHouseUseCase(houseRepository)
         }
 
         @Provides

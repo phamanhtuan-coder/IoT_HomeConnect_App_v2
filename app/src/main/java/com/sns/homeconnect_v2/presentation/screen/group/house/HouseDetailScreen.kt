@@ -35,6 +35,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.house.GetHouseViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import kotlinx.coroutines.delay
@@ -61,6 +63,14 @@ fun HouseDetailScreen(
     val spaces by spaceViewModel.spaces.collectAsState()
     Log.d("spaces", spaces.toString())
     Log.d("houseId", houseId.toString())
+
+    val houseViewModel: GetHouseViewModel = hiltViewModel()
+    val houseState by houseViewModel.houses.collectAsState()
+    LaunchedEffect(Unit) {
+        houseViewModel.getHouse(houseId)
+    }
+
+    Log.d("HouseDetailScreen", houseState.toString())
 
 //    val spaces = remember {
 //        mutableStateListOf(
@@ -144,7 +154,7 @@ fun HouseDetailScreen(
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text =  "Nhà của tôi",
+                                        text = houseState?.house_name ?: "Không có tên",
                                         color = Color.White,
                                         fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold
@@ -165,7 +175,7 @@ fun HouseDetailScreen(
                                     )
                                     Spacer(Modifier.width(8.dp))
                                     Text(
-                                        text =  "123 Đường ABC, Quận 1, TP.HCM",
+                                        text = houseState?.address ?: "Không có địa chỉ",
                                         modifier = Modifier.weight(1f),
                                         color = Color.White,
                                         fontSize = 16.sp,

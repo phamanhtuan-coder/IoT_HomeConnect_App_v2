@@ -31,7 +31,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -242,10 +241,12 @@ fun ListDeviceScreen(
                                         DeviceCardSwipeable(
                                             deviceName = device.name?: "Thiết bị $index",
                                             roomName = "Rom",
-                                            isRevealed = true,
+                                            isRevealed = device.isRevealed,
                                             onExpandOnly = {
+                                                listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
                                             onCollapse = {
+                                                listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
                                             onDelete = {
                                             },
@@ -281,12 +282,10 @@ fun ListDeviceScreen(
                                             roomName = device.room,
                                             isRevealed = device.isRevealed,
                                             onExpandOnly = {
-                                                sharedDevices.indices.forEach { i ->
-                                                    sharedDevices[i] = sharedDevices[i].copy(isRevealed = i == index)
-                                                }
+                                                listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
                                             onCollapse = {
-                                                sharedDevices[index] = device.copy(isRevealed = false)
+                                                listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
                                             onDelete = { sharedDevices.removeAt(index) },
                                             onEdit = { /* TODO */ }

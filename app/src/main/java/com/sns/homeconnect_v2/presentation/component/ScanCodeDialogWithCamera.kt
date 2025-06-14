@@ -3,9 +3,7 @@ package com.sns.homeconnect_v2.presentation.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -38,36 +36,35 @@ fun ScanCodeDialog(
 ) = Dialog(onDismissRequest = onDismiss) {
     var scannedCode by remember { mutableStateOf("") }
     var hasScanned by remember { mutableStateOf(false) }
+    var showSuccess by remember { mutableStateOf(false) }
 
-    // Tự động xử lý sau khi quét
+    // Tự động đóng sau khi quét thành công
     LaunchedEffect(scannedCode) {
         if (scannedCode.isNotBlank() && !hasScanned) {
             hasScanned = true
-            delay(300)
+            showSuccess = true
+            delay(1500) // chờ 1.5s rồi tự động xử lý
             onOk(scannedCode)
             onDismiss()
         }
     }
 
-    // Kích thước cố định cho dialog
     Surface(
         modifier = Modifier
-            .width(320.dp)         // 👈 đảm bảo vừa với màn hình nhỏ
-            .height(480.dp),       // 👈 FIXED chiều cao tránh lố
+            .width(320.dp)
+            .wrapContentHeight(),
         shape = RoundedCornerShape(20.dp),
         color = Color(0xFFF4F0F8),
         tonalElevation = 8.dp
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Camera với tỷ lệ chính xác (VD: 3:4)
             QrCameraPreview(
                 modifier = Modifier
                     .width(280.dp)
-                    .height(210.dp) // 👈 ~3:4, giữ cứng
+                    .height(210.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 onCodeScanned = { code -> scannedCode = code }
             )
@@ -83,7 +80,11 @@ fun ScanCodeDialog(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    if (scannedCode.isNotBlank()) scannedCode else "Đang quét...",
+                    when {
+                        showSuccess -> "✅ Quét thành công!"
+                        scannedCode.isNotBlank() -> scannedCode
+                        else -> "Đang quét..."
+                    },
                     fontSize = 18.sp
                 )
             }
@@ -91,14 +92,11 @@ fun ScanCodeDialog(
             Spacer(modifier = Modifier.height(8.dp))
 
             ActionButtonWithFeedback(
-                label = "OK",
-                style = HCButtonStyle.PRIMARY,
+                label = "Huỷ",
+                style = HCButtonStyle.SECONDARY,
                 height = 56.dp,
                 width = 200.dp,
-                onAction = { onSuccess, _ ->
-                    delay(2000)
-                    onSuccess("Thành công")
-                    onOk(scannedCode)
+                onAction = { _, _ ->
                     onDismiss()
                 },
                 snackbarViewModel = SnackbarViewModel()

@@ -58,10 +58,12 @@ import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
+import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import dagger.Binds
 import dagger.Module
@@ -265,8 +267,20 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
+        fun provideGetHouseUseCase(houseRepository: HouseRepository): GetHouseUseCase {
+            return GetHouseUseCase(houseRepository)
+        }
+
+        @Provides
+        @Singleton
         fun provideGetHousesByGroupUseCase(spaceRepository: SpaceRepository): GetListSpaceUseCase {
             return GetListSpaceUseCase(spaceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceBySpaceUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {
+            return GetSpaceDetailUseCase(spaceRepository)
         }
 
         @Provides

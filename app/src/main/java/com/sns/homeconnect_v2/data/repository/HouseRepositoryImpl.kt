@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.response.HouseWithSpacesResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
@@ -21,6 +22,13 @@ class HouseRepositoryImpl @Inject constructor(
     override suspend fun getListHome(): List<HouseResponse> {
         val token = authManager.getJwtToken()
         return apiService.getListHome(token = "Bearer $token")
+    }
+
+    override suspend fun getHouseById(houseId: Int): House {
+        // Lấy token từ SharedPreferences
+        val token = authManager.getJwtToken()
+        // Gọi API với token
+        return apiService.getHouseId(houseId, token = "Bearer $token")
     }
 
     override suspend fun getHouses(): List<HousesListResponse>{

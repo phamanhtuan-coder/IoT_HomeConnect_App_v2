@@ -1,14 +1,16 @@
-package com.sns.homeconnect_v2.domain.usecase.iot_device
+package com.sns.homeconnect_v2.domain.usecase.space
 
-import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
-import javax.inject.Inject
+import com.sns.homeconnect_v2.domain.repository.SpaceRepository
+import jakarta.inject.Inject
 
-class GetDevicesBySpaceIdUseCase @Inject constructor(
-    private val spaceRepository: SpaceRepository
+class GetSpaceDetailUseCase @Inject constructor(
+private val spaceRepository: SpaceRepository
 ) {
-    suspend operator fun invoke(spaceId: Int): Result<List<DeviceResponseSpace>> {
+    suspend operator fun invoke(
+        spaceId: Int
+    ): Result<List<DeviceResponseSpace>> {
         return try {
             val response = spaceRepository.getDevicesBySpaceId(spaceId)
             Result.success(response)

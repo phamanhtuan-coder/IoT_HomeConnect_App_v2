@@ -43,6 +43,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScr
 import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
+import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -198,7 +199,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 )
             }
 
-
+//ds space
             composable(
                 route = Screens.ListSpace.route,
                 arguments = listOf(navArgument("houseId") { type = NavType.IntType })
@@ -211,6 +212,18 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = snackbarViewModel,
                     spaceViewModel = spaceViewModel,
                     houseId = houseId
+                )
+            }
+//ds space detail
+            composable(
+                route  = Screens.SpaceDetail.route,
+                arguments = listOf(navArgument("spaceId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val spaceId = backStackEntry.arguments?.getInt("spaceId") ?: -1
+                DetailSpaceScreen(
+                    navController = navController,
+                    modifier = Modifier,
+                    spaceId = spaceId
                 )
             }
 

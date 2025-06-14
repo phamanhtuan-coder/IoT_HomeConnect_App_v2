@@ -46,15 +46,18 @@ import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -137,18 +140,31 @@ interface ApiService {
         @Path("deviceId") deviceId: Int,
         @Header("Authorization") token: String
     ): UnlinkResponse
+  
+   @POST("devices/link")
+    suspend fun linkDevice(
+        @Body body: LinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): LinkDeviceResponse
+  
+  
+    @GET("houses/{houseId}")
+    suspend fun getHouseId(
+        @Path("houseId") houseId: Int,
+        @Header("Authorization") token: String
+    ): House
 
     @GET("spaces/{homeId}")
     suspend fun getSpacesByHomeId(
         @Path("homeId") homeId: Int,
         @Header("Authorization") token: String
-    ): List<SpaceResponse>
+    ): House
 
-    @GET("spaces/{spaceId}/devices")
+    @GET("devices/space/{spaceId}")
     suspend fun getDevicesBySpaceId(
         @Path("spaceId") spaceId: Int,
         @Header("Authorization") token: String
-    ): List<DeviceResponse>
+    ): List<DeviceResponseSpace>
 
     @GET("houses")
     suspend fun getListHome(

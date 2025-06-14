@@ -22,5 +22,6 @@ data class OwnedDeviceResponse(
     val locked_at: String?,              // hoặc LocalDateTime?
     val created_at: String?,
     val updated_at: String?,
-    val is_deleted: Boolean
+    val is_deleted: Boolean,
+    val isRevealed: Boolean = false
 )

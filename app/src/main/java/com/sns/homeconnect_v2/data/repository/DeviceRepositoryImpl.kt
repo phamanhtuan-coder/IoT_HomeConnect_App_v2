@@ -51,14 +51,9 @@ class DeviceRepositoryImpl @Inject constructor(
         return apiService.unlinkDevice(deviceId, token = "Bearer $token")
     }
 
-    override suspend fun linkDevice(
-        deviceId: String,
-        spaceId: String,
-        deviceName: String
-    ): LinkDeviceResponse {
+    override suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse {
         val token = authManager.getJwtToken()
-        val linkDeviceRequest = LinkDeviceRequest(deviceId, spaceId, deviceName)
-        return apiService.linkDevice(linkDeviceRequest, token = "Bearer $token")
+        return apiService.linkDevice(request, "Bearer $token")
     }
 
     override suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse> {

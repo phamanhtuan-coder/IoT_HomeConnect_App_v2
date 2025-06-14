@@ -39,4 +39,22 @@ class ListOfUserOwnedDevicesViewModel @Inject constructor(
       }
    }
 
+   fun updateRevealState(index: Int) {
+      (_listOfUserOwnedDevicesState.value as? ListOfUserOwnedDevicesState.Success)?.let { state ->
+         val updatedList = state.deviceList.mapIndexed { i, device ->
+            device.copy(isRevealed = i == index)
+         }
+         _listOfUserOwnedDevicesState.value = ListOfUserOwnedDevicesState.Success(updatedList)
+      }
+   }
+
+   fun collapseItem(index: Int) {
+      (_listOfUserOwnedDevicesState.value as? ListOfUserOwnedDevicesState.Success)?.let { state ->
+         val updatedList = state.deviceList.mapIndexed { i, device ->
+            if (i == index) device.copy(isRevealed = false) else device
+         }
+         _listOfUserOwnedDevicesState.value = ListOfUserOwnedDevicesState.Success(updatedList)
+      }
+   }
+
 }

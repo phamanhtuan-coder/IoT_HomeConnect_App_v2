@@ -141,13 +141,6 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UnlinkResponse
   
-   @POST("devices/link")
-    suspend fun linkDevice(
-        @Body body: LinkDeviceRequest,
-        @Header("Authorization") token: String
-    ): LinkDeviceResponse
-  
-  
     @GET("houses/{houseId}")
     suspend fun getHouseId(
         @Path("houseId") houseId: Int,

@@ -34,6 +34,8 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions
+import com.google.mlkit.vision.barcode.common.Barcode
 
 /**
  * Composable function hiển thị màn hình quét mã QR.
@@ -123,7 +125,12 @@ fun QrCameraPreview(
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
 
-            val scanner = BarcodeScanning.getClient()
+            val scanner = BarcodeScanning.getClient(
+                BarcodeScannerOptions.Builder()
+                    .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS) // 👉 Cho phép tất cả định dạng: QR, CODE_128, EAN_13, v.v.
+                    .build()
+            )
+
             val analyzer = ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build()

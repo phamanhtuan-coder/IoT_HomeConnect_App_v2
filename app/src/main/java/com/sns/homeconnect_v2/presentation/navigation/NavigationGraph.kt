@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.google.gson.Gson
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -36,7 +38,6 @@ import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
@@ -44,6 +45,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipSc
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -271,15 +273,26 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 route = Screens.DeviceDetail.route,
                 arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
             ) { backStackEntry ->
-                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
-                DeviceDetailScreen(navController)
+                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: return@composable
+                DynamicDeviceDetailScreen(
+                    productId = deviceId.toInt(),
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel
+                )
             }
 
+
+
             composable(
-                route = Screens.FireAlarmDetail.route
-            ) {
-                FireAlarmDetailScreen(navController)
+                route = "${Screens.FireAlarmDetail.route}/{productJson}",
+                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val productJson = backStackEntry.arguments?.getString("productJson") ?: ""
+                val product = Gson().fromJson(productJson, ProductData::class.java)
+
+                FireAlarmDetailScreen(navController, product)
             }
+
 
             composable(
                 route = Screens.DefaultDetail.route,
@@ -325,12 +338,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 DeviceSharingListScreen(navController, id)
             }
 
-            composable("device/{typeID}/{id}") { backStackEntry ->
-                val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0
-                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-                val screen = DeviceScreenFactory.getScreen(typeID)
-                screen(navController, id)
-            }
+//            composable("device/{typeID}/{id}") { backStackEntry ->
+//                val id = backStackEntry.arguments?.getString("id") ?: ""
+//                DynamicDeviceDetailScreen(
+//                    productId = id,
+//                    navController = navController
+//                )
+//            }
 
             // --- Notification screens ---
             composable(Screens.AllNotifications.route) {

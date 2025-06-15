@@ -97,6 +97,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceCapabilitiesViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
@@ -127,9 +128,21 @@ fun DeviceDetailScreen(
         }
     }
 
+    val deviceState by displayViewModel.deviceStateUiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        if (serialNumber != null) {
+            displayViewModel.fetchDeviceState(deviceId, serialNumber)
+        }
+    }
+
+
     var rowWidth by remember { mutableIntStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
-    var isCheck by remember { mutableStateOf(false) }
+    var isCheck = when (deviceState) {
+        is DeviceStateUiState.Success -> (deviceState as DeviceStateUiState.Success).state.power_status
+        else -> false
+    }
     var sliderValue by remember { mutableFloatStateOf(128f) }   // 0‥255
 
     val scope = rememberCoroutineScope()

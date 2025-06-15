@@ -9,6 +9,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
@@ -71,5 +72,8 @@ class DeviceRepositoryImpl @Inject constructor(
             token = "Bearer $token"
         )
     }
-
+    override suspend fun getDeviceState(deviceId: String, serialNumber: String): DeviceStateResponse {
+        val token = authManager.getJwtToken()
+        return apiService.getDeviceState(deviceId, serialNumber, "Bearer $token")
+    }
 }

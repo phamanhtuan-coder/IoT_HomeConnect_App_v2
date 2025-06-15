@@ -49,6 +49,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleReque
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
@@ -325,6 +326,13 @@ interface ApiService {
         @Body request: DeviceCapabilitiesRequest,
         @Header("Authorization") token: String
     ): DeviceCapabilitiesResponse
+
+    @GET("devices/{deviceId}/state")
+    suspend fun getDeviceState(
+        @Path("deviceId") deviceId: String,
+        @Query("serial_number") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DeviceStateResponse
 
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")

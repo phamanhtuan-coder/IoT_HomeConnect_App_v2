@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.CategoryData
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceState
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -21,9 +24,17 @@ sealed class DeviceDisplayInfoState {
     data class Error(val error: String) : DeviceDisplayInfoState()
 }
 
+sealed class DeviceStateUiState {
+    object Idle : DeviceStateUiState()
+    object Loading : DeviceStateUiState()
+    data class Success(val state: DeviceState, val timestamp: String) : DeviceStateUiState()
+    data class Error(val message: String) : DeviceStateUiState()
+}
+
 @HiltViewModel
 class DeviceDisplayViewModel @Inject constructor(
-    private val getDeviceDisplayInfoUseCase: GetDeviceDisplayInfoUseCase
+    private val getDeviceDisplayInfoUseCase: GetDeviceDisplayInfoUseCase,
+    private val getDeviceStateUseCase: GetDeviceStateUseCase
 ) : ViewModel() {
 
     private val _deviceDisplayInfoState = MutableStateFlow<DeviceDisplayInfoState>(DeviceDisplayInfoState.Idle)
@@ -57,5 +68,27 @@ class DeviceDisplayViewModel @Inject constructor(
         }
     }
 
+    private val _deviceStateUiState = MutableStateFlow<DeviceStateUiState>(DeviceStateUiState.Idle)
+    val deviceStateUiState: StateFlow<DeviceStateUiState> = _deviceStateUiState
+
+    fun fetchDeviceState(deviceId: String, serialNumber: String) {
+        _deviceStateUiState.value = DeviceStateUiState.Loading
+
+        viewModelScope.launch {
+            getDeviceStateUseCase(deviceId, serialNumber).fold(
+                onSuccess = { response ->
+                    _deviceStateUiState.value = DeviceStateUiState.Success(
+                        state = response.state,
+                        timestamp = response.timestamp
+                    )
+                },
+                onFailure = { error ->
+                    _deviceStateUiState.value = DeviceStateUiState.Error(
+                        error.message ?: "Không thể lấy trạng thái thiết bị"
+                    )
+                }
+            )
+        }
+    }
 }
 

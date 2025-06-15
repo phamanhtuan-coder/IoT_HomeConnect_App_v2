@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
@@ -18,4 +19,5 @@ interface DeviceRepository {
     suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse
     suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse>
     suspend fun getDeviceCapabilities(deviceId: String, serialNumber: String): DeviceCapabilitiesResponse
+    suspend fun getDeviceState(deviceId: String, serialNumber: String): DeviceStateResponse
 }

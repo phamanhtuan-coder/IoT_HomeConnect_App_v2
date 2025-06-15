@@ -38,9 +38,11 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -93,12 +95,15 @@ import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceCapabilitiesViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceDetailScreen(
     navController: NavHostController,
@@ -106,6 +111,19 @@ fun DeviceDetailScreen(
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel
 ) {
+
+    val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    val displayState by displayViewModel.deviceDisplayInfoState.collectAsState()
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val isDataFetched = remember { mutableStateOf(false) } // <- tránh gọi lại API liên tục
+
+    // Khi Bottom Sheet được bật và dữ liệu chưa fetch, gọi API
+    LaunchedEffect(showBottomSheet.value) {
+        if (showBottomSheet.value && !isDataFetched.value && product.id != 0) {
+            displayViewModel.getDeviceDisplayInfo(product.id)
+            isDataFetched.value = true
+        }
+    }
 
     var rowWidth by remember { mutableIntStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
@@ -333,7 +351,9 @@ fun DeviceDetailScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(
-                                    onClick = { showDialog = true },
+                                    onClick = {
+                                        showBottomSheet.value = true
+                                    },
                                     modifier = Modifier.size(32.dp)
                                 ) {
                                     Icon(
@@ -361,41 +381,30 @@ fun DeviceDetailScreen(
                                     )
                                 }
 
-                                if (showDialog) {
-                                    fun getIconForType(typeId: Int): String {
-                                        return when (typeId) {
-                                            1 -> "Fire Alarm"
-                                            2, 3 -> "LED Light"
-                                            else -> ""
+                                if (showBottomSheet.value) {
+                                    ModalBottomSheet(
+                                        onDismissRequest = { showBottomSheet.value = false }
+                                    ) {
+                                        when (displayState) {
+                                            is DeviceDisplayInfoState.Success -> {
+                                                val product = (displayState as DeviceDisplayInfoState.Success).product
+                                                val category = (displayState as DeviceDisplayInfoState.Success).category
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
+                                                    Text("Danh mục: ${category.name ?: "Không rõ"}")
+                                                    Text("Giá: ${product.selling_price  ?: "Không rõ"}")
+                                                    Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                                }
+                                            }
+                                            is DeviceDisplayInfoState.Loading -> {
+                                                Text("Đang tải thông tin sản phẩm...")
+                                            }
+                                            is DeviceDisplayInfoState.Error -> {
+                                                Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                            }
+                                            else -> {}
                                         }
                                     }
-
-                                    AlertDialog(
-                                        onDismissRequest = {
-                                            showDialog = false
-                                        },
-                                        title = { Text(text = "Thông tin thiết bị") },
-                                        text = {
-                                            Column {
-                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                Text(
-                                                    "Loại thiết bị: ${
-                                                        getIconForType(
-                                                            safeDevice.TypeID
-                                                        )
-                                                    }"
-                                                )
-                                            }
-                                        },
-                                        confirmButton = {
-                                            Button(onClick = {
-                                                showDialog = false
-                                            }) {
-                                                Text("Đóng")
-                                            }
-                                        }
-                                    )
                                 }
                             }
                         }

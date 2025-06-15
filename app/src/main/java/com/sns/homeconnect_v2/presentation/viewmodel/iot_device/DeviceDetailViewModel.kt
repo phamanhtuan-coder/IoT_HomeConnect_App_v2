@@ -29,7 +29,15 @@ class DeviceDisplayViewModel @Inject constructor(
     private val _deviceDisplayInfoState = MutableStateFlow<DeviceDisplayInfoState>(DeviceDisplayInfoState.Idle)
     val deviceDisplayInfoState = _deviceDisplayInfoState.asStateFlow()
 
+    private var lastFetchedTemplateId: Int? = null
+
     fun getDeviceDisplayInfo(templateId: Int) {
+        // Ngăn gọi lại với cùng ID
+        if (lastFetchedTemplateId == templateId &&
+            _deviceDisplayInfoState.value is DeviceDisplayInfoState.Success
+        ) return
+
+        lastFetchedTemplateId = templateId
         _deviceDisplayInfoState.value = DeviceDisplayInfoState.Loading
 
         viewModelScope.launch {
@@ -48,5 +56,6 @@ class DeviceDisplayViewModel @Inject constructor(
             )
         }
     }
+
 }
 

@@ -63,6 +63,7 @@ import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceCapabilitiesUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
@@ -400,5 +401,12 @@ abstract class RepositoryModule {
         ): GetDeviceDisplayInfoUseCase {
             return GetDeviceDisplayInfoUseCase(ecomRepository)
         }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceCapabilitiesUseCase(deviceRepository: DeviceRepository): GetDeviceCapabilitiesUseCase {
+            return GetDeviceCapabilitiesUseCase(deviceRepository)
+        }
+
     }
 }

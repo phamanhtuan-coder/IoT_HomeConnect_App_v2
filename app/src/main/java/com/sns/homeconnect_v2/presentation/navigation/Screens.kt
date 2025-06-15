@@ -135,10 +135,9 @@ sealed class Screens(val route: String) {
         fun createRoute(notificationId: Int) = "detail_notifications/$notificationId"
     }
 
-    object DynamicDeviceDetail {
-        const val base = "dynamic_device_detail"
-        const val route = "$base/{productId}"
-        fun build(productId: String): String = "$base/$productId"
+    object DynamicDeviceDetail : Screens("dynamic_device_detail/{deviceId}/{serialNumber}/{productId}") {
+        fun build(deviceId: String, serialNumber: String, productId: Int): String =
+            "dynamic_device_detail/$deviceId/$serialNumber/$productId"
     }
     // --- Other screens ---
     // ...add more here if needed...

@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.domain.repository
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -16,4 +17,5 @@ interface DeviceRepository {
     suspend fun unlinkDevice(deviceId: Int): UnlinkResponse
     suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse
     suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse>
+    suspend fun getDeviceCapabilities(deviceId: String, serialNumber: String): DeviceCapabilitiesResponse
 }

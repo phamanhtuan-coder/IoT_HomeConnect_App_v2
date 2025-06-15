@@ -13,25 +13,22 @@ object DeviceScreenFactory {
     fun getScreen(
         parentName: String?,
         product: ProductData,
+        controls: Map<String, String>,
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
-        val nameLog = parentName ?: "null"
-        Log.d("CHECK", "Vào getScreen: parentName='$nameLog'")
         return when (parentName?.lowercase()) {
             "đèn" -> { navController ->
-                Log.d("CHECK", "Vào màn DeviceDetailScreen, parentName='$nameLog'")
-                DeviceDetailScreen(navController, product, snackbarViewModel())
+                DeviceDetailScreen(navController, product, controls, snackbarViewModel())
             }
             "cảm biến" -> { navController ->
-                Log.d("CHECK", "Vào màn FireAlarmDetailScreen, parentName='$nameLog'")
-                FireAlarmDetailScreen(navController, product, snackbarViewModel())
+                FireAlarmDetailScreen(navController, product, controls, snackbarViewModel())
             }
             else -> { navController ->
-                Log.d("CHECK", "Vào màn DefaultDetailScreen, parentName='$nameLog'")
                 DefaultDetailScreen(navController)
             }
         }
     }
+
 }
 
 

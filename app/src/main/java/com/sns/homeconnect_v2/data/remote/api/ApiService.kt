@@ -43,9 +43,11 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -316,6 +318,14 @@ interface ApiService {
         @Body body: LinkDeviceRequest,
         @Header("Authorization") token: String
     ): LinkDeviceResponse
+
+    @POST("devices/{deviceId}/capabilities")
+    suspend fun getDeviceCapabilities(
+        @Path("deviceId") deviceId: String,
+        @Body request: DeviceCapabilitiesRequest,
+        @Header("Authorization") token: String
+    ): DeviceCapabilitiesResponse
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(

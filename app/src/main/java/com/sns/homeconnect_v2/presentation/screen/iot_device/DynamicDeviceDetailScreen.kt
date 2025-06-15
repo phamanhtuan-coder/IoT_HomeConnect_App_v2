@@ -10,48 +10,51 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.navigation.DeviceScreenFactory
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceCapabilitiesViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun DynamicDeviceDetailScreen(
+    deviceId: String,
+    serialNumber: String,
     productId: Int,
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
-    viewModel: DeviceDisplayViewModel = hiltViewModel()
+    displayViewModel: DeviceDisplayViewModel = hiltViewModel(),
+    capabilitiesViewModel: DeviceCapabilitiesViewModel = hiltViewModel()
 ) {
-    val state by viewModel.deviceDisplayInfoState.collectAsState()
+    val displayState by displayViewModel.deviceDisplayInfoState.collectAsState()
+    val controls by capabilitiesViewModel.controls.collectAsState()
 
-    LaunchedEffect(productId) {
-        viewModel.getDeviceDisplayInfo(productId)
+    LaunchedEffect(productId, deviceId, serialNumber) {
+        displayViewModel.getDeviceDisplayInfo(productId)
+        capabilitiesViewModel.loadCapabilities(deviceId, serialNumber)
     }
 
-    when (state) {
-        is DeviceDisplayInfoState.Loading -> {
-            CircularProgressIndicator()
-        }
+    when (displayState) {
+        is DeviceDisplayInfoState.Loading -> CircularProgressIndicator()
 
-        is DeviceDisplayInfoState.Error -> {
-            snackbarViewModel.showSnackbar(
-                msg = (state as DeviceDisplayInfoState.Error).error,
-                SnackbarVariant.ERROR
-            )
-        }
+        is DeviceDisplayInfoState.Error -> snackbarViewModel.showSnackbar(
+            msg = (displayState as DeviceDisplayInfoState.Error).error,
+            SnackbarVariant.ERROR
+        )
 
         is DeviceDisplayInfoState.Success -> {
-            val category = (state as DeviceDisplayInfoState.Success).category
-            val product = (state as DeviceDisplayInfoState.Success).product
-            val parentName =  category.parent_name
-            val productData = product
-            Log.d("DynamicDeviceDetailScreen", "Category: $category, Product: $productData")
-            Log.d("CHECK", "parentName sau khi lấy category: $parentName")
+            val category = (displayState as DeviceDisplayInfoState.Success).category
+            val product = (displayState as DeviceDisplayInfoState.Success).product
+            val parentName = category.parent_name
+
+            Log.d("CHECK", "parentName: $parentName, controls=$controls")
 
             val screen = DeviceScreenFactory.getScreen(
-                parentName = category.parent_name,
+                parentName = parentName,
                 product = product,
+                controls = if (controls.isNotEmpty()) controls else mapOf(),
                 snackbarViewModel = { snackbarViewModel }
             )
+
             screen(navController)
         }
 

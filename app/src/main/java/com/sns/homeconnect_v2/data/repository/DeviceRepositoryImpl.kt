@@ -3,9 +3,11 @@ package com.sns.homeconnect_v2.data.repository
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -60,4 +62,14 @@ class DeviceRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         return apiService.getUserOwnedDevices(token = "Bearer $token")
     }
+
+    override suspend fun getDeviceCapabilities(deviceId: String, serialNumber: String): DeviceCapabilitiesResponse {
+        val token = authManager.getJwtToken()
+        return apiService.getDeviceCapabilities(
+            deviceId = deviceId,
+            request = DeviceCapabilitiesRequest(serial_number = serialNumber),
+            token = "Bearer $token"
+        )
+    }
+
 }

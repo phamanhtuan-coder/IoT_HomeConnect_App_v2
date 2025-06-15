@@ -92,6 +92,7 @@ enum class DeviceAction {
 fun FireAlarmDetailScreen(
     navController: NavHostController,
     product: ProductData,
+    ontrols: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }

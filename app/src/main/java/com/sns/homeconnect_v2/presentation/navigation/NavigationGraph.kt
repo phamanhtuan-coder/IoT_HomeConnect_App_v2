@@ -270,28 +270,35 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             }
 
             composable(
-                route = Screens.DeviceDetail.route,
-                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
+                route = Screens.DynamicDeviceDetail.route,
+                arguments = listOf(
+                    navArgument("deviceId") { type = NavType.StringType },
+                    navArgument("serialNumber") { type = NavType.StringType },
+                    navArgument("productId") { type = NavType.IntType }
+                )
             ) { backStackEntry ->
-                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: return@composable
+                val deviceId = backStackEntry.arguments?.getString("deviceId") ?: return@composable
+                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: return@composable
+                val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
+
                 DynamicDeviceDetailScreen(
-                    productId = deviceId.toInt(),
+                    deviceId = deviceId,
+                    serialNumber = serialNumber,
+                    productId = productId,
                     navController = navController,
                     snackbarViewModel = snackbarViewModel
                 )
             }
 
-
-
-            composable(
-                route = "${Screens.FireAlarmDetail.route}/{productJson}",
-                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val productJson = backStackEntry.arguments?.getString("productJson") ?: ""
-                val product = Gson().fromJson(productJson, ProductData::class.java)
-
-                FireAlarmDetailScreen(navController, product)
-            }
+//            composable(
+//                route = "${Screens.FireAlarmDetail.route}/{productJson}",
+//                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//                val productJson = backStackEntry.arguments?.getString("productJson") ?: ""
+//                val product = Gson().fromJson(productJson, ProductData::class.java)
+//
+//                FireAlarmDetailScreen(navController, , product)
+//            }
 
 
             composable(

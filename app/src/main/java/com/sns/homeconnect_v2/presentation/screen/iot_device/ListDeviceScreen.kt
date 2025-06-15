@@ -45,6 +45,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
@@ -254,7 +255,13 @@ fun ListDeviceScreen(
                                                     else -> 8 // fallback: luôn sang cảm biến nếu chưa map
                                                 }
                                                 Log.d("CHECK", "mockProductId: $mockProductId")
-                                                navController.navigate("device-detail/$mockProductId")
+                                                navController.navigate(
+                                                    Screens.DynamicDeviceDetail.build(
+                                                        deviceId = device.device_id,
+                                                        serialNumber = device.serial_number,
+                                                        productId = mockProductId // hoặc truyền id số thực nếu có
+                                                    )
+                                                )
                                             },
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)

@@ -75,6 +75,7 @@ import com.google.gson.Gson
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.DayPicker
@@ -97,7 +98,8 @@ import kotlin.math.roundToInt
 @Composable
 fun DeviceDetailScreen(
     navController: NavHostController,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+    product: ProductData,
+    snackbarViewModel: SnackbarViewModel
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
@@ -592,13 +594,13 @@ fun DeviceDetailScreen(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
-@Composable
-fun DeviceDetailScreenPreview() {
-    IoTHomeConnectAppTheme {
-        DeviceDetailScreen(navController = rememberNavController())
-    }
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
+//@Composable
+//fun DeviceDetailScreenPreview() {
+//    IoTHomeConnectAppTheme {
+//        DeviceDetailScreen(navController = rememberNavController())
+//    }
+//}
 
 @Composable
 fun DeviceDetailTabletScreen(

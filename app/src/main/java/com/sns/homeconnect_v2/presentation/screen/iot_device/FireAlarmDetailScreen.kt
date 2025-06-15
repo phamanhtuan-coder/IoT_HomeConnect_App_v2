@@ -48,6 +48,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
@@ -90,9 +91,8 @@ enum class DeviceAction {
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
+    product: ProductData,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
-//    deviceID: Int?,
-//    viewModel: FireAlarmDetailViewModel = hiltViewModel(),
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }
     val smokeLevel by remember { mutableIntStateOf(20) }
@@ -691,24 +691,6 @@ fun FireAlarmDetailScreen(
                     }
                 }
             }
-        )
-    }
-}
-
-/* ---------- PREVIEWS ---------- */
-@Preview(
-    showBackground = true,
-    widthDp = 360,
-    heightDp = 800,
-    name = "FireAlarmDetail – Phone"
-)
-
-@Composable
-fun FireAlarmDetailPhonePreview() {
-    IoTHomeConnectAppTheme {
-        FireAlarmDetailScreen(
-            navController = rememberNavController(),
-//            deviceID = 0            // dummy id
         )
     }
 }

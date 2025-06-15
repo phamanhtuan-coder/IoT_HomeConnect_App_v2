@@ -245,6 +245,13 @@ fun ListDeviceScreen(
                                             onExpandOnly = {
                                                 listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
+                                            onClick = {
+                                                val mockProductId = when (device.template_id) {
+                                                    "DEVC12JUN2501JXH5ZTV31VF5VGJBZJF" -> 3
+                                                    else -> 2 // fallback
+                                                }
+                                                navController.navigate("device-detail/$mockProductId")
+                                            },
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
@@ -287,6 +294,7 @@ fun ListDeviceScreen(
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
+                                            onClick = {},
                                             onDelete = { sharedDevices.removeAt(index) },
                                             onEdit = { /* TODO */ }
                                         )

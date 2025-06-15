@@ -4,9 +4,11 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.api.EcomApiService
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.EcomRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.GroupRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
@@ -18,6 +20,7 @@ import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AlertRepository
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
+import com.sns.homeconnect_v2.domain.repository.EcomRepository
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
@@ -59,8 +62,8 @@ import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
-import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
@@ -119,6 +122,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserActivityRepository(impl: UserActivityRepositoryImpl): UserActivityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEcomRepository(impl: EcomRepositoryImpl): EcomRepository
 
     companion object {
         @Provides
@@ -384,6 +391,14 @@ abstract class RepositoryModule {
             deviceRepository: DeviceRepository
         ): ListOfUserOwnedDevicesUseCase {
             return ListOfUserOwnedDevicesUseCase(deviceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceDisplayInfoUseCase(
+            ecomRepository: EcomRepository
+        ): GetDeviceDisplayInfoUseCase {
+            return GetDeviceDisplayInfoUseCase(ecomRepository)
         }
     }
 }

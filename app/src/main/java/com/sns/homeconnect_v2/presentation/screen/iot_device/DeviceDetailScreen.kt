@@ -108,6 +108,7 @@ import kotlin.math.roundToInt
 fun DeviceDetailScreen(
     navController: NavHostController,
     deviceId: String,
+    serialNumber: String? = null,
     product: ProductData,
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel

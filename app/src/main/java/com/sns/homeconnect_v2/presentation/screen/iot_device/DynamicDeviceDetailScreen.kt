@@ -51,6 +51,7 @@ fun DynamicDeviceDetailScreen(
             val screen = DeviceScreenFactory.getScreen(
                 deviceId = deviceId,
                 parentName = parentName,
+                serialNumber = serialNumber,
                 product = product,
                 controls = if (controls.isNotEmpty()) controls else mapOf(),
                 snackbarViewModel = { snackbarViewModel }

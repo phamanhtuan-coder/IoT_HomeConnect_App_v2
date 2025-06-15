@@ -13,16 +13,17 @@ object DeviceScreenFactory {
     fun getScreen(
         deviceId: String,
         parentName: String?,
+        serialNumber: String? = null,
         product: ProductData,
         controls: Map<String, String>,
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
         return when (parentName?.lowercase()) {
             "đèn" -> { navController ->
-                DeviceDetailScreen(navController,deviceId, product, controls, snackbarViewModel())
+                DeviceDetailScreen(navController,deviceId, serialNumber,product, controls, snackbarViewModel())
             }
             "cảm biến" -> { navController ->
-                FireAlarmDetailScreen(navController, deviceId,product, controls, snackbarViewModel())
+                FireAlarmDetailScreen(navController, deviceId, serialNumber, product, controls, snackbarViewModel())
             }
             else -> { navController ->
                 DefaultDetailScreen(navController)

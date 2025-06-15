@@ -250,17 +250,6 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = snackbarViewModel,
                 )
             }
-            composable(
-                route = "${Screens.AccessPoint.route}?id={id}&name={name}",
-                arguments = listOf(
-                    navArgument("id") { type = NavType.StringType; defaultValue = "" },
-                    navArgument("name") { type = NavType.StringType; defaultValue = "" }
-                )
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("id") ?: ""
-                val name = backStackEntry.arguments?.getString("name") ?: ""
-                AccessPointConnectionScreen(navController, id, name)
-            }
             composable(Screens.WifiConnection.route) {
                 WifiConnectionScreen(navController)
             }
@@ -372,6 +361,18 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             ) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getInt("id") ?: -1
                 UpdatePasswordScreen(navController, userId)
+            }
+
+            composable(
+                route = Screens.AccessPoint.route,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" }
+                )
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                val name = backStackEntry.arguments?.getString("name") ?: ""
+                AccessPointConnectionScreen(navController, id, name)
             }
         }
     }

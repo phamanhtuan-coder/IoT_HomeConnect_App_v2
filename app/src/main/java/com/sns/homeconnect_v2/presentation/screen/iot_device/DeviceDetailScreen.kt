@@ -107,6 +107,7 @@ import kotlin.math.roundToInt
 @Composable
 fun DeviceDetailScreen(
     navController: NavHostController,
+    deviceId: String,
     product: ProductData,
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel
@@ -367,8 +368,7 @@ fun DeviceDetailScreen(
                                 IconButton(
                                     onClick = {
                                         navController.navigate(
-                                            Screens.AccessPoint.route +
-                                                    "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}"
+                                            Screens.AccessPoint.createRoute(deviceId, product.name ?: "Unknown")
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)

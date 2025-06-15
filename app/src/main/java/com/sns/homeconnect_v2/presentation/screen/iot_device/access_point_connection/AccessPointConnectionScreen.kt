@@ -31,6 +31,8 @@ import com.sns.homeconnect_v2.presentation.component.WiFiCard
 import com.sns.homeconnect_v2.presentation.component.WifiToggle
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
+import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
+import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.access_point_connection.AccessPointViewModel
 import kotlinx.coroutines.launch
 
@@ -98,82 +100,74 @@ fun AccessPointConnectionScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .background(colorScheme.background)
+                        ColoredCornerBox(
+                            cornerRadius = 40.dp
                         ) {
-                            Column {
-                                Box(
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = layoutConfig.outerPadding,
+                                        vertical = layoutConfig.textFieldSpacing
+                                    ),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    "Kết nối",
+                                    fontSize = layoutConfig.headingFontSize,
+                                    color = colorScheme.onPrimary
+                                )
+                                Text(
+                                    "điểm truy cập",
+                                    fontSize = layoutConfig.headingFontSize,
+                                    color =colorScheme.onPrimary
+                                )
+                                Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
+                                OutlinedTextField(
+                                    value = "ID thiết bị của bạn là: $deviceId",
+                                    onValueChange = {},
+                                    readOnly = true,
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(25),
+                                    singleLine = true,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .background(
-                                            color = colorScheme.primary,
-                                            shape = androidx.compose.foundation.shape.RoundedCornerShape(bottomStart = 40.dp)
-                                        )
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                horizontal = layoutConfig.outerPadding,
-                                                vertical = layoutConfig.textFieldSpacing
-                                            ),
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        Text(
-                                            "Kết nối",
-                                            fontSize = layoutConfig.headingFontSize,
-                                            color = colorScheme.onPrimary
-                                        )
-                                        Text(
-                                            "điểm truy cập",
-                                            fontSize = layoutConfig.headingFontSize,
-                                            color =colorScheme.onPrimary
-                                        )
-                                        Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
-                                        OutlinedTextField(
-                                            value = "ID thiết bị của bạn là: $deviceId",
-                                            onValueChange = {},
-                                            readOnly = true,
-                                            shape = androidx.compose.foundation.shape.RoundedCornerShape(25),
-                                            singleLine = true,
-                                            modifier = Modifier
-                                                .width(if (isTablet) 400.dp else 300.dp)
-                                                .height(if (isTablet) 80.dp else 70.dp),
-                                            colors = TextFieldDefaults.colors(
-                                                focusedTextColor = colorScheme.onBackground,
-                                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                                focusedContainerColor = colorScheme.onPrimary,
-                                                unfocusedContainerColor = colorScheme.onPrimary,
-                                                focusedIndicatorColor = colorScheme.primary,
-                                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                                            )
-                                        )
-                                        Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
-                                        OutlinedTextField(
-                                            value = "Tên thiết bị của bạn là: $deviceName",
-                                            onValueChange = {},
-                                            shape = androidx.compose.foundation.shape.RoundedCornerShape(25),
-                                            singleLine = true,
-                                            readOnly = true,
-                                            modifier = Modifier
-                                                .width(if (isTablet) 400.dp else 300.dp)
-                                                .height(if (isTablet) 80.dp else 70.dp),
-                                            colors = TextFieldDefaults.colors(
-                                                focusedTextColor = colorScheme.onBackground,
-                                                unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                                focusedContainerColor = colorScheme.onPrimary,
-                                                unfocusedContainerColor = colorScheme.onPrimary,
-                                                focusedIndicatorColor = colorScheme.primary,
-                                                unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
-                                            )
-                                        )
-                                    }
-                                }
+                                        .width(if (isTablet) 400.dp else 300.dp)
+                                        .height(if (isTablet) 80.dp else 70.dp),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedTextColor = colorScheme.onBackground,
+                                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
+                                        focusedContainerColor = colorScheme.onPrimary,
+                                        unfocusedContainerColor = colorScheme.onPrimary,
+                                        focusedIndicatorColor = colorScheme.primary,
+                                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
+                                OutlinedTextField(
+                                    value = "Tên thiết bị của bạn là: $deviceName",
+                                    onValueChange = {},
+                                    shape = androidx.compose.foundation.shape.RoundedCornerShape(25),
+                                    singleLine = true,
+                                    readOnly = true,
+                                    modifier = Modifier
+                                        .width(if (isTablet) 400.dp else 300.dp)
+                                        .height(if (isTablet) 80.dp else 70.dp),
+                                    colors = TextFieldDefaults.colors(
+                                        focusedTextColor = colorScheme.onBackground,
+                                        unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
+                                        focusedContainerColor = colorScheme.onPrimary,
+                                        unfocusedContainerColor = colorScheme.onPrimary,
+                                        focusedIndicatorColor = colorScheme.primary,
+                                        unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
+                                    )
+                                )
                             }
+                        }
+
+                        InvertedCornerHeader(
+                            backgroundColor = colorScheme.surface,
+                            overlayColor = colorScheme.primary
+                        ) {
+
                         }
                     }
                     item {

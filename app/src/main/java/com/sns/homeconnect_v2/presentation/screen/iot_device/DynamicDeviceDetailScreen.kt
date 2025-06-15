@@ -49,6 +49,7 @@ fun DynamicDeviceDetailScreen(
             Log.d("CHECK", "parentName: $parentName, controls=$controls")
 
             val screen = DeviceScreenFactory.getScreen(
+                deviceId = deviceId,
                 parentName = parentName,
                 product = product,
                 controls = if (controls.isNotEmpty()) controls else mapOf(),

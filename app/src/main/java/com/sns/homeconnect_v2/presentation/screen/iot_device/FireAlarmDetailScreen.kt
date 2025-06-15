@@ -91,6 +91,7 @@ enum class DeviceAction {
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
+    deviceID: String,
     product: ProductData,
     ontrols: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
@@ -340,7 +341,7 @@ fun FireAlarmDetailScreen(
                                     onClick = {
                                         navController.navigate(
                                             Screens.AccessPoint.route +
-                                                    "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}"
+                                                    "?id=${deviceID}&name=${"Lamp"}"
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)
@@ -352,35 +353,9 @@ fun FireAlarmDetailScreen(
                                         modifier = Modifier.size(32.dp)
                                     )
                                 }
-
-                                /* ---------- DIALOG ---------- */
-                                if (showDialog) {
-                                    val typeName = when (safeDevice.TypeID) {
-                                        1 -> "Fire Alarm"
-                                        2, 3 -> "LED Light"
-                                        else -> ""
-                                    }
-                                    AlertDialog(
-                                        onDismissRequest = { showDialog = false },
-                                        title = { Text("Thông tin thiết bị") },
-                                        text = {
-                                            Column {
-                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                Text("Loại thiết bị: $typeName")
-                                            }
-                                        },
-                                        confirmButton = {
-                                            TextButton(onClick = { showDialog = false }) {
-                                                Text("Đóng")
-                                            }
-                                        }
-                                    )
-                                }
                             }
                         }
                     }
-
                     item {
                         Column(
                             modifier = Modifier

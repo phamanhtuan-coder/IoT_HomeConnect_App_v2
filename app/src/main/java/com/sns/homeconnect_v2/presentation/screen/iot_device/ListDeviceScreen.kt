@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
+import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
 
@@ -247,9 +249,11 @@ fun ListDeviceScreen(
                                             },
                                             onClick = {
                                                 val mockProductId = when (device.template_id) {
-                                                    "DEVC12JUN2501JXH5ZTV31VF5VGJBZJF" -> 3
-                                                    else -> 2 // fallback
+                                                    "DEVC12JUN2501JXH5ZTV31VF5VGJBZJF" -> 3 // Đèn
+                                                    "DEVC12JUN2501JXH5R70FT86A9GN5WZ7" -> 8 // Cảm biến
+                                                    else -> 8 // fallback: luôn sang cảm biến nếu chưa map
                                                 }
+                                                Log.d("CHECK", "mockProductId: $mockProductId")
                                                 navController.navigate("device-detail/$mockProductId")
                                             },
                                             onCollapse = {

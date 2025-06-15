@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.repository
 
+import android.util.Log
 import com.sns.homeconnect_v2.data.remote.api.EcomApiService
 import com.sns.homeconnect_v2.data.remote.dto.response.CategoryData
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
@@ -13,7 +14,9 @@ class EcomRepositoryImpl @Inject constructor(
     override suspend fun getProductDetail(productId: Int): ProductData {
         // Giả sử đã sửa data class đúng ở trên
         val response = api.getProductDetail(productId)
-        // Lấy phần tử đầu tiên của mảng, nếu không có thì trả về ProductData mặc định
+        Log.d("CHECK", "API raw response: $response")
+        val product = response.data?.data?.firstOrNull()
+        Log.d("CHECK", "Product detail: $product")
         return response.data?.data?.firstOrNull() ?: ProductData()
     }
 

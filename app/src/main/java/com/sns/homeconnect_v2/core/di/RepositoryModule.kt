@@ -67,6 +67,7 @@ import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceCapabilitiesUse
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceStateUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.UpdateDeviceStateUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
@@ -415,6 +416,14 @@ abstract class RepositoryModule {
             deviceRepository: DeviceRepository
         ): GetDeviceStateUseCase {
             return GetDeviceStateUseCase(deviceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideUpdateDeviceStateUseCase(
+            repository: DeviceRepository
+        ): UpdateDeviceStateUseCase {
+            return UpdateDeviceStateUseCase(repository)
         }
 
     }

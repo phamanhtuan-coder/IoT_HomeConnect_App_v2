@@ -130,20 +130,31 @@ fun DeviceDetailScreen(
 
     val deviceState by displayViewModel.deviceStateUiState.collectAsState()
 
+
+    var rowWidth by remember { mutableIntStateOf(0) }
+    var showDialog by remember { mutableStateOf(false) }
+    var isCheck by remember { mutableStateOf(false) }
+    var sliderValue by remember { mutableFloatStateOf(128f) }
+    var currentColor by remember { mutableStateOf("#ffffff") }
+
     LaunchedEffect(Unit) {
         if (serialNumber != null) {
             displayViewModel.fetchDeviceState(deviceId, serialNumber)
         }
+        isCheck = when (deviceState) {
+            is DeviceStateUiState.Success -> (deviceState as DeviceStateUiState.Success).state.power_status
+            else -> false
+        }
     }
 
-
-    var rowWidth by remember { mutableIntStateOf(0) }
-    var showDialog by remember { mutableStateOf(false) }
-    var isCheck = when (deviceState) {
-        is DeviceStateUiState.Success -> (deviceState as DeviceStateUiState.Success).state.power_status
-        else -> false
+    LaunchedEffect(deviceState) {
+        val successState = deviceState as? DeviceStateUiState.Success
+        successState?.let {
+            isCheck = it.state.power_status
+//            sliderValue = it.state.brightness.toFloat()
+//            currentColor = it.state.color
+        }
     }
-    var sliderValue by remember { mutableFloatStateOf(128f) }   // 0‥255
 
     val scope = rememberCoroutineScope()
 
@@ -275,7 +286,15 @@ fun DeviceDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
 
-                                        CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
+                                        CustomSwitch(
+                                            isCheck = isCheck,
+                                            onCheckedChange = {
+                                                isCheck = it
+                                                serialNumber?.let { serial ->
+                                                    displayViewModel.updateDeviceState(deviceId, serial, power = it)
+                                                }
+                                            }
+                                        )
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),

@@ -3,10 +3,13 @@ package com.sns.homeconnect_v2.data.repository
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
@@ -15,6 +18,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import javax.inject.Inject
 
 class DeviceRepositoryImpl @Inject constructor(
@@ -75,5 +79,17 @@ class DeviceRepositoryImpl @Inject constructor(
     override suspend fun getDeviceState(deviceId: String, serialNumber: String): DeviceStateResponse {
         val token = authManager.getJwtToken()
         return apiService.getDeviceState(deviceId, serialNumber, "Bearer $token")
+    }
+
+    override suspend fun updateDeviceState(
+        deviceId: String,
+        request: UpdateDeviceStateRequest
+    ): UpdateDeviceStateResponse {
+        val token = authManager.getJwtToken()
+        return apiService.updateDeviceState(deviceId, request, "Bearer $token")
+    }
+
+    override suspend fun updateDeviceStateBulk(deviceId: String, request: BulkDeviceStateUpdateRequest): BulkDeviceStateUpdateResponse {
+        return apiService.updateDeviceStateBulk(deviceId, request)
     }
 }

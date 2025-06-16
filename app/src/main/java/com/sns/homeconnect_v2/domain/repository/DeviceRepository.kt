@@ -1,8 +1,11 @@
 package com.sns.homeconnect_v2.domain.repository
 
+import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
@@ -10,6 +13,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UnlinkResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 
 interface DeviceRepository {
     suspend fun getInfoDevice(deviceId: Int): DeviceResponse
@@ -20,4 +24,6 @@ interface DeviceRepository {
     suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse>
     suspend fun getDeviceCapabilities(deviceId: String, serialNumber: String): DeviceCapabilitiesResponse
     suspend fun getDeviceState(deviceId: String, serialNumber: String): DeviceStateResponse
+    suspend fun updateDeviceState(deviceId: String, request: UpdateDeviceStateRequest): UpdateDeviceStateResponse
+    suspend fun updateDeviceStateBulk(deviceId: String, request: BulkDeviceStateUpdateRequest): BulkDeviceStateUpdateResponse
 }

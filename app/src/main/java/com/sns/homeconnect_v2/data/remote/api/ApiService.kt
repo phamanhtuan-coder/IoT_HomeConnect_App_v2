@@ -43,9 +43,12 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.CreateSpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -363,14 +366,14 @@ interface ApiService {
         @Path("houseId") houseId: Int,
         @Header("Authorization") token: String
     ): List<SpaceResponse>
-//
-//    @PUT("spaces/{id}")
-//    suspend fun updateSpace(
-//        @Path("id") spaceId: Int,
-//        @Body body: UpdateSpaceRequest,
-//        @Header("Authorization") token: String
-//    ): SpaceResponse3
-//
+
+    @PUT("spaces/{id}")
+    suspend fun updateSpace(
+        @Path("id") spaceId: Int,
+        @Body body: UpdateSpaceRequest,
+        @Header("Authorization") token: String
+    ): SpaceResponse
+
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

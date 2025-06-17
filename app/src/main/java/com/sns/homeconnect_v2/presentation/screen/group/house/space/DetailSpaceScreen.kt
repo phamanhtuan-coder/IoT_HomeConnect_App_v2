@@ -7,8 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.material3.Button
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.filled.Delete
@@ -16,12 +18,15 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.DeviceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
@@ -34,6 +39,9 @@ import com.sns.homeconnect_v2.presentation.model.DeviceUi
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenDetailViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.UpdateSpaceViewModel
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 /**
  * Hàm Composable đại diện cho màn hình chi tiết của một không gian/nhóm.
@@ -64,9 +72,30 @@ fun DetailSpaceScreen(
 //        )
 //    }
     val spaceViewModel: SpaceScreenDetailViewModel = hiltViewModel()
+    val updateSpaceViewModel: UpdateSpaceViewModel = hiltViewModel()
+    val snackbarViewModel: SnackbarViewModel = hiltViewModel()
+
+    val spaceDetail by updateSpaceViewModel.updatespace.collectAsState()
+
+    // Trạng thái cho bottom sheet
+    var isSheetVisible by remember { mutableStateOf(false) }
+    var spaceNameInput by remember { mutableStateOf(spaceDetail?.space_name ?: "") }
+    var iconNameInput by remember { mutableStateOf(spaceDetail?.icon_name ?: "") }
+    var iconColorInput by remember { mutableStateOf(spaceDetail?.icon_color ?: "") }
+    var descriptionInput by remember { mutableStateOf(spaceDetail?.space_description ?: "") }
+
+    LaunchedEffect(spaceDetail) {
+        // Cập nhật input khi spaceDetail thay đổi
+        spaceNameInput = spaceDetail?.space_name ?: ""
+        iconNameInput = spaceDetail?.icon_name ?: ""
+        iconColorInput = spaceDetail?.icon_color ?: ""
+        descriptionInput = spaceDetail?.space_description ?: ""
+    }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         spaceViewModel.getSpaces(spaceId)
+        updateSpaceViewModel.updateSpace(spaceId, spaceNameInput, iconNameInput, iconColorInput, descriptionInput)
     }
     Log.d("DetailSpaceScreen", "spaceId: $spaceId")
 
@@ -74,6 +103,7 @@ fun DetailSpaceScreen(
 
     Log.d("DetailSpaceScreen", "deviceList: $deviceList")
     //val deviceList = remember { mutableStateListOf<DeviceUi>() }
+    Log.d("DetailSpaceScreen", "spaceDetail: $spaceDetail")
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -81,7 +111,7 @@ fun DetailSpaceScreen(
         val floatingActionButtons = listOf(
             FabChild(
                 icon = Icons.Default.Edit,
-                onClick = { /* TODO: sửa */ },
+                onClick = { isSheetVisible = true  },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             ),
@@ -193,6 +223,88 @@ fun DetailSpaceScreen(
                         contentAlignment = Alignment.Center,
                     ) {
                         Text("Không tìm thấy")
+                    }
+                }
+                // Bottom Sheet để chỉnh sửa space
+                BottomSheetWithTrigger(
+                    isSheetVisible = isSheetVisible,
+                    onDismiss = { isSheetVisible = false }
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Chỉnh sửa Space",
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        OutlinedTextField(
+                            value = spaceNameInput,
+                            onValueChange = { spaceNameInput = it },
+                            label = { Text("Tên Space") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = iconNameInput,
+                            onValueChange = { iconNameInput = it },
+                            label = { Text("Tên Icon (ví dụ: living-room)") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = iconColorInput,
+                            onValueChange = { iconColorInput = it },
+                            label = { Text("Màu Icon (ví dụ: #3366FF)") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = descriptionInput,
+                            onValueChange = { descriptionInput = it },
+                            label = { Text("Mô tả") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            TextButton(
+                                onClick = { isSheetVisible = false }
+                            ) {
+                                Text("Hủy")
+                            }
+                            Button(
+                                onClick = {
+                                    scope.launch {
+                                        try {
+                                            updateSpaceViewModel.updateSpace(
+                                                spaceId = spaceId,
+                                                name = spaceNameInput,
+                                                iconName = iconNameInput.takeIf { it.isNotBlank() },
+                                                iconColor = iconColorInput.takeIf { it.isNotBlank() },
+                                                description = descriptionInput.takeIf { it.isNotBlank() }
+                                            )
+                                            snackbarViewModel.showSnackbar("Cập nhật space thành công")
+                                            isSheetVisible = false
+                                        } catch (e: Exception) {
+                                            snackbarViewModel.showSnackbar("Lỗi: ${e.message}")
+                                        }
+                                    }
+                                },
+                                enabled = spaceNameInput.isNotBlank()
+                            ) {
+                                Text("Lưu")
+                            }
+                        }
                     }
                 }
             }

@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.sns.homeconnect_v2.presentation.navigation.Screens.EditSpaceWithHouse
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -226,6 +227,17 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     spaceId = spaceId
                 )
             }
+
+
+//            composable(
+//                route = Screens.AddSpace.route,
+//                arguments = listOf(navArgument("houseId") { type = NavType.IntType })
+//            ) { backStackEntry ->
+//                CreateSpaceScreen(
+//                        navController = navController,
+//                        snackbarViewModel = snackbarViewModel
+//                )
+//            }
 
             // TODO: Add AddGroupUser screen with route "add_group_user/{groupId}"
 

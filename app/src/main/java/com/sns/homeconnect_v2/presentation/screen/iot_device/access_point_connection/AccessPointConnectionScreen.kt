@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.wifi.WifiManager
 import android.provider.Settings
 import android.widget.Toast
@@ -212,9 +213,18 @@ fun AccessPointConnectionScreen(
                                     Icons.Default.Refresh,
                                     contentDescription = "",
                                     modifier = Modifier.clickable {
+                                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                                        val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                                                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+
                                         if (!wifiManager.isWifiEnabled) {
                                             Toast.makeText(context, "Please enable Wi-Fi to scan for networks", Toast.LENGTH_LONG).show()
                                             context.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS).apply {
+                                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                            })
+                                        } else if (!isLocationEnabled) {
+                                            Toast.makeText(context, "Please enable Location to scan Wi-Fi", Toast.LENGTH_LONG).show()
+                                            context.startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
                                                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                             })
                                         } else if (viewModel.checkPermissions(context)) {
@@ -237,7 +247,7 @@ fun AccessPointConnectionScreen(
                                 viewModel.wifiList.forEach { wifiItem ->
                                     WiFiCard(
                                         navController = navController,
-                                        wifiName = wifiItem.SSID.takeIf { it?.isNotEmpty() == true } ?: "",
+                                        wifiName = wifiItem.SSID?.removeSurrounding("\"")?.takeIf { it != "<unknown ssid>" } ?: "(Không rõ)",
                                         isConnected = false
                                     )
                                 }

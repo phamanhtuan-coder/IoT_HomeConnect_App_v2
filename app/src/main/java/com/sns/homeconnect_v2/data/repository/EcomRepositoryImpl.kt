@@ -10,17 +10,17 @@ import javax.inject.Named
 
 class EcomRepositoryImpl @Inject constructor(
     @Named("HomeConnectEcomUrl") private val api: EcomApiService
-) : EcomRepository {
-    override suspend fun getProductDetail(productId: Int): ProductData {
-        // Giả sử đã sửa data class đúng ở trên
-        val response = api.getProductDetail(productId)
-        Log.d("CHECK", "API raw response: $response")
-        val product = response.data?.data?.firstOrNull()
-        Log.d("CHECK", "Product detail: $product")
-        return response.data?.data?.firstOrNull() ?: ProductData()
+): EcomRepository {
+
+    override suspend fun getProductDetail(templateId: String): ProductData {
+        val res = api.getProductDetail(templateId)
+        Log.d("EcomRepository", "ProductDetailResponse: $res")
+        return res.data?.data?.firstOrNull() ?: throw Exception("Product not found for id=$templateId")
     }
 
     override suspend fun getCategoryDetail(categoryId: Int): CategoryData {
-        return api.getCategoryDetail(categoryId).data
+        val res = api.getCategoryDetail(categoryId)
+        Log.d("EcomRepository", "CategoryDetailResponse: $res")
+        return res.data
     }
 }

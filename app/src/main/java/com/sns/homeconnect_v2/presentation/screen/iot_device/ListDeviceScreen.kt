@@ -249,17 +249,12 @@ fun ListDeviceScreen(
                                                 listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
                                             onClick = {
-                                                val mockProductId = when (device.template_id) {
-                                                    "DEVC12JUN2501JXH5ZTV31VF5VGJBZJF" -> 3 // Đèn
-                                                    "DEVC12JUN2501JXH5R70FT86A9GN5WZ7" -> 8 // Cảm biến
-                                                    else -> 8 // fallback: luôn sang cảm biến nếu chưa map
-                                                }
-                                                Log.d("CHECK", "mockProductId: $mockProductId")
                                                 navController.navigate(
                                                     Screens.DynamicDeviceDetail.build(
-                                                        deviceId = device.device_id,
+                                                        deviceId     = device.device_id,
+                                                        deviceName   = device.name.orEmpty(),
                                                         serialNumber = device.serial_number,
-                                                        productId = mockProductId // hoặc truyền id số thực nếu có
+                                                        productId    = device.template_id          // templateId là String
                                                     )
                                                 )
                                             },

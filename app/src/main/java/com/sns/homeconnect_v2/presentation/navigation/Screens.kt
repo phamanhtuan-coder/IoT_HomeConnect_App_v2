@@ -1,5 +1,7 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
+import android.net.Uri
+
 sealed class Screens(val route: String) {
     // --- Auth screens ---
     data object Login : Screens("login")
@@ -135,9 +137,22 @@ sealed class Screens(val route: String) {
         fun createRoute(notificationId: Int) = "detail_notifications/$notificationId"
     }
 
-    object DynamicDeviceDetail : Screens("dynamic_device_detail/{deviceId}/{serialNumber}/{productId}") {
-        fun build(deviceId: String, serialNumber: String, productId: Int): String =
-            "dynamic_device_detail/$deviceId/$serialNumber/$productId"
+    object DynamicDeviceDetail :
+        Screens("dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}") {
+
+        fun build(
+            deviceId: String,
+            deviceName: String,
+            serialNumber: String,
+            productId: String
+        ): String =
+            listOf(
+                "dynamic_device_detail",
+                Uri.encode(deviceId),
+                Uri.encode(deviceName),
+                Uri.encode(serialNumber),
+                Uri.encode(productId)
+            ).joinToString("/")
     }
     // --- Other screens ---
     // ...add more here if needed...

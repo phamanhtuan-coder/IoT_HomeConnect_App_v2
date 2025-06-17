@@ -92,6 +92,7 @@ enum class DeviceAction {
 fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceID: String,
+    deviceName: String,
     serialNumber: String? = null,
     product: ProductData,
     ontrols: Map<String, String>,

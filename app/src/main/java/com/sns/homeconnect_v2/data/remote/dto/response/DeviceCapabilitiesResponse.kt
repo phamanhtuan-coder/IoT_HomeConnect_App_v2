@@ -1,5 +1,7 @@
 package com.sns.homeconnect_v2.data.remote.dto.response
 
+import com.google.gson.JsonObject
+
 data class DeviceCapabilitiesResponse(
     val success: Boolean,
     val capabilities: CapabilitiesWrapper,
@@ -8,7 +10,7 @@ data class DeviceCapabilitiesResponse(
 
 data class CapabilitiesWrapper(
     val base: BaseCapabilities?,
-    val runtime: String?, // nếu backend trả về kiểu chuỗi
+    val runtime: JsonObject?,
     val firmware_version: String?,
     val firmware_id: String?,
     val merged_capabilities: MergedCapabilities
@@ -22,5 +24,5 @@ data class BaseCapabilities(
 data class MergedCapabilities(
     val capabilities: List<String>,
     val category: String?,
-    val controls: Map<String, String> // ví dụ: "brightness" -> "slider"
+    val controls: Map<String, String>
 )

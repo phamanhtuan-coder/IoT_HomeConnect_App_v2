@@ -77,6 +77,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.sns.homeconnect_v2.R
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
@@ -99,6 +100,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInf
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -109,27 +111,27 @@ import kotlin.math.roundToInt
 fun DeviceDetailScreen(
     navController: NavHostController,
     deviceId: String,
-    serialNumber: String? = null,
+    deviceName: String,
+    serialNumber: String,
     product: ProductData,
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel
 ) {
 
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
-    val displayState by displayViewModel.deviceDisplayInfoState.collectAsState()
     val showBottomSheet = remember { mutableStateOf(false) }
     val isDataFetched = remember { mutableStateOf(false) } // <- tránh gọi lại API liên tục
 
-    // Khi Bottom Sheet được bật và dữ liệu chưa fetch, gọi API
+    val displayState by displayViewModel.displayState.collectAsState()
+    val deviceState  by displayViewModel.deviceState.collectAsState()
+    val updateState  by displayViewModel.updateDeviceState.collectAsState()
+
     LaunchedEffect(showBottomSheet.value) {
-        if (showBottomSheet.value && !isDataFetched.value && product.id != 0) {
-            displayViewModel.getDeviceDisplayInfo(product.id)
+        if (showBottomSheet.value && !isDataFetched.value && product.id.isNotEmpty()) {
+            displayViewModel.fetchDisplayInfo(product.id)   // <- hàm mới
             isDataFetched.value = true
         }
     }
-
-    val deviceState by displayViewModel.deviceStateUiState.collectAsState()
-
 
     var rowWidth by remember { mutableIntStateOf(0) }
     var showDialog by remember { mutableStateOf(false) }
@@ -155,6 +157,15 @@ fun DeviceDetailScreen(
 //            currentColor = it.state.color
         }
     }
+
+    LaunchedEffect(updateState) {
+        when (val state = updateState) {
+            is UpdateDeviceStateUiState.Success -> snackbarViewModel.showSnackbar(state.message)
+            is UpdateDeviceStateUiState.Error -> snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+            else -> Unit
+        }
+    }
+
 
     val scope = rememberCoroutineScope()
 
@@ -286,15 +297,20 @@ fun DeviceDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
 
-                                        CustomSwitch(
-                                            isCheck = isCheck,
-                                            onCheckedChange = {
-                                                isCheck = it
-                                                serialNumber?.let { serial ->
-                                                    displayViewModel.updateDeviceState(deviceId, serial, power = it)
+                                        if ("power_status" in controls) {
+                                            CustomSwitch(
+                                                isCheck = isCheck,
+                                                onCheckedChange = {
+                                                    isCheck = it
+                                                    Log.d("Switch", "serial=$serialNumber, deviceId=$deviceId, power=$it")
+                                                    displayViewModel.updateDeviceState(
+                                                        deviceId = deviceId,
+                                                        serial = serialNumber,
+                                                        power = it
+                                                    )
                                                 }
-                                            }
-                                        )
+                                            )
+                                        }
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -339,17 +355,21 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    Text(
-                                        "Cường độ",
-                                        color = colorScheme.onPrimary
-                                    )
+                                    if ("brightness" in controls) {
+                                        Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
-                                    EdgeToEdgeSlider(
-                                        value = sliderValue,
-                                        onValueChange = { sliderValue = it },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    )
+                                        EdgeToEdgeSlider(
+                                            value = sliderValue,
+                                            onValueChange = {
+                                                sliderValue = it
+                                                displayViewModel.updateDeviceState(
+                                                    deviceId = deviceId,
+                                                    serial = serialNumber,
+                                                    brightness = it.toInt()
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -364,10 +384,18 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FancyColorSlider(
-                                    attribute = attribute,
-                                    onColorChange = {}
-                                )
+                                if ("color" in controls) {
+                                    FancyColorSlider(
+                                        attribute = attribute,
+                                        onColorChange = { color ->
+                                            displayViewModel.updateDeviceState(
+                                                deviceId = deviceId,
+                                                serial = serialNumber,
+                                                color = color
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
 
@@ -401,7 +429,7 @@ fun DeviceDetailScreen(
                                 IconButton(
                                     onClick = {
                                         navController.navigate(
-                                            Screens.AccessPoint.createRoute(deviceId, product.name ?: "Unknown")
+                                            Screens.AccessPoint.createRoute(deviceId, deviceName)
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)

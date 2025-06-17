@@ -1,6 +1,5 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.iot_device
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
@@ -16,16 +15,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed class DeviceDisplayInfoState {
-    data object Idle : DeviceDisplayInfoState()
-    data object Loading : DeviceDisplayInfoState()
-    data class Success(
-        val product: ProductData,
-        val category: CategoryData
-    ) : DeviceDisplayInfoState()
+    object Idle : DeviceDisplayInfoState()
+    object Loading : DeviceDisplayInfoState()
+    data class Success(val product: ProductData, val category: CategoryData) : DeviceDisplayInfoState()
     data class Error(val error: String) : DeviceDisplayInfoState()
 }
 
@@ -58,62 +53,52 @@ class DeviceDisplayViewModel @Inject constructor(
     private val updateDeviceStateBulkUseCase: UpdateDeviceStateBulkUseCase
 ) : ViewModel() {
 
-    private val _deviceDisplayInfoState = MutableStateFlow<DeviceDisplayInfoState>(DeviceDisplayInfoState.Idle)
-    val deviceDisplayInfoState = _deviceDisplayInfoState.asStateFlow()
+    // ---------- 1. DISPLAY INFO ----------
+    private val _displayState =
+        MutableStateFlow<DeviceDisplayInfoState>(DeviceDisplayInfoState.Idle)
+    val displayState: StateFlow<DeviceDisplayInfoState> = _displayState
 
-    private var lastFetchedTemplateId: Int? = null
-
-    fun getDeviceDisplayInfo(templateId: Int) {
-        // Ngăn gọi lại với cùng ID
-        if (lastFetchedTemplateId == templateId &&
-            _deviceDisplayInfoState.value is DeviceDisplayInfoState.Success
-        ) return
-
-        lastFetchedTemplateId = templateId
-        _deviceDisplayInfoState.value = DeviceDisplayInfoState.Loading
-
+    fun fetchDisplayInfo(templateId: String) {
+        _displayState.value = DeviceDisplayInfoState.Loading
         viewModelScope.launch {
-            getDeviceDisplayInfoUseCase(templateId).fold(
-                onSuccess = { result ->
-                    _deviceDisplayInfoState.value = DeviceDisplayInfoState.Success(
-                        product = result.product,
-                        category = result.category
-                    )
-                },
-                onFailure = { error ->
-                    _deviceDisplayInfoState.value = DeviceDisplayInfoState.Error(
-                        error.message ?: "Không thể lấy thông tin sản phẩm"
-                    )
+            getDeviceDisplayInfoUseCase(templateId)
+                .onSuccess {
+                    _displayState.value =
+                        DeviceDisplayInfoState.Success(it.product, it.category)
                 }
-            )
+                .onFailure {
+                    _displayState.value =
+                        DeviceDisplayInfoState.Error(it.message ?: "Unknown error")
+                }
         }
     }
 
-    private val _deviceStateUiState = MutableStateFlow<DeviceStateUiState>(DeviceStateUiState.Idle)
-    val deviceStateUiState: StateFlow<DeviceStateUiState> = _deviceStateUiState
+    // ---------- 2. DEVICE STATE ----------
+    private val _deviceState =
+        MutableStateFlow<DeviceStateUiState>(DeviceStateUiState.Idle)
+    val deviceState: StateFlow<DeviceStateUiState> = _deviceState
 
-    fun fetchDeviceState(deviceId: String, serialNumber: String) {
-        _deviceStateUiState.value = DeviceStateUiState.Loading
-
+    fun fetchDeviceState(deviceId: String, serial: String) {
+        _deviceState.value = DeviceStateUiState.Loading
         viewModelScope.launch {
-            getDeviceStateUseCase(deviceId, serialNumber).fold(
-                onSuccess = { response ->
-                    _deviceStateUiState.value = DeviceStateUiState.Success(
-                        state = response.state,
-                        timestamp = response.timestamp
-                    )
-                },
-                onFailure = { error ->
-                    _deviceStateUiState.value = DeviceStateUiState.Error(
-                        error.message ?: "Không thể lấy trạng thái thiết bị"
-                    )
-                }
-            )
+            getDeviceStateUseCase(deviceId, serial)
+                .fold(
+                    onSuccess = {
+                        _deviceState.value =
+                            DeviceStateUiState.Success(it.state, it.timestamp)
+                    },
+                    onFailure = {
+                        _deviceState.value =
+                            DeviceStateUiState.Error(it.message ?: "Không thể lấy trạng thái thiết bị")
+                    }
+                )
         }
     }
 
-    private val _updateDeviceStateUiState = MutableStateFlow<UpdateDeviceStateUiState>(UpdateDeviceStateUiState.Idle)
-    val updateDeviceStateUiState: StateFlow<UpdateDeviceStateUiState> = _updateDeviceStateUiState
+    // ---------- 3. UPDATE STATE (single) ----------
+    private val _updateDeviceState =
+        MutableStateFlow<UpdateDeviceStateUiState>(UpdateDeviceStateUiState.Idle)
+    val updateDeviceState: StateFlow<UpdateDeviceStateUiState> = _updateDeviceState
 
     fun updateDeviceState(
         deviceId: String,
@@ -122,56 +107,47 @@ class DeviceDisplayViewModel @Inject constructor(
         brightness: Int? = null,
         color: String? = null
     ) {
-        _updateDeviceStateUiState.value = UpdateDeviceStateUiState.Loading
-
-        val request = UpdateDeviceStateRequest(
-            serial_number = serial,
-            power_status = power,
-            brightness = brightness,
-            color = color
-        )
-
+        _updateDeviceState.value = UpdateDeviceStateUiState.Loading
+        val req = UpdateDeviceStateRequest(serial, power, brightness, color)
         viewModelScope.launch {
-            updateDeviceStateUseCase(deviceId, request).fold(
-                onSuccess = { response ->
-                    _updateDeviceStateUiState.value = UpdateDeviceStateUiState.Success(response.message)
-                    Log.d("UpdateDeviceState", "Thành công: ${'$'}{response.message}")
-                },
-                onFailure = { error ->
-                    _updateDeviceStateUiState.value = UpdateDeviceStateUiState.Error(
-                        error.message ?: "Lỗi không xác định"
-                    )
-                    Log.e("UpdateDeviceState", "Thất bại: ${'$'}{error.message}")
-                }
-            )
+            updateDeviceStateUseCase(deviceId, req)
+                .fold(
+                    onSuccess = {
+                        _updateDeviceState.value =
+                            UpdateDeviceStateUiState.Success(it.message)
+                    },
+                    onFailure = {
+                        _updateDeviceState.value =
+                            UpdateDeviceStateUiState.Error(it.message ?: "Lỗi không xác định")
+                    }
+                )
         }
     }
 
-    private val _updateDeviceStateBulkUiState = MutableStateFlow<UpdateDeviceStateBulkUiState>(UpdateDeviceStateBulkUiState.Idle)
-    val updateDeviceStateBulkUiState: StateFlow<UpdateDeviceStateBulkUiState> = _updateDeviceStateBulkUiState
+    // ---------- 4. UPDATE STATE (bulk) ----------
+    private val _updateBulk =
+        MutableStateFlow<UpdateDeviceStateBulkUiState>(UpdateDeviceStateBulkUiState.Idle)
+    val updateBulk: StateFlow<UpdateDeviceStateBulkUiState> = _updateBulk
 
     fun updateDeviceStateBulk(
         deviceId: String,
         serial: String,
         updates: List<Map<String, Any>>
     ) {
-        _updateDeviceStateBulkUiState.value = UpdateDeviceStateBulkUiState.Loading
-
-        val request = BulkDeviceStateUpdateRequest(
-            serial_number = serial,
-            updates = updates
-        )
-
+        _updateBulk.value = UpdateDeviceStateBulkUiState.Loading
+        val req = BulkDeviceStateUpdateRequest(serial, updates)
         viewModelScope.launch {
-            updateDeviceStateBulkUseCase(deviceId, request).fold(
-                onSuccess = {
-                    _updateDeviceStateBulkUiState.value = UpdateDeviceStateBulkUiState.Success(it.message ?: "Thành công")
-                },
-                onFailure = {
-                    _updateDeviceStateBulkUiState.value = UpdateDeviceStateBulkUiState.Error(it.message ?: "Lỗi không xác định")
-                }
-            )
+            updateDeviceStateBulkUseCase(deviceId, req)
+                .fold(
+                    onSuccess = {
+                        _updateBulk.value =
+                            UpdateDeviceStateBulkUiState.Success(it.message ?: "Thành công")
+                    },
+                    onFailure = {
+                        _updateBulk.value =
+                            UpdateDeviceStateBulkUiState.Error(it.message ?: "Lỗi không xác định")
+                    }
+                )
         }
     }
 }
-

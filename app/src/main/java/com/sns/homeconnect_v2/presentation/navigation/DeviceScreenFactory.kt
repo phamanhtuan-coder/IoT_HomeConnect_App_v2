@@ -12,25 +12,28 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 object DeviceScreenFactory {
     fun getScreen(
         deviceId: String,
+        deviceName: String,
         parentName: String?,
-        serialNumber: String? = null,
+        serialNumber: String,
         product: ProductData,
         controls: Map<String, String>,
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
-        return when (parentName?.lowercase()) {
-            "đèn" -> { navController ->
-                DeviceDetailScreen(navController,deviceId, serialNumber,product, controls, snackbarViewModel())
+        val normalized = parentName?.trim()?.lowercase()
+        Log.d("CHECK", "parentName='$parentName', normalized='$normalized', controls=$controls")
+        return when {
+            normalized == "đèn" -> { navController ->
+                DeviceDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
             }
-            "cảm biến" -> { navController ->
-                FireAlarmDetailScreen(navController, deviceId, serialNumber, product, controls, snackbarViewModel())
+            normalized?.contains("cảm biến") == true -> { navController ->
+                FireAlarmDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
             }
             else -> { navController ->
                 DefaultDetailScreen(navController)
             }
         }
     }
-
 }
+
 
 

@@ -12,19 +12,11 @@ data class DeviceDisplayInfo(
 )
 
 class GetDeviceDisplayInfoUseCase @Inject constructor(
-    private val ecomRepository: EcomRepository
+    private val repo: EcomRepository
 ) {
-    suspend operator fun invoke(templateId: Int): Result<DeviceDisplayInfo> {
-        return try {
-            val productId = templateId.toInt() ?: 1
-            Log.d("CHECK", "Gọi getProductDetail với id: $productId (type: ${productId::class.simpleName})")
-            val product = ecomRepository.getProductDetail(productId)
-            Log.d("CHECK", "Product detail: $product")
-            val category = ecomRepository.getCategoryDetail(product.category_id)
-            Result.success(DeviceDisplayInfo(product, category))
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    suspend operator fun invoke(templateId: String): Result<DeviceDisplayInfo> = runCatching {
+        val product = repo.getProductDetail(templateId)
+        val category = repo.getCategoryDetail(product.category_id)
+        DeviceDisplayInfo(product, category)
     }
 }
-

@@ -258,27 +258,6 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 ListDeviceScreen(navController)
             }
 
-            composable(
-                route = Screens.DynamicDeviceDetail.route,
-                arguments = listOf(
-                    navArgument("deviceId") { type = NavType.StringType },
-                    navArgument("serialNumber") { type = NavType.StringType },
-                    navArgument("productId") { type = NavType.IntType }
-                )
-            ) { backStackEntry ->
-                val deviceId = backStackEntry.arguments?.getString("deviceId") ?: return@composable
-                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: return@composable
-                val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
-
-                DynamicDeviceDetailScreen(
-                    deviceId = deviceId,
-                    serialNumber = serialNumber,
-                    productId = productId,
-                    navController = navController,
-                    snackbarViewModel = snackbarViewModel
-                )
-            }
-
 //            composable(
 //                route = "${Screens.FireAlarmDetail.route}/{productJson}",
 //                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
@@ -373,6 +352,29 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 val id = backStackEntry.arguments?.getString("id") ?: ""
                 val name = backStackEntry.arguments?.getString("name") ?: ""
                 AccessPointConnectionScreen(navController, id, name)
+            }
+
+            composable(
+                route = Screens.DynamicDeviceDetail.route,
+                arguments = listOf(
+                    navArgument("deviceId") { type = NavType.StringType },
+                    navArgument("deviceName") { type = NavType.StringType },
+                    navArgument("serialNumber") { type = NavType.StringType },
+                    navArgument("productId") { type = NavType.StringType },
+                )
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getString("deviceId") ?: ""
+                val deviceName = backStackEntry.arguments?.getString("deviceName") ?: ""
+                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: ""
+                val productId = backStackEntry.arguments?.getString("productId") ?: ""
+
+                DynamicDeviceDetailScreen(
+                    deviceId = deviceId,
+                    deviceName = deviceName,
+                    serialNumber = serialNumber,
+                    productId = productId,
+                    navController = navController
+                )
             }
         }
     }

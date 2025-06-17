@@ -134,10 +134,8 @@ fun DeviceDetailScreen(
     }
 
     var rowWidth by remember { mutableIntStateOf(0) }
-    var showDialog by remember { mutableStateOf(false) }
     var isCheck by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(128f) }
-    var currentColor by remember { mutableStateOf("#ffffff") }
 
     LaunchedEffect(Unit) {
         if (serialNumber != null) {
@@ -165,7 +163,6 @@ fun DeviceDetailScreen(
             else -> Unit
         }
     }
-
 
     val scope = rememberCoroutineScope()
 

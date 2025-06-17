@@ -65,6 +65,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.collections.contains
 
 /**
  * Enum class đại diện cho các hành động khác nhau có thể được thực hiện trên một thiết bị.
@@ -95,7 +96,7 @@ fun FireAlarmDetailScreen(
     deviceName: String,
     serialNumber: String? = null,
     product: ProductData,
-    ontrols: Map<String, String>,
+    controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
     var rowWidth by remember { mutableIntStateOf(0) }
@@ -235,6 +236,32 @@ fun FireAlarmDetailScreen(
         )
     }
 
+    val sliderKeys = listOf(
+        "gas" to "Khí gas",
+        "temp" to "Nhiệt độ",
+        "hum" to "Độ ẩm"
+    )
+    val sliderStates = mapOf(
+        "gas" to gasSliderValue,
+        "temp" to tempSliderValue,
+        "hum" to humiditySliderValue
+    )
+    val sliderSetters = mapOf(
+        "gas" to { v: Float -> gasSliderValue = v },
+        "temp" to { v: Float -> tempSliderValue = v },
+        "hum" to { v: Float -> humiditySliderValue = v }
+    )
+    val sliderValues = mapOf(
+        "gas" to smokeLevel,
+        "temp" to temperature,
+        "hum" to coLevel
+    )
+    val sliderUnits = mapOf(
+        "gas" to "ppm",
+        "temp" to "°C",
+        "hum" to "%"
+    )
+
     val colorScheme = MaterialTheme.colorScheme
     IoTHomeConnectAppTheme {
         Scaffold(
@@ -290,7 +317,20 @@ fun FireAlarmDetailScreen(
                                     ) // Tiêu đề
 
                                     // Switch bật/tắt đèn
-                                    CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
+                                    if (controls["power_status"] == "toggle") {     // ✅ so sánh luôn kiểu control
+                                        CustomSwitch(
+                                            isCheck = isCheck,
+                                            onCheckedChange = {
+                                                isCheck = it
+                                                Log.d("Switch", "serial=$serialNumber, deviceId=$deviceID, power=$it")
+//                                                displayViewModel.updateDeviceState(
+//                                                    deviceId = deviceId,
+//                                                    serial   = serialNumber,
+//                                                    power    = it
+//                                                )
+                                            }
+                                        )
+                                    }
 
                                     Text(
                                         "Trạng thái hiện tại: ",
@@ -376,95 +416,38 @@ fun FireAlarmDetailScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-
-                                // Sử dụng hàm InfoRow để hiển thị thông tin
-                                InfoRow(
-                                    label = "Khí gas:",
-                                    value = "$smokeLevel",
-                                    unit = "ppm",
-                                    stateColor = when {
-                                        smokeLevel > 50 -> Color.Red
-                                        smokeLevel < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        smokeLevel > 50 -> "!"
-                                        smokeLevel < 0 -> "?"
-                                        else -> "✓"
+                                sliderKeys.forEach { (key, label) ->
+                                    if (controls[key] == "slider") { // Đúng kiểu slider trong controls
+                                        InfoRow(
+                                            label = "$label:",
+                                            value = "${sliderValues[key]}",
+                                            unit = sliderUnits[key] ?: "",
+                                            stateColor = when (key) {
+                                                "gas" -> if (smokeLevel > 50) Color.Red else if (smokeLevel < 0) Color.Yellow else Color.Green
+                                                "temp" -> if (temperature > 40) Color.Red else if (temperature < 0) Color.Yellow else Color.Green
+                                                "hum" -> if (coLevel > 40) Color.Red else if (coLevel < 0) Color.Yellow else Color.Green
+                                                else -> Color.Green
+                                            },
+                                            stateText = when (key) {
+                                                "gas" -> if (smokeLevel > 50) "!" else if (smokeLevel < 0) "?" else "✓"
+                                                "temp" -> if (temperature > 40) "!" else if (temperature < 0) "?" else "✓"
+                                                "hum" -> if (coLevel > 40) "!" else if (coLevel < 0) "?" else "✓"
+                                                else -> "✓"
+                                            }
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        EdgeToEdgeSlider(
+                                            value = sliderStates[key] ?: 0f,
+                                            onValueChange = sliderSetters[key] ?: {},
+                                            activeTrackColor = Color.Red,
+                                            inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+                                            thumbColor = Color.Red,
+                                            thumbBorderColor = Color.DarkGray,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = gasSliderValue,
-                                    onValueChange = { gasSliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                InfoRow(
-                                    label = "Nhiệt độ:",
-                                    value = "$temperature",
-                                    unit = "°C",
-                                    stateColor = when {
-                                        temperature > 40 -> Color.Red
-                                        temperature < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        temperature > 40 -> "!"
-                                        temperature < 0 -> "?"
-                                        else -> "✓"
-                                    }
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = tempSliderValue,
-                                    onValueChange = { tempSliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                InfoRow(
-                                    label = "Độ ẩm:",
-                                    value = "$coLevel",
-                                    unit = "%",
-                                    stateColor = when {
-                                        coLevel > 40 -> Color.Red
-                                        coLevel < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        coLevel > 40 -> "!"
-                                        coLevel < 0 -> "?"
-                                        else -> "✓"
-                                    }
-
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = humiditySliderValue,
-                                    onValueChange = { humiditySliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
 
                             /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */

@@ -1,6 +1,5 @@
 package com.sns.homeconnect_v2.data.remote.api
 
-import androidx.compose.ui.semantics.Role
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
@@ -45,23 +44,19 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
-import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.CreateSpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
@@ -70,7 +65,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
-import com.sns.homeconnect_v2.presentation.navigation.Screens
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -160,11 +154,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): House
 
-    @GET("spaces/{homeId}")
-    suspend fun getSpacesByHomeId(
-        @Path("homeId") homeId: Int,
-        @Header("Authorization") token: String
-    ): House
+//    @GET("spaces/{homeId}")
+//    suspend fun getSpacesByHomeId(
+//        @Path("homeId") homeId: Int,
+//        @Header("Authorization") token: String
+//    ): House
 
     @GET("devices/space/{spaceId}")
     suspend fun getDevicesBySpaceId(
@@ -305,10 +299,10 @@ interface ApiService {
     @POST("notifications/otp")
     suspend fun sendOtp(@Body request: EmailRequest): EmailResponse
 
-    @POST("otp/verify")
-    suspend fun verifyOTPOld(
-        @Body request: EmailRequest
-    ): EmailResponse
+//    @POST("otp/verify")
+//    suspend fun verifyOTPOld(
+//        @Body request: EmailRequest
+//    ): EmailResponse
 
     @POST("notifications/otp/verify")
     suspend fun verifyOTPNew(

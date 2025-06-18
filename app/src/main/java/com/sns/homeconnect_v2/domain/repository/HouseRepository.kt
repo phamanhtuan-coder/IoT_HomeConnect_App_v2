@@ -17,4 +17,5 @@ interface HouseRepository {
     suspend fun updateHouse(houseID: Int, request: UpdateHouseRequest): UpdateHouseResponse
     suspend fun createHouse(request: CreateHouseRequest): CreateHouseResponse
     suspend fun getHousesByGroupId(groupId: Int): List<HouseWithSpacesResponse>
+    suspend fun deleteHouse(houseId: Int): Result<Unit>
 }

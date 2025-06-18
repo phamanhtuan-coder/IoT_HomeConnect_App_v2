@@ -23,6 +23,16 @@ class SpaceRepositoryImpl @Inject constructor(
         return apiService.getDevicesBySpaceId(spaceId, token = "Bearer $token")
     }
 
+    override suspend fun deleteSpace(spaceId: Int): Result<Unit> {
+        val token = authManager.getJwtToken()
+        return try {
+            apiService.deleteSpace(spaceId, "Bearer $token")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 //    override suspend fun getSpaces(houseId: Int): List<SpaceResponse2> {
 //        val token = authManager.getJwtToken()
 //        return apiService.getSpaces(houseId, "Bearer $token")

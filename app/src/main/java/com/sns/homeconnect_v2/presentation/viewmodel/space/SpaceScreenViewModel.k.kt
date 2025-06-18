@@ -48,4 +48,21 @@ class SpaceScreenViewModel @Inject constructor(
             if (i == index) item.copy(isRevealed = false) else item
         }
     }
+
+    fun fetchSpaces(homeId: Int) {
+        viewModelScope.launch {
+            try {
+                val result = getListSpaceUseCase(homeId)
+                result.onSuccess { spaces ->
+                    _spaces.value = spaces.map { it.copy(isRevealed = false) }
+                }.onFailure { error ->
+                    _spaces.value = emptyList()
+                    // Có thể gửi lỗi đến UI qua một StateFlow khác nếu cần
+                }
+            } catch (e: Exception) {
+                _spaces.value = emptyList()
+                // Có thể gửi lỗi đến UI qua một StateFlow khác nếu cần
+            }
+        }
+    }
 }

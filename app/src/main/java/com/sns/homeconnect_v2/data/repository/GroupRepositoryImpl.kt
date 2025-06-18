@@ -9,9 +9,11 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleReque
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import javax.inject.Inject
 
@@ -80,5 +82,35 @@ class GroupRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         val request = UpdateGroupMemberRoleRequest(accountId, role)
         apiService.updateGroupMemberRole(groupId, request, "Bearer $token")
+    }
+
+    override suspend fun deleteGroupMember(groupId: Int): Result<Unit> {
+        val token = authManager.getJwtToken()
+        return try {
+            apiService.deleteGroup(groupId, "Bearer $token")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getListHouseByGroup(groupId: Int): Result<List<House>> {
+        val token = authManager.getJwtToken()
+        return try {
+            val response = apiService.getHousesByGroup(groupId, token = "Bearer $token")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getRole(groupId: Int): Result<RoleResponse> {
+        val token = authManager.getJwtToken()
+        return try {
+            val response = apiService.getRole(groupId, "Bearer $token")
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

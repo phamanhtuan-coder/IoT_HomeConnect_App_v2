@@ -55,8 +55,10 @@ fun GroupCardSwipeable(
     onEdit: () -> Unit,
     onClick: () -> Unit
 ) {
+    // Quyền chỉnh sửa: Cho phép cả "owner" và "vice"
     val canEdit = hasPermission(role, RoleLevel.VICE)
-    val canDelete = hasPermission(role, RoleLevel.VICE)
+    // Quyền xóa: Chỉ cho phép "owner"
+    val canDelete = hasPermission(role, RoleLevel.OWNER)
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,

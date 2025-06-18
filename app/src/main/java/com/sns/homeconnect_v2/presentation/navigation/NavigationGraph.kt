@@ -210,11 +210,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 backStackEntry ->
                 val spaceViewModel: SpaceScreenViewModel= hiltViewModel()
                 val houseId = backStackEntry.arguments?.getInt("houseId") ?: -1
+                val currentUserRole= backStackEntry.arguments?.getString("currentUserRole") ?: "member"
                 HouseDetailScreen(
                     navController = navController,
                     snackbarViewModel = snackbarViewModel,
                     spaceViewModel = spaceViewModel,
-                    houseId = houseId
+                    houseId = houseId,
+                    currentUserRole = currentUserRole
                 )
             }
 //ds space detail

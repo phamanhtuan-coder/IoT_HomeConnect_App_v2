@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.remote.api
 
+import androidx.compose.ui.semantics.Role
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
@@ -59,6 +60,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
@@ -287,6 +289,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<HouseWithSpacesResponse>
 
+    @GET("houses/group/{groupId}")
+    suspend fun getHousesByGroup(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): List<House>
+
     @PUT("groups/{groupId}/members/role")
     suspend fun updateGroupMemberRole(
         @Path("groupId") groupId: Int,
@@ -327,6 +335,24 @@ interface ApiService {
         @Body body: LinkDeviceRequest,
         @Header("Authorization") token: String
     ): LinkDeviceResponse
+
+    @DELETE("groups/{groupId}")
+    suspend fun deleteGroup(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @DELETE("houses/{houseId}")
+    suspend fun deleteHouse(
+        @Path("houseId") houseId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @DELETE("spaces/{spaceId}")
+    suspend fun deleteSpace(
+        @Path("spaceId") spaceId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
 
     @POST("devices/{deviceId}/capabilities")
     suspend fun getDeviceCapabilities(
@@ -403,6 +429,19 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<SpaceResponse>
 
+    @GET("groups/role/{groupId}")
+    suspend fun getRole(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): RoleResponse
+//
+//    @PUT("spaces/{id}")
+//    suspend fun updateSpace(
+//        @Path("id") spaceId: Int,
+//        @Body body: UpdateSpaceRequest,
+//        @Header("Authorization") token: String
+//    ): SpaceResponse3
+//
     @PUT("spaces/{id}")
     suspend fun updateSpace(
         @Path("id") spaceId: Int,

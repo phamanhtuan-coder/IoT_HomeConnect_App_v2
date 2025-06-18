@@ -20,7 +20,8 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
-
+    <!-- Nếu targetSdk >= 33 (Android 13+) -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <!-- Quyền cần thiết cho Wi-Fi -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />

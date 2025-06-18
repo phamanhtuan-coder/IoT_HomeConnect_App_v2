@@ -1,5 +1,7 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
+import android.net.Uri
+
 sealed class Screens(val route: String) {
     // --- Auth screens ---
     data object Login : Screens("login")
@@ -83,9 +85,13 @@ sealed class Screens(val route: String) {
     // --- IoT Device screens ---
     data object Devices : Screens("devices")
     data object AddDevice : Screens("add_device")
-    data object DeviceDetail : Screens("device_detail/{deviceId}") {
-        fun createRoute(deviceId: Int) = "device_detail/$deviceId"
+    // Screens.kt
+    object DeviceDetail {
+        const val base = "device-detail"
+        const val route = "$base/{deviceId}"
+        fun build(deviceId: Int): String = "$base/$deviceId"
     }
+
     data object DeviceByType : Screens("device/{typeID}/{id}") {
         fun createRoute(typeID: Int, id: Int) = "device/$typeID/$id"
     }
@@ -99,7 +105,10 @@ sealed class Screens(val route: String) {
     data object ActivityHistoryDetail : Screens("activity_history_detail/{logDetails}") {
         fun createRoute(logDetails: String): String = "activity_history_detail/$logDetails"
     }
-    data object FireAlarmDetail : Screens("fire_alarm_detail")
+    // Screens.kt
+    data object FireAlarmDetail : Screens("fire_alarm_detail/{productJson}") {
+        fun createRoute(productJson: String) = "fire_alarm_detail/$productJson"
+    }
     data object DefaultDetail : Screens("default_detail/{deviceId}") {
         fun createRoute(deviceId: Int) = "default_detail/$deviceId"
     }
@@ -133,6 +142,23 @@ sealed class Screens(val route: String) {
         fun createRoute(notificationId: Int) = "detail_notifications/$notificationId"
     }
 
+    object DynamicDeviceDetail :
+        Screens("dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}") {
+
+        fun build(
+            deviceId: String,
+            deviceName: String,
+            serialNumber: String,
+            productId: String
+        ): String =
+            listOf(
+                "dynamic_device_detail",
+                Uri.encode(deviceId),
+                Uri.encode(deviceName),
+                Uri.encode(serialNumber),
+                Uri.encode(productId)
+            ).joinToString("/")
+    }
     // --- Other screens ---
     // ...add more here if needed...
 }

@@ -1,27 +1,39 @@
 package com.sns.homeconnect_v2.presentation.navigation
 
-
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 object DeviceScreenFactory {
-    private val screenMap: Map<Int, @Composable (NavHostController, Int?) -> Unit> = mapOf(
-        1 to { navController, _ ->
-            DeviceDetailScreen(navController)
-        },
-        2 to { navController, _ ->
-            FireAlarmDetailScreen(navController)
-        },
-        3 to { navController, _ ->
-            DefaultDetailScreen(navController)
-        },
-    )
-
-    fun getScreen(typeID: Int): @Composable (NavHostController, Int?) -> Unit {
-        return screenMap[typeID] ?: { navController, _ -> DefaultDetailScreen(navController) }
+    fun getScreen(
+        deviceId: String,
+        deviceName: String,
+        parentName: String?,
+        serialNumber: String,
+        product: ProductData,
+        controls: Map<String, String>,
+        snackbarViewModel: @Composable () -> SnackbarViewModel
+    ): @Composable (NavHostController) -> Unit {
+        val normalized = parentName?.trim()?.lowercase()
+        Log.d("CHECK", "parentName='$parentName', normalized='$normalized', controls=$controls")
+        return when {
+            normalized == "đèn" -> { navController ->
+                DeviceDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
+            }
+            normalized?.contains("cảm biến") == true -> { navController ->
+                FireAlarmDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
+            }
+            else -> { navController ->
+                DefaultDetailScreen(navController)
+            }
+        }
     }
-
 }
+
+
+

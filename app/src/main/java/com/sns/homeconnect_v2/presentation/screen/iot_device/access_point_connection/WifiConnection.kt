@@ -111,7 +111,6 @@ fun WifiConnectionScreen(
                                 value = passwordState.value,
                                 onValueChange = {
                                     passwordState.value = it
-                                    passwordErrorState.value = ValidationUtils.validatePassword(it)
                                 },
                                 placeholder = { Text("Mật khẩu:") },
                                 leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
@@ -144,7 +143,7 @@ fun WifiConnectionScreen(
                                 onClick = {
                                     if (ssidState.value.isEmpty() || passwordState.value.isEmpty()) {
                                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin Wi-Fi!", Toast.LENGTH_SHORT).show()
-                                    } else if (ssidErrorState.value != "SSID hợp lệ" || passwordErrorState.value != "Mật khẩu hợp lệ.") {
+                                    } else if (ssidErrorState.value != "SSID hợp lệ") {
                                         Toast.makeText(context, "Vui lòng sửa lỗi trong thông tin Wi-Fi!", Toast.LENGTH_SHORT).show()
                                     } else {
                                         coroutineScope.launch {

@@ -13,6 +13,7 @@ import com.sns.homeconnect_v2.data.repository.GroupRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.SocketRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserActivityRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
@@ -25,6 +26,7 @@ import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
+import com.sns.homeconnect_v2.domain.repository.SocketRepository
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import com.sns.homeconnect_v2.domain.repository.UserActivityRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
@@ -129,6 +131,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindEcomRepository(impl: EcomRepositoryImpl): EcomRepository
+
+
 
     companion object {
         @Provides
@@ -426,5 +430,10 @@ abstract class RepositoryModule {
             return UpdateDeviceStateUseCase(repository)
         }
 
+        @Provides
+        @Singleton
+        fun provideSocketRepository(): SocketRepository {
+            return SocketRepositoryImpl()
+        }
     }
 }

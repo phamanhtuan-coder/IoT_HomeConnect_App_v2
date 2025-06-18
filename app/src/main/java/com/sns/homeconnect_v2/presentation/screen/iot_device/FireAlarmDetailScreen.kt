@@ -62,6 +62,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -94,11 +95,36 @@ fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceID: String,
     deviceName: String,
-    serialNumber: String? = null,
+    serialNumber: String,
     product: ProductData,
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
+    val deviceViewModel: DeviceViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        deviceViewModel.initSocket(deviceID, serialNumber)
+    }
+
+    /* ---------- STATE CHO MỖI SLIDER ---------- */
+    var gasSliderValue by remember { mutableFloatStateOf(20f) }
+    var tempSliderValue by remember { mutableFloatStateOf(50f) }
+    var humiditySliderValue by remember { mutableFloatStateOf(0f) }
+
+    val sensorJson = deviceViewModel.sensorData.value
+
+    LaunchedEffect(sensorJson) {
+        sensorJson?.let { json ->
+            val gas = json.optInt("gas", -1)
+            val temp = json.optInt("temp", -1)
+            val hum = json.optInt("hum", -1)
+
+            if (gas != -1) gasSliderValue = gas.toFloat()
+            if (temp != -1) tempSliderValue = temp.toFloat()
+            if (hum != -1) humiditySliderValue = hum.toFloat()
+        }
+    }
+
     var rowWidth by remember { mutableIntStateOf(0) }
     val smokeLevel by remember { mutableIntStateOf(20) }
     val temperature by remember { mutableIntStateOf(50) }
@@ -124,11 +150,6 @@ fun FireAlarmDetailScreen(
     var showConfirm        by remember { mutableStateOf(false) }
 
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
-
-    /* ---------- STATE CHO MỖI SLIDER ---------- */
-    var gasSliderValue      by remember { mutableFloatStateOf(smokeLevel.toFloat()) }  // slider khí gas
-    var tempSliderValue     by remember { mutableFloatStateOf(temperature.toFloat()) } // slider nhiệt độ
-    var humiditySliderValue by remember { mutableFloatStateOf(coLevel.toFloat()) }     // slider độ ẩm
 
 //    val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
@@ -218,6 +239,14 @@ fun FireAlarmDetailScreen(
 //            /* Do nothing */
 //        }
 //    }
+
+    val deviceStatusJson = deviceViewModel.deviceStatus.value
+    LaunchedEffect(deviceStatusJson) {
+        deviceStatusJson?.let {
+            val status = it.optString("status", "unknown")
+            Log.d("SocketStatus", "Thiết bị đang $status")
+        }
+    }
 
 
     var showAlertDialog by remember { mutableStateOf(false) }
@@ -332,6 +361,13 @@ fun FireAlarmDetailScreen(
                                         )
                                     }
 
+                                    val onlineStatus = deviceStatusJson?.optString("status", "unknown") ?: "unknown"
+                                    val statusColor = when (onlineStatus) {
+                                        "online" -> Color.Green
+                                        "offline" -> Color.Red
+                                        else -> Color.Gray
+                                    }
+
                                     Text(
                                         "Trạng thái hiện tại: ",
                                         color = colorScheme.onPrimary,
@@ -339,10 +375,10 @@ fun FireAlarmDetailScreen(
                                     )
 
                                     Text(
-                                        statusList[status],
+                                        text = onlineStatus.uppercase().toString(),
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 25.sp,
-                                        color = colorScheme.onPrimary
+                                        fontSize = 18.sp,
+                                        color = statusColor
                                     )
                                 }
 

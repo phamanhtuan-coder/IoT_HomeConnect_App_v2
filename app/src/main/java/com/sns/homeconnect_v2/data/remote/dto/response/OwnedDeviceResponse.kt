@@ -5,7 +5,7 @@ import com.google.gson.JsonElement
 data class OwnedDeviceResponse(
     val device_id: String,
     val serial_number: String,
-    val template_id: String?,
+    val template_id: String,
     val space_id: Int?,
     val account_id: String?,
     val hub_id: String?,

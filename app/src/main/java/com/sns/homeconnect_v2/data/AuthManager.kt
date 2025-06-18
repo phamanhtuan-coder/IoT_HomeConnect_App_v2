@@ -24,5 +24,9 @@ class AuthManager @Inject constructor(
         val token = getJwtToken()
         return getUserIdFromToken(token) ?: ""
     }
+
+    // ✅ THÊM MỚI — dùng cho socket (accountId)
+    fun saveAccountId(accountId: String) = prefs.edit().putString("ACCOUNT_ID", accountId).apply()
+    fun getAccountId(): String = prefs.getString("ACCOUNT_ID", "") ?: ""
 }
 

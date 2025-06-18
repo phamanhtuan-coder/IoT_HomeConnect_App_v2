@@ -177,6 +177,7 @@ fun DetailSpaceScreen(
                                         spaceViewModel.updateRevealState(i)
                                     }
                                 },
+                                onClick = {},
                                 onCollapse = {
                                     spaceViewModel.updateRevealState(deviceIndex)
                                 },

@@ -60,7 +60,7 @@ fun LoginScreen(
         val configuration = LocalConfiguration.current
         val isTablet = configuration.screenWidthDp >= 600
         val colorScheme = MaterialTheme.colorScheme
-        val emailState = remember { mutableStateOf("Sang123021") }
+        val emailState = remember { mutableStateOf("TestThietBi123") }
         val passwordState = remember { mutableStateOf("Pass@123") }
         //        var passwordVisible by remember { mutableStateOf(false) }
         val emailErrorState = remember { mutableStateOf("") }

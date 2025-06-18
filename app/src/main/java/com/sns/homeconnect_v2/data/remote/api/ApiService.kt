@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CheckEmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
@@ -44,14 +45,24 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.CreateSpaceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Space
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.House
@@ -343,6 +354,33 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Unit>
 
+    @POST("devices/{deviceId}/capabilities")
+    suspend fun getDeviceCapabilities(
+        @Path("deviceId") deviceId: String,
+        @Body request: DeviceCapabilitiesRequest,
+        @Header("Authorization") token: String
+    ): DeviceCapabilitiesResponse
+
+    @GET("devices/{deviceId}/state")
+    suspend fun getDeviceState(
+        @Path("deviceId") deviceId: String,
+        @Query("serial_number") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DeviceStateResponse
+
+    @POST("devices/{deviceId}/state")
+    suspend fun updateDeviceState(
+        @Path("deviceId") deviceId: String,
+        @Body request: UpdateDeviceStateRequest,
+        @Header("Authorization") token: String
+    ): UpdateDeviceStateResponse
+
+    @POST("devices/{deviceId}/state/bulk")
+    suspend fun updateDeviceStateBulk(
+        @Path("deviceId") deviceId: String,
+        @Body request: BulkDeviceStateUpdateRequest
+    ): BulkDeviceStateUpdateResponse
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
@@ -404,6 +442,13 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): SpaceResponse3
 //
+    @PUT("spaces/{id}")
+    suspend fun updateSpace(
+        @Path("id") spaceId: Int,
+        @Body body: UpdateSpaceRequest,
+        @Header("Authorization") token: String
+    ): SpaceResponse
+
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

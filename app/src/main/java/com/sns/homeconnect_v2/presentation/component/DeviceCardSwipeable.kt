@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -55,10 +56,12 @@ fun DeviceCardSwipeable(
     deviceName: String = "",
     roomName: String = "",
     isRevealed: Boolean = false,
+    deviceTypeLabel: String = "",
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
     onDelete: () -> Unit,
-    onEdit: () -> Unit
+    onEdit: () -> Unit,
+    onClick: () -> Unit
 ) {
     var isChecked by remember { mutableStateOf(false) }
 
@@ -84,6 +87,7 @@ fun DeviceCardSwipeable(
         Row(
             modifier = Modifier
                 .background(color = Color(0xFFD8E4E8))
+                .clickable { onClick() }
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -101,6 +105,14 @@ fun DeviceCardSwipeable(
                     style = MaterialTheme.typography.bodyMedium.copy(fontSize = MaterialTheme.typography.bodyLarge.fontSize),
                     color = Color.Black
                 )
+
+                if (deviceTypeLabel.isNotBlank()) {
+                    Text(
+                        text = deviceTypeLabel,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.DarkGray
+                    )
+                }
             }
 
             CustomSwitch(isCheck = isChecked, onCheckedChange = { isChecked = it })
@@ -133,6 +145,7 @@ fun DeviceCardSwipeablePreview() {
                         deviceList[i] = deviceList[i].copy(isRevealed = i == index)
                     }
                 },
+                onClick = { /* TODO: Handle click */ },
                 onCollapse = {
                     deviceList[index] = device.copy(isRevealed = false)
                 },

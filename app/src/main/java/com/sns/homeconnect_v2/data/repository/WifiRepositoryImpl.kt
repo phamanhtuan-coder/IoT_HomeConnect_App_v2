@@ -1,8 +1,6 @@
 package com.sns.homeconnect_v2.data.repository
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -19,11 +17,13 @@ import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.core.util.Result
 import com.sns.homeconnect_v2.domain.repository.WifiRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 @RequiresApi(Build.VERSION_CODES.R)
 class WifiRepositoryImpl @Inject constructor(
@@ -47,22 +47,33 @@ class WifiRepositoryImpl @Inject constructor(
                 return@withContext Result.Error("Wi-Fi is disabled. Please enable Wi-Fi in settings.")
             }
 
-            val scanResults = mutableListOf<ScanResult>()
-            wifiManager.registerScanResultsCallback(
-                ContextCompat.getMainExecutor(context),
-                object : WifiManager.ScanResultsCallback() {
+            wifiManager.startScan()
+
+            val result = suspendCancellableCoroutine<Result<List<ScanResult>>> { continuation ->
+                val executor = ContextCompat.getMainExecutor(context)
+
+                val callback = object : WifiManager.ScanResultsCallback() {
                     override fun onScanResultsAvailable() {
-                        scanResults.addAll(
-                            wifiManager.scanResults
-                                .filter { it.SSID?.isNotEmpty() == true }
-                                .distinctBy { it.SSID }
-                        )
+                        val results = wifiManager.scanResults
+                            .filter { it.SSID?.isNotEmpty() == true }
+                            .distinctBy { it.SSID }
+
+                        wifiManager.unregisterScanResultsCallback(this)
+                        continuation.resume(Result.Success(results))
                     }
                 }
-            )
-            // Wait briefly for scan results
-            Thread.sleep(2000)
-            Result.Success(scanResults)
+
+                wifiManager.registerScanResultsCallback(executor, callback)
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    if (continuation.isActive) {
+                        wifiManager.unregisterScanResultsCallback(callback)
+                        continuation.resume(Result.Error("Scan timeout"))
+                    }
+                }, 5000)
+            }
+
+            return@withContext result
         } catch (e: SecurityException) {
             Result.Error("Permission denied: ${e.message}")
         } catch (e: Exception) {
@@ -86,16 +97,15 @@ class WifiRepositoryImpl @Inject constructor(
                     connectivityManager.bindProcessToNetwork(network)
                     isConnected = true
                 }
+
                 override fun onUnavailable() {
                     isConnected = false
                 }
             }
             connectivityManager.requestNetwork(networkRequest, callback)
-            // Timeout after 30 seconds
             Handler(Looper.getMainLooper()).postDelayed({
                 connectivityManager.unregisterNetworkCallback(callback)
             }, 30000)
-            // Wait briefly to check connection
             Thread.sleep(5000)
             if (isConnected) Result.Success(true) else Result.Error("Failed to connect to $ssid")
         } catch (e: Exception) {
@@ -103,21 +113,27 @@ class WifiRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendWifiCredentials(espIp: String, port: Int, ssid: String, password: String): Result<String> = withContext(Dispatchers.IO) {
+    override suspend fun sendWifiCredentials(
+        espIp: String,
+        port: Int,
+        ssid: String,
+        password: String
+    ): Result<String> = withContext(Dispatchers.IO) {
         try {
             val socket = DatagramSocket()
-            socket.soTimeout = 5000 // 5-second timeout
+            socket.soTimeout = 5000
             val address = InetAddress.getByName(espIp)
             val data = "SSID=$ssid;PASSWORD=$password;"
             val buffer = data.toByteArray()
             val packet = DatagramPacket(buffer, buffer.size, address, port)
             socket.send(packet)
-            // Receive response
+
             val responseBuffer = ByteArray(256)
             val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
             socket.receive(responsePacket)
             val response = String(responsePacket.data, 0, responsePacket.length)
             socket.close()
+
             if (response.contains("SUCCESS")) {
                 Result.Success(response)
             } else {

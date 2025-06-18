@@ -28,6 +28,7 @@ import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
 import com.sns.homeconnect_v2.core.util.validation.toIcon
+import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
@@ -42,6 +43,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.house.GetHouseViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.DeleteSpaceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.UpdateSpaceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -61,11 +63,30 @@ fun HouseDetailScreen(
     val scope = rememberCoroutineScope()
     val deletespace: DeleteSpaceViewModel = hiltViewModel()
     val deteteState by deletespace.deleteState.collectAsState()
+    val updateSpaceViewModel: UpdateSpaceViewModel = hiltViewModel()
+    val snackbarViewModel: SnackbarViewModel = hiltViewModel()
 
+    val spaceDetail by updateSpaceViewModel.updatespace.collectAsState()
 
-    LaunchedEffect(Unit) {
-        spaceViewModel.getSpaces(houseId)
+    // Trạng thái cho bottom sheet
+    var isSheetVisible by remember { mutableStateOf(false) }
+    var spaceNameInput by remember { mutableStateOf(spaceDetail?.space_name ?: "") }
+    var iconNameInput by remember { mutableStateOf(spaceDetail?.icon_name ?: "") }
+    var iconColorInput by remember { mutableStateOf(spaceDetail?.icon_color ?: "") }
+    var descriptionInput by remember { mutableStateOf(spaceDetail?.space_description ?: "") }
+
+    LaunchedEffect(spaceDetail) {
+        // Cập nhật input khi spaceDetail thay đổi
+        spaceNameInput = spaceDetail?.space_name ?: ""
+        iconNameInput = spaceDetail?.icon_name ?: ""
+        iconColorInput = spaceDetail?.icon_color ?: ""
+        descriptionInput = spaceDetail?.space_description ?: ""
     }
+
+    val scope = rememberCoroutineScope()
+
+
+
     val spaces by spaceViewModel.spaces.collectAsState()
     Log.d("spaces", spaces.toString())
     Log.d("houseId", houseId.toString())
@@ -98,6 +119,11 @@ fun HouseDetailScreen(
 
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        spaceViewModel.getSpaces(houseId)
+
+    }
+
     Log.d("HouseDetailScreen", houseState.toString())
 
 
@@ -113,7 +139,7 @@ fun HouseDetailScreen(
         val fabOptions = listOf(
             FabChild(
                 Icons.Default.Edit,
-                onClick = { /* TODO: sửa */ },
+                onClick = {},
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             ),
@@ -125,7 +151,10 @@ fun HouseDetailScreen(
             ),
             FabChild(
                 Icons.Default.Add,
-                onClick = { /* TODO: share */ },
+                onClick = {
+//                    //chuyển sang màn hình tạo không gian
+//                    navController.navigate(Screens.AddSpace.createRoute(houseId))
+                },
                 containerColor = colorScheme.primary,
                 contentColor = colorScheme.onPrimary
             )
@@ -249,6 +278,9 @@ fun HouseDetailScreen(
                 LazyColumn {
                     itemsIndexed(spaces) { index, space ->
                         Spacer(Modifier.height(8.dp))
+
+                        updateSpaceViewModel.updateSpace(space.space_id, spaceNameInput, iconNameInput, iconColorInput, descriptionInput)
+
                         SpaceCardSwipeable(
                             spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,
@@ -262,16 +294,22 @@ fun HouseDetailScreen(
                             onCollapse = {
                                 spaceViewModel.collapseItem(index)
                             },
+
                             onDelete = {
                                 //xóa space
                                 showDeleteDialog = true
                             },
-                            onEdit = { /* TODO */ },
+                                           
+                            onEdit = {
+                                isSheetVisible = true
+
+                            },
                             onClick = {
                                 navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
                                 Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
                             }
                         )
+
 
                         // Delete confirmation dialog
                         if (showDeleteDialog) {
@@ -301,6 +339,88 @@ fun HouseDetailScreen(
                             )
                         }
 
+                        // Bottom Sheet để chỉnh sửa space
+                        BottomSheetWithTrigger(
+                            isSheetVisible = isSheetVisible,
+                            onDismiss = { isSheetVisible = false }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Chỉnh sửa Space",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                OutlinedTextField(
+                                    value = spaceNameInput,
+                                    onValueChange = { spaceNameInput = it },
+                                    label = { Text("Tên Space") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = iconNameInput,
+                                    onValueChange = { iconNameInput = it },
+                                    label = { Text("Tên Icon (ví dụ: living-room)") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = iconColorInput,
+                                    onValueChange = { iconColorInput = it },
+                                    label = { Text("Màu Icon (ví dụ: #3366FF)") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = descriptionInput,
+                                    onValueChange = { descriptionInput = it },
+                                    label = { Text("Mô tả") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp)
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    TextButton(
+                                        onClick = { isSheetVisible = false }
+                                    ) {
+                                        Text("Hủy")
+                                    }
+                                    Button(
+                                        onClick = {
+                                            scope.launch {
+                                                try {
+                                                    updateSpaceViewModel.updateSpace(
+                                                        spaceId = space.space_id,
+                                                        name = spaceNameInput,
+                                                        iconName = iconNameInput.takeIf { it.isNotBlank() },
+                                                        iconColor = iconColorInput.takeIf { it.isNotBlank() },
+                                                        description = descriptionInput.takeIf { it.isNotBlank() }
+                                                    )
+                                                    snackbarViewModel.showSnackbar("Cập nhật space thành công")
+                                                    isSheetVisible = false
+                                                } catch (e: Exception) {
+                                                    snackbarViewModel.showSnackbar("Lỗi: ${e.message}")
+                                                }
+                                            }
+                                        },
+                                        enabled = spaceNameInput.isNotBlank()
+                                    ) {
+                                        Text("Lưu")
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     item {
@@ -323,6 +443,7 @@ fun HouseDetailScreen(
                         )
                     }
                 }
+
             }
         }
     }

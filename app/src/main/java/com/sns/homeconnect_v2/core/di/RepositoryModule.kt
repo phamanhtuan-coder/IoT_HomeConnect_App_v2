@@ -4,13 +4,16 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.api.EcomApiService
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.EcomRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.GroupRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.SocketRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserActivityRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
@@ -18,10 +21,12 @@ import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
 import com.sns.homeconnect_v2.domain.repository.AlertRepository
 import com.sns.homeconnect_v2.domain.repository.AuthRepository
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
+import com.sns.homeconnect_v2.domain.repository.EcomRepository
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
+import com.sns.homeconnect_v2.domain.repository.SocketRepository
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import com.sns.homeconnect_v2.domain.repository.UserActivityRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
@@ -65,8 +70,18 @@ import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.DeleteSpaceUseCase
+import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceCapabilitiesUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceStateUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.UpdateDeviceStateUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
+import com.sns.homeconnect_v2.domain.usecase.space.UpdateSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import dagger.Binds
@@ -123,6 +138,12 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindUserActivityRepository(impl: UserActivityRepositoryImpl): UserActivityRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindEcomRepository(impl: EcomRepositoryImpl): EcomRepository
+
+
 
     companion object {
         @Provides
@@ -278,6 +299,16 @@ abstract class RepositoryModule {
         @Provides
         @Singleton
         fun provideGetSpaceDetailUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {
+          
+        @Provides
+        @Singleton
+        fun provideUpdateSpaceUseCase(spaceRepository: SpaceRepository): UpdateSpaceUseCase {
+            return UpdateSpaceUseCase(spaceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceBySpaceUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {
             return GetSpaceDetailUseCase(spaceRepository)
         }
 
@@ -388,6 +419,42 @@ abstract class RepositoryModule {
         @Singleton
         fun provideListOfUserOwnedDevicesUseCase(deviceRepository: DeviceRepository): ListOfUserOwnedDevicesUseCase {
             return ListOfUserOwnedDevicesUseCase(deviceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceDisplayInfoUseCase(
+            ecomRepository: EcomRepository
+        ): GetDeviceDisplayInfoUseCase {
+            return GetDeviceDisplayInfoUseCase(ecomRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceCapabilitiesUseCase(deviceRepository: DeviceRepository): GetDeviceCapabilitiesUseCase {
+            return GetDeviceCapabilitiesUseCase(deviceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideGetDeviceStateUseCase(
+            deviceRepository: DeviceRepository
+        ): GetDeviceStateUseCase {
+            return GetDeviceStateUseCase(deviceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideUpdateDeviceStateUseCase(
+            repository: DeviceRepository
+        ): UpdateDeviceStateUseCase {
+            return UpdateDeviceStateUseCase(repository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideSocketRepository(): SocketRepository {
+            return SocketRepositoryImpl()
         }
     }
 }

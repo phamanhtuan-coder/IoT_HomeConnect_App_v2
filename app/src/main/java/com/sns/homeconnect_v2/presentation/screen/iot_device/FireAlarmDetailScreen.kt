@@ -48,6 +48,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
@@ -61,9 +62,11 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.collections.contains
 
 /**
  * Enum class đại diện cho các hành động khác nhau có thể được thực hiện trên một thiết bị.
@@ -90,10 +93,38 @@ enum class DeviceAction {
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
+    deviceID: String,
+    deviceName: String,
+    serialNumber: String,
+    product: ProductData,
+    controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
-//    deviceID: Int?,
-//    viewModel: FireAlarmDetailViewModel = hiltViewModel(),
 ) {
+    val deviceViewModel: DeviceViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        deviceViewModel.initSocket(deviceID, serialNumber)
+    }
+
+    /* ---------- STATE CHO MỖI SLIDER ---------- */
+    var gasSliderValue by remember { mutableFloatStateOf(20f) }
+    var tempSliderValue by remember { mutableFloatStateOf(50f) }
+    var humiditySliderValue by remember { mutableFloatStateOf(0f) }
+
+    val sensorJson = deviceViewModel.sensorData.value
+
+    LaunchedEffect(sensorJson) {
+        sensorJson?.let { json ->
+            val gas = json.optInt("gas", -1)
+            val temp = json.optInt("temp", -1)
+            val hum = json.optInt("hum", -1)
+
+            if (gas != -1) gasSliderValue = gas.toFloat()
+            if (temp != -1) tempSliderValue = temp.toFloat()
+            if (hum != -1) humiditySliderValue = hum.toFloat()
+        }
+    }
+
     var rowWidth by remember { mutableIntStateOf(0) }
     val smokeLevel by remember { mutableIntStateOf(20) }
     val temperature by remember { mutableIntStateOf(50) }
@@ -119,11 +150,6 @@ fun FireAlarmDetailScreen(
     var showConfirm        by remember { mutableStateOf(false) }
 
     var infoDevice by remember { mutableStateOf<DeviceResponse?>(null) } // Lắng nghe danh sách thiết bị
-
-    /* ---------- STATE CHO MỖI SLIDER ---------- */
-    var gasSliderValue      by remember { mutableFloatStateOf(smokeLevel.toFloat()) }  // slider khí gas
-    var tempSliderValue     by remember { mutableFloatStateOf(temperature.toFloat()) } // slider nhiệt độ
-    var humiditySliderValue by remember { mutableFloatStateOf(coLevel.toFloat()) }     // slider độ ẩm
 
 //    val infoDeviceState by viewModel.infoDeviceState.collectAsState()
 
@@ -214,6 +240,14 @@ fun FireAlarmDetailScreen(
 //        }
 //    }
 
+    val deviceStatusJson = deviceViewModel.deviceStatus.value
+    LaunchedEffect(deviceStatusJson) {
+        deviceStatusJson?.let {
+            val status = it.optString("status", "unknown")
+            Log.d("SocketStatus", "Thiết bị đang $status")
+        }
+    }
+
 
     var showAlertDialog by remember { mutableStateOf(false) }
     if (showAlertDialog) {
@@ -230,6 +264,32 @@ fun FireAlarmDetailScreen(
             }
         )
     }
+
+    val sliderKeys = listOf(
+        "gas" to "Khí gas",
+        "temp" to "Nhiệt độ",
+        "hum" to "Độ ẩm"
+    )
+    val sliderStates = mapOf(
+        "gas" to gasSliderValue,
+        "temp" to tempSliderValue,
+        "hum" to humiditySliderValue
+    )
+    val sliderSetters = mapOf(
+        "gas" to { v: Float -> gasSliderValue = v },
+        "temp" to { v: Float -> tempSliderValue = v },
+        "hum" to { v: Float -> humiditySliderValue = v }
+    )
+    val sliderValues = mapOf(
+        "gas" to smokeLevel,
+        "temp" to temperature,
+        "hum" to coLevel
+    )
+    val sliderUnits = mapOf(
+        "gas" to "ppm",
+        "temp" to "°C",
+        "hum" to "%"
+    )
 
     val colorScheme = MaterialTheme.colorScheme
     IoTHomeConnectAppTheme {
@@ -286,7 +346,27 @@ fun FireAlarmDetailScreen(
                                     ) // Tiêu đề
 
                                     // Switch bật/tắt đèn
-                                    CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
+                                    if (controls["power_status"] == "toggle") {     // ✅ so sánh luôn kiểu control
+                                        CustomSwitch(
+                                            isCheck = isCheck,
+                                            onCheckedChange = {
+                                                isCheck = it
+                                                Log.d("Switch", "serial=$serialNumber, deviceId=$deviceID, power=$it")
+//                                                displayViewModel.updateDeviceState(
+//                                                    deviceId = deviceId,
+//                                                    serial   = serialNumber,
+//                                                    power    = it
+//                                                )
+                                            }
+                                        )
+                                    }
+
+                                    val onlineStatus = deviceStatusJson?.optString("status", "unknown") ?: "unknown"
+                                    val statusColor = when (onlineStatus) {
+                                        "online" -> Color.Green
+                                        "offline" -> Color.Red
+                                        else -> Color.Gray
+                                    }
 
                                     Text(
                                         "Trạng thái hiện tại: ",
@@ -295,10 +375,10 @@ fun FireAlarmDetailScreen(
                                     )
 
                                     Text(
-                                        statusList[status],
+                                        text = onlineStatus.uppercase().toString(),
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 25.sp,
-                                        color = colorScheme.onPrimary
+                                        fontSize = 18.sp,
+                                        color = statusColor
                                     )
                                 }
 
@@ -339,7 +419,7 @@ fun FireAlarmDetailScreen(
                                     onClick = {
                                         navController.navigate(
                                             Screens.AccessPoint.route +
-                                                    "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}"
+                                                    "?id=${deviceID}&name=${"Lamp"}"
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)
@@ -351,35 +431,9 @@ fun FireAlarmDetailScreen(
                                         modifier = Modifier.size(32.dp)
                                     )
                                 }
-
-                                /* ---------- DIALOG ---------- */
-                                if (showDialog) {
-                                    val typeName = when (safeDevice.TypeID) {
-                                        1 -> "Fire Alarm"
-                                        2, 3 -> "LED Light"
-                                        else -> ""
-                                    }
-                                    AlertDialog(
-                                        onDismissRequest = { showDialog = false },
-                                        title = { Text("Thông tin thiết bị") },
-                                        text = {
-                                            Column {
-                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                Text("Loại thiết bị: $typeName")
-                                            }
-                                        },
-                                        confirmButton = {
-                                            TextButton(onClick = { showDialog = false }) {
-                                                Text("Đóng")
-                                            }
-                                        }
-                                    )
-                                }
                             }
                         }
                     }
-
                     item {
                         Column(
                             modifier = Modifier
@@ -398,95 +452,38 @@ fun FireAlarmDetailScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-
-                                // Sử dụng hàm InfoRow để hiển thị thông tin
-                                InfoRow(
-                                    label = "Khí gas:",
-                                    value = "$smokeLevel",
-                                    unit = "ppm",
-                                    stateColor = when {
-                                        smokeLevel > 50 -> Color.Red
-                                        smokeLevel < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        smokeLevel > 50 -> "!"
-                                        smokeLevel < 0 -> "?"
-                                        else -> "✓"
+                                sliderKeys.forEach { (key, label) ->
+                                    if (controls[key] == "slider") { // Đúng kiểu slider trong controls
+                                        InfoRow(
+                                            label = "$label:",
+                                            value = "${sliderValues[key]}",
+                                            unit = sliderUnits[key] ?: "",
+                                            stateColor = when (key) {
+                                                "gas" -> if (smokeLevel > 50) Color.Red else if (smokeLevel < 0) Color.Yellow else Color.Green
+                                                "temp" -> if (temperature > 40) Color.Red else if (temperature < 0) Color.Yellow else Color.Green
+                                                "hum" -> if (coLevel > 40) Color.Red else if (coLevel < 0) Color.Yellow else Color.Green
+                                                else -> Color.Green
+                                            },
+                                            stateText = when (key) {
+                                                "gas" -> if (smokeLevel > 50) "!" else if (smokeLevel < 0) "?" else "✓"
+                                                "temp" -> if (temperature > 40) "!" else if (temperature < 0) "?" else "✓"
+                                                "hum" -> if (coLevel > 40) "!" else if (coLevel < 0) "?" else "✓"
+                                                else -> "✓"
+                                            }
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        EdgeToEdgeSlider(
+                                            value = sliderStates[key] ?: 0f,
+                                            onValueChange = sliderSetters[key] ?: {},
+                                            activeTrackColor = Color.Red,
+                                            inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+                                            thumbColor = Color.Red,
+                                            thumbBorderColor = Color.DarkGray,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = gasSliderValue,
-                                    onValueChange = { gasSliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                InfoRow(
-                                    label = "Nhiệt độ:",
-                                    value = "$temperature",
-                                    unit = "°C",
-                                    stateColor = when {
-                                        temperature > 40 -> Color.Red
-                                        temperature < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        temperature > 40 -> "!"
-                                        temperature < 0 -> "?"
-                                        else -> "✓"
-                                    }
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = tempSliderValue,
-                                    onValueChange = { tempSliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                InfoRow(
-                                    label = "Độ ẩm:",
-                                    value = "$coLevel",
-                                    unit = "%",
-                                    stateColor = when {
-                                        coLevel > 40 -> Color.Red
-                                        coLevel < 0 -> Color.Yellow
-                                        else -> Color.Green
-                                    },
-                                    stateText = when {
-                                        coLevel > 40 -> "!"
-                                        coLevel < 0 -> "?"
-                                        else -> "✓"
-                                    }
-
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-                                // TODO: Thêm Slider bên nhánh lamp detail
-                                EdgeToEdgeSlider(
-                                    value         = humiditySliderValue,
-                                    onValueChange = { humiditySliderValue = it },
-                                    activeTrackColor = Color.Red,
-                                    inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                    thumbColor = Color.Red,
-                                    thumbBorderColor = Color.DarkGray,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
 
                             /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */
@@ -691,24 +688,6 @@ fun FireAlarmDetailScreen(
                     }
                 }
             }
-        )
-    }
-}
-
-/* ---------- PREVIEWS ---------- */
-@Preview(
-    showBackground = true,
-    widthDp = 360,
-    heightDp = 800,
-    name = "FireAlarmDetail – Phone"
-)
-
-@Composable
-fun FireAlarmDetailPhonePreview() {
-    IoTHomeConnectAppTheme {
-        FireAlarmDetailScreen(
-            navController = rememberNavController(),
-//            deviceID = 0            // dummy id
         )
     }
 }

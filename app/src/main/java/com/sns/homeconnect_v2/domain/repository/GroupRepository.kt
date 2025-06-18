@@ -6,9 +6,11 @@ import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.GroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.MemberResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 
 interface GroupRepository {
     suspend fun createGroup(request: CreateGroupRequest): Result<CreateGroupResponse>
@@ -21,4 +23,7 @@ interface GroupRepository {
         accountId: String,
         role: String
     ): Result<UpdateGroupMemberRoleResponse>
+    suspend fun deleteGroupMember(groupId: Int): Result<Unit>
+    suspend fun getListHouseByGroup(groupId: Int): Result<List<House>>
+    suspend fun getRole(groupId: Int): Result<RoleResponse>
 }

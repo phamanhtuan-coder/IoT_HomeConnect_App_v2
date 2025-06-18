@@ -54,12 +54,12 @@ sealed class Screens(val route: String) {
     data object EditSpace : Screens("edit_space/{spaceId}") {
         fun createRoute(spaceId: Int) = "edit_space/$spaceId"
     }
-    data object SpaceDetail : Screens("space_detail/{spaceId}") {
+    data object SpaceDetail : Screens("space_detail/{spaceId}/") {
         fun createRoute(spaceId: Int) = "space_detail/$spaceId"
     }
 
-    data object ListSpace : Screens("list_space/{houseId}") {
-        fun createRoute(houseId: Int) = "list_space/$houseId"
+    data object ListSpace : Screens("list_space/{houseId}/{currentUserRole}") {
+        fun createRoute(houseId: Int,currentUserRole: String) = "list_space/$houseId/$currentUserRole"
     }
 
     // --- Group screens ---

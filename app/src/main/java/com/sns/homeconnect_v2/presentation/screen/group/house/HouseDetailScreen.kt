@@ -25,6 +25,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
 import com.sns.homeconnect_v2.core.util.validation.toIcon
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
@@ -35,9 +36,11 @@ import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.group.GetRoleViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.house.GetHouseViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.DeleteSpaceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,10 +54,13 @@ fun HouseDetailScreen(
 //    houseAddress: String,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
     spaceViewModel:SpaceScreenViewModel = hiltViewModel(),
-    houseId:Int
+    houseId:Int,
+    currentUserRole: String,
 ) {
 
     val scope = rememberCoroutineScope()
+    val deletespace: DeleteSpaceViewModel = hiltViewModel()
+    val deteteState by deletespace.deleteState.collectAsState()
 
 
     LaunchedEffect(Unit) {
@@ -70,7 +76,30 @@ fun HouseDetailScreen(
         houseViewModel.getHouse(houseId)
     }
 
+    // Xử lý trạng thái xóa nhóm
+    LaunchedEffect(deteteState) {
+        deteteState?.let { result ->
+            if (result.isSuccess) {
+                snackbarViewModel.showSnackbar(
+                    msg = "Xóa nhóm thành công",
+                    variant = SnackbarVariant.SUCCESS
+                )
+                spaceViewModel.fetchSpaces(houseId) // Làm mới danh sách nhóm
+                deletespace.resetDeleteState()
+            } else {
+                snackbarViewModel.showSnackbar(
+                    msg = "Lỗi khi xóa nhóm: ${result.exceptionOrNull()?.message ?: "Unknown error"}",
+                    variant = SnackbarVariant.ERROR
+                )
+                deletespace.resetDeleteState()
+            }
+        }
+    }
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Log.d("HouseDetailScreen", houseState.toString())
+
 
 //    val spaces = remember {
 //        mutableStateListOf(
@@ -184,7 +213,6 @@ fun HouseDetailScreen(
                                     )
                                 }
                             }
-
                             // Phải: nút sửa
                             Column(
                                 modifier = Modifier.align(Alignment.CenterEnd)
@@ -221,28 +249,58 @@ fun HouseDetailScreen(
                 LazyColumn {
                     itemsIndexed(spaces) { index, space ->
                         Spacer(Modifier.height(8.dp))
-
                         SpaceCardSwipeable(
                             spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,
                             icon = space.icon_name?.toIcon() ?: Icons.Default.Home,
                             iconColor = space.icon_color?.toColor()?: Color.Gray,
                             isRevealed = space.isRevealed,
+                            role = currentUserRole,
                             onExpandOnly = {
-                                spaces.indices.forEach { i ->
-                                    spaceViewModel.updateRevealState(i)
-                                }
+                                spaceViewModel.updateRevealState(index)
                             },
                             onCollapse = {
                                 spaceViewModel.collapseItem(index)
                             },
-                            onDelete = {  },
+                            onDelete = {
+                                //xóa space
+                                showDeleteDialog = true
+                            },
                             onEdit = { /* TODO */ },
                             onClick = {
                                 navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
                                 Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
                             }
                         )
+
+                        // Delete confirmation dialog
+                        if (showDeleteDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDeleteDialog = false },
+                                title = { Text(text = "Xác nhận xóa nhóm") },
+                                text = { Text(text = "Bạn có chắc chắn muốn xóa không gian này không? ") },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            deletespace.deleteSpace(space.space_id)
+                                            showDeleteDialog = false
+                                        }
+                                    ) {
+                                        Text("Xác nhận", color = colorScheme.error)
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = {
+                                            showDeleteDialog = false
+                                        }
+                                    ) {
+                                        Text("Hủy")
+                                    }
+                                }
+                            )
+                        }
+
                     }
 
                     item {

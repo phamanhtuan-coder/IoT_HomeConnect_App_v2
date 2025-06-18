@@ -54,7 +54,7 @@ fun HouseCardSwipeable(
 ){
     Log.d("HouseCardSwipeable", "role: $role, isRevealed: $isRevealed")
     val canEdit = hasPermission(role, RoleLevel.VICE)
-    val canDelete = hasPermission(role, RoleLevel.VICE)
+    val canDelete = hasPermission(role, RoleLevel.OWNER)
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,

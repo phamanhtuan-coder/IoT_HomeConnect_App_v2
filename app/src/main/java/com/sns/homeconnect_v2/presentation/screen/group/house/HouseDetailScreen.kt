@@ -13,18 +13,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
 import com.sns.homeconnect_v2.core.util.validation.toIcon
@@ -32,13 +26,9 @@ import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
-import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.group.GetRoleViewModel
-import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.house.GetHouseViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.DeleteSpaceViewModel
@@ -60,11 +50,9 @@ fun HouseDetailScreen(
     currentUserRole: String,
 ) {
 
-    val scope = rememberCoroutineScope()
     val deletespace: DeleteSpaceViewModel = hiltViewModel()
     val deteteState by deletespace.deleteState.collectAsState()
     val updateSpaceViewModel: UpdateSpaceViewModel = hiltViewModel()
-    val snackbarViewModel: SnackbarViewModel = hiltViewModel()
 
     val spaceDetail by updateSpaceViewModel.updatespace.collectAsState()
 

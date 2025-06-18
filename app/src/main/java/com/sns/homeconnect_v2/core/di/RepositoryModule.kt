@@ -4,7 +4,6 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
-import com.sns.homeconnect_v2.data.remote.api.EcomApiService
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
@@ -41,19 +40,13 @@ import com.sns.homeconnect_v2.domain.usecase.group.CreateGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.DeleteGroupUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetGroupMembersUseCase
 import com.sns.homeconnect_v2.domain.usecase.group.GetListHouseByGroupUseCase
-import com.sns.homeconnect_v2.domain.usecase.group.GetMyGroupsUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.FetchSharedWithUseCase
 import com.sns.homeconnect_v2.domain.usecase.home.GetListHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.CreateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.DeleteHouseUseCase
-import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
-import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
-import com.sns.homeconnect_v2.domain.usecase.house.GetHousesByGroupUseCase
-import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.AttributeDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetInfoDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.LinkDeviceUseCase
-import com.sns.homeconnect_v2.domain.usecase.iot_device.ListOfUserOwnedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.UnlinkDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.AddSharedUserUseCase
@@ -70,7 +63,6 @@ import com.sns.homeconnect_v2.domain.usecase.profile.GetInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.PutInfoProfileUseCase
 import com.sns.homeconnect_v2.domain.usecase.profile.UpdatePasswordUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.DeleteSpaceUseCase
-import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.FetchHousesUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.GetHouseUseCase
 import com.sns.homeconnect_v2.domain.usecase.house.UpdateHouseUseCase
@@ -144,7 +136,6 @@ abstract class RepositoryModule {
     abstract fun bindEcomRepository(impl: EcomRepositoryImpl): EcomRepository
 
 
-
     companion object {
         @Provides
         @Singleton
@@ -166,7 +157,10 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideLoginUseCase(authRepository: AuthRepository, authManager: AuthManager): LoginUseCase {
+        fun provideLoginUseCase(
+            authRepository: AuthRepository,
+            authManager: AuthManager
+        ): LoginUseCase {
             return LoginUseCase(authRepository, authManager)
         }
 
@@ -296,10 +290,10 @@ abstract class RepositoryModule {
             return GetListSpaceUseCase(spaceRepository)
         }
 
-        @Provides
-        @Singleton
-        fun provideGetSpaceDetailUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {
-          
+//        @Provides
+//        @Singleton
+//        fun provideGetSpaceDetailUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {}
+
         @Provides
         @Singleton
         fun provideUpdateSpaceUseCase(spaceRepository: SpaceRepository): UpdateSpaceUseCase {

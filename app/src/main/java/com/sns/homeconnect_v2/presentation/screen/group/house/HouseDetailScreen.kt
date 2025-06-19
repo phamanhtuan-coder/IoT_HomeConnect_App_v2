@@ -21,7 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
-import com.sns.homeconnect_v2.core.util.validation.toIcon
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -272,7 +271,7 @@ fun HouseDetailScreen(
                         SpaceCardSwipeable(
                             spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,
-                            icon = space.icon_name?.toIcon() ?: Icons.Default.Home,
+                            iconName = space.icon_name ?: "home",
                             iconColor = space.icon_color?.toColor()?: Color.Gray,
                             isRevealed = space.isRevealed,
                             role = currentUserRole,

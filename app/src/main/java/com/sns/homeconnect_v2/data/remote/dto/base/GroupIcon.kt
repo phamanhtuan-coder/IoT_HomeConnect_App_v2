@@ -1,14 +1,30 @@
 package com.sns.homeconnect_v2.data.remote.dto.base
 
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 
-sealed class GroupIcon(val label: String, val name: String) {
-    data class Vector(val icon: ImageVector, val iconName: String, val iconLabel: String)
-        : GroupIcon(iconLabel, iconName)
-
-    data class Image(val painter: Painter, val iconName: String, val iconLabel: String)
-        : GroupIcon(iconLabel, iconName)
+enum class GroupIconCategory {
+    GROUP, HOUSE, SPACE
 }
+
+sealed class GroupIcon {
+    abstract val name: String
+    abstract val label: String
+    abstract val category: GroupIconCategory
+
+    data class Vector(
+        val icon: ImageVector,
+        override val name: String,
+        override val label: String,
+        override val category: GroupIconCategory
+    ) : GroupIcon()
+
+    data class Svg(
+        val assetPath: String,
+        override val name: String,
+        override val label: String,
+        override val category: GroupIconCategory
+    ) : GroupIcon()
+}
+
 
 

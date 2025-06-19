@@ -14,9 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.getIconResByName
 import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
@@ -45,7 +47,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithAct
 fun GroupCardSwipeable(
     groupName: String,
     memberCount: Int,
-    icon: ImageVector = Icons.Default.Group,
+    iconName: String? = null,
     iconColor: Color = MaterialTheme.colorScheme.primary,
     isRevealed: Boolean,
     role: String,
@@ -59,6 +61,9 @@ fun GroupCardSwipeable(
     val canEdit = hasPermission(role, RoleLevel.VICE)
     // Quyền xóa: Chỉ cho phép "owner"
     val canDelete = hasPermission(role, RoleLevel.OWNER)
+
+    /* Map tên icon → drawableId một lần theo tên */
+    val iconRes = remember(iconName) { getIconResByName(iconName) }
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,
@@ -89,7 +94,13 @@ fun GroupCardSwipeable(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(64.dp))
+            /* Vẽ icon từ painterResource */
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(64.dp)
+            )
             Spacer(Modifier.width(12.dp))
             Column {
                 Text(

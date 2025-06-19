@@ -18,6 +18,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -32,6 +33,7 @@ fun CreateGroupScreen(
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
+    var sel by remember { mutableStateOf<String?>(null) }
     var spaceName by remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf<String?>(null) }
     var selectedIconLabel by remember { mutableStateOf("Nhà") }
@@ -142,8 +144,10 @@ fun CreateGroupScreen(
 
                 item {
                     IconPicker(
-                        selectedIconLabel = selectedIconLabel,
-                        onIconSelected = { selectedIconLabel = it }
+                        category = GroupIconCategory.HOUSE,
+                        selectedIconName = sel,
+                        onIconSelected = { sel = it },
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
 

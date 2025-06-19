@@ -9,13 +9,16 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.getIconResByName
 import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
@@ -24,7 +27,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithAct
 fun SpaceCardSwipeable(
     spaceName: String,
     deviceCount: Int,
-    icon: ImageVector,
+    iconName: String,
     iconColor: Color,
     isRevealed: Boolean,
     role: String,
@@ -36,6 +39,7 @@ fun SpaceCardSwipeable(
 ) {
     val canEdit = hasPermission(role, RoleLevel.VICE) // "owner", "vice"
     val canDelete = hasPermission(role, RoleLevel.OWNER) // chỉ "owner"
+    val iconRes   = remember(iconName) { getIconResByName(iconName) }
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,
@@ -66,7 +70,13 @@ fun SpaceCardSwipeable(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(64.dp))
+            /* Hiển thị icon từ resource */
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                tint = iconColor,
+                modifier = Modifier.size(64.dp)
+            )
             Spacer(Modifier.width(12.dp))
             Column {
                 Text(

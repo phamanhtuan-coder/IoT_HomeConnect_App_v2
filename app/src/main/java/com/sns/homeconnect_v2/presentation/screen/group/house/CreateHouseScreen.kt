@@ -10,12 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.toColor
 import com.sns.homeconnect_v2.core.util.validation.toColorString
-import com.sns.homeconnect_v2.core.util.validation.toIcon
-import com.sns.homeconnect_v2.core.util.validation.toIconString
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
@@ -29,9 +30,10 @@ fun CreateHouseScreen(
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
     groupId: Int
 ) {
+    var sel by remember { mutableStateOf<String?>(null) }
     var houseName by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
-    var selectedIcon by remember { mutableStateOf(Icons.Default.Home) }
+//    var selectedIcon by remember { mutableStateOf(Icons.Default.Home) }
     var selectedColor by remember { mutableStateOf(Color.Blue) }
 
     val createHouseState by viewModel.createHouseState.collectAsState()
@@ -107,10 +109,10 @@ fun CreateHouseScreen(
             item {
                 Spacer(Modifier.height(16.dp))
                 IconPicker(
-                    selectedIconLabel = selectedIcon.toIconString(),
-                    onIconSelected = { iconName ->
-                        selectedIcon = iconName.toIcon()
-                    }
+                    category = GroupIconCategory.HOUSE,
+                    selectedIconName = sel,
+                    onIconSelected = { sel = it },
+                    modifier = Modifier.padding(16.dp)
                 )
             }
 
@@ -159,7 +161,7 @@ fun CreateHouseScreen(
                                 groupId = groupId,
                                 houseName = houseName,
                                 address = address,
-                                iconName = selectedIcon.toIconString(),
+                                iconName  = sel ?: "house",
                                 iconColor = selectedColor.toColorString()
                             )
                             onSuccess("Tạo nhà thành công")

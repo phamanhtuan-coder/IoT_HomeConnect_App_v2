@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
 import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
@@ -47,8 +48,6 @@ fun CreateSpaceScreen(
     val isSuccess by viewModel.isSuccess.collectAsState()
 
     var sel by remember { mutableStateOf<String?>(null) }
-    var spaceName by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf<String?>(null) }
     var selectedIconLabel by remember { mutableStateOf("Nhà") }
     var selectedColorLabel by remember { mutableStateOf("blue") }
 
@@ -197,17 +196,18 @@ fun CreateSpaceScreen(
 
                 item {
                     IconPicker(
-                        category = GroupIconCategory.HOUSE,
+                        category = GroupIconCategory.SPACE,
                         selectedIconName = sel,
                         onIconSelected = { sel = it },
                         modifier = Modifier.padding(16.dp)
                     )
+                    viewModel .updateIconName(sel ?: "home") // Cập nhật iconName nếu sel không null
                     Log.d("CreateSpaceScreen", "iconName: $iconName")
                 }
 
                 item {
                     ColorPicker(
-                        selectedColorLabel = iconColor,
+                        selectedColorLabel =  iconColor,
                         onColorSelected = { viewModel.updateIconColor(it) },
                         //enabled = !isLoading
                     )

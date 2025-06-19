@@ -51,9 +51,9 @@ sealed class Screens(val route: String) {
         fun createRoute(houseId: Int) = "create_space/$houseId"
     }
 
-    data object AddSpace : Screens("add_space") {
-        fun createRoute(houseId: Int) = "add_space"
-    }
+//    data object AddSpace : Screens("add_space") {
+//        fun createRoute(houseId: Int) = "add_space"
+//    }
 
     data object EditSpaceWithHouse : Screens("edit_space/{houseId}") {
         fun createRoute(houseId: Int) = "edit_space/$houseId"

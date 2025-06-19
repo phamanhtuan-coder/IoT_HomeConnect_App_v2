@@ -278,6 +278,7 @@ fun HouseDetailScreen(
 
                         updateSpaceViewModel.updateSpace(space.space_id, spaceNameInput, iconNameInput, iconColorInput, descriptionInput)
 
+                        Log.d("SpaceDetail", "Space ID: ${space.space_id}, Name: ${space.space_name}, Icon: ${space.icon_name}, Color: ${space.icon_color}")
                         SpaceCardSwipeable(
                             spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,

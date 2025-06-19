@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -44,6 +45,12 @@ fun CreateSpaceScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
     val isSuccess by viewModel.isSuccess.collectAsState()
+
+    var sel by remember { mutableStateOf<String?>(null) }
+    var spaceName by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf<String?>(null) }
+    var selectedIconLabel by remember { mutableStateOf("Nhà") }
+    var selectedColorLabel by remember { mutableStateOf("blue") }
 
     // Giữ GenericDropdown nhưng không dùng logic vai trò
     var selectedRole by remember { mutableStateOf<String?>(null) }
@@ -190,9 +197,10 @@ fun CreateSpaceScreen(
 
                 item {
                     IconPicker(
-                        selectedIconLabel = iconName,
-                        onIconSelected = { viewModel.updateIconName(it) },
-                        //enabled = !isLoading
+                        category = GroupIconCategory.HOUSE,
+                        selectedIconName = sel,
+                        onIconSelected = { sel = it },
+                        modifier = Modifier.padding(16.dp)
                     )
                     Log.d("CreateSpaceScreen", "iconName: $iconName")
                 }

@@ -4,6 +4,7 @@ import android.util.Log
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
@@ -28,6 +29,15 @@ class SpaceRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         Log.d("SpaceRepositoryImpl", "Token: $token")
         return apiService.createSpace(request, token = "Bearer $token")
+
+    override suspend fun deleteSpace(spaceId: Int): Result<Unit> {
+        val token = authManager.getJwtToken()
+        return try {
+            apiService.deleteSpace(spaceId, "Bearer $token")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 //    override suspend fun getSpaces(houseId: Int): List<SpaceResponse2> {
@@ -35,11 +45,27 @@ class SpaceRepositoryImpl @Inject constructor(
 //        return apiService.getSpaces(houseId, "Bearer $token")
 //    }
 //
-//    override suspend fun updateSpace(spaceId: Int, name: String): SpaceResponse3 {
-//        val token = authManager.getJwtToken()
-//        val updateSpaceRequest = UpdateSpaceRequest(Name = name)
-//        return apiService.updateSpace(spaceId,updateSpaceRequest,token = "Bearer $token")
-//    }
+override suspend fun updateSpace(
+    spaceId: Int,
+    name: String,
+    iconName: String?,
+    iconColor: String?,
+    description: String?
+): Result<SpaceResponse> {
+    return try {
+        val token = authManager.getJwtToken() ?: return Result.failure(IllegalStateException("Token không hợp lệ"))
+        val updateSpaceRequest = UpdateSpaceRequest(
+            space_name = name,
+            icon_name = iconName,
+            icon_color = iconColor,
+            space_description = description
+        )
+        val response = apiService.updateSpace(spaceId, updateSpaceRequest, token = "Bearer $token")
+        Result.success(response)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
 //
 //    override suspend fun createSpace(houseId: Int, name: String): CreateSpaceResponse {
 //        val token = authManager.getJwtToken()

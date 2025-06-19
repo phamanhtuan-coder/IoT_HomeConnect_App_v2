@@ -15,10 +15,17 @@ interface SpaceRepository {
     suspend fun getDevicesBySpaceId(spaceId: Int): List<DeviceResponseSpace>
 
     suspend fun createSpace(request: CreateSpaceRequest): SpaceResponse
+    suspend fun deleteSpace(spaceId: Int): Result<Unit>
 
 //    suspend fun getSpaces(houseId: Int): List<SpaceResponse2>
 //
-//    suspend fun updateSpace(spaceId: Int, name: String): SpaceResponse3
+suspend fun updateSpace(
+    spaceId: Int,
+    name: String,
+    iconName: String? = null,
+    iconColor: String? = null,
+    description: String? = null
+): Result<SpaceResponse>
 //
 //    suspend fun createSpace(houseId: Int, name: String): CreateSpaceResponse
 //

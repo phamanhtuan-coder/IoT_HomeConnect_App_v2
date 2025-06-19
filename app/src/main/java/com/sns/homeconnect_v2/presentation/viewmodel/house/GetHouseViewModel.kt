@@ -20,6 +20,7 @@ private val getHouseUseCase: GetHouseUseCase
 
     private val _houses = MutableStateFlow<House?>(null)
     val houses = _houses.asStateFlow()
+
     fun getHouse(houseId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -31,4 +32,5 @@ private val getHouseUseCase: GetHouseUseCase
             _isLoading.value = false
         }
     }
+
 }

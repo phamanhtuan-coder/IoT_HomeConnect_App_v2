@@ -10,7 +10,7 @@ fun HouseWithSpacesResponse.toHouseUi(role: String): HouseUi {
         spaces     = spaces?.size ?:0,
         role       = role,
         isRevealed = false,
-        icon       = getIconByName(icon_name),
+        iconName    = icon_name ?: "house",
         iconColor  = parseColorOrDefault(icon_color)
     )
 }

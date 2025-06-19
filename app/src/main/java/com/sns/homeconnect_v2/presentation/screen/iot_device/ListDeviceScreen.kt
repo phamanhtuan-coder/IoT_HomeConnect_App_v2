@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
+import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
 
@@ -245,6 +248,16 @@ fun ListDeviceScreen(
                                             onExpandOnly = {
                                                 listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
+                                            onClick = {
+                                                navController.navigate(
+                                                    Screens.DynamicDeviceDetail.build(
+                                                        deviceId     = device.device_id,
+                                                        deviceName   = device.name.orEmpty(),
+                                                        serialNumber = device.serial_number,
+                                                        productId    = device.template_id          // templateId là String
+                                                    )
+                                                )
+                                            },
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
@@ -287,6 +300,7 @@ fun ListDeviceScreen(
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
+                                            onClick = {},
                                             onDelete = { sharedDevices.removeAt(index) },
                                             onEdit = { /* TODO */ }
                                         )

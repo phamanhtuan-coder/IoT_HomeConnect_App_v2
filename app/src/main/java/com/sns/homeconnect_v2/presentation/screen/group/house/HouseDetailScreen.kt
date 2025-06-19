@@ -14,32 +14,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
-import com.sns.homeconnect_v2.core.util.validation.toIcon
+import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.SpaceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.FabChild
-import com.sns.homeconnect_v2.presentation.model.SpaceUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.home.HomeScreenViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.house.GetHouseViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.DeleteSpaceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.UpdateSpaceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -52,15 +46,35 @@ fun HouseDetailScreen(
 //    houseAddress: String,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
     spaceViewModel:SpaceScreenViewModel = hiltViewModel(),
-    houseId:Int
+    houseId:Int,
+    currentUserRole: String,
 ) {
+
+    val deletespace: DeleteSpaceViewModel = hiltViewModel()
+    val deteteState by deletespace.deleteState.collectAsState()
+    val updateSpaceViewModel: UpdateSpaceViewModel = hiltViewModel()
+
+    val spaceDetail by updateSpaceViewModel.updatespace.collectAsState()
+
+    // Trạng thái cho bottom sheet
+    var isSheetVisible by remember { mutableStateOf(false) }
+    var spaceNameInput by remember { mutableStateOf(spaceDetail?.space_name ?: "") }
+    var iconNameInput by remember { mutableStateOf(spaceDetail?.icon_name ?: "") }
+    var iconColorInput by remember { mutableStateOf(spaceDetail?.icon_color ?: "") }
+    var descriptionInput by remember { mutableStateOf(spaceDetail?.space_description ?: "") }
+
+    LaunchedEffect(spaceDetail) {
+        // Cập nhật input khi spaceDetail thay đổi
+        spaceNameInput = spaceDetail?.space_name ?: ""
+        iconNameInput = spaceDetail?.icon_name ?: ""
+        iconColorInput = spaceDetail?.icon_color ?: ""
+        descriptionInput = spaceDetail?.space_description ?: ""
+    }
 
     val scope = rememberCoroutineScope()
 
 
-    LaunchedEffect(Unit) {
-        spaceViewModel.getSpaces(houseId)
-    }
+
     val spaces by spaceViewModel.spaces.collectAsState()
     Log.d("spaces", spaces.toString())
     Log.d("houseId", houseId.toString())
@@ -71,7 +85,35 @@ fun HouseDetailScreen(
         houseViewModel.getHouse(houseId)
     }
 
+    // Xử lý trạng thái xóa nhóm
+    LaunchedEffect(deteteState) {
+        deteteState?.let { result ->
+            if (result.isSuccess) {
+                snackbarViewModel.showSnackbar(
+                    msg = "Xóa nhóm thành công",
+                    variant = SnackbarVariant.SUCCESS
+                )
+                spaceViewModel.fetchSpaces(houseId) // Làm mới danh sách nhóm
+                deletespace.resetDeleteState()
+            } else {
+                snackbarViewModel.showSnackbar(
+                    msg = "Lỗi khi xóa nhóm: ${result.exceptionOrNull()?.message ?: "Unknown error"}",
+                    variant = SnackbarVariant.ERROR
+                )
+                deletespace.resetDeleteState()
+            }
+        }
+    }
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        spaceViewModel.getSpaces(houseId)
+
+    }
+
     Log.d("HouseDetailScreen", houseState.toString())
+
 
 //    val spaces = remember {
 //        mutableStateListOf(
@@ -82,6 +124,7 @@ fun HouseDetailScreen(
 //    }
 
     IoTHomeConnectAppTheme {
+
 //        val fabOptions = listOf(
 ////            FabChild(
 ////                Icons.Default.Edit,
@@ -196,7 +239,6 @@ fun HouseDetailScreen(
                                     )
                                 }
                             }
-
                             // Phải: nút sửa
                             Column(
                                 modifier = Modifier.align(Alignment.CenterEnd)
@@ -234,27 +276,148 @@ fun HouseDetailScreen(
                     itemsIndexed(spaces) { index, space ->
                         Spacer(Modifier.height(8.dp))
 
+                        updateSpaceViewModel.updateSpace(space.space_id, spaceNameInput, iconNameInput, iconColorInput, descriptionInput)
+
                         SpaceCardSwipeable(
                             spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,
-                            icon = space.icon_name?.toIcon() ?: Icons.Default.Home,
+                            iconName = space.icon_name ?: "home",
                             iconColor = space.icon_color?.toColor()?: Color.Gray,
                             isRevealed = space.isRevealed,
+                            role = currentUserRole,
                             onExpandOnly = {
-                                spaces.indices.forEach { i ->
-                                    spaceViewModel.updateRevealState(i)
-                                }
+                                spaceViewModel.updateRevealState(index)
                             },
                             onCollapse = {
                                 spaceViewModel.collapseItem(index)
                             },
-                            onDelete = {  },
-                            onEdit = { /* TODO */ },
+
+                            onDelete = {
+                                //xóa space
+                                showDeleteDialog = true
+                            },
+                                           
+                            onEdit = {
+                                isSheetVisible = true
+
+                            },
                             onClick = {
                                 navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
                                 Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
                             }
                         )
+
+
+                        // Delete confirmation dialog
+                        if (showDeleteDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDeleteDialog = false },
+                                title = { Text(text = "Xác nhận xóa nhóm") },
+                                text = { Text(text = "Bạn có chắc chắn muốn xóa không gian này không? ") },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            deletespace.deleteSpace(space.space_id)
+                                            showDeleteDialog = false
+                                        }
+                                    ) {
+                                        Text("Xác nhận", color = colorScheme.error)
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = {
+                                            showDeleteDialog = false
+                                        }
+                                    ) {
+                                        Text("Hủy")
+                                    }
+                                }
+                            )
+                        }
+
+                        // Bottom Sheet để chỉnh sửa space
+                        BottomSheetWithTrigger(
+                            isSheetVisible = isSheetVisible,
+                            onDismiss = { isSheetVisible = false }
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Chỉnh sửa Space",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    modifier = Modifier.padding(bottom = 16.dp)
+                                )
+                                OutlinedTextField(
+                                    value = spaceNameInput,
+                                    onValueChange = { spaceNameInput = it },
+                                    label = { Text("Tên Space") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = iconNameInput,
+                                    onValueChange = { iconNameInput = it },
+                                    label = { Text("Tên Icon (ví dụ: living-room)") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = iconColorInput,
+                                    onValueChange = { iconColorInput = it },
+                                    label = { Text("Màu Icon (ví dụ: #3366FF)") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp)
+                                )
+                                OutlinedTextField(
+                                    value = descriptionInput,
+                                    onValueChange = { descriptionInput = it },
+                                    label = { Text("Mô tả") },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp)
+                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    TextButton(
+                                        onClick = { isSheetVisible = false }
+                                    ) {
+                                        Text("Hủy")
+                                    }
+                                    Button(
+                                        onClick = {
+                                            scope.launch {
+                                                try {
+                                                    updateSpaceViewModel.updateSpace(
+                                                        spaceId = space.space_id,
+                                                        name = spaceNameInput,
+                                                        iconName = iconNameInput.takeIf { it.isNotBlank() },
+                                                        iconColor = iconColorInput.takeIf { it.isNotBlank() },
+                                                        description = descriptionInput.takeIf { it.isNotBlank() }
+                                                    )
+                                                    snackbarViewModel.showSnackbar("Cập nhật space thành công")
+                                                    isSheetVisible = false
+                                                } catch (e: Exception) {
+                                                    snackbarViewModel.showSnackbar("Lỗi: ${e.message}")
+                                                }
+                                            }
+                                        },
+                                        enabled = spaceNameInput.isNotBlank()
+                                    ) {
+                                        Text("Lưu")
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     item {
@@ -277,6 +440,7 @@ fun HouseDetailScreen(
                         )
                     }
                 }
+
             }
         }
     }

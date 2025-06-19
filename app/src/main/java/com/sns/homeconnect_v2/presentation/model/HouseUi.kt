@@ -9,6 +9,6 @@ data class HouseUi(
     val spaces: Int,
     val role: String,
     val isRevealed: Boolean,
-    val icon: ImageVector,
+    val iconName: String,
     val iconColor: Color
 )

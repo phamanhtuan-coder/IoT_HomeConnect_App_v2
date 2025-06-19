@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -123,29 +124,22 @@ fun HouseDetailScreen(
 //    }
 
     IoTHomeConnectAppTheme {
-        val fabOptions = listOf(
-            FabChild(
-                Icons.Default.Edit,
-                onClick = {},
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            ),
-            FabChild(
-                Icons.Default.Delete,
-                onClick = { /* TODO: xoá */ },
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            ),
-            FabChild(
-                Icons.Default.Add,
-                onClick = {
-//                    //chuyển sang màn hình tạo không gian
-//                    navController.navigate(Screens.AddSpace.createRoute(houseId))
-                },
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            )
-        )
+
+//        val fabOptions = listOf(
+////            FabChild(
+////                Icons.Default.Edit,
+////                onClick = { /* TODO: sửa */ },
+////                containerColor = colorScheme.primary,
+////                contentColor = colorScheme.onPrimary
+////            ),
+////            FabChild(
+////                Icons.Default.Delete,
+////                onClick = { /* TODO: xoá */ },
+////                containerColor = colorScheme.primary,
+////                contentColor = colorScheme.onPrimary
+////            ),
+//
+//        )
 
         Scaffold(
             topBar = {
@@ -157,13 +151,29 @@ fun HouseDetailScreen(
             },
             containerColor = Color.White,
             floatingActionButton = {
-                RadialFab(
-                    items = fabOptions,
-                    radius = 120.dp,
-                    startDeg = -90f,
-                    sweepDeg = -90f,
-                    onParentClick = { /* thêm thành viên */ }
-                )
+                FloatingActionButton(
+                    onClick = {
+                        Log.d("FAB", "Add button clicked")
+                        snackbarViewModel.showSnackbar("Đã nhấn nút thêm!")
+                        // TODO: Thêm logic để thêm không gian mới, ví dụ:
+                        navController.navigate(Screens.AddSpace.createRoute(houseId))
+                    },
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center, // Căn giữa nội dung
+                        modifier = Modifier.fillMaxSize() // Đảm bảo Box chiếm toàn bộ không gian của FAB
+                    ) {
+                        Text(
+                            text = "+",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onPrimary
+                        )
+                    }
+                }
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {

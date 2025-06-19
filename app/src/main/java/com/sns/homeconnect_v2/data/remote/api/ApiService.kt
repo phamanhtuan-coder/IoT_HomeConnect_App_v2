@@ -44,6 +44,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
@@ -436,6 +437,13 @@ interface ApiService {
 //        @Header("Authorization") token: String
 //    ): SpaceResponse3
 //
+
+    @POST("spaces")
+    suspend fun createSpace(
+        @Body body: CreateSpaceRequest,
+        @Header("Authorization") token: String
+    ): SpaceResponse
+  
     @PUT("spaces/{id}")
     suspend fun updateSpace(
         @Path("id") spaceId: Int,

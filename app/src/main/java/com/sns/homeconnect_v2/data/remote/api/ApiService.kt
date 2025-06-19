@@ -43,12 +43,10 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
-import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.CreateSpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse

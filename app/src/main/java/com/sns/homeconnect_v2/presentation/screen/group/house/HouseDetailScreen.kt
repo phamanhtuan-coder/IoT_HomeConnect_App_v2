@@ -298,21 +298,13 @@ fun HouseDetailScreen(
                                         .fillMaxWidth()
                                         .padding(bottom = 8.dp)
                                 )
-                                OutlinedTextField(
-                                    value = iconNameInput,
-                                    onValueChange = { iconNameInput = it },
-                                    label = { Text("Tên Icon (ví dụ: living-room)") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp)
+                                IconPicker(
+                                    selectedIconLabel = iconNameInput,
+                                    onIconSelected = { iconNameInput = it }
                                 )
-                                OutlinedTextField(
-                                    value = iconColorInput,
-                                    onValueChange = { iconColorInput = it },
-                                    label = { Text("Màu Icon (ví dụ: #3366FF)") },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp)
+                                ColorPicker(
+                                    selectedColorLabel = iconColorInput,
+                                    onColorSelected = { iconColorInput = it }
                                 )
                                 OutlinedTextField(
                                     value = descriptionInput,

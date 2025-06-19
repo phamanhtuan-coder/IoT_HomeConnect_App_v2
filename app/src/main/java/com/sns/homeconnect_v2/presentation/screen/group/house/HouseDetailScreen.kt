@@ -146,9 +146,11 @@ fun HouseDetailScreen(
                             iconColor = parseColorOrDefault(space.icon_color),
                             isRevealed = space.isRevealed,
                             onExpandOnly = {
-                                spaces.indices.forEach { i -> spaceViewModel.updateRevealState(i) }
+                                spaceViewModel.expandItem(index) // Chỉ mở card tại index
                             },
-                            onCollapse = { spaceViewModel.collapseItem(index) },
+                            onCollapse = {
+                                spaceViewModel.collapseItem(index) // Chỉ đóng card tại index
+                            },
                             onDelete = { },
                             onEdit = {
                                 updateSpaceViewModel.setEditingSpace(space)
@@ -222,6 +224,7 @@ fun HouseDetailScreen(
                                                 iconColor = iconColorInput.takeIf { it.isNotBlank() },
                                                 description = descriptionInput.takeIf { it.isNotBlank() }
                                             )
+                                            spaceViewModel.getSpaces(houseId)
                                             snackbarViewModel.showSnackbar("Cập nhật space thành công")
                                             isSheetVisible = false
                                         } catch (e: Exception) {

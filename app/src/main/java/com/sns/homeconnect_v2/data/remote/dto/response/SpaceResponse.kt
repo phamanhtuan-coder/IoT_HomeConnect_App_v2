@@ -10,5 +10,5 @@ data class SpaceResponse(
     val icon_color: String?,
     val icon_name: String?,
     val space_description: String?,
-    val isRevealed: Boolean = false
+    var isRevealed: Boolean = false
 )

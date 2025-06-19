@@ -151,7 +151,7 @@ fun HouseSearchScreen(
                         HouseCardSwipeable(
                             houseName  = house.name,
                             spaceCount = house.spaces,
-                            icon       = house.icon,
+                            iconName   = house.iconName,
                             iconColor  = house.iconColor,
                             isRevealed = house.isRevealed,
                             role       = house.role,

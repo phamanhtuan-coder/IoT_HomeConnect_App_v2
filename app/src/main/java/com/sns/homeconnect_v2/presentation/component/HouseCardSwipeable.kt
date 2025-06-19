@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.core.util.validation.RoleLevel
+import com.sns.homeconnect_v2.core.util.validation.getIconResByName
 import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
@@ -42,7 +44,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithAct
 fun HouseCardSwipeable(
     houseName: String,
     spaceCount: Int,
-    icon: ImageVector = Icons.Default.Home,
+    iconName: String,
     iconColor: Color = MaterialTheme.colorScheme.primary,
     isRevealed: Boolean,
     role: String,
@@ -55,6 +57,8 @@ fun HouseCardSwipeable(
     Log.d("HouseCardSwipeable", "role: $role, isRevealed: $isRevealed")
     val canEdit = hasPermission(role, RoleLevel.VICE)
     val canDelete = hasPermission(role, RoleLevel.OWNER)
+
+    val iconRes   = remember(iconName) { getIconResByName(iconName) }
 
     SwipeableItemWithActions(
         isRevealed = isRevealed,
@@ -86,7 +90,7 @@ fun HouseCardSwipeable(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
+                painter = painterResource(id = iconRes),          // 👈 dùng painterResource
                 contentDescription = null,
                 tint = iconColor,
                 modifier = Modifier.size(64.dp)

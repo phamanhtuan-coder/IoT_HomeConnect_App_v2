@@ -16,8 +16,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
-import com.sns.homeconnect_v2.core.util.validation.getIconByName
+
 import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupRequest
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.GroupCardSwipeable
@@ -43,6 +44,7 @@ fun GroupScreen(
     updateGroup: UpdateGroupViewModel = hiltViewModel(),
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
+    var sel by remember { mutableStateOf<String?>(null) }
     val groups by groupViewModel.groupList.collectAsState()
     val delete: DeleteGroupViewModel = hiltViewModel()
     val deleteState by delete.deleteState.collectAsState()
@@ -228,7 +230,7 @@ fun GroupScreen(
                         GroupCardSwipeable(
                             groupName = group.name,
                             memberCount = group.members,
-                            icon = getIconByName(group.iconName),
+                            iconName    = group.iconName,
                             iconColor = parseColorOrDefault(group.iconColorName),
                             isRevealed = group.isRevealed,
                             role = currentRole,
@@ -303,8 +305,10 @@ fun GroupScreen(
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 IconPicker(
-                                    selectedIconLabel = selectedLabel,
-                                    onIconSelected = { selectedLabel = it }
+                                    category = GroupIconCategory.GROUP,
+                                    selectedIconName = sel,
+                                    onIconSelected = { sel = it },
+                                    modifier = Modifier.padding(16.dp)
                                 )
                                 Spacer(Modifier.height(8.dp))
                                 ColorPicker(
@@ -326,7 +330,7 @@ fun GroupScreen(
                                             groupId = idGroup,
                                             request = UpdateGroupRequest(
                                                 group_name = nameGroup,
-                                                icon_name = selectedLabel,
+                                                icon_name = sel ?: "house",
                                                 icon_color = selectedColor,
                                                 group_description = groupDesc
                                             ),

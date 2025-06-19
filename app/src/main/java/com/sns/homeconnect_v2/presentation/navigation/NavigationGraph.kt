@@ -32,6 +32,7 @@ import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.house.CreateHouseScreen
 import com.sns.homeconnect_v2.presentation.screen.group.house.HouseDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.group.house.space.CreateSpaceScreen
 import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
@@ -169,6 +170,17 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             // --- Space screens ---
             // TODO: Add Spaces screen
             // TODO: Add AddSpace screen
+            composable(
+                route = Screens.AddSpace.route,
+                arguments = listOf(navArgument("houseId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val houseId = backStackEntry.arguments?.getInt("houseId") ?: -1
+                CreateSpaceScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    houseId = houseId
+                )
+            }
             // TODO: Add SpaceManagement screen with route "space_management/{houseId}"
             // TODO: Add AddSpaceWithHouse screen with route "add_space/{houseId}"
             // TODO: Add EditSpace screen with route "edit_space/{spaceId}"

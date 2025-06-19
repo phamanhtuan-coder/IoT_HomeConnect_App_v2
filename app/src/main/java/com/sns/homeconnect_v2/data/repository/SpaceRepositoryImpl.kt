@@ -1,7 +1,9 @@
 package com.sns.homeconnect_v2.data.repository
 
+import android.util.Log
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
@@ -20,6 +22,12 @@ class SpaceRepositoryImpl @Inject constructor(
     override suspend fun getDevicesBySpaceId(spaceId: Int): List<DeviceResponseSpace> {
         val token = authManager.getJwtToken()
         return apiService.getDevicesBySpaceId(spaceId, token = "Bearer $token")
+    }
+
+    override suspend fun createSpace(request: CreateSpaceRequest): SpaceResponse {
+        val token = authManager.getJwtToken()
+        Log.d("SpaceRepositoryImpl", "Token: $token")
+        return apiService.createSpace(request, token = "Bearer $token")
     }
 
 //    override suspend fun getSpaces(houseId: Int): List<SpaceResponse2> {

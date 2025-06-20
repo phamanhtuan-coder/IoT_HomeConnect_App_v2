@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.presentation.model.FeatureButtonItem
 
 @Composable
@@ -26,7 +27,7 @@ fun FeatureButtonSection(
     items: List<FeatureButtonItem>,
     columns: Int = 4,
     horizontalSpacing: Int = 12,
-    verticalSpacing: Int = 24
+    verticalSpacing: Int = 24,
 ) {
     Column(
         modifier = modifier,
@@ -62,19 +63,19 @@ fun FeatureButtonSection(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360)
-@Composable
-fun FeatureButtonSectionPreview() {
-    val sampleItems = listOf(
-        FeatureButtonItem(Icons.Default.Warning, "Báo mất\nthiết bị") {},
-        FeatureButtonItem(Icons.Default.Sync, "Chuyển\nquyền sở hữu") {},
-        FeatureButtonItem(Icons.Default.Home, "Quản lý nhà") {},
-        FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
-        FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
-        FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
-        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {}
-    )
-
-    FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
-}
+//@Preview(showBackground = true, widthDp = 360)
+//@Composable
+//fun FeatureButtonSectionPreview() {
+//    val sampleItems = listOf(
+//        FeatureButtonItem(Icons.Default.Warning, "Báo mất\nthiết bị") {},
+//        FeatureButtonItem(Icons.Default.Sync, "Chuyển\nquyền sở hữu") {},
+//        FeatureButtonItem(Icons.Default.Home, "Quản lý nhà") {},
+//        FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
+//        FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
+//        FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
+//        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {},
+//    )
+//
+//    FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
+//}
 

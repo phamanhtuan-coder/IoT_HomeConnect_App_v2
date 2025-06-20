@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.BorderAll
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -39,6 +40,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.model.DeviceStatCardItem
 import com.sns.homeconnect_v2.presentation.model.FeatureButtonItem
 import com.sns.homeconnect_v2.presentation.model.SlideShowItem
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 
 
 /** Giao diện màn hình Trang chủ (Home Screen)
@@ -84,7 +86,10 @@ fun HomeScreen(
         FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
         FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
         FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
-        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {}
+        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {},
+        FeatureButtonItem(Icons.Default.Help, "Hỗ trợ") {
+            navController.navigate(Screens.ListTicket.route)
+        }
     )
 
 //    var sharedUsers by remember { mutableStateOf<List<SharedWithResponse>?>(emptyList()) }

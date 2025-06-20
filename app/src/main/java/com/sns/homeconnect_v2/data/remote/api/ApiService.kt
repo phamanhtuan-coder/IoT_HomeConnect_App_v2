@@ -58,12 +58,14 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.TicketDetailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.TicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
 import retrofit2.Response
@@ -450,6 +452,17 @@ interface ApiService {
         @Body body: UpdateSpaceRequest,
         @Header("Authorization") token: String
     ): SpaceResponse
+
+    @GET("tickets/user")
+    suspend fun getUserTickets(
+        @Header("Authorization") token: String
+    ): TicketResponse
+
+    @GET("tickets/detail/{ticketId}")
+    suspend fun getTicketDetail(
+        @Path("ticketId") ticketId: String,
+        @Header("Authorization") token: String
+    ): TicketDetailResponse
 
 //    @POST("spaces")
 //    suspend fun createSpace(

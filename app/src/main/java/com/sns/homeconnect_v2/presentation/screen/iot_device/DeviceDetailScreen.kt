@@ -78,6 +78,8 @@ import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.core.util.validation.sliderToPercent
+import com.sns.homeconnect_v2.core.util.validation.toComposeColor
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
@@ -100,6 +102,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInf
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
@@ -117,14 +120,15 @@ fun DeviceDetailScreen(
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel
 ) {
-
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
     val showBottomSheet = remember { mutableStateOf(false) }
     val isDataFetched = remember { mutableStateOf(false) } // <- tránh gọi lại API liên tục
 
     val displayState by displayViewModel.displayState.collectAsState()
-    val deviceState  by displayViewModel.deviceState.collectAsState()
-    val updateState  by displayViewModel.updateDeviceState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        displayViewModel.fetchDeviceState(deviceId, serialNumber)
+    }
 
     LaunchedEffect(showBottomSheet.value) {
         if (showBottomSheet.value && !isDataFetched.value && product.id.isNotEmpty()) {
@@ -137,32 +141,13 @@ fun DeviceDetailScreen(
     var isCheck by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(128f) }
 
-    LaunchedEffect(Unit) {
-        if (serialNumber != null) {
-            displayViewModel.fetchDeviceState(deviceId, serialNumber)
-        }
-        isCheck = when (deviceState) {
-            is DeviceStateUiState.Success -> (deviceState as DeviceStateUiState.Success).state.power_status
-            else -> false
-        }
-    }
-
-    LaunchedEffect(deviceState) {
-        val successState = deviceState as? DeviceStateUiState.Success
-        successState?.let {
-            isCheck = it.state.power_status
-//            sliderValue = it.state.brightness.toFloat()
-//            currentColor = it.state.color
-        }
-    }
-
-    LaunchedEffect(updateState) {
-        when (val state = updateState) {
-            is UpdateDeviceStateUiState.Success -> snackbarViewModel.showSnackbar(state.message)
-            is UpdateDeviceStateUiState.Error -> snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
-            else -> Unit
-        }
-    }
+//    LaunchedEffect(updateState) {
+//        when (val state = updateState) {
+//            is UpdateDeviceStateUiState.Success -> snackbarViewModel.showSnackbar(state.message)
+//            is UpdateDeviceStateUiState.Error -> snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+//            else -> Unit
+//        }
+//    }
 
     val scope = rememberCoroutineScope()
 
@@ -185,16 +170,16 @@ fun DeviceDetailScreen(
         )
     }
 
-    var safeDevice = DeviceResponse(
-        DeviceID = 1,
-        TypeID = 2,
-        Name = "Đèn LED thông minh",
-        PowerStatus = true,
-        SpaceID = 1,
-        Attribute = """{"brightness":80, "color":"#ffffff"}""" // Dữ liệu mẫu
-    )
+//    var safeDevice = DeviceResponse(
+//        DeviceID = 1,
+//        TypeID = 2,
+//        Name = "Đèn LED thông minh",
+//        PowerStatus = true,
+//        SpaceID = 1,
+//        Attribute = """{"brightness":80, "color":"#ffffff"}""" // Dữ liệu mẫu
+//    )
 
-    Log.e("safeDevice", safeDevice.toString())
+//    Log.e("safeDevice", safeDevice.toString())
     /*
     LaunchedEffect(Unit) {
         // TODO: Re-enable API call when new API is ready
@@ -204,26 +189,26 @@ fun DeviceDetailScreen(
     }
     */
 
-    LaunchedEffect(safeDevice.Attribute) {
-        val attributeJson = if (safeDevice.Attribute.isEmpty()) {
-            """{"brightness":80, "color":"#ffffff"}""" // Giá trị mặc định
-        } else {
-            safeDevice.Attribute
-        }
-
-        Log.e("attributeJson", attributeJson)
-
-        val gson = Gson()
-        attribute = gson.fromJson(attributeJson, AttributeRequest::class.java)
-
-        Log.e("attributeJson", attribute.toString())
-    }
+//    LaunchedEffect(safeDevice.Attribute) {
+//        val attributeJson = if (safeDevice.Attribute.isEmpty()) {
+//            """{"brightness":80, "color":"#ffffff"}""" // Giá trị mặc định
+//        } else {
+//            safeDevice.Attribute
+//        }
+//
+//        Log.e("attributeJson", attributeJson)
+//
+//        val gson = Gson()
+//        attribute = gson.fromJson(attributeJson, AttributeRequest::class.java)
+//
+//        Log.e("attributeJson", attribute.toString())
+//    }
 
     var powerStatus by remember { mutableStateOf(false) }
 
-    LaunchedEffect(safeDevice) {
-        powerStatus = safeDevice.PowerStatus
-    }
+//    LaunchedEffect(safeDevice) {
+//        powerStatus = safeDevice.PowerStatus
+//    }
 
     Log.e("powerStatus", powerStatus.toString())
 
@@ -240,6 +225,58 @@ fun DeviceDetailScreen(
                 showAlertDialog = false
             }
         )
+    }
+
+    // Biến trạng thái để quản lý công tắc và độ sáng
+    var uiPower               by remember { mutableStateOf(false) }   // giá trị hiển thị trên UI
+    var pendingToggle         by remember { mutableStateOf<Boolean?>(null) }
+    var isSendingToggle       by remember { mutableStateOf(false) }
+
+    var pendingPower by remember { mutableStateOf<Boolean?>(null) }
+    var isUpdatingPower by remember { mutableStateOf(false) }
+
+    // Xử lý sự kiện khi người dùng bật/tắt công tắc
+    val deviceState by displayViewModel.deviceState.collectAsState()
+
+    // 2. Đồng bộ UI khi server trả về
+    LaunchedEffect(deviceState) {
+        when (val s = deviceState) {
+            is DeviceStateUiState.Success -> {
+                val st = s.state
+                uiPower = st.power_status
+                st.brightness?.let {         // 0‒100  ↦ 0‒255 cho slider
+                    sliderValue = it * 2.55f
+                    attribute = attribute.copy(brightness = it)   // lưu %
+                }
+                st.color?.let { hex ->
+                    attribute = attribute.copy(color = hex)
+                }
+                isUpdatingPower = false; pendingPower = null
+            }
+            is DeviceStateUiState.Error -> {
+                snackbarViewModel.showSnackbar("Lỗi?", SnackbarVariant.ERROR)
+            }
+            else -> {}
+        }
+    }
+
+    val updateState by displayViewModel.updateBulk.collectAsState()
+
+    LaunchedEffect(updateState) {
+        when (val st = updateState) {
+            is UpdateDeviceStateBulkUiState.Success -> {
+                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                isSendingToggle = false
+                // refresh lại trạng thái
+                displayViewModel.fetchDeviceState(deviceId, serialNumber)
+            }
+            is UpdateDeviceStateBulkUiState.Error -> {
+                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                isSendingToggle = false
+                pendingToggle   = null
+            }
+            else -> Unit
+        }
     }
 
     IoTHomeConnectAppTheme {
@@ -287,27 +324,26 @@ fun DeviceDetailScreen(
                                         verticalArrangement = Arrangement.SpaceBetween
                                     ) {
                                         Text(
-                                            text = safeDevice.Name,
+                                            text = deviceName,
                                             color = colorScheme.onPrimary,
                                             lineHeight = 32.sp,
                                             fontSize = 30.sp
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
 
-                                        if ("power_status" in controls) {
-                                            CustomSwitch(
-                                                isCheck = isCheck,
-                                                onCheckedChange = {
-                                                    isCheck = it
-                                                    Log.d("Switch", "serial=$serialNumber, deviceId=$deviceId, power=$it")
-                                                    displayViewModel.updateDeviceState(
-                                                        deviceId = deviceId,
-                                                        serial = serialNumber,
-                                                        power = it
-                                                    )
-                                                }
-                                            )
-                                        }
+                                        CustomSwitch(
+                                            isCheck  = uiPower,
+                                            enabled  = !isUpdatingPower,
+                                            onCheckedChange = { newValue ->
+                                                pendingPower   = newValue
+                                                isUpdatingPower = true
+                                                displayViewModel.updateDeviceStateBulk(
+                                                    deviceId = deviceId,
+                                                    serial   = serialNumber,
+                                                    updates  = listOf(mapOf("power_status" to newValue))
+                                                )
+                                            }
+                                        )
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -352,21 +388,22 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    if ("brightness" in controls) {
+//                                    if ("brightness" in controls) {
                                         Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
                                         EdgeToEdgeSlider(
                                             value = sliderValue,
-                                            onValueChange = {
-                                                sliderValue = it
-                                                displayViewModel.updateDeviceState(
+                                            onValueChange = { v ->
+                                                sliderValue = v
+                                                if (uiPower) displayViewModel.updateDeviceStateBulk(
                                                     deviceId = deviceId,
-                                                    serial = serialNumber,
-                                                    brightness = it.toInt()
+                                                    serial   = serialNumber,
+                                                    updates  = listOf(mapOf("brightness" to sliderToPercent(v))) // <-- dùng 0-100
                                                 )
                                             }
                                         )
-                                    }
+
+//                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -381,18 +418,23 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                if ("color" in controls) {
-                                    FancyColorSlider(
-                                        attribute = attribute,
-                                        onColorChange = { color ->
-                                            displayViewModel.updateDeviceState(
+//                                if ("color" in controls) {
+                                /* ---------------------- Trong DeviceDetailScreen ---------------------- */
+
+                                FancyColorSlider(
+                                    attribute = attribute,
+                                    onColorChange = { hex ->
+                                        attribute = attribute.copy(color = hex)        // cập nhật state UI
+                                        if (uiPower) {                                 // chỉ sync khi đèn đang bật
+                                            displayViewModel.updateDeviceStateBulk(
                                                 deviceId = deviceId,
-                                                serial = serialNumber,
-                                                color = color
+                                                serial   = serialNumber,
+                                                updates  = listOf(mapOf("color" to hex))
                                             )
                                         }
-                                    )
-                                }
+                                    }
+                                )
+//                                }
                             }
                         }
 
@@ -664,652 +706,5 @@ fun DeviceDetailScreen(
                 }
             }
         )
-    }
-}
-
-//@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
-//@Composable
-//fun DeviceDetailScreenPreview() {
-//    IoTHomeConnectAppTheme {
-//        DeviceDetailScreen(navController = rememberNavController())
-//    }
-//}
-
-@Composable
-fun DeviceDetailTabletScreen(
-    navController: NavHostController
-) {
-    var rowWidth by remember { mutableStateOf<Int?>(null) }
-    var selectedTimeBegin by remember { mutableStateOf("12:00 AM") }
-    var selectedTimeEnd by remember { mutableStateOf("12:00 AM") }
-    var showDialogTimePickerBegin by remember { mutableStateOf(false) }
-    var showDialogTimePickerEnd by remember { mutableStateOf(false) }
-    var showDialog by remember { mutableStateOf(false) }
-
-    val switchState by remember { mutableStateOf(true) }
-
-    var attribute by remember {
-        mutableStateOf(
-            AttributeRequest(
-                brightness = 0,
-                color = "#000000"
-            )
-        )
-    }
-
-    var safeDevice = DeviceResponse(
-        DeviceID = 0,
-        TypeID = 0,
-        Name = "",
-        PowerStatus = false,
-        SpaceID = 0,
-        Attribute = ""
-    )
-
-    Log.e("safeDevice", safeDevice.toString())
-
-    /*
-    LaunchedEffect(Unit) {
-        // TODO: Re-enable API call when new API is ready
-        // viewModel.loadDeviceDetail()
-
-        // Use demo data for now
-    }
-    */
-
-    LaunchedEffect(safeDevice.Attribute) {
-        val attributeJson = if (safeDevice.Attribute.isEmpty()) {
-            """{"brightness":0, "color":"#000000"}""" // Giá trị mặc định
-        } else {
-            safeDevice.Attribute
-        }
-
-        Log.e("attributeJson", attributeJson)
-
-        val gson = Gson()
-        attribute = gson.fromJson(attributeJson, AttributeRequest::class.java)
-
-        Log.e("attributeJson", attribute.toString())
-    }
-
-    var powerStatus by remember { mutableStateOf(false) }
-
-    LaunchedEffect(safeDevice) {
-        powerStatus = safeDevice.PowerStatus
-    }
-
-    IoTHomeConnectAppTheme {
-        val colorScheme = MaterialTheme.colorScheme
-        Scaffold(
-            topBar = {
-                Header(
-                    navController = navController,
-                    type = "Back",
-                    title = "Chi tiết thiết bị"
-                )
-            },
-            bottomBar = {
-                MenuBottom(navController)
-            },
-            containerColor = colorScheme.background,
-            modifier = Modifier.fillMaxSize(),
-            content = { innerPadding ->
-
-                var showAlertDialog by remember { mutableStateOf(false) }
-                if (showAlertDialog) {
-                    WarningDialog(
-                        title = "Gỡ kết nối",
-                        text = "Bạn có chắc chắn muốn gỡ kết nối thiết bị này không?",
-                        onConfirm = {
-                            showAlertDialog = false
-                            navController.popBackStack()
-                        },
-                        onDismiss = {
-                            showAlertDialog = false
-                        }
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .fillMaxHeight()
-                            .imePadding()
-                            .verticalScroll(rememberScrollState())
-                            .padding(innerPadding)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(color = colorScheme.background)
-                                .wrapContentHeight()
-                        ) {
-                            Column {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                        .background(
-                                            color = colorScheme.primary,
-                                            shape = RoundedCornerShape(bottomStart = 40.dp)
-                                        )
-                                        .zIndex(1f)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .clip(RoundedCornerShape(bottomStart = 40.dp))
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.padding(
-                                                    top = 8.dp,
-                                                    end = 12.dp
-                                                )
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(
-                                                            start = 12.dp,
-                                                            end = 12.dp
-                                                        )
-                                                        .fillMaxWidth()
-                                                        .background(color = colorScheme.primary)
-                                                        .weight(0.2f),
-                                                    horizontalAlignment = Alignment.Start,
-                                                    verticalArrangement = Arrangement.SpaceBetween
-                                                ) {
-                                                    Text(
-                                                        text = safeDevice.Name,
-                                                        color = colorScheme.onPrimary,
-                                                        lineHeight = 32.sp,
-                                                        fontSize = 30.sp
-                                                    )
-                                                    Spacer(modifier = Modifier.height(4.dp))
-
-                                                    Switch(
-                                                        checked = powerStatus,
-                                                        onCheckedChange = {
-                                                            powerStatus = !powerStatus
-                                                        },
-                                                        thumbContent = {
-                                                            Icon(
-                                                                imageVector = if (switchState) Icons.Filled.Check else Icons.Filled.Close,
-                                                                contentDescription = "On/Off Switch",
-                                                                tint = if (switchState) colorScheme.onPrimary else colorScheme.onSecondary.copy(
-                                                                    alpha = 0.8f
-                                                                )
-                                                            )
-                                                        },
-                                                        colors = SwitchDefaults.colors(
-                                                            checkedThumbColor = colorScheme.primary,
-                                                            checkedTrackColor = colorScheme.onPrimary,
-                                                            uncheckedThumbColor = colorScheme.secondary,
-                                                            uncheckedTrackColor = colorScheme.onSecondary.copy(
-                                                                alpha = 0.8f
-                                                            ),
-                                                        )
-                                                    )
-
-                                                    Row(
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                        horizontalArrangement = Arrangement.Start,
-                                                        verticalAlignment = Alignment.Bottom
-                                                    ) {
-                                                        Text(
-                                                            text = attribute.brightness.toString(),
-                                                            fontWeight = FontWeight.Bold,
-                                                            fontSize = 50.sp,
-                                                            color = colorScheme.onPrimary
-                                                        )
-                                                        Text(
-                                                            "%",
-                                                            fontWeight = FontWeight.Bold,
-                                                            fontSize = 25.sp,
-                                                            modifier = Modifier.offset(y = (-8).dp),
-                                                            color = colorScheme.onPrimary
-                                                        )
-                                                    }
-                                                    Text(
-                                                        "Độ sanng",
-                                                        color = colorScheme.onPrimary,
-                                                        fontSize = 20.sp
-                                                    )
-                                                    Spacer(modifier = Modifier.height(8.dp))
-                                                }
-
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.lamp),
-                                                    modifier = Modifier.size(150.dp),
-                                                    contentDescription = "",
-                                                    colorFilter = ColorFilter.tint(colorScheme.onPrimary)
-                                                )
-                                            }
-
-                                            Column(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(start = 12.dp, end = 12.dp)
-                                                    .background(color = colorScheme.primary)
-                                            ) {
-                                                Text(
-                                                    "Cường độ",
-                                                    color = colorScheme.onPrimary,
-                                                )
-
-                                                Column(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth(),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    Row(
-                                                        modifier = Modifier
-                                                            .width(500.dp)
-                                                            .onSizeChanged { size ->
-                                                                rowWidth = size.width
-                                                            },
-                                                        horizontalArrangement = Arrangement.Center,
-                                                        verticalAlignment = Alignment.CenterVertically
-                                                    ) {
-                                                        Image(
-                                                            painter = painterResource(id = R.drawable.bulboff),
-                                                            modifier = Modifier
-                                                                .padding(end = 8.dp)
-                                                                .size(24.dp),
-                                                            contentDescription = ""
-                                                        )
-
-                                                        Slider(
-                                                            value = attribute.brightness.toFloat(),
-                                                            onValueChange = {
-
-                                                            },
-                                                            onValueChangeFinished = {
-                                                            },
-                                                            steps = 10,
-                                                            valueRange = 0f..255f,
-                                                            modifier = Modifier.fillMaxWidth(),
-                                                            colors = SliderDefaults.colors(
-                                                                thumbColor = colorScheme.onPrimary,
-                                                                activeTrackColor = colorScheme.onPrimary,
-                                                                activeTickColor = colorScheme.secondary,
-                                                                inactiveTrackColor = colorScheme.secondary,
-                                                                inactiveTickColor = colorScheme.onSecondary
-                                                            )
-                                                        )
-
-                                                        Image(
-                                                            painter = painterResource(id = R.drawable.bulb),
-                                                            modifier = Modifier
-                                                                .padding(start = 8.dp)
-                                                                .size(24.dp),
-                                                            contentDescription = ""
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 12.dp, end = 12.dp)
-                                                    .fillMaxWidth()
-                                                    .height(1.dp)
-                                                    .background(colorScheme.onPrimary)
-                                            )
-
-                                            Column(
-                                                modifier = Modifier
-                                                    .fillMaxWidth(),
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                verticalArrangement = Arrangement.Center
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier
-                                                        .padding(
-                                                            top = 12.dp,
-                                                            start = 12.dp,
-                                                            end = 12.dp
-                                                        )
-                                                        .width(500.dp),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                ) {
-                                                    FancyColorSlider(
-                                                        attribute = attribute,
-                                                        onColorChange = {}
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .wrapContentHeight()
-                                ) {
-
-                                    Box(
-                                        modifier = Modifier
-                                            .width(40.dp)
-                                            .height(40.dp)
-                                            .align(Alignment.TopEnd)
-                                            .background(color = colorScheme.primary)
-                                            .zIndex(1f)
-                                    )
-
-
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(
-                                                color = colorScheme.background,
-                                                shape = RoundedCornerShape(topEndPercent = 50)
-                                            )
-                                            .width(50.dp)
-                                            .height(50.dp)
-                                            .zIndex(2f)
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clip(RoundedCornerShape(topEndPercent = 100))
-                                        ) {
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(
-                                                        top = 12.dp,
-                                                        start = 12.dp,
-                                                        end = 8.dp
-                                                    ),
-                                                horizontalArrangement = Arrangement.SpaceBetween,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Button(
-                                                    onClick = {
-                                                        showDialog = true
-                                                    },
-                                                    modifier = Modifier
-                                                        .size(36.dp),
-                                                    shape = CircleShape,
-                                                    contentPadding = PaddingValues(0.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = colorScheme.onPrimary,
-                                                        contentColor = colorScheme.primary
-                                                    )
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Info,
-                                                        contentDescription = "Info",
-                                                        modifier = Modifier.size(36.dp),
-                                                        tint = colorScheme.primary
-                                                    )
-                                                }
-                                                Button(
-                                                    onClick = {
-                                                        navController.navigate(Screens.AccessPoint.route + "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}")
-                                                    },
-                                                    modifier = Modifier
-                                                        .size(36.dp),
-                                                    shape = CircleShape,
-                                                    contentPadding = PaddingValues(0.dp),
-                                                    colors = ButtonDefaults.buttonColors(
-                                                        containerColor = colorScheme.onPrimary,
-                                                        contentColor = colorScheme.primary
-                                                    )
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.Wifi,
-                                                        contentDescription = "Wifi",
-                                                        modifier = Modifier.size(36.dp),
-                                                        tint = colorScheme.primary
-                                                    )
-                                                }
-                                                if (showDialog) {
-                                                    fun getIconForType(typeId: Int): String {
-                                                        return when (typeId) {
-                                                            1 -> "Fire Alarm"
-                                                            2 -> "LED Light"
-                                                            else -> ""
-                                                        }
-                                                    }
-                                                    AlertDialog(
-                                                        onDismissRequest = {
-                                                            showDialog = false
-                                                        },
-                                                        title = { Text(text = "Thông tin thiết bị") },
-                                                        text = {
-                                                            Column {
-                                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                                Text(
-                                                                    "Loại thiết bị: ${
-                                                                        getIconForType(
-                                                                            safeDevice.TypeID
-                                                                        )
-                                                                    }"
-                                                                )
-                                                            }
-                                                        },
-                                                        confirmButton = {
-                                                            Button(onClick = {
-                                                                showDialog = false
-                                                            }) {
-                                                                Text("Đóng")
-                                                            }
-                                                        }
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .width(500.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = "Select Time",
-                                    fontSize = 24.sp,
-                                    color = Color.Black,
-                                    modifier = Modifier.padding(bottom = 16.dp)
-                                )
-                                Row(
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = selectedTimeBegin,
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black,
-                                        modifier = Modifier
-                                            .clickable { showDialogTimePickerBegin = true }
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = "To",
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black,
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = selectedTimeEnd,
-                                        fontSize = 24.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.Black,
-                                        modifier = Modifier
-                                            .clickable { showDialogTimePickerEnd = true }
-                                    )
-                                }
-
-                                if (showDialogTimePickerBegin) {
-                                    Dialog(onDismissRequest = {
-                                        showDialogTimePickerBegin = false
-                                    }) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(
-                                                    Color.Black,
-                                                    shape = RoundedCornerShape(12.dp)
-                                                )
-                                                .padding(16.dp)
-                                                .wrapContentSize()
-                                        ) {
-                                            EndlessRollingPadlockTimePicker { hour, minute, amPm ->
-                                                selectedTimeBegin = "$hour:${
-                                                    minute.toString().padStart(2, '0')
-                                                } $amPm"
-                                                showDialog = false
-                                            }
-                                        }
-                                    }
-                                }
-                                if (showDialogTimePickerEnd) {
-                                    Dialog(onDismissRequest = { showDialogTimePickerEnd = false }) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(
-                                                    Color.Black,
-                                                    shape = RoundedCornerShape(12.dp)
-                                                )
-                                                .padding(16.dp)
-                                                .wrapContentSize()
-                                        ) {
-                                            EndlessRollingPadlockTimePicker { hour, minute, amPm ->
-                                                selectedTimeEnd = "$hour:${
-                                                    minute.toString().padStart(2, '0')
-                                                } $amPm"
-                                                showDialog = false
-                                            }
-                                        }
-                                    }
-                                }
-                                DayPicker()
-                                Row(
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .then(Modifier.width(rowWidth!!.dp)),
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        8.dp,
-                                        alignment = Alignment.CenterHorizontally
-                                    ),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            navController.navigate(Screens.ActivityHistory.route)
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .width(200.dp)
-                                            .height(48.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary),
-                                        shape = RoundedCornerShape(50)
-                                    ) {
-                                        Text(
-                                            text = "Lịch sử hoạt động",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp
-                                        )
-                                    }
-
-                                    Button(
-                                        onClick = {
-                                            showAlertDialog = true
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .width(200.dp)
-                                            .height(48.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = colorScheme.error),
-                                        shape = RoundedCornerShape(50)
-                                    ) {
-                                        Text(
-                                            text = "Gỡ kết nối",
-                                            fontWeight = FontWeight.Bold,
-                                            color = colorScheme.onError
-                                        )
-                                    }
-                                }
-                                Row(
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .then(if (rowWidth != null) Modifier.width(rowWidth!!.dp) else Modifier.fillMaxWidth()),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Button(
-                                        onClick = {
-                                            navController.navigate(Screens.SharedUsers.route + "?id=${safeDevice.DeviceID}")
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .width(300.dp)
-                                            .height(48.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Green),
-                                        shape = RoundedCornerShape(50)
-                                    ) {
-                                        Text(
-                                            text = "Chia sẻ quyền",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            color = colorScheme.onPrimary
-                                        )
-                                    }
-
-                                    Button(
-                                        onClick = {
-                                            showAlertDialog = true
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .width(300.dp)
-                                            .height(48.dp),
-                                        colors = ButtonDefaults.buttonColors(containerColor = Color.Yellow),
-                                        shape = RoundedCornerShape(50)
-                                    ) {
-                                        Text(
-                                            text = "Reset thiết bị",
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            color = Color.Black
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
-@Composable
-fun DeviceDetailTabletScreenPreview() {
-    IoTHomeConnectAppTheme {
-        DeviceDetailTabletScreen(navController = rememberNavController())
     }
 }

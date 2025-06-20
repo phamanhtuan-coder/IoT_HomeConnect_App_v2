@@ -7,5 +7,7 @@ data class DeviceStateResponse(
 )
 
 data class DeviceState(
-    val power_status: Boolean
+    val power_status: Boolean,
+    val brightness:   Int?   = null,
+    val color:        String? = null
 )

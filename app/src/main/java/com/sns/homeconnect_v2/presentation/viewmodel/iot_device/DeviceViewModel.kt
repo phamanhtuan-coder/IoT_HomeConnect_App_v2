@@ -124,24 +124,22 @@ class DeviceViewModel @Inject constructor(
 
     val deviceStatus = mutableStateOf<JSONObject?>(null)
 
-    fun initSocket(deviceId: String, serial_number: String) {
-        val accountId = authManager.getAccountId()
-        connectSocketUseCase(deviceId, serial_number, accountId)
+    fun initSocket(deviceId: String, serial: String) {
+        val accId = authManager.getAccountId()
 
-        observeSocketEventUseCase("alarmAlert") { json ->
-            alarmAlert.value = json
-        }
+        connectSocketUseCase(deviceId, serial, accId)
 
-        // ⬇️ Lắng nghe sensorData mới
-        observeSocketEventUseCase("sensorData") { json ->
-            sensorData.value = json
-        }
-
-        observeSocketEventUseCase("deviceStatus") { json ->
-            deviceStatus.value = json
+        observeSocketEventUseCase { evt, data ->
+            when (evt) {
+                "device_online"        -> Log.d("SOCKET", "✅ Online $data")
+                "sensorData"           -> sensorData.value   = data
+                "alarmAlert"           -> alarmAlert.value   = data
+                "deviceStatus"         -> deviceStatus.value = data
+                "buzzerStatus"         -> Log.d("SOCKET", "🔔 Buzzer $data")
+                "realtime_device_value"-> Log.d("SOCKET", "📡 Value  $data")
+            }
         }
     }
-
 
     fun sendPowerCommand(power: Boolean) {
         val command = JSONObject().apply {

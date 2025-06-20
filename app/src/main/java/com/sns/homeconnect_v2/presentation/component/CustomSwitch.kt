@@ -17,11 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun CustomSwitch(
     isCheck: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    enabled: Boolean = true,
 ) {
     Switch(
         checked = isCheck,
-        onCheckedChange = { onCheckedChange(it) },
+        onCheckedChange = { if (enabled) onCheckedChange(it) },
         thumbContent = {
             Icon(
                 imageVector = if (isCheck) Icons.Default.Check else Icons.Default.Close,

@@ -1,5 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component
 
+import Status
+import StatusCircle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,7 +54,7 @@ fun TicketCardSwipeable(
     name: String = "Nguyễn Văn A",
     ticketType: String = "Báo mất",
     ticketDate: String = "1/1/2025",
-    status: TicketStatus = TicketStatus.UNPROCESSED,
+    status: String="pending",
     isRevealed: Boolean = false,
     onExpand: () -> Unit,
     onCollapse: () -> Unit,
@@ -97,16 +99,21 @@ fun TicketCardSwipeable(
                     color = Color.Black
                 )
             }
-            val statusText = when (status) {
-                TicketStatus.PROCESSED -> "Đã xử lý"
-                TicketStatus.UNPROCESSED -> "Chưa xử lý"
-            }
-            val statusColor = when (status) {
-                TicketStatus.PROCESSED -> Color(0xFF00C853)
-                TicketStatus.UNPROCESSED -> Color.Red
+            val statusColor = if(status=="pending") {
+                Color(0xFFFF9800) // Màu vàng cho trạng thái đang chờ xử lý
+            } else if (status == "in_progress") {
+                Color(0xFF4CAF50) // Màu xanh lá cho trạng thái đã xử lý
+            } else if( status == "rejected") {
+                Color(0xFFF44336) // Màu đỏ cho trạng thái bị từ chối
+            } else if( status == "approved"){
+                Color(0xFF2196F3) // Màu xanh dương cho trạng thái đã phê duyệt
+            } else if( status == "resolved"){
+                Color(0xFF9C27B0) // Màu tím cho trạng thái đã giải quyết
+            } else {
+                Color.Gray // Màu xám cho trạng thái không xác định
             }
             Text(
-                text = statusText,
+                text = status ?: "Chưa xác định",
                 color = statusColor,
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                 fontSize = 16.sp,
@@ -115,35 +122,35 @@ fun TicketCardSwipeable(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun TicketCardSwipeablePreview() {
-    val tickets = remember {
-        mutableStateListOf(
-            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
-            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
-            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
-        )
-    }
-    var revealedIndex by remember { mutableIntStateOf(-1) } // -1 là không mở cái nào
-
-    LazyColumn(modifier = Modifier.padding(8.dp)) {
-        itemsIndexed(tickets) { index, ticket ->
-            Spacer(modifier = Modifier.height(8.dp))
-            TicketCardSwipeable(
-                name = ticket.nameUser,
-                ticketType = ticket.typeTicket,
-                ticketDate = ticket.date,
-                status = ticket.status,
-                isRevealed = revealedIndex == index,
-                onExpand = { revealedIndex = index },
-                onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
-                onDelete = {
-                    tickets.removeAt(index)
-                    if (revealedIndex == index) revealedIndex = -1
-                }
-            )
-        }
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun TicketCardSwipeablePreview() {
+//    val tickets = remember {
+//        mutableStateListOf(
+//            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
+//            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
+//            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
+//        )
+//    }
+//    var revealedIndex by remember { mutableIntStateOf(-1) } // -1 là không mở cái nào
+//
+//    LazyColumn(modifier = Modifier.padding(8.dp)) {
+//        itemsIndexed(tickets) { index, ticket ->
+//            Spacer(modifier = Modifier.height(8.dp))
+//            TicketCardSwipeable(
+//                name = ticket.nameUser,
+//                ticketType = ticket.typeTicket,
+//                ticketDate = ticket.date,
+//                status = ticket.status,
+//                isRevealed = revealedIndex == index,
+//                onExpand = { revealedIndex = index },
+//                onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
+//                onDelete = {
+//                    tickets.removeAt(index)
+//                    if (revealedIndex == index) revealedIndex = -1
+//                }
+//            )
+//        }
+//    }
+//}
 

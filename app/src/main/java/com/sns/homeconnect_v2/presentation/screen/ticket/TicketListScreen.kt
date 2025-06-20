@@ -43,9 +43,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
-import com.sns.homeconnect_v2.presentation.model.TicketStatus
-import com.sns.homeconnect_v2.presentation.model.TicketUi
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.ticket.GetListTicketViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,19 +78,29 @@ fun TicketListScreen(
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-    val tickets = remember {
-        mutableStateListOf(
-            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
-            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
-            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
-        )
-    }
+//    val tickets = remember {
+//        mutableStateListOf(
+//            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
+//            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
+//            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
+//        )
+//    }
+
+    val ticketViewModel: GetListTicketViewModel = hiltViewModel()
+    val tickets= ticketViewModel.tickets.collectAsState().value
+
     var revealedIndex by remember { mutableIntStateOf(-1) }
     var selectedDate by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
+// Log để debug
+    LaunchedEffect(tickets) {
+        tickets.forEachIndexed { index, ticket ->
+            println("Ticket $index: userName=${ticket.userName}, status=${ticket.status}")
+        }
+    }
 
     val options = listOf("Tất cả", "Đã xử lý", "Chưa xử lý")
     var selectedStatus by remember { mutableStateOf(options[0]) }
@@ -99,34 +108,26 @@ fun TicketListScreen(
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-
         Scaffold(
             topBar = {
                 Header(
                     navController = navController,
-                    type          = "Back",
-                    title         = "Báo mất thiết bị"
+                    type = "Back",
+                    title = "Báo mất thiết bị"
                 )
             },
             containerColor = Color.White,
             floatingActionButtonPosition = FabPosition.End,
-            bottomBar = {
-                MenuBottom(navController)
-            }
+            bottomBar = { MenuBottom(navController) }
         ) { scaffoldPadding ->
-            Column (
-                modifier= Modifier.padding(scaffoldPadding)
-            ) {
-                ColoredCornerBox(
-                    cornerRadius = 40.dp
-                ) {
+            Column(modifier = Modifier.padding(scaffoldPadding)) {
+                ColoredCornerBox(cornerRadius = 40.dp) {
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 16.dp, vertical = 16.dp)
                             .fillMaxWidth(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                    }
+                        contentAlignment = Alignment.Center
+                    ) {}
                 }
 
                 InvertedCornerHeader(
@@ -155,24 +156,18 @@ fun TicketListScreen(
                 }
 
                 if (tickets.isNotEmpty()) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         itemsIndexed(tickets) { index, ticket ->
                             Spacer(modifier = Modifier.height(8.dp))
                             TicketCardSwipeable(
-                                name = ticket.nameUser,
-                                ticketType = ticket.typeTicket,
-                                ticketDate = ticket.date,
-                                status = ticket.status,
+                                name = ticket.userName,
+                                ticketType = ticket.ticketTypeName,
+                                ticketDate = ticket.createdAt,
+                                status = ticket.status.toString(),
                                 isRevealed = revealedIndex == index,
                                 onExpand = { revealedIndex = index },
                                 onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
-                                onDelete = {
-                                    tickets.removeAt(index)
-                                    if (revealedIndex == index) revealedIndex = -1
-                                }
+                                onDelete = {}
                             )
                         }
                     }
@@ -181,18 +176,18 @@ fun TicketListScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp),
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = Alignment.Center
                     ) {
                         Text("Không tìm yêu cầu hổ trợ")
                     }
                 }
+
                 BottomSheetWithTrigger(
                     isSheetVisible = isSheetVisible,
                     onDismiss = { isSheetVisible = false },
                     sheetContent = {
                         FilterSheetContent(
                             titleContent = {
-                                // Tuỳ chỉnh tiêu đề (thêm icon hoặc đổi style nếu muốn)
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.FilterList,
@@ -214,9 +209,7 @@ fun TicketListScreen(
                                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
+                                    Box(modifier = Modifier.fillMaxWidth()) {
                                         OutlinedTextField(
                                             value = selectedDate,
                                             onValueChange = {},
@@ -233,10 +226,8 @@ fun TicketListScreen(
                                             placeholder = { Text("Chọn ngày") },
                                             singleLine = true,
                                             textStyle = MaterialTheme.typography.bodyLarge,
-                                            shape = RoundedCornerShape(16.dp),
+                                            shape = RoundedCornerShape(16.dp)
                                         )
-
-                                        // Overlay button bắt sự kiện click
                                         Button(
                                             onClick = { showDatePicker = true },
                                             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
@@ -247,7 +238,7 @@ fun TicketListScreen(
                                                 .padding(0.dp),
                                             contentPadding = PaddingValues(0.dp),
                                             elevation = null,
-                                            enabled = true // để click được
+                                            enabled = true
                                         ) {}
                                     }
                                 }
@@ -283,7 +274,7 @@ fun TicketListScreen(
                                 ActionButtonWithFeedback(
                                     label = "Xác nhận",
                                     style = HCButtonStyle.PRIMARY,
-                                    onAction = { _, _ -> isSheetVisible = false},
+                                    onAction = { _, _ -> isSheetVisible = false },
                                     snackbarViewModel = snackbarViewModel
                                 )
                             }

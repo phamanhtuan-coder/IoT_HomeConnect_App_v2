@@ -38,7 +38,8 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 @Composable
 fun TicketDetailScreen(
     navController: NavHostController,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+    snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+    ticketId: String? = null // Thêm tham số ticketId nếu cần thiết
 ) {
     IoTHomeConnectAppTheme {
         // Các biến dữ liệu

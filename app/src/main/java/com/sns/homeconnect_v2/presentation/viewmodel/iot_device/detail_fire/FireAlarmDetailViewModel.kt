@@ -44,6 +44,8 @@ class FireAlarmDetailViewModel @Inject constructor(
     private val unlinkDeviceUseCase: UnlinkDeviceUseCase,
 ) : ViewModel() {
 
+
+
     private val _infoDeviceState = MutableStateFlow<GetInfoDeviceState>(GetInfoDeviceState.Idle)
     val infoDeviceState = _infoDeviceState.asStateFlow()
 

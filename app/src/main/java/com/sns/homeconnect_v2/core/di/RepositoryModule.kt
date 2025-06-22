@@ -4,6 +4,7 @@ import android.content.Context
 import com.sns.homeconnect_v2.PermissionEventHandler
 import com.sns.homeconnect_v2.core.permission.PermissionManager
 import com.sns.homeconnect_v2.data.AuthManager
+import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.repository.AlertRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.AuthRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
@@ -14,6 +15,7 @@ import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SocketRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SpaceRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.TicketRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserActivityRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.UserRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.WeatherRepositoryImpl
@@ -27,6 +29,7 @@ import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import com.sns.homeconnect_v2.domain.repository.SocketRepository
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
+import com.sns.homeconnect_v2.domain.repository.TicketRepository
 import com.sns.homeconnect_v2.domain.repository.UserActivityRepository
 import com.sns.homeconnect_v2.domain.repository.UserRepository
 import com.sns.homeconnect_v2.domain.repository.WeatherRepository
@@ -74,6 +77,8 @@ import com.sns.homeconnect_v2.domain.usecase.iot_device.UpdateDeviceStateUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.UpdateSpaceUseCase
+import com.sns.homeconnect_v2.domain.usecase.ticket.GetDetailTicketUseCase
+import com.sns.homeconnect_v2.domain.usecase.ticket.GetListTicketUseCase
 import com.sns.homeconnect_v2.domain.usecase.user_activity.GetUserActivitiesUseCase
 import com.sns.homeconnect_v2.domain.usecase.weather.GetCurrentWeatherUseCase
 import dagger.Binds
@@ -82,7 +87,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import retrofit2.Retrofit // Thêm import nếu sử dụng Retrofit
 import javax.inject.Singleton
+import kotlin.jvm.java
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -135,6 +142,9 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindEcomRepository(impl: EcomRepositoryImpl): EcomRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindTicketRepository(ticketRepositoryImpl: TicketRepositoryImpl): TicketRepository
 
     companion object {
         @Provides
@@ -142,6 +152,7 @@ abstract class RepositoryModule {
         fun provideAuthManager(@ApplicationContext context: Context): AuthManager {
             return AuthManager(context)
         }
+
 
         @Provides
         @Singleton
@@ -290,10 +301,6 @@ abstract class RepositoryModule {
             return GetListSpaceUseCase(spaceRepository)
         }
 
-//        @Provides
-//        @Singleton
-//        fun provideGetSpaceDetailUseCase(spaceRepository: SpaceRepository): GetSpaceDetailUseCase {}
-
         @Provides
         @Singleton
         fun provideUpdateSpaceUseCase(spaceRepository: SpaceRepository): UpdateSpaceUseCase {
@@ -396,7 +403,6 @@ abstract class RepositoryModule {
             return GetGroupMembersUseCase(groupRepository)
         }
 
-
         @Provides
         @Singleton
         fun provideGetUserActivitiesUseCase(repository: UserActivityRepository): GetUserActivitiesUseCase {
@@ -407,6 +413,18 @@ abstract class RepositoryModule {
         @Singleton
         fun provideDeleteSpaceUseCase(spaceRepository: SpaceRepository): DeleteSpaceUseCase {
             return DeleteSpaceUseCase(spaceRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideTicketUseCase(ticketRepository: TicketRepository): GetListTicketUseCase {
+            return GetListTicketUseCase(ticketRepository)
+        }
+
+        @Provides
+        @Singleton
+        fun provideDetailTicketUseCase(ticketRepository: TicketRepository): GetDetailTicketUseCase {
+            return GetDetailTicketUseCase(ticketRepository)
         }
 
         @Provides

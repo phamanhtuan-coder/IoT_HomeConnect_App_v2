@@ -48,6 +48,8 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.ticket.TicketListScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -400,6 +402,25 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     serialNumber = serialNumber,
                     productId = productId,
                     navController = navController
+                )
+            }
+
+            composable(
+                route = Screens.ListTicket.route,
+            ) {
+                TicketListScreen(navController = navController)
+            }
+
+            composable(
+                route = Screens.DetailTicket.route,
+                arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
+                // Pass the ticketId to the DetailTicketScreen
+                TicketDetailScreen(
+                    navController = navController,
+                    ticketId = ticketId,
+                    snackbarViewModel = hiltViewModel()
                 )
             }
         }

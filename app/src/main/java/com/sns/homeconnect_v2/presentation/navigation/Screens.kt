@@ -140,6 +140,11 @@ sealed class Screens(val route: String) {
     }
     data object ListDevices : Screens("list_devices")
 
+    data object ListTicket : Screens("list_ticket")
+    data object DetailTicket : Screens("detail_ticket/{ticketId}") {
+        fun createRoute(ticketId: String) = "detail_ticket/$ticketId"
+    }
+
     // --- Notification screens ---
     data object AllNotifications : Screens("all_notifications")
     data object NotificationDetail : Screens("notification_detail?id={id}") {
@@ -167,6 +172,8 @@ sealed class Screens(val route: String) {
                 Uri.encode(productId)
             ).joinToString("/")
     }
+
+
     // --- Other screens ---
     // ...add more here if needed...
 }

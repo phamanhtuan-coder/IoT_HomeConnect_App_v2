@@ -375,7 +375,8 @@ interface ApiService {
     @POST("devices/{deviceId}/state/bulk")
     suspend fun updateDeviceStateBulk(
         @Path("deviceId") deviceId: String,
-        @Body request: BulkDeviceStateUpdateRequest
+        @Body request: BulkDeviceStateUpdateRequest,
+        @Header("Authorization") token: String
     ): BulkDeviceStateUpdateResponse
 
 

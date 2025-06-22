@@ -44,4 +44,7 @@ class UpdateSpaceViewModel @Inject constructor(
             }
         }
     }
+    fun setEditingSpace(space: SpaceResponse) {
+        _updatespace.value = space
+    }
 }

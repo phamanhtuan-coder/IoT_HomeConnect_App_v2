@@ -90,6 +90,7 @@ class DeviceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateDeviceStateBulk(deviceId: String, request: BulkDeviceStateUpdateRequest): BulkDeviceStateUpdateResponse {
-        return apiService.updateDeviceStateBulk(deviceId, request)
+        val token = authManager.getJwtToken()
+        return apiService.updateDeviceStateBulk(deviceId, request, "Bearer $token")
     }
 }

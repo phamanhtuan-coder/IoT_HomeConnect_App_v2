@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -49,19 +50,12 @@ class SpaceScreenViewModel @Inject constructor(
         }
     }
 
-    fun fetchSpaces(homeId: Int) {
-        viewModelScope.launch {
-            try {
-                val result = getListSpaceUseCase(homeId)
-                result.onSuccess { spaces ->
-                    _spaces.value = spaces.map { it.copy(isRevealed = false) }
-                }.onFailure { error ->
-                    _spaces.value = emptyList()
-                    // Có thể gửi lỗi đến UI qua một StateFlow khác nếu cần
-                }
-            } catch (e: Exception) {
-                _spaces.value = emptyList()
-                // Có thể gửi lỗi đến UI qua một StateFlow khác nếu cần
+    fun expandItem(index: Int) {
+        _spaces.update { currentSpaces ->
+            currentSpaces.mapIndexed { i, space ->
+                if (i == index) space.copy(isRevealed = true)
+                else space.copy(isRevealed = false)
+
             }
         }
     }

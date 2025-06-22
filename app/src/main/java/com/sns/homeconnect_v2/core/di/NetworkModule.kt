@@ -1,6 +1,7 @@
 package  com.sns.homeconnect_v2.core.di
 
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.api.EcomApiService
 import com.sns.homeconnect_v2.data.remote.api.WeatherApiService
 import dagger.Module
 import dagger.Provides
@@ -23,6 +24,17 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
+
+    @Provides
+    @Singleton
+    @Named("HomeConnectEcomUrl")
+    fun provideHomeConnectEcomUrl(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl("http://10.0.2.2:8081/api/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
     @Provides
     @Singleton
     @Named("WeatherRetrofit")
@@ -37,6 +49,15 @@ object NetworkModule {
     @Singleton
     fun provideApiService(@Named("HomeConnectRetrofit") retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    @Named("HomeConnectEcomUrl") // BẮT BUỘC PHẢI CÓ TRÊN RETURN VALUE
+    fun provideEcomApiService(
+        @Named("HomeConnectEcomUrl") retrofit: Retrofit
+    ): EcomApiService {
+        return retrofit.create(EcomApiService::class.java)
     }
 
     @Provides

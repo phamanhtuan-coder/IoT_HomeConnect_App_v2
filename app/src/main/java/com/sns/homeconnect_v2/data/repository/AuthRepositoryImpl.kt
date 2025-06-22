@@ -45,6 +45,7 @@ class AuthRepositoryImpl @Inject constructor(
         authManager.saveJwtToken(response.accessToken)
         authManager.saveRefreshToken(response.refreshToken)
         authManager.saveDeviceUuid(response.deviceUuid)
+        authManager.saveAccountId(response.userId)
 
         return response
     }

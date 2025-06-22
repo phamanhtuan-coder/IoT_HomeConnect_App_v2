@@ -10,6 +10,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.sns.homeconnect_v2.presentation.navigation.Screens.EditSpaceWithHouse
+import com.google.gson.Gson
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -33,11 +35,11 @@ import com.sns.homeconnect_v2.presentation.screen.group.CreateGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.DetailGroupScreen
 import com.sns.homeconnect_v2.presentation.screen.group.house.CreateHouseScreen
 import com.sns.homeconnect_v2.presentation.screen.group.house.HouseDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.group.house.space.CreateSpaceScreen
 import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.DeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
@@ -45,6 +47,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipSc
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -170,6 +173,17 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             // --- Space screens ---
             // TODO: Add Spaces screen
             // TODO: Add AddSpace screen
+            composable(
+                route = Screens.AddSpace.route,
+                arguments = listOf(navArgument("houseId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val houseId = backStackEntry.arguments?.getInt("houseId") ?: -1
+                CreateSpaceScreen(
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel,
+                    houseId = houseId
+                )
+            }
             // TODO: Add SpaceManagement screen with route "space_management/{houseId}"
             // TODO: Add AddSpaceWithHouse screen with route "add_space/{houseId}"
             // TODO: Add EditSpace screen with route "edit_space/{spaceId}"
@@ -208,11 +222,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 backStackEntry ->
                 val spaceViewModel: SpaceScreenViewModel= hiltViewModel()
                 val houseId = backStackEntry.arguments?.getInt("houseId") ?: -1
+                val currentUserRole= backStackEntry.arguments?.getString("currentUserRole") ?: "member"
                 HouseDetailScreen(
                     navController = navController,
                     snackbarViewModel = snackbarViewModel,
                     spaceViewModel = spaceViewModel,
-                    houseId = houseId
+                    houseId = houseId,
+                    currentUserRole = currentUserRole
                 )
             }
 //ds space detail
@@ -260,17 +276,6 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = snackbarViewModel,
                 )
             }
-            composable(
-                route = "${Screens.AccessPoint.route}?id={id}&name={name}",
-                arguments = listOf(
-                    navArgument("id") { type = NavType.StringType; defaultValue = "" },
-                    navArgument("name") { type = NavType.StringType; defaultValue = "" }
-                )
-            ) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("id") ?: ""
-                val name = backStackEntry.arguments?.getString("name") ?: ""
-                AccessPointConnectionScreen(navController, id, name)
-            }
             composable(Screens.WifiConnection.route) {
                 WifiConnectionScreen(navController)
             }
@@ -279,19 +284,16 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 ListDeviceScreen(navController)
             }
 
-            composable(
-                route = Screens.DeviceDetail.route,
-                arguments = listOf(navArgument("deviceId") { type = NavType.IntType })
-            ) { backStackEntry ->
-                val deviceId = backStackEntry.arguments?.getInt("deviceId") ?: -1
-                DeviceDetailScreen(navController)
-            }
+//            composable(
+//                route = "${Screens.FireAlarmDetail.route}/{productJson}",
+//                arguments = listOf(navArgument("productJson") { type = NavType.StringType })
+//            ) { backStackEntry ->
+//                val productJson = backStackEntry.arguments?.getString("productJson") ?: ""
+//                val product = Gson().fromJson(productJson, ProductData::class.java)
+//
+//                FireAlarmDetailScreen(navController, , product)
+//            }
 
-            composable(
-                route = Screens.FireAlarmDetail.route
-            ) {
-                FireAlarmDetailScreen(navController)
-            }
 
             composable(
                 route = Screens.DefaultDetail.route,
@@ -337,12 +339,13 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 DeviceSharingListScreen(navController, id)
             }
 
-            composable("device/{typeID}/{id}") { backStackEntry ->
-                val typeID = backStackEntry.arguments?.getString("typeID")?.toIntOrNull() ?: 0
-                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull()
-                val screen = DeviceScreenFactory.getScreen(typeID)
-                screen(navController, id)
-            }
+//            composable("device/{typeID}/{id}") { backStackEntry ->
+//                val id = backStackEntry.arguments?.getString("id") ?: ""
+//                DynamicDeviceDetailScreen(
+//                    productId = id,
+//                    navController = navController
+//                )
+//            }
 
             // --- Notification screens ---
             composable(Screens.AllNotifications.route) {
@@ -363,6 +366,41 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             ) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getInt("id") ?: -1
                 UpdatePasswordScreen(navController, userId)
+            }
+
+            composable(
+                route = Screens.AccessPoint.route,
+                arguments = listOf(
+                    navArgument("id") { type = NavType.StringType; defaultValue = "" },
+                    navArgument("name") { type = NavType.StringType; defaultValue = "" }
+                )
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id") ?: ""
+                val name = backStackEntry.arguments?.getString("name") ?: ""
+                AccessPointConnectionScreen(navController, id, name)
+            }
+
+            composable(
+                route = Screens.DynamicDeviceDetail.route,
+                arguments = listOf(
+                    navArgument("deviceId") { type = NavType.StringType },
+                    navArgument("deviceName") { type = NavType.StringType },
+                    navArgument("serialNumber") { type = NavType.StringType },
+                    navArgument("productId") { type = NavType.StringType },
+                )
+            ) { backStackEntry ->
+                val deviceId = backStackEntry.arguments?.getString("deviceId") ?: ""
+                val deviceName = backStackEntry.arguments?.getString("deviceName") ?: ""
+                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: ""
+                val productId = backStackEntry.arguments?.getString("productId") ?: ""
+
+                DynamicDeviceDetailScreen(
+                    deviceId = deviceId,
+                    deviceName = deviceName,
+                    serialNumber = serialNumber,
+                    productId = productId,
+                    navController = navController
+                )
             }
         }
     }

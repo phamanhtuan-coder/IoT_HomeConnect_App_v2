@@ -59,8 +59,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.navigation.NavHostController
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
@@ -453,6 +455,7 @@ fun AddHousePopup(
     onAddOrUpdateHouse: (String, String, String, String) -> Unit,
     isTablet: Boolean
 ) {
+    var sel by remember { mutableStateOf<String?>(null) }
     val selectedLabel = remember { mutableStateOf("Nhà") }
     val selectedColor = remember { mutableStateOf("blue") }
 
@@ -536,8 +539,10 @@ fun AddHousePopup(
                             modifier = Modifier.fillMaxWidth()
                         )
                         IconPicker(
-                            selectedIconLabel = selectedLabel.value,
-                            onIconSelected = { selectedLabel.value = it }
+                            category = GroupIconCategory.HOUSE,
+                            selectedIconName = sel,
+                            onIconSelected = { sel = it },
+                            modifier = Modifier.padding(16.dp)
                         )
                         ColorPicker(
                             selectedColorLabel = selectedColor.value,

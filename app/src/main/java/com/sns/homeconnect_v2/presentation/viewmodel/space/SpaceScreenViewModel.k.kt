@@ -55,6 +55,7 @@ class SpaceScreenViewModel @Inject constructor(
             currentSpaces.mapIndexed { i, space ->
                 if (i == index) space.copy(isRevealed = true)
                 else space.copy(isRevealed = false)
+
             }
         }
     }

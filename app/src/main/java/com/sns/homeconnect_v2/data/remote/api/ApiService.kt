@@ -4,6 +4,7 @@ import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CheckEmailRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateGroupRequest
@@ -43,14 +44,21 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserActivityResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
+import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
-import com.sns.homeconnect_v2.data.remote.dto.response.Space
+import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.CreateHouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.House
@@ -58,7 +66,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
-import com.sns.homeconnect_v2.presentation.navigation.Screens
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -148,11 +155,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): House
 
-    @GET("spaces/{homeId}")
-    suspend fun getSpacesByHomeId(
-        @Path("homeId") homeId: Int,
-        @Header("Authorization") token: String
-    ): House
+//    @GET("spaces/{homeId}")
+//    suspend fun getSpacesByHomeId(
+//        @Path("homeId") homeId: Int,
+//        @Header("Authorization") token: String
+//    ): House
 
     @GET("devices/space/{spaceId}")
     suspend fun getDevicesBySpaceId(
@@ -277,6 +284,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<HouseWithSpacesResponse>
 
+    @GET("houses/group/{groupId}")
+    suspend fun getHousesByGroup(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): List<House>
+
     @PUT("groups/{groupId}/members/role")
     suspend fun updateGroupMemberRole(
         @Path("groupId") groupId: Int,
@@ -287,10 +300,10 @@ interface ApiService {
     @POST("notifications/otp")
     suspend fun sendOtp(@Body request: EmailRequest): EmailResponse
 
-    @POST("otp/verify")
-    suspend fun verifyOTPOld(
-        @Body request: EmailRequest
-    ): EmailResponse
+//    @POST("otp/verify")
+//    suspend fun verifyOTPOld(
+//        @Body request: EmailRequest
+//    ): EmailResponse
 
     @POST("notifications/otp/verify")
     suspend fun verifyOTPNew(
@@ -317,6 +330,53 @@ interface ApiService {
         @Body body: LinkDeviceRequest,
         @Header("Authorization") token: String
     ): LinkDeviceResponse
+
+    @DELETE("groups/{groupId}")
+    suspend fun deleteGroup(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @DELETE("houses/{houseId}")
+    suspend fun deleteHouse(
+        @Path("houseId") houseId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @DELETE("spaces/{spaceId}")
+    suspend fun deleteSpace(
+        @Path("spaceId") spaceId: Int,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @POST("devices/{deviceId}/capabilities")
+    suspend fun getDeviceCapabilities(
+        @Path("deviceId") deviceId: String,
+        @Body request: DeviceCapabilitiesRequest,
+        @Header("Authorization") token: String
+    ): DeviceCapabilitiesResponse
+
+    @GET("devices/{deviceId}/state")
+    suspend fun getDeviceState(
+        @Path("deviceId") deviceId: String,
+        @Query("serial_number") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DeviceStateResponse
+
+    @POST("devices/{deviceId}/state")
+    suspend fun updateDeviceState(
+        @Path("deviceId") deviceId: String,
+        @Body request: UpdateDeviceStateRequest,
+        @Header("Authorization") token: String
+    ): UpdateDeviceStateResponse
+
+    @POST("devices/{deviceId}/state/bulk")
+    suspend fun updateDeviceStateBulk(
+        @Path("deviceId") deviceId: String,
+        @Body request: BulkDeviceStateUpdateRequest,
+        @Header("Authorization") token: String
+    ): BulkDeviceStateUpdateResponse
+
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")
 //    suspend fun getDailyAveragesSensor(
@@ -365,6 +425,26 @@ interface ApiService {
         @Header("Authorization") token: String
     ): List<SpaceResponse>
 
+    @GET("groups/role/{groupId}")
+    suspend fun getRole(
+        @Path("groupId") groupId: Int,
+        @Header("Authorization") token: String
+    ): RoleResponse
+//
+//    @PUT("spaces/{id}")
+//    suspend fun updateSpace(
+//        @Path("id") spaceId: Int,
+//        @Body body: UpdateSpaceRequest,
+//        @Header("Authorization") token: String
+//    ): SpaceResponse3
+//
+
+    @POST("spaces")
+    suspend fun createSpace(
+        @Body body: CreateSpaceRequest,
+        @Header("Authorization") token: String
+    ): SpaceResponse
+  
     @PUT("spaces/{id}")
     suspend fun updateSpace(
         @Path("id") spaceId: Int,

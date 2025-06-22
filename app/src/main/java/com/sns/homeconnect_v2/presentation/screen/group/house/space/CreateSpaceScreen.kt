@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.group.house.space
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -18,26 +19,43 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.component.widget.ColorPicker
 import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.CreateSpaceViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateGroupScreen(
+fun CreateSpaceScreen(
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
+    houseId: Int
 ) {
-    var spaceName by remember { mutableStateOf("") }
-    var selectedRole by remember { mutableStateOf<String?>(null) }
+    val viewModel: CreateSpaceViewModel = hiltViewModel()
+    val spaceName by viewModel.spaceName.collectAsState()
+    val iconColor by viewModel.iconColor.collectAsState()
+    val iconName by viewModel.iconName.collectAsState()
+    val spaceDescription by viewModel.spaceDescription.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val isSuccess by viewModel.isSuccess.collectAsState()
+
+    var sel by remember { mutableStateOf<String?>(null) }
     var selectedIconLabel by remember { mutableStateOf("Nhà") }
     var selectedColorLabel by remember { mutableStateOf("blue") }
 
+    // Giữ GenericDropdown nhưng không dùng logic vai trò
+    var selectedRole by remember { mutableStateOf<String?>(null) }
     val roles = listOf("Owner", "Vice", "Admin", "Member")
+
+    // Giữ BottomAppBar
     val items = listOf(
         "Dashboard" to Pair(Icons.Filled.PieChart, "dashboard"),
         "Devices" to Pair(Icons.Filled.Devices, "devices"),
@@ -51,6 +69,29 @@ fun CreateGroupScreen(
     val currentRoute = navController.currentBackStackEntry?.destination?.route
     val scope = rememberCoroutineScope()
 
+    // Xử lý lỗi
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarViewModel.showSnackbar(
+                msg = it,
+                variant = SnackbarVariant.ERROR
+            )
+            viewModel.clearError()
+        }
+    }
+
+    // Điều hướng về sau khi tạo thành công
+    LaunchedEffect(isSuccess) {
+        if (isSuccess) {
+            snackbarViewModel.showSnackbar(
+                msg = "Tạo không gian thành công",
+                variant = SnackbarVariant.SUCCESS
+            )
+            viewModel.resetSuccess()
+            navController.popBackStack() // Quay lại HouseDetailScreen
+        }
+    }
+
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 
@@ -59,7 +100,7 @@ fun CreateGroupScreen(
                 Header(
                     navController = navController,
                     type = "Back",
-                    title = "Settings"
+                    title = "Tạo Không Gian"
                 )
             },
             containerColor = Color.White,
@@ -116,21 +157,34 @@ fun CreateGroupScreen(
                             Column {
                                 StyledTextField(
                                     value = spaceName,
-                                    onValueChange = { spaceName = it },
-                                    placeholderText = "Nhập tên space",
-                                    leadingIcon = Icons.Default.People,
-                                    modifier = Modifier.padding(horizontal = 16.dp)
-                                )
-                                Spacer(Modifier.height(8.dp))
-                                GenericDropdown(
-                                    items = roles,
-                                    selectedItem = selectedRole,
-                                    onItemSelected = { selectedRole = it },
+                                    onValueChange = { viewModel.updateSpaceName(it) },
+                                    placeholderText = "Nhập tên không gian",
+                                    leadingIcon = Icons.Default.Home,
                                     modifier = Modifier.padding(horizontal = 16.dp),
-                                    placeHolder = "Chọn nhà",
-                                    isTablet = isTablet,
-                                    leadingIcon = Icons.Default.Room
+                                    //enabled = !isLoading
                                 )
+                                Log.d("CreateSpaceScreen", "spaceName: $spaceName")
+                                Spacer(Modifier.height(8.dp))
+                                StyledTextField(
+                                    value = spaceDescription,
+                                    onValueChange = { viewModel.updateSpaceDescription(it) },
+                                    placeholderText = "Nhập mô tả (tùy chọn)",
+                                    leadingIcon = Icons.Default.Description,
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    //enabled = !isLoading
+                                )
+                                Log.d("CreateSpaceScreen", "spaceDescription: $spaceDescription")
+//                                Spacer(Modifier.height(8.dp))
+//                                GenericDropdown(
+//                                    items = roles,
+//                                    selectedItem = selectedRole,
+//                                    onItemSelected = { selectedRole = it },
+//                                    modifier = Modifier.padding(horizontal = 16.dp),
+//                                    placeHolder = "Chọn nhà",
+//                                    isTablet = isTablet,
+//                                    leadingIcon = Icons.Default.Room,
+//                                    //enabled = !isLoading
+//                                )
                             }
                         }
                     }
@@ -142,16 +196,22 @@ fun CreateGroupScreen(
 
                 item {
                     IconPicker(
-                        selectedIconLabel = selectedIconLabel,
-                        onIconSelected = { selectedIconLabel = it }
+                        category = GroupIconCategory.SPACE,
+                        selectedIconName = sel,
+                        onIconSelected = { sel = it },
+                        modifier = Modifier.padding(16.dp)
                     )
+                    viewModel .updateIconName(sel ?: "home") // Cập nhật iconName nếu sel không null
+                    Log.d("CreateSpaceScreen", "iconName: $iconName")
                 }
 
                 item {
                     ColorPicker(
-                        selectedColorLabel = selectedColorLabel,
-                        onColorSelected = { selectedColorLabel = it }
+                        selectedColorLabel =  iconColor,
+                        onColorSelected = { viewModel.updateIconColor(it) },
+                        //enabled = !isLoading
                     )
+                    Log.d("CreateSpaceScreen", "iconColor: $iconColor")
                     Spacer(Modifier.height(32.dp))
                 }
 
@@ -159,22 +219,36 @@ fun CreateGroupScreen(
                     ActionButtonWithFeedback(
                         label = "Hoàn tất",
                         style = HCButtonStyle.PRIMARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
+                        onAction = { onS, _ ->
+                            scope.launch {
+                                viewModel.createSpace(houseId)
+                                onS("Done")
+                            }
+                        },
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        snackbarViewModel = snackbarViewModel
+                        snackbarViewModel = snackbarViewModel,
+                        //enabled = !isLoading
                     )
+                    Log.d("CreateSpaceScreen", "Creating space with houseId: $houseId")
                     Spacer(Modifier.height(8.dp))
                     ActionButtonWithFeedback(
                         label = "Huỷ bỏ",
                         style = HCButtonStyle.SECONDARY,
-                        onAction = { onS, _ -> scope.launch { delay(1000); onS("Done") } },
+                        onAction = { onS, _ ->
+                            scope.launch {
+                                navController.popBackStack()
+                                onS("Done")
+                            }
+                        },
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        snackbarViewModel = snackbarViewModel
+                        snackbarViewModel = snackbarViewModel,
+                        //enabled = !isLoading
                     )
                 }
             }
         }
     }
+    Log.d("CreateSpaceScreen", "$error")
 }
 
 @Preview(
@@ -186,8 +260,10 @@ fun CreateGroupScreen(
 @Composable
 fun CreateGroupScreenPhonePreview() {
     IoTHomeConnectAppTheme {
-        CreateGroupScreen(
+        CreateSpaceScreen(
             navController = rememberNavController(),
+            snackbarViewModel = hiltViewModel(),
+            houseId = 1
         )
     }
 }

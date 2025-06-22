@@ -1,8 +1,11 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.iot_device
 
 import android.util.Log
+import org.json.JSONObject
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
@@ -11,6 +14,9 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDevicesBySpaceIdUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetSpacesByHomeIdUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.ToggleDeviceUseCase
+import com.sns.homeconnect_v2.domain.usecase.socket.ConnectSocketUseCase
+import com.sns.homeconnect_v2.domain.usecase.socket.ObserveSocketEventUseCase
+import com.sns.homeconnect_v2.domain.usecase.socket.SendCommandUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,8 +50,11 @@ class DeviceViewModel @Inject constructor(
     private val toggleDeviceUseCase: ToggleDeviceUseCase,
     private val getSpacesByHomeIdUseCase: GetSpacesByHomeIdUseCase,
     private val getDevicesBySpaceIdUseCase: GetDevicesBySpaceIdUseCase,
-
-    ) : ViewModel() {
+    private val connectSocketUseCase: ConnectSocketUseCase,
+    private val sendCommandUseCase: SendCommandUseCase,
+    private val observeSocketEventUseCase: ObserveSocketEventUseCase,
+    private val authManager: AuthManager
+) : ViewModel() {
     private val _toggleState = MutableStateFlow<ToggleState>(ToggleState.Idle)
     val toggleState = _toggleState.asStateFlow()
 
@@ -109,4 +118,38 @@ class DeviceViewModel @Inject constructor(
         }
     }
 
+    val alarmAlert = mutableStateOf<JSONObject?>(null)
+
+    val sensorData = mutableStateOf<JSONObject?>(null)
+
+    val deviceStatus = mutableStateOf<JSONObject?>(null)
+
+    fun initSocket(deviceId: String, serial: String) {
+        val accId = authManager.getAccountId()
+
+        connectSocketUseCase(deviceId, serial, accId)
+
+        observeSocketEventUseCase { evt, data ->
+            when (evt) {
+                "device_online"        -> Log.d("SOCKET", "✅ Online $data")
+                "sensorData"           -> sensorData.value   = data
+                "alarmAlert"           -> alarmAlert.value   = data
+                "deviceStatus"         -> deviceStatus.value = data
+                "buzzerStatus"         -> Log.d("SOCKET", "🔔 Buzzer $data")
+                "realtime_device_value"-> Log.d("SOCKET", "📡 Value  $data")
+            }
+        }
+    }
+
+    fun sendPowerCommand(power: Boolean) {
+        val command = JSONObject().apply {
+            put("action", "updateState")
+            put("state", JSONObject().apply {
+                put("power_status", power)
+            })
+            put("timestamp", System.currentTimeMillis())
+        }
+
+        sendCommandUseCase(command)
+    }
 }

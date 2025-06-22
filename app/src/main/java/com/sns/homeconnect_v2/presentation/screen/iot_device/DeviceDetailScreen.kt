@@ -1,3 +1,4 @@
+
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
@@ -37,9 +38,11 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -48,6 +51,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -73,8 +77,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.sns.homeconnect_v2.R
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.DayPicker
@@ -89,20 +95,74 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceCapabilitiesViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceDetailScreen(
     navController: NavHostController,
-    snackbarViewModel: SnackbarViewModel = hiltViewModel()
+    deviceId: String,
+    deviceName: String,
+    serialNumber: String,
+    product: ProductData,
+    controls: Map<String, String>,
+    snackbarViewModel: SnackbarViewModel
 ) {
+
+    val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    val showBottomSheet = remember { mutableStateOf(false) }
+    val isDataFetched = remember { mutableStateOf(false) } // <- tránh gọi lại API liên tục
+
+    val displayState by displayViewModel.displayState.collectAsState()
+    val deviceState  by displayViewModel.deviceState.collectAsState()
+    val updateState  by displayViewModel.updateDeviceState.collectAsState()
+
+    LaunchedEffect(showBottomSheet.value) {
+        if (showBottomSheet.value && !isDataFetched.value && product.id.isNotEmpty()) {
+            displayViewModel.fetchDisplayInfo(product.id)   // <- hàm mới
+            isDataFetched.value = true
+        }
+    }
+
     var rowWidth by remember { mutableIntStateOf(0) }
-    var showDialog by remember { mutableStateOf(false) }
     var isCheck by remember { mutableStateOf(false) }
-    var sliderValue by remember { mutableFloatStateOf(128f) }   // 0‥255
+    var sliderValue by remember { mutableFloatStateOf(128f) }
+
+    LaunchedEffect(Unit) {
+        if (serialNumber != null) {
+            displayViewModel.fetchDeviceState(deviceId, serialNumber)
+        }
+        isCheck = when (deviceState) {
+            is DeviceStateUiState.Success -> (deviceState as DeviceStateUiState.Success).state.power_status
+            else -> false
+        }
+    }
+
+    LaunchedEffect(deviceState) {
+        val successState = deviceState as? DeviceStateUiState.Success
+        successState?.let {
+            isCheck = it.state.power_status
+//            sliderValue = it.state.brightness.toFloat()
+//            currentColor = it.state.color
+        }
+    }
+
+    LaunchedEffect(updateState) {
+        when (val state = updateState) {
+            is UpdateDeviceStateUiState.Success -> snackbarViewModel.showSnackbar(state.message)
+            is UpdateDeviceStateUiState.Error -> snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+            else -> Unit
+        }
+    }
 
     val scope = rememberCoroutineScope()
 
@@ -234,7 +294,20 @@ fun DeviceDetailScreen(
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
 
-                                        CustomSwitch(isCheck = isCheck, onCheckedChange = { isCheck = it })
+                                        if ("power_status" in controls) {
+                                            CustomSwitch(
+                                                isCheck = isCheck,
+                                                onCheckedChange = {
+                                                    isCheck = it
+                                                    Log.d("Switch", "serial=$serialNumber, deviceId=$deviceId, power=$it")
+                                                    displayViewModel.updateDeviceState(
+                                                        deviceId = deviceId,
+                                                        serial = serialNumber,
+                                                        power = it
+                                                    )
+                                                }
+                                            )
+                                        }
 
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
@@ -279,17 +352,21 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    Text(
-                                        "Cường độ",
-                                        color = colorScheme.onPrimary
-                                    )
+                                    if ("brightness" in controls) {
+                                        Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
-                                    EdgeToEdgeSlider(
-                                        value = sliderValue,
-                                        onValueChange = { sliderValue = it },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                    )
+                                        EdgeToEdgeSlider(
+                                            value = sliderValue,
+                                            onValueChange = {
+                                                sliderValue = it
+                                                displayViewModel.updateDeviceState(
+                                                    deviceId = deviceId,
+                                                    serial = serialNumber,
+                                                    brightness = it.toInt()
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -304,10 +381,18 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FancyColorSlider(
-                                    attribute = attribute,
-                                    onColorChange = {}
-                                )
+                                if ("color" in controls) {
+                                    FancyColorSlider(
+                                        attribute = attribute,
+                                        onColorChange = { color ->
+                                            displayViewModel.updateDeviceState(
+                                                deviceId = deviceId,
+                                                serial = serialNumber,
+                                                color = color
+                                            )
+                                        }
+                                    )
+                                }
                             }
                         }
 
@@ -325,7 +410,9 @@ fun DeviceDetailScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 IconButton(
-                                    onClick = { showDialog = true },
+                                    onClick = {
+                                        showBottomSheet.value = true
+                                    },
                                     modifier = Modifier.size(32.dp)
                                 ) {
                                     Icon(
@@ -339,8 +426,7 @@ fun DeviceDetailScreen(
                                 IconButton(
                                     onClick = {
                                         navController.navigate(
-                                            Screens.AccessPoint.route +
-                                                    "?id=${safeDevice.DeviceID}&name=${safeDevice.Name}"
+                                            Screens.AccessPoint.createRoute(deviceId, deviceName)
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)
@@ -353,41 +439,30 @@ fun DeviceDetailScreen(
                                     )
                                 }
 
-                                if (showDialog) {
-                                    fun getIconForType(typeId: Int): String {
-                                        return when (typeId) {
-                                            1 -> "Fire Alarm"
-                                            2, 3 -> "LED Light"
-                                            else -> ""
+                                if (showBottomSheet.value) {
+                                    ModalBottomSheet(
+                                        onDismissRequest = { showBottomSheet.value = false }
+                                    ) {
+                                        when (displayState) {
+                                            is DeviceDisplayInfoState.Success -> {
+                                                val product = (displayState as DeviceDisplayInfoState.Success).product
+                                                val category = (displayState as DeviceDisplayInfoState.Success).category
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
+                                                    Text("Danh mục: ${category.name ?: "Không rõ"}")
+                                                    Text("Giá: ${product.selling_price  ?: "Không rõ"}")
+                                                    Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                                }
+                                            }
+                                            is DeviceDisplayInfoState.Loading -> {
+                                                Text("Đang tải thông tin sản phẩm...")
+                                            }
+                                            is DeviceDisplayInfoState.Error -> {
+                                                Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                            }
+                                            else -> {}
                                         }
                                     }
-
-                                    AlertDialog(
-                                        onDismissRequest = {
-                                            showDialog = false
-                                        },
-                                        title = { Text(text = "Thông tin thiết bị") },
-                                        text = {
-                                            Column {
-                                                Text("ID Thiết bị: ${safeDevice.DeviceID}")
-                                                Text("Tên thiết bị: ${safeDevice.Name}")
-                                                Text(
-                                                    "Loại thiết bị: ${
-                                                        getIconForType(
-                                                            safeDevice.TypeID
-                                                        )
-                                                    }"
-                                                )
-                                            }
-                                        },
-                                        confirmButton = {
-                                            Button(onClick = {
-                                                showDialog = false
-                                            }) {
-                                                Text("Đóng")
-                                            }
-                                        }
-                                    )
                                 }
                             }
                         }
@@ -592,13 +667,13 @@ fun DeviceDetailScreen(
     }
 }
 
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
-@Composable
-fun DeviceDetailScreenPreview() {
-    IoTHomeConnectAppTheme {
-        DeviceDetailScreen(navController = rememberNavController())
-    }
-}
+//@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "DeviceDetailScreen Preview - Phone")
+//@Composable
+//fun DeviceDetailScreenPreview() {
+//    IoTHomeConnectAppTheme {
+//        DeviceDetailScreen(navController = rememberNavController())
+//    }
+//}
 
 @Composable
 fun DeviceDetailTabletScreen(

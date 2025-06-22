@@ -46,16 +46,18 @@ fun ColorPicker(
     onColorSelected: (String) -> Unit
 ) {
     val colors = listOf(
-        Color.Red to "#FF0000",
-        Color.Green to "#00FF00",
-        Color.Blue to "#0000FF",
-        Color.Yellow to "#FFFF00",
-        Color.Cyan to "#00FFFF",
-        Color.Magenta to "#FF00FF",
-        Color.Gray to "#808080",
-        Color.Black to "#000000",
-        Color.White to "#FFFFFF",
-        Color(0xFF2196F3) to "#2196F3"
+        Color(0xFF2196F3) to "blue", // ✅ dùng mã hex
+        Color(0xFFF44336) to "red",
+        Color(0xFF4CAF50) to "green",
+        Color(0xFFFFEB3B) to "yellow",
+        Color(0xFF9C27B0) to "purple",
+        Color(0xFFFF9800) to "orange",
+        Color(0xFF009688) to "teal",
+        Color(0xFFE91E63) to "pink",
+        Color(0xFF00BCD4) to "cyan",
+        Color(0xFF9E9E9E) to "gray",
+        Color(0xFF000000) to "black",
+        Color(0xFFFFFFFF) to "white"
     )
 
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {

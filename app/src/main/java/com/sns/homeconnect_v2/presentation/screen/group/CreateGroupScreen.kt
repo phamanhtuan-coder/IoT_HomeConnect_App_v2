@@ -24,10 +24,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.IconPicker
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuItem
 import com.sns.homeconnect_v2.presentation.component.widget.*
-import com.sns.homeconnect_v2.core.util.validation.toColor
-import com.sns.homeconnect_v2.core.util.validation.toColorString
-import com.sns.homeconnect_v2.core.util.validation.toIcon
-import com.sns.homeconnect_v2.core.util.validation.toIconString
+import com.sns.homeconnect_v2.data.remote.dto.base.GroupIconCategory
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupState
 import com.sns.homeconnect_v2.presentation.viewmodel.group.CreateGroupViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
@@ -77,6 +74,9 @@ fun CreateGroupScreen(
 
     // Track the last selected route
     val currentRoute = navController.currentBackStackEntry?.destination?.route
+
+    var sel by remember { mutableStateOf<String?>(null) }
+
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 
@@ -169,8 +169,10 @@ fun CreateGroupScreen(
                 // ---------- icon picker ----------
                 item {
                     IconPicker(
-                        selectedIconLabel = selectedLabel,
-                        onIconSelected = { selectedLabel = it }
+                        category = GroupIconCategory.GROUP,
+                        selectedIconName = sel,
+                        onIconSelected = { sel = it },
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
 
@@ -210,7 +212,7 @@ fun CreateGroupScreen(
                                 viewModel.createGroup(
                                     groupName = groupName,
                                     groupDesc = groupDesc,
-                                    iconName = selectedLabel,
+                                    iconName  = sel ?: "house",
                                     iconColor = selectedColor,
                                     onSuccess = { msg ->
                                         ok(msg)

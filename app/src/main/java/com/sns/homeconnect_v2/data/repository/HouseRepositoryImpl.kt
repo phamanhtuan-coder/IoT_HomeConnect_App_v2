@@ -58,4 +58,14 @@ class HouseRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         return apiService.getHousesByGroupId(groupId, "Bearer $token")
     }
+
+    override suspend fun deleteHouse(houseId: Int): Result<Unit> {
+        val token = authManager.getJwtToken()
+        return try {
+            apiService.deleteHouse(houseId, "Bearer $token")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

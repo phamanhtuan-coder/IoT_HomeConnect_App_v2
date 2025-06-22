@@ -49,6 +49,10 @@ android {
 }
 
 dependencies {
+    implementation("io.socket:socket.io-client:2.0.1") {
+        exclude(group = "org.json", module = "json")
+    }
+
     // CameraX
     implementation ("androidx.camera:camera-core:1.3.0")
     implementation ("androidx.camera:camera-camera2:1.3.0")

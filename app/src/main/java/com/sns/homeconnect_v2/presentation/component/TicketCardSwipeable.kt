@@ -124,7 +124,7 @@ fun StatusCircle(
         "rejected" -> R.drawable.ic_close_circle to Color.Red // Biểu tượng dấu X tròn, đỏ
         "in_progress" -> R.drawable.ic_sync to Color(0xFF4CAF50) // Biểu tượng đồng bộ, xanh lá đậm
         "resolved" -> R.drawable.ic_done to Color(0xFF9C27B0) // Biểu tượng dấu check, tím
-        "cancelled" -> R.drawable.ic_cancel to Color(0xFFF44336) // Biểu tượng hủy, đỏ nhạt
+        "cancelled" -> R.drawable.shield_xmark to Color(0xFFF44336) // Biểu tượng hủy, đỏ nhạt
         else -> R.drawable.ic_info to Color.Gray // Biểu tượng thông tin, xám
     }
     Icon(

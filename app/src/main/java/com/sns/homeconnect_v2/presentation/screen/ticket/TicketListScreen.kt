@@ -19,6 +19,7 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -122,6 +124,31 @@ fun TicketListScreen(
                 )
             },
             containerColor = Color.White,
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        snackbarViewModel.showSnackbar("Đã nhấn nút thêm!")
+                        // TODO: Điều hướng đến màn hình thêm ticket, ví dụ:
+                        navController.navigate(Screens.CreateTicket.route)
+                    },
+                    containerColor = colorScheme.primary ?: Color(0xFF6200EE), // Fallback màu nếu theme lỗi
+                    contentColor = colorScheme.onPrimary ?: Color.White,
+                    modifier = Modifier
+                        .size(60.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = "+",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onPrimary ?: Color.White
+                        )
+                    }
+                }
+            },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = { MenuBottom(navController) }
         ) { scaffoldPadding ->

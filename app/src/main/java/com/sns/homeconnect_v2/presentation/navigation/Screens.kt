@@ -144,6 +144,9 @@ sealed class Screens(val route: String) {
     data object DetailTicket : Screens("detail_ticket/{ticketId}") {
         fun createRoute(ticketId: String) = "detail_ticket/$ticketId"
     }
+    data object CreateTicket : Screens("create_ticket") {
+        fun createRoute() = "create_ticket"
+    }
 
     // --- Notification screens ---
     data object AllNotifications : Screens("all_notifications")

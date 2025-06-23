@@ -12,7 +12,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,9 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.android.gms.common.util.DeviceProperties.isTablet
-import com.sns.homeconnect_v2.core.util.validation.parseColorOrDefault
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.toColor
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
@@ -44,7 +40,7 @@ import kotlinx.coroutines.launch
 fun HouseDetailScreen(
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
- spaceViewModel:SpaceScreenViewModel = hiltViewModel(),
+    spaceViewModel:SpaceScreenViewModel = hiltViewModel(),
     houseId:Int,
     currentUserRole: String,
 ) {
@@ -191,32 +187,33 @@ fun HouseDetailScreen(
                         Log.d("SpaceDetail", "Space ID: ${space.space_id}, Name: ${space.space_name}, Icon: ${space.icon_name}, Color: ${space.icon_color}")
 
                         SpaceCardSwipeable(
-                            spaceName = space.space_name ?: "không có tên",
+                            spaceName = space.space_name?: "không có tên",
                             deviceCount = space.space_id,
-                            icon = space.icon_name?.toIcon() ?: Icons.Default.Home,
-                            iconColor = parseColorOrDefault(space.icon_color),
+                            iconName = space.icon_name ?: "home",
+                            iconColor = space.icon_color?.toColor()?: Color.Gray,
                             isRevealed = space.isRevealed,
                             role = currentUserRole,
                             onExpandOnly = {
-                                spaceViewModel.expandItem(index) // Chỉ mở card tại index
+                                spaceViewModel.updateRevealState(index)
                             },
                             onCollapse = {
-                                spaceViewModel.collapseItem(index) // Chỉ đóng card tại index
+                                spaceViewModel.collapseItem(index)
                             },
+
                             onDelete = {
                                 //xóa space
                                 showDeleteDialog = true
                             },
-                                           
-                          onEdit = {
-                                updateSpaceViewModel.setEditingSpace(space)
+
+                            onEdit = {
                                 isSheetVisible = true
+
                             },
                             onClick = {
                                 navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
+                                Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
                             }
                         )
-
 
                         // Delete confirmation dialog
                         if (showDeleteDialog) {
@@ -367,8 +364,22 @@ fun HouseDetailScreen(
                             label = { Text("Tên Space") },
                             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                         )
-                        IconPicker(selectedIconLabel = iconNameInput, onIconSelected = { iconNameInput = it })
-                        ColorPicker(selectedColorLabel = iconColorInput, onColorSelected = { iconColorInput = it })
+                        OutlinedTextField(
+                            value = iconNameInput,
+                            onValueChange = { iconNameInput = it },
+                            label = { Text("Tên Icon (ví dụ: living-room)") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
+                        OutlinedTextField(
+                            value = iconColorInput,
+                            onValueChange = { iconColorInput = it },
+                            label = { Text("Màu Icon (ví dụ: #3366FF)") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp)
+                        )
                         OutlinedTextField(
                             value = descriptionInput,
                             onValueChange = { descriptionInput = it },

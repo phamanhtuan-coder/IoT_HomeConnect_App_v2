@@ -43,6 +43,7 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.ticket.GetListTicketViewModel
 import java.text.SimpleDateFormat
@@ -95,6 +96,7 @@ fun TicketListScreen(
     val datePickerState = rememberDatePickerState()
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
 
+
 // Log để debug
     LaunchedEffect(tickets) {
         tickets.forEachIndexed { index, ticket ->
@@ -105,6 +107,9 @@ fun TicketListScreen(
     val options = listOf("Tất cả", "Đã xử lý", "Chưa xử lý")
     var selectedStatus by remember { mutableStateOf(options[0]) }
     var isSheetVisible by remember { mutableStateOf(false) }
+
+    // Đếm số lượng ticket chưa xem
+    val unviewedCount = tickets.count { !it.IsViewed }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -142,8 +147,8 @@ fun TicketListScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         LabeledBox(
-                            label = "Hổ trợ",
-                            value = tickets.size.toString()
+                            label = "Hổ trợ chưa xem",
+                            value = unviewedCount.toString()
                         )
                         IconButton(onClick = { isSheetVisible = true }) {
                             Icon(
@@ -163,11 +168,21 @@ fun TicketListScreen(
                                 name = ticket.userName,
                                 ticketType = ticket.ticketTypeName,
                                 ticketDate = ticket.createdAt,
-                                status = ticket.status.toString(),
+                                status = ticket.status.toString().lowercase(),
                                 isRevealed = revealedIndex == index,
                                 onExpand = { revealedIndex = index },
                                 onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
-                                onDelete = {}
+                                onDelete = {},
+                                onClick = {
+                                    // Đánh dấu ticket là đã xem
+                                    ticketViewModel.markTicketAsViewed(index)
+                                    // Điều hướng đến màn hình chi tiết
+                                    navController.navigate(
+                                        Screens.DetailTicket.createRoute(ticket.ticketId)
+                                    )
+                                    println("Navigating to ticket detail with ID: ${ticket.ticketId}")
+                                },
+                                ticketId = ticket.ticketId
                             )
                         }
                     }

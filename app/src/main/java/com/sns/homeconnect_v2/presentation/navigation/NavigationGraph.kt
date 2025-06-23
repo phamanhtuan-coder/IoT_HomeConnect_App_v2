@@ -412,11 +412,10 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             }
 
             composable(
-                route = Screens.DetailTicket.route,
+                route = Screens.DetailTicket.route, // "detail_ticket/{ticketId}"
                 arguments = listOf(navArgument("ticketId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val ticketId = backStackEntry.arguments?.getString("ticketId") ?: ""
-                // Pass the ticketId to the DetailTicketScreen
                 TicketDetailScreen(
                     navController = navController,
                     ticketId = ticketId,

@@ -45,6 +45,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.UserGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UserResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.CreateTicketRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
@@ -52,6 +53,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleReque
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
@@ -463,6 +465,12 @@ interface ApiService {
         @Path("ticketId") ticketId: String,
         @Header("Authorization") token: String
     ): TicketDetailResponse
+
+    @POST("tickets")
+    suspend fun createTicket(
+        @Body body: CreateTicketRequest,
+        @Header("Authorization") token: String
+    ): CreateTicketResponse
 
 //    @POST("spaces")
 //    suspend fun createSpace(

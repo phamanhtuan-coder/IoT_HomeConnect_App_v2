@@ -39,14 +39,18 @@ import coil.size.Scale
 fun ImagePickerBox(
     width: Dp,
     height: Dp,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onImagePicked: (String) -> Unit = {}
 ) {
     var imageUri by remember { mutableStateOf<Uri?>(null) }
 
     /* launcher mở thư viện */
     val pickerLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
-    ) { uri -> imageUri = uri }
+    ) { uri ->
+        imageUri = uri
+        uri?.let { onImagePicked(it.toString()) }
+    }
 
     Box(
         modifier = modifier

@@ -173,6 +173,13 @@ sealed class Screens(val route: String) {
             ).joinToString("/")
     }
 
+    // --- Camera screens ---
+    data object CameraDetail : Screens(
+        "camera_detail/{deviceId}/{deviceName}"   // khai báo tham số tuỳ ý
+    ) {
+        fun createRoute(deviceId: String, deviceName: String) =
+            "camera_detail/$deviceId/$deviceName"
+    }
 
     // --- Other screens ---
     // ...add more here if needed...

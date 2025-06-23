@@ -78,10 +78,10 @@ class DeviceDisplayViewModel @Inject constructor(
         MutableStateFlow<DeviceStateUiState>(DeviceStateUiState.Idle)
     val deviceState: StateFlow<DeviceStateUiState> = _deviceState
 
-    fun fetchDeviceState(deviceId: String, serial: String) {
+    fun fetchDeviceState(serial: String) {
         _deviceState.value = DeviceStateUiState.Loading
         viewModelScope.launch {
-            getDeviceStateUseCase(deviceId, serial)
+            getDeviceStateUseCase(serial)
                 .fold(
                     onSuccess = {
                         _deviceState.value =
@@ -130,14 +130,14 @@ class DeviceDisplayViewModel @Inject constructor(
     val updateBulk: StateFlow<UpdateDeviceStateBulkUiState> = _updateBulk
 
     fun updateDeviceStateBulk(
-        deviceId: String,
+        serial_number: String,
         serial: String,
         updates: List<Map<String, Any>>
     ) {
         _updateBulk.value = UpdateDeviceStateBulkUiState.Loading
         val req = BulkDeviceStateUpdateRequest(serial, updates)
         viewModelScope.launch {
-            updateDeviceStateBulkUseCase(deviceId, req)
+            updateDeviceStateBulkUseCase(serial_number, req)
                 .fold(
                     onSuccess = {
                         _updateBulk.value =

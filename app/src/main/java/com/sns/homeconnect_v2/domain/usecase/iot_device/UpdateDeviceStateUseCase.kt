@@ -9,11 +9,11 @@ class UpdateDeviceStateUseCase @Inject constructor(
     private val repository: DeviceRepository
 ) {
     suspend operator fun invoke(
-        deviceId: String,
+        serial_number: String,
         request: UpdateDeviceStateRequest
     ): Result<UpdateDeviceStateResponse> {
         return try {
-            Result.success(repository.updateDeviceState(deviceId, request))
+            Result.success(repository.updateDeviceState(serial_number, request))
         } catch (e: Exception) {
             Result.failure(e)
         }

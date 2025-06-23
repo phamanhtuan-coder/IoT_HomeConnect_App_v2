@@ -8,9 +8,9 @@ import jakarta.inject.Inject
 class UpdateDeviceStateBulkUseCase @Inject constructor(
     private val repository: DeviceRepository
 ) {
-    suspend operator fun invoke(deviceId: String, request: BulkDeviceStateUpdateRequest): Result<BulkDeviceStateUpdateResponse> {
+    suspend operator fun invoke(serial_number: String, request: BulkDeviceStateUpdateRequest): Result<BulkDeviceStateUpdateResponse> {
         return try {
-            Result.success(repository.updateDeviceStateBulk(deviceId, request))
+            Result.success(repository.updateDeviceStateBulk(serial_number, request))
         } catch (e: Exception) {
             Result.failure(e)
         }

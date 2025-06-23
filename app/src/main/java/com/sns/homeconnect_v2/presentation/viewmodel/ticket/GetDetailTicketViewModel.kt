@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.ticket
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.TicketDetail
@@ -9,6 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,14 +24,12 @@ private val ticketRepository: TicketRepository
     fun getTicketDetail(ticketId: String) {
         viewModelScope.launch {
             try {
+                Log.d("GetDetailTicketViewModel", "Fetching ticket detail for ID: $ticketId")
                 val response = ticketRepository.getTicketById(ticketId)
-                if (response.code == 0) {
-                    _ticketDetail.value = response.data?.ticket
-                } else {
-                    _ticketDetail.value = null
-                }
+                Log.d("GetDetailTicketViewModel", "API response: $response")
+                _ticketDetail.value = response.data?.ticket?.firstOrNull()
             } catch (e: Exception) {
-                _ticketDetail.value = null
+                Log.e("GetDetailTicketViewModel", "Error fetching ticket detail: ${e.message}", e)
             }
         }
     }

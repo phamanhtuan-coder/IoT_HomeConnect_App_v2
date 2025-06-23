@@ -1,19 +1,21 @@
 package com.sns.homeconnect_v2.presentation.component
 
-import Status
-import StatusCircle
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +27,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.presentation.model.TicketUi
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
@@ -40,11 +43,13 @@ import com.sns.homeconnect_v2.presentation.model.TicketStatus
  * @param name Tên của người dùng liên quan đến ticket. Mặc định là "Nguyễn Văn A".
  * @param ticketType Loại ticket. Mặc định là "Báo mất".
  * @param ticketDate Ngày của ticket. Mặc định là "1/1/2025".
- * @param status Trạng thái của ticket (đã xử lý hoặc chưa xử lý). Mặc định là [TicketStatus.UNPROCESSED].
+ * @param status Trạng thái của ticket. Mặc định là "pending".
  * @param isRevealed Một giá trị boolean cho biết các hành động vuốt có được hiển thị hay không. Mặc định là false.
  * @param onExpand Một hàm lambda sẽ được thực thi khi mục được mở rộng (vuốt).
  * @param onCollapse Một hàm lambda sẽ được thực thi khi mục được thu gọn (thả vuốt hoặc thực hiện hành động).
  * @param onDelete Một hàm lambda sẽ được thực thi khi hành động xóa được kích hoạt.
+ * @param onClick Một hàm lambda sẽ được thực thi khi thẻ được click.
+ * @param ticketId ID của ticket.
  *
  * @author Nguyễn Thanh Sang
  * @since 26-05-2025
@@ -54,12 +59,15 @@ fun TicketCardSwipeable(
     name: String = "Nguyễn Văn A",
     ticketType: String = "Báo mất",
     ticketDate: String = "1/1/2025",
-    status: String="pending",
+    status: String? = "cancelled",
     isRevealed: Boolean = false,
     onExpand: () -> Unit,
     onCollapse: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onClick: (String) -> Unit,
+    ticketId: String
 ) {
+    Log.d("TicketCardSwipeable", "Status: $status")
     SwipeableItemWithActions(
         isRevealed = isRevealed,
         onExpanded = onExpand,
@@ -77,6 +85,7 @@ fun TicketCardSwipeable(
             modifier = Modifier
                 .background(color = Color(0xFFD8E4E8))
                 .fillMaxWidth()
+                .clickable { onClick(ticketId) }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -99,58 +108,63 @@ fun TicketCardSwipeable(
                     color = Color.Black
                 )
             }
-            val statusColor = if(status=="pending") {
-                Color(0xFFFF9800) // Màu vàng cho trạng thái đang chờ xử lý
-            } else if (status == "in_progress") {
-                Color(0xFF4CAF50) // Màu xanh lá cho trạng thái đã xử lý
-            } else if( status == "rejected") {
-                Color(0xFFF44336) // Màu đỏ cho trạng thái bị từ chối
-            } else if( status == "approved"){
-                Color(0xFF2196F3) // Màu xanh dương cho trạng thái đã phê duyệt
-            } else if( status == "resolved"){
-                Color(0xFF9C27B0) // Màu tím cho trạng thái đã giải quyết
-            } else {
-                Color.Gray // Màu xám cho trạng thái không xác định
-            }
-            Text(
-                text = status ?: "Chưa xác định",
-                color = statusColor,
-                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                fontSize = 16.sp,
-            )
+            StatusCircle(status = status!!.lowercase())
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun TicketCardSwipeablePreview() {
-//    val tickets = remember {
-//        mutableStateListOf(
-//            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
-//            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
-//            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
-//        )
-//    }
-//    var revealedIndex by remember { mutableIntStateOf(-1) } // -1 là không mở cái nào
-//
-//    LazyColumn(modifier = Modifier.padding(8.dp)) {
-//        itemsIndexed(tickets) { index, ticket ->
-//            Spacer(modifier = Modifier.height(8.dp))
-//            TicketCardSwipeable(
-//                name = ticket.nameUser,
-//                ticketType = ticket.typeTicket,
-//                ticketDate = ticket.date,
-//                status = ticket.status,
-//                isRevealed = revealedIndex == index,
-//                onExpand = { revealedIndex = index },
-//                onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
-//                onDelete = {
-//                    tickets.removeAt(index)
-//                    if (revealedIndex == index) revealedIndex = -1
-//                }
-//            )
-//        }
-//    }
-//}
+@Composable
+fun StatusCircle(
+    status: String,
+    modifier: Modifier = Modifier
+) {
+    val (icon, color) = when (status) {
+        "approved" -> R.drawable.ic_check_circle to Color(0xFF00C853) // Biểu tượng dấu check tròn, xanh lá
+        "pending" -> R.drawable.ic_hourglass to Color(0xFFFFC107) // Biểu tượng đồng hồ cát, vàng
+        "rejected" -> R.drawable.ic_close_circle to Color.Red // Biểu tượng dấu X tròn, đỏ
+        "in_progress" -> R.drawable.ic_sync to Color(0xFF4CAF50) // Biểu tượng đồng bộ, xanh lá đậm
+        "resolved" -> R.drawable.ic_done to Color(0xFF9C27B0) // Biểu tượng dấu check, tím
+        "cancelled" -> R.drawable.ic_cancel to Color(0xFFF44336) // Biểu tượng hủy, đỏ nhạt
+        else -> R.drawable.ic_info to Color.Gray // Biểu tượng thông tin, xám
+    }
+    Icon(
+        painter = painterResource(id = icon),
+        contentDescription = status,
+        modifier = modifier.size(24.dp),
+        tint = color
+    )
+}
 
+@Preview(showBackground = true)
+@Composable
+fun TicketCardSwipeablePreview() {
+    val tickets = remember {
+        mutableStateListOf(
+            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
+            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
+            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
+        )
+    }
+    var revealedIndex by remember { mutableIntStateOf(-1) } // -1 là không mở cái nào
+
+    LazyColumn(modifier = Modifier.padding(8.dp)) {
+        itemsIndexed(tickets) { index, ticket ->
+            Spacer(modifier = Modifier.height(8.dp))
+            TicketCardSwipeable(
+                name = ticket.nameUser,
+                ticketType = ticket.typeTicket,
+                ticketDate = ticket.date,
+                status = ticket.status.toString().lowercase(),
+                isRevealed = revealedIndex == index,
+                onExpand = { revealedIndex = index },
+                onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
+                onDelete = {
+                    tickets.removeAt(index)
+                    if (revealedIndex == index) revealedIndex = -1
+                },
+                onClick = { /* Xử lý sự kiện click nếu cần */ },
+                ticketId = ticket.id.toString()
+            )
+        }
+    }
+}

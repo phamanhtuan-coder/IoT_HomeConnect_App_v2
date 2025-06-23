@@ -30,7 +30,8 @@ data class Ticket(
     @SerializedName("user_name") val userName: String,
     @SerializedName("assigned_name") val assignedName: String,
     @SerializedName("created_at") val createdAt: String,
-    @SerializedName("updated_at") val updatedAt: String
+    @SerializedName("updated_at") val updatedAt: String,
+    val IsViewed: Boolean = false,
 )
 
 data class TicketDetailResponse(
@@ -41,7 +42,7 @@ data class TicketDetailResponse(
 )
 
 data class TicketDetailData(
-    @SerializedName("data") val ticket: TicketDetail,
+    @SerializedName("data") val ticket: List<TicketDetail>,
     @SerializedName("total_page") val totalPage: Int
 )
 

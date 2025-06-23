@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.presentation.screen.ticket
 import ChatMessageCard
 import ChatMessageType
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,9 @@ import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.model.ChatMessageUi
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.ticket.GetDetailTicketViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Composable function hiển thị màn hình chi tiết yêu cầu.
@@ -45,27 +49,40 @@ fun TicketDetailScreen(
         // Các biến dữ liệu
         val colorScheme = MaterialTheme.colorScheme
 
+        val ticketDetail: GetDetailTicketViewModel = hiltViewModel()
+        val ticketDetailState by ticketDetail.ticketDetail.collectAsState()
+
+        // Gọi API để lấy chi tiết ticket khi ticketId thay đổi
+        LaunchedEffect(ticketId) {
+            ticketId?.let {
+                Log.d("TicketDetailScreen", "Fetching ticket detail for ID: $it")
+                ticketDetail.getTicketDetail(it)
+            } ?: run {
+                Log.w("TicketDetailScreen", "ticketId is null")
+                snackbarViewModel.showSnackbar("Không có ticketId")
+            }
+        }
+
         // --- Biến chính ---
         val ticketStatus = Status.APPROVED
         val ticketReason = "Báo mất thiết bị"
 
         // Danh sách tin nhắn (có thể dùng List nếu muốn hiển thị động nhiều chat)
-        val chatMessages = listOf(
-            ChatMessageUi(
-                message = "Đây là ảnh thiết bị bị hỏng.",
-                imageUrl = "https://picsum.photos/id/1015/200/150",
-                time = "26/05/2025 09:02",
-                type = ChatMessageType.SENT
-            ),
-            ChatMessageUi(
-                message = "Mình đã kiểm tra, thiết bị hoạt động bình thường nhé.",
-                time = "26/05/2025 09:03",
-                avatarUrl = "https://randomuser.me/api/portraits/men/1.jpg",
-                type = ChatMessageType.RECEIVED
-            )
-        )
+        // Tạo chatMessages từ evidence (logs và images)
+        val chatMessages = ticketDetailState?.evidence?.let { evidence ->
+            evidence.logs.mapIndexed { index, log ->
+                ChatMessageUi(
+                    message = log,
+                    imageUrl = evidence.images.getOrNull(index),
+                    time = ticketDetailState!!.createdAt,
+                    type = if (index % 2 == 0) ChatMessageType.SENT else ChatMessageType.RECEIVED,
+                    avatarUrl = if (index % 2 == 0) null else "https://randomuser.me/api/portraits/men/1.jpg"
+                )
+            }
+        } ?: emptyList()
 
-        val buttonLabel = "Đã xem"
+
+//        val buttonLabel = "Đã xem"
 
         Scaffold(
             topBar = {
@@ -87,9 +104,7 @@ fun TicketDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 item {
-                    ColoredCornerBox(
-                        cornerRadius = 40.dp
-                    ) {
+                    ColoredCornerBox(cornerRadius = 40.dp) {
                         Column(
                             modifier = Modifier
                                 .padding(16.dp)
@@ -97,10 +112,36 @@ fun TicketDetailScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            TicketDetailCard(
-                                status = ticketStatus,
-                                reason = ticketReason
-                            )
+                            when {
+                                ticketId == null -> {
+                                    Text(
+                                        text = "Không có ticketId",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+
+                                ticketDetailState == null -> {
+                                    Text(
+                                        text = "Đang tải chi tiết ticket...",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+
+                                else -> {
+                                    TicketDetailCard(
+                                        status = try {
+                                            Status.valueOf(
+                                                ticketDetailState!!.status?.uppercase() ?: "PENDING"
+                                            )
+                                        } catch (e: IllegalArgumentException) {
+                                            Status.PENDING
+                                        },
+                                        reason = ticketDetailState!!.ticketTypeName
+                                    )
+                                }
+                            }
                         }
                     }
 
@@ -108,6 +149,51 @@ fun TicketDetailScreen(
                         backgroundColor = colorScheme.surface,
                         overlayColor = colorScheme.primary
                     ) {}
+//                    Column {
+//                        // Hiển thị thêm thông tin chi tiết từ API
+//                        ticketDetailState?.let { ticket ->
+//                            Column(
+//                                modifier = Modifier
+//                                    .fillMaxWidth()
+//                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+//                            ) {
+//                                Text(
+//                                text = "Người tạo: ${ticket.userName}",
+//                                style = MaterialTheme.typography.bodyLarge
+//                                )
+//                                Text(
+//                                    text = "Ngày: ${formatDate(ticket.createdAt ?: "N/A")}",
+//                                    style = MaterialTheme.typography.bodyLarge
+//                                )
+//                                Text(
+//                                    text = "Mô tả: ${ticket.description}",
+//                                    style = MaterialTheme.typography.bodyLarge
+//                                )
+//                                Text(
+//                                    text = "Thiết bị: ${ticket.deviceName}",
+//                                    style = MaterialTheme.typography.bodyLarge
+//                                )
+//
+//                                ticket.assignedName?.let {
+//                                    Text(
+//                                        text = "Người xử lý: ${ticket.assignedName}",
+//                                        style = MaterialTheme.typography.bodyLarge
+//                                    )
+//                                }
+//                                ticket.resolvedAt?.let {
+//                                    Text(
+//                                        text = "Ngày giải quyết: ${ticket.resolvedAt}",
+//                                        style = MaterialTheme.typography.bodyLarge
+//                                    )
+//                                }
+////                                ticket.resolveSolution?.let {
+////                                    Text(
+////                                        text = "Giải pháp: ${ticket.resolveSolution}",
+////                                        style = MaterialTheme.typography.bodyLarge
+////                                    )
+////                                }
+//                            }
+//                        }
 
                     // Hiển thị danh sách chat (nếu nhiều message)
                     chatMessages.forEach { chat ->
@@ -119,20 +205,28 @@ fun TicketDetailScreen(
                             type = chat.type
                         )
                     }
-
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                    ) {
-                        ActionButtonWithFeedback(
-                            label = buttonLabel,
-                            style = HCButtonStyle.PRIMARY,
-                            onAction = { _, _ -> },
-                            snackbarViewModel = snackbarViewModel
-                        )
-                    }
+//                    Column(
+//                        modifier = Modifier.padding(16.dp),
+//                    ) {
+//                        ActionButtonWithFeedback(
+//                            label = buttonLabel,
+//                            style = HCButtonStyle.PRIMARY,
+//                            onAction = { _, _ -> },
+//                            snackbarViewModel = snackbarViewModel
+//                        )
+//                    }
                 }
             }
         }
+    }
+}
+
+private fun formatDate(dateString: String): String {
+    return try {
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            .format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).parse(dateString)!!)
+    } catch (e: Exception) {
+        "N/A"
     }
 }
 

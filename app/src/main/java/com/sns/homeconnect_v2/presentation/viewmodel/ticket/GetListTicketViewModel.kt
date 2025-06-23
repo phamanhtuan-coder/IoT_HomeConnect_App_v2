@@ -36,11 +36,12 @@ class GetListTicketViewModel @Inject constructor(
 //                    _tickets.value = response.data!!.tickets
                     _tickets.value = response.data?.tickets?.map { ticket ->
                         ticket.copy(
-                            status = ticket.status?.lowercase()?.takeIf { it in listOf("pending", "processed", "rejected") } ?: "pending",
+                            status = ticket.status?.lowercase()?.takeIf { it in listOf("pending", "processed", "rejected","cancelled","resolved","approved") } ?: "pending",
                             createdAt = ticket.createdAt?.let { formatDate(it) } ?: "N/A",
                             userName = ticket.userName ?: "Unknown User",
                             ticketTypeName = ticket.ticketTypeName ?: "Unknown Type",
-                            description = ticket.description ?: ""
+                            description = ticket.description ?: "",
+                            IsViewed = false
                         )
                     } ?: emptyList()
                 } else {
@@ -60,6 +61,24 @@ class GetListTicketViewModel @Inject constructor(
                 .format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).parse(dateString)!!)
         } catch (e: Exception) {
             "N/A"
+        }
+    }
+
+    // Đánh dấu ticket là đã xem
+    fun markTicketAsViewed(index: Int) {
+        val currentTickets = _tickets.value.toMutableList()
+        if (index in currentTickets.indices) {
+            currentTickets[index] = currentTickets[index].copy(IsViewed = true)
+            _tickets.value = currentTickets
+        }
+    }
+
+    // Xóa ticket
+    fun removeTicket(index: Int) {
+        val currentTickets = _tickets.value.toMutableList()
+        if (index in currentTickets.indices) {
+            currentTickets.removeAt(index)
+            _tickets.value = currentTickets
         }
     }
 }

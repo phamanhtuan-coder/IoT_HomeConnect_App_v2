@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 /**
  * Lớp enum biểu thị loại tin nhắn trò chuyện.
@@ -136,12 +138,19 @@ fun ChatMessageCard(
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = time,
+                text = formatDate(time),
                 fontSize = 15.sp, // TO hơn
                 color = Color.Gray,
                 modifier = Modifier.padding(start = 6.dp, end = 6.dp)
             )
         }
+    }
+}private fun formatDate(dateString: String): String {
+    return try {
+        SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            .format(SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).parse(dateString)!!)
+    } catch (e: Exception) {
+        "N/A"
     }
 }
 

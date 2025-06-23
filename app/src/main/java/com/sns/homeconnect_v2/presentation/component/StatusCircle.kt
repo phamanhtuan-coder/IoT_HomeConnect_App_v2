@@ -22,7 +22,8 @@ import com.sns.homeconnect_v2.R
 enum class Status {
     APPROVED,    // Đã duyệt (xanh lá)
     PENDING,     // Chờ duyệt (vàng)
-    REJECTED     // Huỷ bỏ (đỏ)
+    REJECTED, // Huỷ bỏ (đỏ)
+    Cancelled, // Đã huỷ (đỏ)
 }
 
 /**
@@ -36,11 +37,12 @@ enum class Status {
  * @since 26-05-2025
  */
 @Composable
-fun StatusCircle(status: Status, modifier: Modifier = Modifier) {
+fun StatusCircle(status:Status, modifier: Modifier = Modifier) {
     val (icon, color) = when (status) {
         Status.APPROVED  -> R.drawable.shield_check      to Color(0xFF00C853)
         Status.PENDING   -> R.drawable.shield_exclamation to Color(0xFFFFC107)
         Status.REJECTED  -> R.drawable.shield_xmark       to Color.Red
+        Status.Cancelled -> R.drawable.shield_xmark       to Color.Red
     }
     Box(
         modifier = modifier

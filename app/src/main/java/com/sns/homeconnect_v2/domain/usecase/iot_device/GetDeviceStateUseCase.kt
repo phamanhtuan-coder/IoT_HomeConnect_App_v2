@@ -7,9 +7,9 @@ import jakarta.inject.Inject
 class GetDeviceStateUseCase @Inject constructor(
     private val repository: DeviceRepository
 ) {
-    suspend operator fun invoke(deviceId: String, serialNumber: String): Result<DeviceStateResponse> {
+    suspend operator fun invoke( serialNumber: String): Result<DeviceStateResponse> {
         return try {
-            Result.success(repository.getDeviceState(deviceId, serialNumber))
+            Result.success(repository.getDeviceState(serialNumber))
         } catch (e: Exception) {
             Result.failure(e)
         }

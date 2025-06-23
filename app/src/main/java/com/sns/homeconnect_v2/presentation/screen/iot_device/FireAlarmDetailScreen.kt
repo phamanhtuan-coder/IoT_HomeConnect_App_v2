@@ -128,7 +128,7 @@ fun FireAlarmDetailScreen(
     // Lấy context
     LaunchedEffect(Unit) {
         deviceViewModel.initSocket(deviceID, serialNumber)
-        deviceDisplayViewModel.fetchDeviceState(deviceID, serialNumber)
+        deviceDisplayViewModel.fetchDeviceState(serialNumber)
     }
 
     // State để giữ power từ API (lấy từ deviceState)
@@ -158,7 +158,7 @@ fun FireAlarmDetailScreen(
             is UpdateDeviceStateBulkUiState.Success -> {
                 snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
                 isPowerUpdating = false                // mở khóa Switch
-                deviceDisplayViewModel.fetchDeviceState(deviceID, serialNumber)
+                deviceDisplayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
                 snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
@@ -410,7 +410,7 @@ fun FireAlarmDetailScreen(
                                             Log.d("SwitchAction", "Gửi bulk power_status = $newStatus")
 
                                             deviceDisplayViewModel.updateDeviceStateBulk(
-                                                deviceId = deviceID,
+                                                serial_number = serialNumber,
                                                 serial   = serialNumber,
                                                 updates  = listOf(mapOf("power_status" to newStatus))
                                             )

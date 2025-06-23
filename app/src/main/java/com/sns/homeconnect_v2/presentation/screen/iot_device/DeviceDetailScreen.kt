@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,6 +88,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
 import com.sns.homeconnect_v2.presentation.component.DayPicker
 import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
+import com.sns.homeconnect_v2.presentation.component.EffectSelector
 import com.sns.homeconnect_v2.presentation.component.EndlessRollingPadlockTimePicker
 import com.sns.homeconnect_v2.presentation.component.FancyColorSlider
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
@@ -104,6 +106,8 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiSta
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedEffectViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -121,13 +125,33 @@ fun DeviceDetailScreen(
     snackbarViewModel: SnackbarViewModel
 ) {
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+
+    // Lấy thông tin chi tiết thiết bị
+    val ledViewModel: LedEffectViewModel = hiltViewModel()
+    val ledState by ledViewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        displayViewModel.fetchDeviceState(serialNumber)
+        ledViewModel.fetchEffects(serialNumber)
+    }
+
+    LaunchedEffect(ledState) {
+        when (val s = ledState) {
+            is LedUiState.Success -> snackbarViewModel.showSnackbar("Đã áp dụng hiệu ứng", SnackbarVariant.SUCCESS)
+            is LedUiState.Error   -> snackbarViewModel.showSnackbar(s.message,        SnackbarVariant.ERROR)
+            else -> {}
+        }
+    }
+
+    val showEffectSheet = remember { mutableStateOf(false) }
+
     val showBottomSheet = remember { mutableStateOf(false) }
-    val isDataFetched = remember { mutableStateOf(false) } // <- tránh gọi lại API liên tục
+    val isDataFetched = remember { mutableStateOf(false) }
 
     val displayState by displayViewModel.displayState.collectAsState()
 
     LaunchedEffect(Unit) {
-        displayViewModel.fetchDeviceState(deviceId, serialNumber)
+        displayViewModel.fetchDeviceState(serialNumber)
     }
 
     LaunchedEffect(showBottomSheet.value) {
@@ -138,7 +162,6 @@ fun DeviceDetailScreen(
     }
 
     var rowWidth by remember { mutableIntStateOf(0) }
-    var isCheck by remember { mutableStateOf(false) }
     var sliderValue by remember { mutableFloatStateOf(128f) }
 
 //    LaunchedEffect(updateState) {
@@ -252,9 +275,12 @@ fun DeviceDetailScreen(
                     attribute = attribute.copy(color = hex)
                 }
                 isUpdatingPower = false; pendingPower = null
+
+                Log.d("✅ServerResponse", "State: ${s.state}")
             }
             is DeviceStateUiState.Error -> {
                 snackbarViewModel.showSnackbar("Lỗi?", SnackbarVariant.ERROR)
+                Log.e("❌DeviceStateError", s.message)
             }
             else -> {}
         }
@@ -268,7 +294,7 @@ fun DeviceDetailScreen(
                 snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
                 isSendingToggle = false
                 // refresh lại trạng thái
-                displayViewModel.fetchDeviceState(deviceId, serialNumber)
+                displayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
                 snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
@@ -338,7 +364,7 @@ fun DeviceDetailScreen(
                                                 pendingPower   = newValue
                                                 isUpdatingPower = true
                                                 displayViewModel.updateDeviceStateBulk(
-                                                    deviceId = deviceId,
+                                                    serial_number = serialNumber,
                                                     serial   = serialNumber,
                                                     updates  = listOf(mapOf("power_status" to newValue))
                                                 )
@@ -396,7 +422,7 @@ fun DeviceDetailScreen(
                                             onValueChange = { v ->
                                                 sliderValue = v
                                                 if (uiPower) displayViewModel.updateDeviceStateBulk(
-                                                    deviceId = deviceId,
+                                                    serial_number = serialNumber,
                                                     serial   = serialNumber,
                                                     updates  = listOf(mapOf("brightness" to sliderToPercent(v))) // <-- dùng 0-100
                                                 )
@@ -427,7 +453,7 @@ fun DeviceDetailScreen(
                                         attribute = attribute.copy(color = hex)        // cập nhật state UI
                                         if (uiPower) {                                 // chỉ sync khi đèn đang bật
                                             displayViewModel.updateDeviceStateBulk(
-                                                deviceId = deviceId,
+                                                serial_number = serialNumber,
                                                 serial   = serialNumber,
                                                 updates  = listOf(mapOf("color" to hex))
                                             )
@@ -514,16 +540,29 @@ fun DeviceDetailScreen(
                         Column(
                             modifier = Modifier
                                 .wrapContentWidth()
+                                .padding(horizontal = (16.dp))
                                 .onSizeChanged { size ->
                                     rowWidth = size.width
                                 },
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
+                            ActionButtonWithFeedback(
+                                label  = "Hiệu ứng LED",
+                                style  = HCButtonStyle.PRIMARY,
+                                height = 62.dp,
+                                textSize = 20.sp,
+                                modifier = Modifier.fillMaxWidth(),
+                                snackbarViewModel = snackbarViewModel,
+                                onAction = { onS, _ ->
+                                    onS("Đang mở…")
+                                    showEffectSheet.value = true
+                                }
+                            )
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp),
+                                    .padding(vertical = 16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Row(
@@ -673,6 +712,84 @@ fun DeviceDetailScreen(
                                     snackbarViewModel = snackbarViewModel
                                 )
                             }
+
+                            /* ---------- SHEET: HIỆU ỨNG LED ---------- */
+                            if (showEffectSheet.value) {
+                                ModalBottomSheet(
+                                    onDismissRequest = { showEffectSheet.value = false }
+                                ) {
+                                    if (ledState is LedUiState.Loading) {
+                                        CircularProgressIndicator(
+                                            Modifier
+                                                .padding(24.dp)
+                                                .align(Alignment.CenterHorizontally)
+                                        )
+                                    }
+
+                                    EffectSelector(
+                                        state = ledState,
+                                        snackbarViewModel = snackbarViewModel,
+                                        onApply = { effect, speed, count, c1, c2 ->
+                                            ledViewModel.applyEffect(
+                                                deviceId  = deviceId,
+                                                serial    = serialNumber,
+                                                effect    = effect,
+                                                speed     = speed,
+                                                count     = count,
+                                                color1    = c1,
+                                                color2    = c2
+                                            )
+                                            showEffectSheet.value = false
+                                        }
+                                    )
+
+                                    Row (
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp),
+                                    ) {
+                                        ActionButtonWithFeedback(
+                                            label  = "Dừng hiệu ứng",
+                                            style  = HCButtonStyle.SECONDARY,
+                                            height = 54.dp,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                            snackbarViewModel = snackbarViewModel,
+                                            onAction = { onS, _ ->
+                                                ledViewModel.stopEffect(deviceId, serialNumber)
+                                                showEffectSheet.value = false
+                                                onS("Đang dừng…")
+                                            }
+                                        )
+
+                                        Spacer(Modifier.width(8.dp))
+
+                                        ActionButtonWithFeedback(
+                                            label  = "Chế độ mẫu",
+                                            style  = HCButtonStyle.PRIMARY,
+                                            height = 54.dp,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .weight(1f),
+                                            snackbarViewModel = snackbarViewModel,
+                                            onAction = { onS, _ ->
+                                                ledViewModel.applyPreset(
+                                                    deviceId  = deviceId,
+                                                    serial    = serialNumber,
+                                                    preset    = "party_mode",
+                                                    duration  = 30_000   // 30 giây
+                                                )
+                                                showEffectSheet.value = false
+                                                onS("Đang áp dụng preset…")
+                                            }
+                                        )
+                                    }
+
+                                    Spacer(Modifier.height(12.dp))
+                                }
+                            }
+
 
                             if (showConfirm) {
                                 WarningDialog(

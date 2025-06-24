@@ -101,3 +101,10 @@ data class CreateTicket(
     @SerializedName("resolve_solution") val resolveSolution: String?,
     @SerializedName("is_deleted") val isDeleted: Boolean
 )
+
+data class CancelTicketResponse(
+    @SerializedName("code") val code: Int,
+    @SerializedName("message") val message: String,
+    @SerializedName("status_code") val statusCode: Int,
+    @SerializedName("data") val data: String
+)

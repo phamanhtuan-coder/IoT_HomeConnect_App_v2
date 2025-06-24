@@ -53,6 +53,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleReque
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.CheckEmailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.CancelTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
@@ -471,6 +472,12 @@ interface ApiService {
         @Body body: CreateTicketRequest,
         @Header("Authorization") token: String
     ): CreateTicketResponse
+
+    @PUT("tickets/{ticketId}/cancel")
+    suspend fun cancelTicket(
+        @Path("ticketId") ticketId: String,
+        @Header("Authorization") token: String
+    ):CancelTicketResponse
 
 //    @POST("spaces")
 //    suspend fun createSpace(

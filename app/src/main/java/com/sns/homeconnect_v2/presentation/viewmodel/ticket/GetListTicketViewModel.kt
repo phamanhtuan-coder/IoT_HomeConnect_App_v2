@@ -28,7 +28,7 @@ class GetListTicketViewModel @Inject constructor(
         fetchTickets()
     }
 
-    private fun fetchTickets() {
+    fun fetchTickets() {
         viewModelScope.launch {
             try {
                 val response = ticketRepository.getListTickets()

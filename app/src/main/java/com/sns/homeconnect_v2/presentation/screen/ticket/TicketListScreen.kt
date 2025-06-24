@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.screen.ticket
+package com.sns.homeconnect_v2.ticket_screen
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.clickable
@@ -14,39 +14,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material3.Button
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.FilterSheetContent
 import com.sns.homeconnect_v2.presentation.component.TicketCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
-import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
-import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
-import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
-import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
+import com.sns.homeconnect_v2.presentation.component.widget.*
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.ticket.CancelTicketViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.ticket.GetListTicketViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -57,21 +44,9 @@ import java.util.Locale
  *
  * Màn hình này cho phép người dùng xem và quản lý các yêu cầu hỗ trợ của họ.
  * Mỗi yêu cầu được hiển thị trong một [TicketCardSwipeable] cho phép các hành động như mở rộng,
- * thu gọn và xóa yêu cầu.
+ * thu gọn và xóa hiển thị (nhưng không kích hoạt nếu trạng thái là cancelled).
  *
- * Màn hình bao gồm:
- * - Một [Header] với nút quay lại và tiêu đề "Báo mất thiết bị".
- * - Một [ColoredCornerBox] và [InvertedCornerHeader] để tạo kiểu cho phần trên cùng.
- * - Một [LabeledBox] hiển thị tổng số yêu cầu hỗ trợ.
- * - Một [LazyColumn] để hiển thị hiệu quả danh sách các mục [TicketCardSwipeable].
- * - Thông báo "Không tìm yêu cầu hổ trợ" được hiển thị nếu không có yêu cầu nào.
- * - Một [MenuBottom] để điều hướng.
- *
- * Danh sách các yêu cầu hỗ trợ được quản lý bởi một `mutableStateListOf` có tên là `supportTickets`.
- * Khi một thẻ yêu cầu được mở rộng, tất cả các thẻ khác sẽ được thu gọn.
- * Việc xóa một yêu cầu sẽ loại bỏ nó khỏi danh sách `supportTickets`.
- *
- * @param navController [NavHostController] được sử dụng để điều hướng.
+ * @param navController [NavHostController] để điều hướng.
  * @author Nguyễn Thanh Sang
  * @since 26-05-2025
  */
@@ -81,25 +56,19 @@ fun TicketListScreen(
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel()
 ) {
-//    val tickets = remember {
-//        mutableStateListOf(
-//            TicketUi(1, "Nguyễn Văn A", "Báo mất", "1/1/2025", "Làm rơi chìa khóa", TicketStatus.UNPROCESSED),
-//            TicketUi(2, "Trần Thị B", "Báo hỏng", "2/2/2025", "Thiết bị không hoạt động", TicketStatus.PROCESSED),
-//            TicketUi(3, "Lê Văn C", "Yêu cầu hỗ trợ", "3/3/2025", "Cần hỗ trợ lắp đặt", TicketStatus.UNPROCESSED)
-//        )
-//    }
-
     val ticketViewModel: GetListTicketViewModel = hiltViewModel()
-    val tickets= ticketViewModel.tickets.collectAsState().value
+    val tickets = ticketViewModel.tickets.collectAsState().value
+    val cancelTicketViewModel: CancelTicketViewModel = hiltViewModel()
 
     var revealedIndex by remember { mutableIntStateOf(-1) }
     var selectedDate by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var ticketToDelete by remember { mutableStateOf<String?>(null) }
 
-
-// Log để debug
+    // Log để debug
     LaunchedEffect(tickets) {
         tickets.forEachIndexed { index, ticket ->
             println("Ticket $index: userName=${ticket.userName}, status=${ticket.status}")
@@ -128,13 +97,11 @@ fun TicketListScreen(
                 FloatingActionButton(
                     onClick = {
                         snackbarViewModel.showSnackbar("Đã nhấn nút thêm!")
-                        // TODO: Điều hướng đến màn hình thêm ticket, ví dụ:
                         navController.navigate(Screens.CreateTicket.route)
                     },
-                    containerColor = colorScheme.primary ?: Color(0xFF6200EE), // Fallback màu nếu theme lỗi
+                    containerColor = colorScheme.primary ?: Color(0xFF6200EE),
                     contentColor = colorScheme.onPrimary ?: Color.White,
-                    modifier = Modifier
-                        .size(60.dp)
+                    modifier = Modifier.size(60.dp)
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -174,15 +141,27 @@ fun TicketListScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         LabeledBox(
-                            label = "Hổ trợ chưa xem",
+                            label = "Hỗ trợ chưa xem",
                             value = unviewedCount.toString()
                         )
-                        IconButton(onClick = { isSheetVisible = true }) {
-                            Icon(
-                                Icons.Default.FilterList,
-                                contentDescription = "Open Sheet",
-                                modifier = Modifier.size(32.dp)
-                            )
+                        Row {
+                            IconButton(onClick = {
+                                ticketViewModel.fetchTickets()
+                                snackbarViewModel.showSnackbar("Đã tải lại danh sách!", SnackbarVariant.SUCCESS)
+                            }) {
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = "Tải lại danh sách",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                            IconButton(onClick = { isSheetVisible = true }) {
+                                Icon(
+                                    Icons.Default.FilterList,
+                                    contentDescription = "Mở bộ lọc",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -199,17 +178,21 @@ fun TicketListScreen(
                                 isRevealed = revealedIndex == index,
                                 onExpand = { revealedIndex = index },
                                 onCollapse = { if (revealedIndex == index) revealedIndex = -1 },
-                                onDelete = {},
+                                onDelete = {
+                                    if (ticket.status.toString().lowercase() != "cancelled") {
+                                        ticketToDelete = ticket.ticketId
+                                        showDeleteDialog = true
+                                    }
+                                },
                                 onClick = {
-                                    // Đánh dấu ticket là đã xem
                                     ticketViewModel.markTicketAsViewed(index)
-                                    // Điều hướng đến màn hình chi tiết
                                     navController.navigate(
                                         Screens.DetailTicket.createRoute(ticket.ticketId)
                                     )
                                     println("Navigating to ticket detail with ID: ${ticket.ticketId}")
                                 },
-                                ticketId = ticket.ticketId
+                                ticketId = ticket.ticketId,
+                                isDeleteEnabled = ticket.status.toString().lowercase() != "cancelled"
                             )
                         }
                     }
@@ -220,7 +203,7 @@ fun TicketListScreen(
                             .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Không tìm yêu cầu hổ trợ")
+                        Text("Không tìm thấy yêu cầu hỗ trợ")
                     }
                 }
 
@@ -336,19 +319,122 @@ fun TicketListScreen(
                             }) { Text("OK") }
                         },
                         dismissButton = {
-                            TextButton(onClick = { showDatePicker = false }) { Text("Huỷ") }
+                            TextButton(onClick = { showDatePicker = false }) { Text("Hủy") }
                         }
                     ) {
                         DatePicker(state = datePickerState)
                     }
+                }
+
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false; ticketToDelete = null; revealedIndex = -1 },
+                        shape = RoundedCornerShape(16.dp),
+                        containerColor = colorScheme.surface,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = colorScheme.error,
+                                modifier = Modifier.size(40.dp)
+                            )
+                        },
+                        title = {
+                            Text(
+                                text = "Xác nhận hủy",
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorScheme.onSurface
+                                ),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "Bạn có muốn hủy yêu cầu này không?",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = colorScheme.onSurfaceVariant
+                                ),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                            )
+                        },
+                        confirmButton = {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Button(
+                                    onClick = {
+                                        showDeleteDialog = false
+                                        ticketToDelete = null
+                                        revealedIndex = -1
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFF44336), // Màu đỏ
+                                        contentColor = Color.White
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 4.dp)
+                                        .height(48.dp)
+                                ) {
+                                    Text(
+                                        "Hủy",
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    )
+                                }
+                                Button(
+                                    onClick = {
+                                        ticketToDelete?.let { ticketId ->
+                                            cancelTicketViewModel.cancelTicket(ticketId)
+                                            snackbarViewModel.showSnackbar(
+                                                "Đã hủy yêu cầu hỗ trợ",
+                                                SnackbarVariant.SUCCESS
+                                            )
+                                            println("Canceled ticket with ID: $ticketId")
+                                            ticketViewModel.fetchTickets()
+                                            revealedIndex = -1
+                                        }
+                                        showDeleteDialog = false
+                                        ticketToDelete = null
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF4CAF50), // Màu xanh
+                                        contentColor = Color.White
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(start = 4.dp)
+                                        .height(48.dp)
+                                ) {
+                                    Text(
+                                        "Xác nhận",
+                                        style = MaterialTheme.typography.labelMedium.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    )
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .widthIn(max = 340.dp)
+                    )
                 }
             }
         }
     }
 }
 
-
-@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "GroupScreen - Phone")
+@Preview(showBackground = true, widthDp = 360, heightDp = 800, name = "TicketListScreen - Phone")
 @Composable
 fun TicketListScreenPhonePreview() {
     IoTHomeConnectAppTheme {

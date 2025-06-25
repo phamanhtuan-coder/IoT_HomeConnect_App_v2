@@ -9,9 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.sns.homeconnect_v2.presentation.navigation.Screens.EditSpaceWithHouse
-import com.google.gson.Gson
-import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -40,14 +37,12 @@ import com.sns.homeconnect_v2.presentation.screen.group.user.AddUserScreen
 import com.sns.homeconnect_v2.presentation.screen.house.HouseSearchScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DefaultDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ListDeviceScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.FireAlarmDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.SoftwareVersionScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.ReportLostDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
-import com.sns.homeconnect_v2.presentation.screen.iot_device.CameraDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
@@ -430,25 +425,6 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
             ) {
                 CreateTicketScreen(
                     navController     = navController,
-                    snackbarViewModel = snackbarViewModel
-                )
-            }
-
-            /* ---------- Camera screens ---------- */
-            composable(
-                route = Screens.CameraDetail.route,
-                arguments = listOf(
-                    navArgument("deviceId")   { type = NavType.StringType },
-                    navArgument("deviceName") { type = NavType.StringType }
-                )
-            ) { backStackEntry ->
-                val deviceId   = backStackEntry.arguments?.getString("deviceId") ?: ""
-                val deviceName = backStackEntry.arguments?.getString("deviceName") ?: ""
-
-                CameraDetailScreen(
-                    navController     = navController,
-                    deviceId          = deviceId,
-                    deviceName        = deviceName,
                     snackbarViewModel = snackbarViewModel
                 )
             }

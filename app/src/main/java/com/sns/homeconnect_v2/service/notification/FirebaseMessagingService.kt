@@ -1,6 +1,5 @@
 package com.sns.homeconnect_v2.service.notification
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -11,7 +10,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import android.Manifest.permission
 import android.app.NotificationManager
 import android.content.pm.PackageManager
 import android.os.Build
@@ -24,60 +22,70 @@ import com.sns.homeconnect_v2.core.notification.NotificationChannelUtil
 
 @AndroidEntryPoint
 class MyFirebaseMessagingService : FirebaseMessagingService() {
+
     @Inject
     lateinit var sendFcmTokenUseCase: SendFcmTokenUseCase
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        getSharedPreferences("app_prefs", MODE_PRIVATE)
-            .edit { putString("FCM_TOKEN", token) }
+        getSharedPreferences("app_prefs", MODE_PRIVATE).edit {
+            putString("FCM_TOKEN", token)
+        }
         sendTokenToServer(token)
     }
 
     private fun sendTokenToServer(token: String) {
         CoroutineScope(Dispatchers.IO).launch {
             sendFcmTokenUseCase(token).onSuccess {
-                Log.i("MyFirebaseMessagingService", it.message)
+                Log.i(TAG, "✅ Token sent to server: ${it.message}")
             }.onFailure {
-                Log.e("MyFirebaseMessagingService", "sendTokenToServer error: ${it.message}")
+                Log.e(TAG, "❌ Failed to send token: ${it.message}")
             }
         }
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        handleNotification(remoteMessage)
-    }
+        // Ưu tiên xử lý kiểu data message
+        val type = remoteMessage.data["type"]
+        val title = remoteMessage.data["title"]
+        val body = remoteMessage.data["body"]
 
-    private fun handleNotification(remoteMessage: RemoteMessage) {
-        remoteMessage.notification?.let {
+        if (type == "alarm") {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                checkSelfPermission(
-                    this,
-                    permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
             ) {
-                showAlert(it.title, it.body)
+                showAlarmNotification(title, body)
             } else {
-                Log.w("MyFirebaseMessaging", "⚠️ Chưa cấp quyền gửi thông báo.")
+                Log.w(TAG, "⚠️ Chưa được cấp quyền POST_NOTIFICATIONS.")
             }
+        } else {
+            Log.d(TAG, "📩 Nhận được tin nhắn khác, không phải 'alarm': type=$type")
         }
     }
 
-    private fun showAlert(title: String?, body: String?) {
+    private fun showAlarmNotification(title: String?, body: String?) {
         NotificationChannelUtil.createWarningChannel(this)
+
         val soundUri = "android.resource://$packageName/raw/alert".toUri()
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.alert)
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notificationBuilder = NotificationCompat.Builder(this, "homeconnect_warning")
-            .setContentTitle(title ?: "Tiêu đề thông báo")
-            .setContentText(body ?: "Nội dung thông báo")
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        val notification = NotificationCompat.Builder(this, CHANNEL_WARNING)
+            .setContentTitle(title ?: "Thông báo từ thiết bị")
+            .setContentText(body ?: "Thiết bị của bạn vừa phát hiện cảnh báo.")
             .setSmallIcon(R.drawable.alert)
             .setLargeIcon(bitmap)
             .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bitmap))
             .setSound(soundUri)
-            .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+            .build()
 
-        notificationManager.notify(System.currentTimeMillis().toInt(), notificationBuilder.build())
+        manager.notify(System.currentTimeMillis().toInt(), notification)
+    }
+
+    companion object {
+        private const val TAG = "MyFirebaseMessaging"
+        private const val CHANNEL_WARNING = "homeconnect_warning"
     }
 }

@@ -16,6 +16,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -82,11 +83,12 @@ fun FancyColorSlider(
     )
 
     /* ---------- state ---------- */
-    var pos by remember {
-        mutableFloatStateOf(
-            findClosestColorPosition(
-                parseHexToColor(attribute.color) ?: Color.White,
-                palette.map { it.first })
+    var pos by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(attribute.color) {             // chạy mỗi khi màu thay đổi
+        pos = findClosestColorPosition(
+            parseHexToColor(attribute.color) ?: Color.White,
+            palette.map { it.first }
         )
     }
 

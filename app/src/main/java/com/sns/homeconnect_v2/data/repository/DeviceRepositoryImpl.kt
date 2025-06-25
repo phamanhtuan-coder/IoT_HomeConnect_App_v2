@@ -5,7 +5,10 @@ import com.sns.homeconnect_v2.data.remote.api.ApiService
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
@@ -13,6 +16,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResp
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.domain.repository.DeviceRepository
@@ -76,20 +80,56 @@ class DeviceRepositoryImpl @Inject constructor(
             token = "Bearer $token"
         )
     }
-    override suspend fun getDeviceState(deviceId: String, serialNumber: String): DeviceStateResponse {
+    override suspend fun getDeviceState(serialNumber: String): DeviceStateResponse {
         val token = authManager.getJwtToken()
-        return apiService.getDeviceState(deviceId, serialNumber, "Bearer $token")
+        return apiService.getDeviceState(serialNumber, serialNumber, "Bearer $token")
     }
 
     override suspend fun updateDeviceState(
-        deviceId: String,
+        serial_number: String,
         request: UpdateDeviceStateRequest
     ): UpdateDeviceStateResponse {
         val token = authManager.getJwtToken()
-        return apiService.updateDeviceState(deviceId, request, "Bearer $token")
+        return apiService.updateDeviceState(serial_number, request, "Bearer $token")
     }
 
-    override suspend fun updateDeviceStateBulk(deviceId: String, request: BulkDeviceStateUpdateRequest): BulkDeviceStateUpdateResponse {
-        return apiService.updateDeviceStateBulk(deviceId, request)
+    override suspend fun updateDeviceStateBulk(serial_number: String, request: BulkDeviceStateUpdateRequest): BulkDeviceStateUpdateResponse {
+        val token = authManager.getJwtToken()
+        return apiService.updateDeviceStateBulk(serial_number, request, "Bearer $token")
     }
+
+    // ---------- LED / State ---------------------------------------------------
+    override suspend fun applyLedEffect(
+        serial_number: String,
+        request: LedEffectRequest
+    ): DeviceResponse {
+        val token = authManager.getJwtToken()
+        return apiService.applyLedEffect(serial_number, request, "Bearer $token")
+    }
+
+    override suspend fun stopLedEffect(
+        serial_number: String,
+        request: StopLedEffectRequest
+    ): DeviceResponse {
+        val token = authManager.getJwtToken()
+        return apiService.stopLedEffect(
+            serial_number,
+            request,
+            "Bearer $token"
+        )
+    }
+    override suspend fun applyLedPreset(
+        deviceId: String,
+        request: LedPresetRequest
+    ): DeviceResponse {
+        val token = authManager.getJwtToken()
+        return apiService.applyLedPreset(deviceId, request, "Bearer $token")
+    }
+
+    override suspend fun getLedEffects(deviceId: String): LedEffectsResponse {
+        val token = authManager.getJwtToken()
+        return apiService.getLedEffects(deviceId, "Bearer $token")
+    }
+
+
 }

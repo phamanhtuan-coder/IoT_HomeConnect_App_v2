@@ -47,6 +47,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipSc
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.CameraDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
@@ -423,12 +424,31 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = hiltViewModel()
                 )
             }
+              
             composable(
-                route = Screens.CreateTicket.route,
-            )
-            {
+                route = Screens.CreateTicket.route
+            ) {
                 CreateTicketScreen(
-                    navController = navController,
+                    navController     = navController,
+                    snackbarViewModel = snackbarViewModel
+                )
+            }
+
+            /* ---------- Camera screens ---------- */
+            composable(
+                route = Screens.CameraDetail.route,
+                arguments = listOf(
+                    navArgument("deviceId")   { type = NavType.StringType },
+                    navArgument("deviceName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val deviceId   = backStackEntry.arguments?.getString("deviceId") ?: ""
+                val deviceName = backStackEntry.arguments?.getString("deviceName") ?: ""
+
+                CameraDetailScreen(
+                    navController     = navController,
+                    deviceId          = deviceId,
+                    deviceName        = deviceName,
                     snackbarViewModel = snackbarViewModel
                 )
             }

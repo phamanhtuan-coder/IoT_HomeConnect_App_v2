@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class SocketRepositoryImpl @Inject constructor() : SocketRepository {
     override fun connect(deviceId: String, serial_number: String, accountId: String) {
-        SocketManager.connect(deviceId, serial_number, accountId)
+        SocketManager.connect(serial_number, accountId)
     }
 
     override fun disconnect() {

@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
@@ -46,6 +47,16 @@ class SpaceScreenViewModel @Inject constructor(
     fun collapseItem(index: Int) {
         _spaces.value = _spaces.value.mapIndexed { i, item ->
             if (i == index) item.copy(isRevealed = false) else item
+        }
+    }
+
+    fun expandItem(index: Int) {
+        _spaces.update { currentSpaces ->
+            currentSpaces.mapIndexed { i, space ->
+                if (i == index) space.copy(isRevealed = true)
+                else space.copy(isRevealed = false)
+
+            }
         }
     }
 

@@ -47,7 +47,10 @@ import com.sns.homeconnect_v2.data.remote.dto.request.CreateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateTicketRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.DeviceCapabilitiesRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
@@ -59,6 +62,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesRespons
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.TicketDetailResponse
@@ -361,9 +365,9 @@ interface ApiService {
         @Header("Authorization") token: String
     ): DeviceCapabilitiesResponse
 
-    @GET("devices/{deviceId}/state")
+    @GET("devices/{serial_Number}/state")
     suspend fun getDeviceState(
-        @Path("deviceId") deviceId: String,
+        @Path("serial_Number") serial_Number: String,
         @Query("serial_number") serialNumber: String,
         @Header("Authorization") token: String
     ): DeviceStateResponse
@@ -375,11 +379,40 @@ interface ApiService {
         @Header("Authorization") token: String
     ): UpdateDeviceStateResponse
 
-    @POST("devices/{deviceId}/state/bulk")
+    @POST("devices/{serial_number}/state/bulk")
     suspend fun updateDeviceStateBulk(
-        @Path("deviceId") deviceId: String,
-        @Body request: BulkDeviceStateUpdateRequest
+        @Path("serial_number") serial_number: String,
+        @Body request: BulkDeviceStateUpdateRequest,
+        @Header("Authorization") token: String
     ): BulkDeviceStateUpdateResponse
+
+    // +++ LED effect
+    @POST("devices/{deviceId}/led-effect")
+    suspend fun applyLedEffect(
+        @Path("deviceId") serial_number: String,
+        @Body request: LedEffectRequest,
+        @Header("Authorization") token: String
+    ): DeviceResponse
+
+    @POST("devices/{serial_Number}/stop-led-effect")
+    suspend fun stopLedEffect(
+        @Path("serial_Number") serial_number: String,
+        @Body request: StopLedEffectRequest,
+        @Header("Authorization") token: String
+    ): DeviceResponse
+
+    @POST("devices/{serial_Number}/led-preset")
+    suspend fun applyLedPreset(
+        @Path("serial_Number") serial_Number: String,
+        @Body request: LedPresetRequest,
+        @Header("Authorization") token: String
+    ): DeviceResponse
+
+    @GET("devices/{serial_Number}/led-effects")
+    suspend fun getLedEffects(
+        @Path("serial_Number") serial_Number: String,
+        @Header("Authorization") token: String
+    ): LedEffectsResponse
 
 
 //    @GET("statistics/daily-averages-sensor/{deviceId}/{startDate}/{endDate}")

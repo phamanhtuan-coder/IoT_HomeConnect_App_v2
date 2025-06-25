@@ -18,15 +18,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,13 +41,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
@@ -62,11 +62,15 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.collections.contains
 
 /**
  * Enum class đại diện cho các hành động khác nhau có thể được thực hiện trên một thiết bị.
@@ -90,6 +94,7 @@ enum class DeviceAction {
     SHARE, TRANSFER, VERSION, REPORT_LOST
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
@@ -100,24 +105,81 @@ fun FireAlarmDetailScreen(
     controls: Map<String, String>,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
+    // Khởi tạo ViewModel
     val deviceViewModel: DeviceViewModel = hiltViewModel()
+    // Khởi tạo ViewModel để lấy trạng thái thiết bị
+    val deviceDisplayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    // Lấy trạng thái của thiết bị từ ViewModel
+    val deviceStateUiState by deviceDisplayViewModel.deviceState.collectAsState()
+    // Lấy thông tin thiết bị từ ViewModel
+    val updateBulkUiState by deviceDisplayViewModel.updateBulk.collectAsState()
 
-    LaunchedEffect(Unit) {
-        deviceViewModel.initSocket(deviceID, serialNumber)
-    }
-
-    /* ---------- STATE CHO MỖI SLIDER ---------- */
-    var gasSliderValue by remember { mutableFloatStateOf(20f) }
-    var tempSliderValue by remember { mutableFloatStateOf(50f) }
-    var humiditySliderValue by remember { mutableFloatStateOf(0f) }
-
+    // Lấy dữ liệu sensor từ ViewModel
     val sensorJson = deviceViewModel.sensorData.value
 
+    var pendingPowerStatus by remember { mutableStateOf<Boolean?>(null) }
+
+    var isPowerUpdating by remember { mutableStateOf(false) }
+
+    var powerUI           by remember { mutableStateOf(false) }           // giá trị hiển thị
+    var pendingToggle     by remember { mutableStateOf<Boolean?>(null) }  // giá trị vừa gửi, chờ server
+    var isUpdatingSwitch  by remember { mutableStateOf(false) }           // khoá switch khi chờ
+
+    // Lấy context
+    LaunchedEffect(Unit) {
+        deviceViewModel.initSocket(deviceID, serialNumber)
+        deviceDisplayViewModel.fetchDeviceState(serialNumber)
+    }
+
+    // State để giữ power từ API (lấy từ deviceState)
+    var powerStatusUI by remember { mutableStateOf(false) }
+
+    // Khi deviceStateUiState thành công thì cập nhật lại biến isCheck
+    LaunchedEffect(deviceStateUiState) {
+        val s = deviceStateUiState
+        if (s is DeviceStateUiState.Success) {
+            val serverPower = s.state.power_status == true
+
+            // chỉ đồng bộ UI khi: (1) không có lệnh chờ, hoặc (2) server đã phản hồi đúng
+            if (pendingPowerStatus == null || pendingPowerStatus == serverPower) {
+                powerStatusUI      = serverPower
+                pendingPowerStatus = null
+                isPowerUpdating    = false
+            }
+        } else if (s is DeviceStateUiState.Error) {
+            isPowerUpdating    = false
+            pendingPowerStatus = null
+            snackbarViewModel.showSnackbar(s.message, SnackbarVariant.ERROR)
+        }
+    }
+
+    LaunchedEffect(updateBulkUiState) {
+        when (val st = updateBulkUiState) {
+            is UpdateDeviceStateBulkUiState.Success -> {
+                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                isPowerUpdating = false                // mở khóa Switch
+                deviceDisplayViewModel.fetchDeviceState(serialNumber)
+            }
+            is UpdateDeviceStateBulkUiState.Error -> {
+                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                isPowerUpdating  = false               // mở khóa
+                pendingPowerStatus = null              // hủy lệnh chờ
+            }
+            else -> {}
+        }
+    }
+
+    // Biến trạng thái cho các thanh trượt
+    var gasSliderValue by remember { mutableFloatStateOf(0f) }
+    var tempSliderValue by remember { mutableFloatStateOf(0f) }
+    var humiditySliderValue by remember { mutableFloatStateOf(0f) }
+
+    // Lắng nghe sự thay đổi của sensorJson và cập nhật giá trị thanh trượt
     LaunchedEffect(sensorJson) {
         sensorJson?.let { json ->
             val gas = json.optInt("gas", -1)
-            val temp = json.optInt("temp", -1)
-            val hum = json.optInt("hum", -1)
+            val temp = json.optInt("temperature", -1) // ✅ fix key
+            val hum = json.optInt("humidity", -1)     // ✅ fix key
 
             if (gas != -1) gasSliderValue = gas.toFloat()
             if (temp != -1) tempSliderValue = temp.toFloat()
@@ -125,14 +187,9 @@ fun FireAlarmDetailScreen(
         }
     }
 
+    // Biến trạng thái khác
     var rowWidth by remember { mutableIntStateOf(0) }
-    val smokeLevel by remember { mutableIntStateOf(20) }
-    val temperature by remember { mutableIntStateOf(50) }
-    val coLevel by remember { mutableIntStateOf(-1) }
     var showDialog by remember { mutableStateOf(false) }
-    var isCheck by remember { mutableStateOf(false) }
-    val statusList = listOf("Bình thường", "Báo động", "Lỗi")// Trạng thái
-    val status by remember { mutableIntStateOf(0) }
     val isTablet = isTablet(LocalContext.current)
 
     /* state giữ hàm onSuccess / onError tạm thời */
@@ -168,10 +225,6 @@ fun FireAlarmDetailScreen(
 //        }
 //    }
 
-    LaunchedEffect(1) {
-//        viewModel.getInfoDevice(deviceID!!)
-    }
-
     var toggleDevice by remember { mutableStateOf<ToggleResponse?>(null) } // Lắng nghe danh sách thiết bị
 //    val toggleDeviceState by viewModel.toggleState.collectAsState()
 
@@ -191,6 +244,7 @@ fun FireAlarmDetailScreen(
 //        }
 //    }
 
+    val showBottomSheet = remember { mutableStateOf(false) }
 
     var safeDevice = infoDevice ?: DeviceResponse(
         DeviceID = 0,
@@ -203,8 +257,6 @@ fun FireAlarmDetailScreen(
 
     Log.e("safeDevice", safeDevice.toString())
 
-
-
     LaunchedEffect(toggleDevice) {
         safeDevice = infoDevice ?: DeviceResponse(
             DeviceID = 0,
@@ -216,14 +268,9 @@ fun FireAlarmDetailScreen(
         )
     }
 
-    var powerStatus by remember { mutableStateOf(false) }
 //    var toggle by remember {
 //        mutableStateOf(ToggleRequest(powerStatus = powerStatus))
 //    }
-    LaunchedEffect(safeDevice) {
-        powerStatus = safeDevice.PowerStatus
-    }
-
 //    val unlinkState by viewModel.unlinkState.collectAsState()
 
 //    when (unlinkState) {
@@ -240,14 +287,13 @@ fun FireAlarmDetailScreen(
 //        }
 //    }
 
-    val deviceStatusJson = deviceViewModel.deviceStatus.value
-    LaunchedEffect(deviceStatusJson) {
-        deviceStatusJson?.let {
-            val status = it.optString("status", "unknown")
-            Log.d("SocketStatus", "Thiết bị đang $status")
-        }
-    }
-
+//    val deviceStatusJson = deviceViewModel.deviceStatus.value
+//    LaunchedEffect(deviceStatusJson) {
+//        deviceStatusJson?.let {
+//            val status = it.optString("status", "unknown")
+//            Log.d("SocketStatus", "Thiết bị đang $status")
+//        }
+//    }
 
     var showAlertDialog by remember { mutableStateOf(false) }
     if (showAlertDialog) {
@@ -270,26 +316,34 @@ fun FireAlarmDetailScreen(
         "temp" to "Nhiệt độ",
         "hum" to "Độ ẩm"
     )
-    val sliderStates = mapOf(
-        "gas" to gasSliderValue,
-        "temp" to tempSliderValue,
-        "hum" to humiditySliderValue
-    )
-    val sliderSetters = mapOf(
-        "gas" to { v: Float -> gasSliderValue = v },
-        "temp" to { v: Float -> tempSliderValue = v },
-        "hum" to { v: Float -> humiditySliderValue = v }
-    )
+
     val sliderValues = mapOf(
-        "gas" to smokeLevel,
-        "temp" to temperature,
-        "hum" to coLevel
+        "gas" to gasSliderValue.toInt(),
+        "temp" to tempSliderValue.toInt(),
+        "hum" to humiditySliderValue.toInt()
     )
+
+    // Khi công tắc OFF → trả về 0, còn ON → giá trị thật
+    val displayedValues = sliderValues.mapValues { (k, v) ->
+        if (powerStatusUI) v            // thiết bị đang bật
+        else 0                          // thiết bị tắt → 0
+    }
+
+
+    val selectedStatus = when {
+        sliderValues["gas"] ?: 0 > 600 -> "Báo động"
+        sliderValues["temp"] ?: 0 > 40 -> "Báo động"
+        else -> "Bình thường"
+    }
+
     val sliderUnits = mapOf(
         "gas" to "ppm",
         "temp" to "°C",
         "hum" to "%"
     )
+
+    val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    val displayState by displayViewModel.displayState.collectAsState()
 
     val colorScheme = MaterialTheme.colorScheme
     IoTHomeConnectAppTheme {
@@ -346,44 +400,43 @@ fun FireAlarmDetailScreen(
                                     ) // Tiêu đề
 
                                     // Switch bật/tắt đèn
-                                    if (controls["power_status"] == "toggle") {     // ✅ so sánh luôn kiểu control
-                                        CustomSwitch(
-                                            isCheck = isCheck,
-                                            onCheckedChange = {
-                                                isCheck = it
-                                                Log.d("Switch", "serial=$serialNumber, deviceId=$deviceID, power=$it")
-//                                                displayViewModel.updateDeviceState(
-//                                                    deviceId = deviceId,
-//                                                    serial   = serialNumber,
-//                                                    power    = it
-//                                                )
-                                            }
-                                        )
-                                    }
+                                    CustomSwitch(
+                                        isCheck  = powerStatusUI,
+                                        enabled  = !isPowerUpdating,          // chỉ khóa khi đang chờ server
+                                        onCheckedChange = { newStatus ->
+                                            pendingPowerStatus = newStatus
+                                            isPowerUpdating   = true          // khóa ngay
 
-                                    val onlineStatus = deviceStatusJson?.optString("status", "unknown") ?: "unknown"
-                                    val statusColor = when (onlineStatus) {
-                                        "online" -> Color.Green
-                                        "offline" -> Color.Red
-                                        else -> Color.Gray
-                                    }
+                                            Log.d("SwitchAction", "Gửi bulk power_status = $newStatus")
+
+                                            deviceDisplayViewModel.updateDeviceStateBulk(
+                                                serial_number = serialNumber,
+                                                serial   = serialNumber,
+                                                updates  = listOf(mapOf("power_status" to newStatus))
+                                            )
+                                        }
+                                    )
 
                                     Text(
-                                        "Trạng thái hiện tại: ",
+                                        text = "Trạng thái hiện tại: ",
                                         color = colorScheme.onPrimary,
                                         fontSize = 16.sp
                                     )
 
                                     Text(
-                                        text = onlineStatus.uppercase().toString(),
+                                        text = selectedStatus,
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 18.sp,
-                                        color = statusColor
+                                        color = when (selectedStatus) {
+                                            "Báo động" -> Color.Red
+                                            "Lỗi" -> Color.Yellow
+                                            else -> Color.Green
+                                        }
                                     )
                                 }
 
                                 SingleColorCircleWithDividers(
-                                    selectedStatus = statusList[status],
+                                    selectedStatus = selectedStatus,
                                     dividerCount = 12
                                 )
                             }
@@ -403,14 +456,16 @@ fun FireAlarmDetailScreen(
                             ) {
                                 /* ---------- INFO ---------- */
                                 IconButton(
-                                    onClick = { showDialog = true },
-                                    modifier = Modifier.size(32.dp)           // toàn bộ IconButton = 32 × 32
+                                    onClick = {
+                                        showBottomSheet.value = true
+                                    },
+                                    modifier = Modifier.size(32.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Info,
                                         contentDescription = "Info",
                                         tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)       // icon bên trong = 32
+                                        modifier = Modifier.size(32.dp)
                                     )
                                 }
 
@@ -455,33 +510,38 @@ fun FireAlarmDetailScreen(
                                 sliderKeys.forEach { (key, label) ->
                                     if (controls[key] == "slider") { // Đúng kiểu slider trong controls
                                         InfoRow(
-                                            label = "$label:",
-                                            value = "${sliderValues[key]}",
-                                            unit = sliderUnits[key] ?: "",
-                                            stateColor = when (key) {
-                                                "gas" -> if (smokeLevel > 50) Color.Red else if (smokeLevel < 0) Color.Yellow else Color.Green
-                                                "temp" -> if (temperature > 40) Color.Red else if (temperature < 0) Color.Yellow else Color.Green
-                                                "hum" -> if (coLevel > 40) Color.Red else if (coLevel < 0) Color.Yellow else Color.Green
-                                                else -> Color.Green
+                                            label  = "$label:",
+                                            value  = "${displayedValues[key] ?: 0}",   // ⬅️ dùng displayedValues
+                                            unit   = sliderUnits[key] ?: "",
+
+                                            // Màu cảnh báo chỉ khi thiết bị bật, còn tắt thì xám
+                                            stateColor = if (!powerStatusUI) Color.Gray else when (key) {
+                                                "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) Color.Red else Color.Green
+                                                "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) Color.Red else Color.Green
+                                                "hum"  -> Color.Green
+                                                else   -> Color.Gray
                                             },
-                                            stateText = when (key) {
-                                                "gas" -> if (smokeLevel > 50) "!" else if (smokeLevel < 0) "?" else "✓"
-                                                "temp" -> if (temperature > 40) "!" else if (temperature < 0) "?" else "✓"
-                                                "hum" -> if (coLevel > 40) "!" else if (coLevel < 0) "?" else "✓"
-                                                else -> "✓"
+
+                                            // Ký hiệu “✓/!” chỉ khi bật, tắt thì “–”
+                                            stateText  = if (!powerStatusUI) "–" else when (key) {
+                                                "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) "!" else "✓"
+                                                "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) "!" else "✓"
+                                                "hum"  -> "✓"
+                                                else   -> "?"
                                             }
                                         )
+
                                         Spacer(modifier = Modifier.height(8.dp))
-                                        EdgeToEdgeSlider(
-                                            value = sliderStates[key] ?: 0f,
-                                            onValueChange = sliderSetters[key] ?: {},
-                                            activeTrackColor = Color.Red,
-                                            inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
-                                            thumbColor = Color.Red,
-                                            thumbBorderColor = Color.DarkGray,
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
+//                                        EdgeToEdgeSlider(
+//                                            value = sliderStates[key] ?: 0f,
+//                                            onValueChange = sliderSetters[key] ?: {},
+//                                            activeTrackColor = Color.Red,
+//                                            inactiveTrackColor = Color.Red.copy(alpha = 0.3f),
+//                                            thumbColor = Color.Red,
+//                                            thumbBorderColor = Color.DarkGray,
+//                                            modifier = Modifier.fillMaxWidth()
+//                                        )
+//                                        Spacer(modifier = Modifier.height(8.dp))
                                     }
                                 }
                             }
@@ -684,6 +744,31 @@ fun FireAlarmDetailScreen(
                                 )
                             }
 
+                            if (showBottomSheet.value) {
+                                ModalBottomSheet(
+                                    onDismissRequest = { showBottomSheet.value = false }
+                                ) {
+                                    when (displayState) {
+                                        is DeviceDisplayInfoState.Success -> {
+                                            val product = (displayState as DeviceDisplayInfoState.Success).product
+                                            val category = (displayState as DeviceDisplayInfoState.Success).category
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
+                                                Text("Danh mục: ${category.name ?: "Không rõ"}")
+                                                Text("Giá: ${product.selling_price  ?: "Không rõ"}")
+                                                Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                            }
+                                        }
+                                        is DeviceDisplayInfoState.Loading -> {
+                                            Text("Đang tải thông tin sản phẩm...")
+                                        }
+                                        is DeviceDisplayInfoState.Error -> {
+                                            Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                        }
+                                        else -> {}
+                                    }
+                                }
+                            }
                         }
                     }
                 }

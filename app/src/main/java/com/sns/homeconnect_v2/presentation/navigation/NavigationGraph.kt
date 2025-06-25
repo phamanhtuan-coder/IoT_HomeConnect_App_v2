@@ -49,8 +49,9 @@ import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.CameraDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
-import com.sns.homeconnect_v2.presentation.screen.ticket.TicketListScreen
+import com.sns.homeconnect_v2.ticket_screen.TicketListScreen
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -423,8 +424,17 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = hiltViewModel()
                 )
             }
+              
+            composable(
+                route = Screens.CreateTicket.route
+            ) {
+                CreateTicketScreen(
+                    navController     = navController,
+                    snackbarViewModel = snackbarViewModel
+                )
+            }
 
-            // --- Camera screens ---
+            /* ---------- Camera screens ---------- */
             composable(
                 route = Screens.CameraDetail.route,
                 arguments = listOf(

@@ -136,7 +136,8 @@ fun ReportLostDeviceScreen(
                             width = 200.dp,
                             height = 200.dp,
                             modifier = Modifier
-                                .align(Alignment.CenterHorizontally))
+                                .align(Alignment.CenterHorizontally)
+                        )
 
                         ActionButtonWithFeedback(
                             label = "Gửi",

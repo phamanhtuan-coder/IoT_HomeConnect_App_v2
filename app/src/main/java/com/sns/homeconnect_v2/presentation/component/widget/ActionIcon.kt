@@ -1,10 +1,11 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -17,11 +18,12 @@ import androidx.compose.ui.unit.dp
  * @param backgroundColor Màu nền của nút biểu tượng.
  * @param icon [ImageVector] sẽ được hiển thị bên trong nút biểu tượng.
  * @param modifier [Modifier] sẽ được áp dụng cho nút biểu tượng này.
- * @param contentDescription Văn bản được các dịch vụ trợ năng sử dụng để mô tả biểu tượng này
- * đại diện cho điều gì. Điều này phải luôn được cung cấp trừ khi biểu tượng này được sử dụng cho mục đích trang trí
- * và không đại diện cho một hành động có ý nghĩa mà người dùng có thể thực hiện.
- * @param tint Màu sắc sẽ được áp dụng cho [icon]. Nếu [Color.Unspecified] được cung cấp, thì không có
- * màu sắc nào được áp dụng. Mặc định là [Color.White].
+ * @param contentDescription Văn bản mô tả cho dịch vụ trợ năng.
+ * @param enabled Boolean cho biết nút có được kích hoạt hay không. Mặc định là true.
+ * @param iconTint Màu sắc sẽ được áp dụng cho [icon]. Nếu không xác định, sử dụng [Color.White].
+ *
+ * @author Nguyễn Thanh Sang
+ * @since 26-05-2025
  */
 @Composable
 fun ActionIcon(
@@ -30,22 +32,20 @@ fun ActionIcon(
     icon: ImageVector,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
-    tint: Color = Color.White,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    iconTint: Color = Color.White
 ) {
-    val actualBackgroundColor = if (enabled) backgroundColor else Color(0xFFB0BEC5) // Màu xám nhạt
-
     IconButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
             .size(48.dp)
-            .background(actualBackgroundColor, shape = RoundedCornerShape(12.dp))
+            .background(backgroundColor, shape = RoundedCornerShape(12.dp))
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = tint.copy(alpha = if (enabled) 1f else 0.5f) // mờ khi disable
+            tint = iconTint.copy(alpha = if (enabled) 1f else 0.5f)
         )
     }
 }

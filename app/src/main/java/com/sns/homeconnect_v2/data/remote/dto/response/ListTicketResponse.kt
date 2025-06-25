@@ -78,3 +78,33 @@ data class Evidence(
     @SerializedName("logs") val logs: List<String>,
     @SerializedName("images") val images: List<String>
 )
+
+data class CreateTicketResponse(
+    @SerializedName("code") val code: Int,
+    @SerializedName("message") val message: String,
+    @SerializedName("status_code") val statusCode: Int,
+    @SerializedName("data") val data: CreateTicket?
+)
+
+data class CreateTicket(
+    @SerializedName("ticket_id") val ticketId: String,
+    @SerializedName("user_id") val userId: String,
+    @SerializedName("device_serial") val deviceSerial: String,
+    @SerializedName("ticket_type_id") val ticketTypeId: Int,
+    @SerializedName("description") val description: String,
+    @SerializedName("evidence") val evidence: Evidence,
+    @SerializedName("status") val status: String,
+    @SerializedName("created_at") val createdAt: String,
+    @SerializedName("updated_at") val updatedAt: String,
+    @SerializedName("assigned_to") val assignedTo: String?,
+    @SerializedName("resolved_at") val resolvedAt: String?,
+    @SerializedName("resolve_solution") val resolveSolution: String?,
+    @SerializedName("is_deleted") val isDeleted: Boolean
+)
+
+data class CancelTicketResponse(
+    @SerializedName("code") val code: Int,
+    @SerializedName("message") val message: String,
+    @SerializedName("status_code") val statusCode: Int,
+    @SerializedName("data") val data: String
+)

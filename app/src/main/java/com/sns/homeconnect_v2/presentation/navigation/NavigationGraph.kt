@@ -44,6 +44,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.ShareDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
 import com.sns.homeconnect_v2.ticket_screen.TicketListScreen
@@ -428,6 +429,20 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = snackbarViewModel
                 )
             }
+
+            // --- Ticket screens ---
+            composable(
+                route = Screens.ShareDeviceBySerial.route,
+                arguments = listOf(navArgument("serialNumber") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: ""
+                ShareDeviceScreen(
+                    navController = navController,
+                    serialNumber = serialNumber,
+                    snackbarViewModel = snackbarViewModel
+                )
+            }
+
         }
     }
 }

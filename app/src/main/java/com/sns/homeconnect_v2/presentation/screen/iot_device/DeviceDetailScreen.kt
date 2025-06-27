@@ -2,7 +2,6 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
-import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,34 +9,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,10 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,34 +43,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.google.gson.Gson
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.sliderToPercent
-import com.sns.homeconnect_v2.core.util.validation.toComposeColor
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
-import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
-import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
-import com.sns.homeconnect_v2.presentation.component.DayPicker
 import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
 import com.sns.homeconnect_v2.presentation.component.EffectSelector
-import com.sns.homeconnect_v2.presentation.component.EndlessRollingPadlockTimePicker
 import com.sns.homeconnect_v2.presentation.component.FancyColorSlider
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -99,13 +68,10 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceCapabilitiesViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedEffectViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
@@ -614,13 +580,8 @@ fun DeviceDetailScreen(
                                 ) {
                                     ActionButtonWithFeedback(
                                         label = "Chia sẻ quyền",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.SHARE
-                                            scope.launch {
-                                                delay(1000)
-                                                onS("Đã chia sẻ")
-                                                loadingAction = null
-                                            }
+                                        onAction = { _, _ ->
+                                            navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
                                         },
                                         style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
@@ -789,7 +750,6 @@ fun DeviceDetailScreen(
                                     Spacer(Modifier.height(12.dp))
                                 }
                             }
-
 
                             if (showConfirm) {
                                 WarningDialog(

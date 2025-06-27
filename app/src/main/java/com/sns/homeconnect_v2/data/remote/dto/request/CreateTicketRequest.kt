@@ -5,7 +5,8 @@ data class CreateTicketRequest(
     val description: String,
     val ticket_type_id: Int,
     val device_serial: String,
-    val evidence: Evidence
+    val evidence: Evidence,
+    val assigned_to: String
 )
 
 data class Evidence(

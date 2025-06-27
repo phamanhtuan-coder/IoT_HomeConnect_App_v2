@@ -200,7 +200,8 @@ fun CreateTicketScreen(
                                     evidence = Evidence(
                                         images = listOf(imageUrl),
                                         logs = emptyList<String>()
-                                    )
+                                    ),
+                                    assigned_to = ""
                                 )
                                 Log.d("CreateTicketScreen", "Request: $request")
                                 createTicketViewModel.createTicket(request)

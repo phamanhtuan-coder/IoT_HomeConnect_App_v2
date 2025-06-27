@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -18,33 +17,31 @@ import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
+import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.StyledTextField
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.DeviceSharingActionState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.DeviceSharingViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -85,11 +82,26 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun ShareDeviceScreen(
-//    navController: NavHostController,
-    id: Int,
+    navController: NavHostController,
+    serialNumber: String,
     snackbarViewModel : SnackbarViewModel = hiltViewModel(),
-//    viewModel: DeviceSharingViewModel = hiltViewModel(),
+    viewModel: DeviceSharingViewModel = hiltViewModel(),
 ) {
+    val ticketState by viewModel.createTicketState.collectAsState()
+
+    when (ticketState) {
+        is DeviceSharingActionState.Success -> {
+            val msg = (ticketState as DeviceSharingActionState.Success).success
+            navController.popBackStack()
+            snackbarViewModel.showSnackbar(msg, SnackbarVariant.SUCCESS)
+        }
+        is DeviceSharingActionState.Error -> {
+            val msg = (ticketState as DeviceSharingActionState.Error).error
+            snackbarViewModel.showSnackbar(msg, SnackbarVariant.ERROR)
+        }
+        else -> Unit
+    }
+
 //    val addSharedUserState by viewModel.addSharedUserState.collectAsState()
 //    when (addSharedUserState) {
 //        DeviceSharingActionState.Idle -> {
@@ -116,32 +128,51 @@ fun ShareDeviceScreen(
 //            )
 //        }
 //    }
+//    val deviceIdErrorState = remember { mutableStateOf("") }
+//    val emailErrorState = remember { mutableStateOf("") }
+//        val isTablet = isTablet(LocalContext.current)
 
+    // state giữ hàm onSuccess / onError tạm thời
     val coroutineScope = rememberCoroutineScope()
 
+    // state giữ giá trị hiện tại của dropdown
     var current by remember { mutableStateOf<String?>(null) }
-    val deviceIdState = remember { mutableIntStateOf(id) }
-//    val deviceIdErrorState = remember { mutableStateOf("") }
+    val deviceIdState = remember { mutableStateOf(serialNumber) }
 
-    val emailState = remember { mutableStateOf("") }
-//    val emailErrorState = remember { mutableStateOf("") }
+    // state giữ giá trị nhập vào
+    val usernameState = remember { mutableStateOf("") }
 
     /* state hiển thị dialog xác nhận */
     var showConfirm by remember { mutableStateOf(false) }
 
     /* state giữ hàm onSuccess / onError tạm thời */
     var isButtonLoading by remember { mutableStateOf(false) }
-    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
-    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+//    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+//    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 
-//        val isTablet = isTablet(LocalContext.current)
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
                 .background(colorScheme.background),
+            topBar = {
+                /*
+            * Hiển thị Header
+             */
+                Header(
+                    navController = navController,
+                    type = "Back",
+                    title = "Chi tiết thiết bị"
+                )
+            },
+            bottomBar = {
+                /*
+            * Hiển thị Thanh Menu dưới cùng
+             */
+                MenuBottom(navController)
+            },
             containerColor = colorScheme.background
         ) { paddingValues ->
             Column (
@@ -152,74 +183,40 @@ fun ShareDeviceScreen(
                 ColoredCornerBox(
                     cornerRadius = 40.dp
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp), // padding quanh Text
-                        contentAlignment = Alignment.Center // 👉 Canh giữa bên trong box
-                    ) {
-                        Text(
-                            "CHIA SẺ THIẾT BỊ",
-                            style = TextStyle(
-                                fontSize = 36.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp
-                            ),
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            textAlign = TextAlign.Center,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
                 }
-
 
                 InvertedCornerHeader(
                     backgroundColor = colorScheme.surface,
                     overlayColor = colorScheme.primary
-                ){}
+                ) {
+                }
 
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()                 // chiếm trọn màn hình
+                        .fillMaxSize()
                 ) {
                     Column(
                         modifier = Modifier
-                            .align(Alignment.Center)   // căn giữa trong Box
-                            .padding(16.dp)            // padding 16dp bốn phía
+                            .align(Alignment.Center)
+                            .padding(16.dp)
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement  = Arrangement.Center,
                         horizontalAlignment  = Alignment.CenterHorizontally
                     ) {
-                        // Ô nhập ID thiết bị
-                        StyledTextField(
-                            value = deviceIdState.intValue.toString(),
-                            onValueChange = {
-                            },
-                            placeholderText = "ID Thiết bị",
-                            leadingIcon = Icons.Default.Devices
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
                         // Ô nhập Tên thiết bị
                         StyledTextField(
-                            value = emailState.value,
+                            value = usernameState.value,
                             onValueChange = {
-                                emailState.value = it
+                                usernameState.value = it
                             },
-                            placeholderText = "Email tài khoản",
+                            placeholderText = "Usercase",
                             leadingIcon = Icons.Default.Email
                         )
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // Dropdown Spaces
-                        // Nếu bạn không muốn dùng ExposedDropdownMenuBox
-                        // có thể tùy chỉnh DropdownMenuItem thủ công, nhưng dưới đây là ví dụ M3.
-
                         GenericDropdown(
-                            items = listOf("Đóng/mở", "Điều khiển độ sáng", "điều khiển màu"),
+                            items = listOf("VIEW", "CONTROL"),
                             selectedItem = current,
                             onItemSelected = { current = it },
                             isTablet = false,
@@ -231,14 +228,12 @@ fun ShareDeviceScreen(
                         ActionButtonWithFeedback(
                             label  = "Gửi yêu cầu",
                             style  = HCButtonStyle.PRIMARY,
-                            // 1) Hành động thật của bạn
                             onAction = { onSuccessCallback, onErrorCallback ->
                                 /* 1. Lưu callback → chờ xác nhận */
-                                pendingOnSuccess = onSuccessCallback
-                                pendingOnError   = onErrorCallback
+//                                pendingOnSuccess = onSuccessCallback
+//                                pendingOnError   = onErrorCallback
                                 showConfirm      = true
                             },
-                            // 2) Tùy chỉnh tiêu đề dialog
                             isLoadingFromParent = isButtonLoading,
                             snackbarViewModel = snackbarViewModel
                         )
@@ -248,28 +243,31 @@ fun ShareDeviceScreen(
                             WarningDialog(
                                 title    = "Chia sẽ thiết bị",
                                 text  = "Bạn có chắc muốn chia sẽ thiết bị này với người dùng này không?",
-                                confirmText = "Đồng ý",
+                                confirmText = " Đồng ý",
                                 dismissText = "Huỷ",
                                 onConfirm = {
                                     showConfirm = false        // đóng dialog
                                     /* 3. Sau khi đồng ý → thực thi hành động thật */
-                                    val onSuccessCallback = pendingOnSuccess    // copy local
-                                    val onErrorCallback = pendingOnError
-                                    pendingOnSuccess = null
-                                    pendingOnError   = null
+//                                    val onSuccessCallback = pendingOnSuccess    // copy local
+//                                    val onErrorCallback = pendingOnError
+//                                    pendingOnSuccess = null
+//                                    pendingOnError   = null
                                     coroutineScope.launch {
                                         isButtonLoading = true
-                                        delay(1000)               // mô phỏng API
-                                        val isActionSuccessful = true           // ← kết quả thật
-                                        if (isActionSuccessful) onSuccessCallback?.invoke("Thiết bị đã thêm thành công!")
-                                        else      onErrorCallback?.invoke("Thao tác thất bại, vui lòng thử lại.")
-                                        isButtonLoading = false
+
+                                        viewModel.createSupportTicket(
+                                            title = "Chia sẻ quyền thiết bị",
+                                            description = current ?: "VIEW",
+                                            ticketTypeId = 3,
+                                            deviceSerial = deviceIdState.value,
+                                            assignedTo = usernameState.value
+                                        )
                                     }
                                 },
                                 onDismiss = {
                                     showConfirm = false          // huỷ, không làm gì
-                                    pendingOnSuccess = null
-                                    pendingOnError   = null
+//                                    pendingOnSuccess = null
+//                                    pendingOnError   = null
                                     isButtonLoading = false
                                 },
                             )
@@ -279,10 +277,4 @@ fun ShareDeviceScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ShareDeviceScreenPreview() {
-    ShareDeviceScreen(1)
 }

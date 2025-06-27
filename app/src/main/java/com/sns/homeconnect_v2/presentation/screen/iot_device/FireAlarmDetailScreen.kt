@@ -607,17 +607,11 @@ fun FireAlarmDetailScreen(
                                 ) {
                                     /* CHIA SẺ QUYỀN – KHÔNG dialog, quay ngay */
                                     ActionButtonWithFeedback(
-                                        label  = "Chia sẻ quyền",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.SHARE          // bật spinner
-                                            scope.launch {
-                                                // Giả lập xử lý
-                                                delay(1000)
-                                                onS("Đã chia sẻ")
-                                                loadingAction = null                    // tắt spinner
-                                            }
+                                        label = "Chia sẻ quyền",
+                                        onAction = { _, _ ->
+                                            navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style = HCButtonStyle.PRIMARY,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),

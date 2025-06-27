@@ -103,7 +103,6 @@ fun DeviceSharingListScreen(
         )
     }
 
-
 //    var isTablet = isTablet(LocalContext.current)
 //    val sharedUsersState by  deviceSharingViewModel.sharedUsersState.collectAsState()
 //    var sharedUsersList by remember { mutableStateOf(emptyList<SharedUser>()) }

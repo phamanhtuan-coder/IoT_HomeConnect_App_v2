@@ -184,6 +184,11 @@ sealed class Screens(val route: String) {
             "camera_detail/$deviceId/$deviceName"
     }
 
+    // --- Ticket screens ---
+    data object ShareDeviceBySerial : Screens("share_device/{serialNumber}") {
+        fun createRoute(serialNumber: String) = "share_device/$serialNumber"
+    }
+
     // --- Other screens ---
     // ...add more here if needed...
 }

@@ -158,21 +158,23 @@ sealed class Screens(val route: String) {
         fun createRoute(notificationId: Int) = "detail_notifications/$notificationId"
     }
 
-    object DynamicDeviceDetail :
-        Screens("dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}") {
-
+    object DynamicDeviceDetail : Screens(
+        "dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}/{permissionType}"
+    ) {
         fun build(
             deviceId: String,
             deviceName: String,
             serialNumber: String,
-            productId: String
+            productId: String,
+            permissionType: String = "CONTROL"
         ): String =
             listOf(
                 "dynamic_device_detail",
                 Uri.encode(deviceId),
                 Uri.encode(deviceName),
                 Uri.encode(serialNumber),
-                Uri.encode(productId)
+                Uri.encode(productId),
+                Uri.encode(permissionType)
             ).joinToString("/")
     }
 

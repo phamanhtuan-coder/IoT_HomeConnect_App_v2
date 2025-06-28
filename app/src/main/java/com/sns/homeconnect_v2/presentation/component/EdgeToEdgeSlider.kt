@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,6 +50,7 @@ fun EdgeToEdgeSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     thumbSize: Dp = 40.dp,
     trackHeight: Dp = 6.dp,
     thumbColor: Color = Color.White,
@@ -58,7 +60,10 @@ fun EdgeToEdgeSlider(
 ) {
     val trackFillFraction = (value / MAX_SLIDER_VALUE).coerceIn(0f, 1f)
 
-    Box(modifier) {
+    val visualAlpha = if (enabled) 1f else 0.4f
+    val actualOnValueChange: (Float) -> Unit = if (enabled) onValueChange else { _ -> }
+
+    Box(modifier.alpha(visualAlpha)) {
 
         /* ---------- TRACK ---------- */
         // Chưa kéo
@@ -83,12 +88,13 @@ fun EdgeToEdgeSlider(
         /* ---------- SLIDER ẨN TRACK ---------- */
         Slider(
             value = value,
-            onValueChange = onValueChange,
+            onValueChange = actualOnValueChange, // 👈 dùng empty callback nếu disable
             valueRange = 0f..255f,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(thumbSize)
                 .align(Alignment.Center),
+            enabled = enabled,
             colors = SliderDefaults.colors(
                 thumbColor         = Color.Transparent,
                 activeTrackColor   = Color.Transparent,

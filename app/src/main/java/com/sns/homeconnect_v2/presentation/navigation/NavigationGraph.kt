@@ -387,18 +387,22 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     navArgument("deviceName") { type = NavType.StringType },
                     navArgument("serialNumber") { type = NavType.StringType },
                     navArgument("productId") { type = NavType.StringType },
+                    navArgument("permissionType") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val deviceId = backStackEntry.arguments?.getString("deviceId") ?: ""
-                val deviceName = backStackEntry.arguments?.getString("deviceName") ?: ""
-                val serialNumber = backStackEntry.arguments?.getString("serialNumber") ?: ""
-                val productId = backStackEntry.arguments?.getString("productId") ?: ""
+                val deviceId       = backStackEntry.arguments?.getString("deviceId") ?: ""
+                val deviceName     = backStackEntry.arguments?.getString("deviceName") ?: ""
+                val serialNumber   = backStackEntry.arguments?.getString("serialNumber") ?: ""
+                val productId      = backStackEntry.arguments?.getString("productId") ?: ""
+                val permissionType = backStackEntry.arguments?.getString("permissionType") ?: "CONTROL"
+                val isViewOnly     = permissionType.uppercase() == "VIEW"
 
                 DynamicDeviceDetailScreen(
                     deviceId = deviceId,
                     deviceName = deviceName,
                     serialNumber = serialNumber,
                     productId = productId,
+                    isViewOnly = isViewOnly,
                     navController = navController
                 )
             }

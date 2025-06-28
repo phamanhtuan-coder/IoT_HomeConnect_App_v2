@@ -51,7 +51,6 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.ToggleResponse
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
-import com.sns.homeconnect_v2.presentation.component.EdgeToEdgeSlider
 import com.sns.homeconnect_v2.presentation.component.InfoRow
 import com.sns.homeconnect_v2.presentation.component.SingleColorCircleWithDividers
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
@@ -67,7 +66,6 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayVie
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
-import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -98,11 +96,12 @@ enum class DeviceAction {
 @Composable
 fun FireAlarmDetailScreen(
     navController: NavHostController,
-    deviceID: String,
+    deviceId: String,
     deviceName: String,
     serialNumber: String,
     product: ProductData,
     controls: Map<String, String>,
+    isViewOnly: Boolean = true, // Thêm biến này để xác định chế độ xem chỉ
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
     // Khởi tạo ViewModel
@@ -121,13 +120,9 @@ fun FireAlarmDetailScreen(
 
     var isPowerUpdating by remember { mutableStateOf(false) }
 
-    var powerUI           by remember { mutableStateOf(false) }           // giá trị hiển thị
-    var pendingToggle     by remember { mutableStateOf<Boolean?>(null) }  // giá trị vừa gửi, chờ server
-    var isUpdatingSwitch  by remember { mutableStateOf(false) }           // khoá switch khi chờ
-
     // Lấy context
     LaunchedEffect(Unit) {
-        deviceViewModel.initSocket(deviceID, serialNumber)
+        deviceViewModel.initSocket(deviceId, serialNumber)
         deviceDisplayViewModel.fetchDeviceState(serialNumber)
     }
 
@@ -189,7 +184,6 @@ fun FireAlarmDetailScreen(
 
     // Biến trạng thái khác
     var rowWidth by remember { mutableIntStateOf(0) }
-    var showDialog by remember { mutableStateOf(false) }
     val isTablet = isTablet(LocalContext.current)
 
     /* state giữ hàm onSuccess / onError tạm thời */
@@ -393,7 +387,7 @@ fun FireAlarmDetailScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
 
                                     Text(
-                                        text = safeDevice.Name,
+                                        text = deviceName,
                                         color = colorScheme.onPrimary, // Màu chữ trắng
                                         lineHeight = 27.sp,
                                         fontSize = 25.sp
@@ -474,7 +468,7 @@ fun FireAlarmDetailScreen(
                                     onClick = {
                                         navController.navigate(
                                             Screens.AccessPoint.route +
-                                                    "?id=${deviceID}&name=${"Lamp"}"
+                                                    "?id=${deviceId}&name=${"Lamp"}"
                                         )
                                     },
                                     modifier = Modifier.size(32.dp)
@@ -553,7 +547,7 @@ fun FireAlarmDetailScreen(
                                     .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-
+                                val buttonStyle = if (isViewOnly) HCButtonStyle.DISABLED else HCButtonStyle.PRIMARY
                                 /* ===== HÀNG 1 ===== */
                                 Row(
                                     Modifier.fillMaxWidth(),
@@ -570,7 +564,7 @@ fun FireAlarmDetailScreen(
                                             pendingAction    = DeviceAction.LOCK
                                             showConfirm      = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style  = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -589,7 +583,7 @@ fun FireAlarmDetailScreen(
                                             pendingAction    = DeviceAction.UNLINK
                                             showConfirm      = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style  = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -611,7 +605,7 @@ fun FireAlarmDetailScreen(
                                         onAction = { _, _ ->
                                             navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -630,7 +624,7 @@ fun FireAlarmDetailScreen(
                                             pendingAction    = DeviceAction.RESET
                                             showConfirm      = true
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style  = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -657,7 +651,7 @@ fun FireAlarmDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style  = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -676,7 +670,7 @@ fun FireAlarmDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style  = HCButtonStyle.PRIMARY,
+                                        style  = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -698,7 +692,7 @@ fun FireAlarmDetailScreen(
                                             loadingAction = null
                                         }
                                     },
-                                    style  = HCButtonStyle.PRIMARY,
+                                    style  = buttonStyle,
                                     height = 62.dp,
                                     textSize = 20.sp,
                                     modifier = Modifier.fillMaxWidth(0.8f),

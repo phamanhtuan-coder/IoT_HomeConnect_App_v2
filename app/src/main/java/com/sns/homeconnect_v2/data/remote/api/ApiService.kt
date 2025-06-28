@@ -65,6 +65,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceWrapper
 import com.sns.homeconnect_v2.data.remote.dto.response.TicketDetailResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateDeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.UpdateGroupMemberRoleResponse
@@ -511,6 +513,12 @@ interface ApiService {
         @Path("ticketId") ticketId: String,
         @Header("Authorization") token: String
     ):CancelTicketResponse
+
+    // Get shared devices for user
+    @GET("permissions/get-device-shared-for-customer")
+    suspend fun getSharedDevicesForUser(
+        @Header("Authorization") token: String
+    ): SharedDeviceWrapper
 
 //    @POST("spaces")
 //    suspend fun createSpace(

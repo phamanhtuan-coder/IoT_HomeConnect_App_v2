@@ -11,12 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,12 +20,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -44,11 +36,11 @@ import com.sns.homeconnect_v2.presentation.component.widget.CustomTabRow
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
-import com.sns.homeconnect_v2.presentation.model.DeviceUi
 import com.sns.homeconnect_v2.presentation.navigation.Screens
-import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.DeviceSharingViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.SharedDeviceState
 
 /** Giao diện màn hình Device Screen
  * -----------------------------------------
@@ -77,16 +69,38 @@ fun ListDeviceScreen(
     navController: NavHostController = rememberNavController(),
     listOfUserOwnedDevicesViewModel: ListOfUserOwnedDevicesViewModel = hiltViewModel(),
 //    deviceViewModel: DeviceViewModel = hiltViewModel(),
-//    sharedViewModel: SharedViewModel = hiltViewModel(),
+    deviceSharingViewModel: DeviceSharingViewModel = hiltViewModel(),
 ) {
     val ownedDevicesState by listOfUserOwnedDevicesViewModel.listOfUserOwnedDevicesState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val deviceOwnershipTabs = listOf("Sở hữu", "Chia sẽ")
 
-    LaunchedEffect(Unit) {
-        // Lấy danh sách thiết bị đã sở hữu
-        listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
+    // Lấy danh sách thiết bị được chia sẻ
+    val sharedDevicesState by deviceSharingViewModel.sharedDevicesState.collectAsState()
+
+    LaunchedEffect(sharedDevicesState) {
+        Log.d("SHARED_STATE", sharedDevicesState.toString())
+        if (sharedDevicesState is SharedDeviceState.Success) {
+            val devices = (sharedDevicesState as SharedDeviceState.Success).devices
+            devices.forEachIndexed { i, d ->
+                Log.d("SHARED_DEVICE", "[$i] ${d.device_serial} - ${d.device_name}")
+            }
+        } else if (sharedDevicesState is SharedDeviceState.Error) {
+            Log.e("SHARED_ERROR", (sharedDevicesState as SharedDeviceState.Error).message)
+        }
     }
+
+    val sharedDevices = when (sharedDevicesState) {
+        is SharedDeviceState.Success -> (sharedDevicesState as SharedDeviceState.Success).devices
+        else -> emptyList()
+    }
+
+    // Lấy danh sách thiết bị được chia
+    LaunchedEffect(Unit) {
+        listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
+        deviceSharingViewModel.getSharedDevicesForUser()
+    }
+
 
 //    val ownedDevices = remember {
 //        mutableStateListOf(
@@ -109,23 +123,6 @@ fun ListDeviceScreen(
 //        )
 //    }
 
-    val sharedDevices = remember {
-        mutableStateListOf(
-            DeviceUi(101, "Gia đình", "living room", false, Icons.Default.Home, Color.Blue),
-            DeviceUi(102, "Marketing", "bedroom", false, Icons.Default.Group, Color.Red),
-            DeviceUi(103, "Kỹ thuật", "garage", false, Icons.Default.Settings, Color.Green),
-            DeviceUi(104, "Tài chính", "office", false, Icons.Default.Info, Color.Magenta),
-            DeviceUi(105, "Quản lý", "kitchen", false, Icons.Default.Star, Color.Gray),
-            DeviceUi(106, "Sản xuất", "bathroom", false, Icons.Default.Home, Color.Cyan),
-            DeviceUi(107, "Kế toán", "studio", false, Icons.Default.Group, Color.Yellow),
-            DeviceUi(108, "Nhân sự", "conference", false, Icons.Default.Settings, Color.LightGray),
-            DeviceUi(109, "Kho vận", "bedroom", false, Icons.Default.Group, Color.Blue),
-            DeviceUi(110, "Kinh doanh", "living room", false, Icons.Default.Star, Color.Red),
-            DeviceUi(111, "Thiết kế", "office", false, Icons.Default.Group, Color.Green),
-            DeviceUi(112, "Ban giám đốc", "server room", false, Icons.Default.Settings, Color.Magenta),
-            DeviceUi(113, "Đối ngoại", "garage", false, Icons.Default.Home, Color.Cyan)
-        )
-    }
 
 //    var selectedTabIndex by remember { mutableIntStateOf(0) }
 //    var spaces by remember { mutableStateOf<List<SpaceResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
@@ -184,9 +181,6 @@ fun ListDeviceScreen(
             * Hiển thị Thanh Menu dưới cùng
              */
                 MenuBottom(navController)
-            },
-            floatingActionButton = {
-
             },
             floatingActionButtonPosition = FabPosition.End,
             content = { contentPadding ->
@@ -254,7 +248,7 @@ fun ListDeviceScreen(
                                                         deviceId     = device.device_id,
                                                         deviceName   = device.name.orEmpty(),
                                                         serialNumber = device.serial_number,
-                                                        productId    = device.template_id          // templateId là String
+                                                        productId    = device.template_id
                                                     )
                                                 )
                                             },
@@ -278,34 +272,46 @@ fun ListDeviceScreen(
                         }
                         1 -> {
                             LabeledBox(
-                                label = "Thiết bị được chia sẽ",
+                                label = "Thiết bị được chia sẻ",
                                 value = sharedDevices.size.toString(),
                                 modifier = Modifier.padding(start = 16.dp, top = 8.dp)
                             )
 
                             if (sharedDevices.isNotEmpty()) {
                                 LazyColumn (
-                                    modifier = Modifier
-                                        .padding(vertical = 8.dp)
-                                ){
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                ) {
                                     itemsIndexed(sharedDevices) { index, device ->
                                         Spacer(modifier = Modifier.height(8.dp))
                                         DeviceCardSwipeable(
-                                            deviceName = device.name,
-                                            roomName = device.room,
-                                            isRevealed = device.isRevealed,
-                                            onExpandOnly = {
-                                                listOfUserOwnedDevicesViewModel.updateRevealState(index)
+                                            deviceName = device.device_name ?: "Thiết bị $index",
+                                            roomName = when (device.permission_type) {
+                                                "VIEW" -> "Chỉ xem"
+                                                "CONTROL" -> "Điều khiển"
+                                                else -> "Không xác định"
                                             },
-                                            onCollapse = {
-                                                listOfUserOwnedDevicesViewModel.collapseItem(index)
+                                            isOwner = false, // Shared devices không phải là owner
+                                            isRevealed = false, // Shared devices chưa cần reveal
+                                            isView = device.permission_type == "VIEW",
+                                            onExpandOnly = {},
+                                            onCollapse = {},
+                                            onClick = {
+                                                navController.navigate(
+                                                    Screens.DynamicDeviceDetail.build(
+                                                        deviceId     = device.device_id ?: "",
+                                                        deviceName   = device.device_name.orEmpty(),
+                                                        serialNumber = device.device_serial,
+                                                        productId    = device.template_id ?: "",
+                                                        permissionType = device.permission_type
+                                                    )
+                                                )
                                             },
-                                            onClick = {},
-                                            onDelete = { sharedDevices.removeAt(index) },
-                                            onEdit = { /* TODO */ }
+                                            onDelete = { /* Xử lý nếu muốn xóa */ },
+                                            onEdit = { /* Nếu cho phép chỉnh */ }
                                         )
                                     }
                                 }
+
                             } else {
                                 Box(
                                     modifier = Modifier

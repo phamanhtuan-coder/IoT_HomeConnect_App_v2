@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.repository
 
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUserRequest
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
@@ -13,6 +14,10 @@ class SharedRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val authManager: AuthManager
 ): SharedRepository {
+    override suspend fun getSharedDevicesForUser(): List<SharedDeviceResponse> {
+        val token = authManager.getJwtToken()
+        return apiService.getSharedDevicesForUser("Bearer $token").data
+    }
 
     override suspend fun getSharedUsers(deviceId: Int): List<SharedUser> {
         val token = authManager.getJwtToken()

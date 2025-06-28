@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,6 +9,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
@@ -25,11 +27,17 @@ import androidx.compose.ui.unit.dp
  * @author Nguyễn Thanh Sang
  * @since 26-05-2025
  */
+
+sealed class ActionIconContent {
+    data class VectorIcon(val icon: ImageVector) : ActionIconContent()
+    data class ImageIcon(val painter: Painter) : ActionIconContent()
+}
+
 @Composable
 fun ActionIcon(
     onClick: () -> Unit,
     backgroundColor: Color,
-    icon: ImageVector,
+    icon: ActionIconContent,
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     enabled: Boolean = true,
@@ -42,10 +50,18 @@ fun ActionIcon(
             .size(48.dp)
             .background(backgroundColor, shape = RoundedCornerShape(12.dp))
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = iconTint.copy(alpha = if (enabled) 1f else 0.5f)
-        )
+        when (icon) {
+            is ActionIconContent.VectorIcon -> Icon(
+                imageVector = icon.icon,
+                contentDescription = contentDescription,
+                tint = iconTint.copy(alpha = if (enabled) 1f else 0.5f)
+            )
+
+            is ActionIconContent.ImageIcon -> Image(
+                painter = icon.painter,
+                contentDescription = contentDescription,
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

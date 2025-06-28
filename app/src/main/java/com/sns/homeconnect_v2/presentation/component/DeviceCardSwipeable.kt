@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LinkOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIconContent
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 import com.sns.homeconnect_v2.presentation.model.DeviceUi
 
@@ -56,6 +58,8 @@ fun DeviceCardSwipeable(
     deviceName: String = "",
     roomName: String = "",
     isRevealed: Boolean = false,
+    isOwner: Boolean = true,
+    isView: Boolean = false,
     deviceTypeLabel: String = "",
     onExpandOnly: () -> Unit,
     onCollapse: () -> Unit,
@@ -70,18 +74,32 @@ fun DeviceCardSwipeable(
         onExpanded = onExpandOnly,
         onCollapsed = onCollapse,
         actions = {
-            Spacer(Modifier.width(8.dp))
-            ActionIcon(
-                onClick = onEdit,
-                backgroundColor = Color(0xFF4CAF50),
-                icon = Icons.Default.Edit
-            )
-            Spacer(Modifier.width(8.dp))
-            ActionIcon(
-                onClick = onDelete,
-                backgroundColor = Color(0xFFF44336),
-                icon = Icons.Default.Delete
-            )
+            if (isOwner) {
+                Spacer(Modifier.width(8.dp))
+
+                ActionIcon(
+                    onClick = onEdit,
+                    backgroundColor = Color(0xFF4CAF50),
+                    icon = ActionIconContent.VectorIcon(Icons.Default.Edit)
+                )
+
+                Spacer(Modifier.width(8.dp))
+
+                ActionIcon(
+                    onClick = onDelete,
+                    backgroundColor = Color(0xFFF44336),
+                    icon = ActionIconContent.VectorIcon(Icons.Default.Delete)
+                )
+            } else {
+                if (!isView) {
+                    Spacer(Modifier.width(8.dp))
+                    ActionIcon(
+                        onClick = onDelete,
+                        backgroundColor = Color(0xFFF44336),
+                        icon =  ActionIconContent.VectorIcon(Icons.Default.LinkOff)
+                    )
+                }
+            }
         }
     ) {
         Row(

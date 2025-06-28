@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.sns.homeconnect_v2.core.util.validation.RoleLevel
 import com.sns.homeconnect_v2.core.util.validation.hasPermission
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIconContent
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
 /**
@@ -60,20 +61,20 @@ fun UserCardSwipeable(
         onCollapsed = onCollapse,
         actions = {
             Spacer(Modifier.width(8.dp))
+
             ActionIcon(
                 onClick = onEdit,
-                backgroundColor = if (canEdit) Color(0xFF4CAF50) else Color.Gray,
-                icon = Icons.Default.Edit,
-                enabled = canEdit
-            )
-            Spacer(Modifier.width(8.dp))
-            ActionIcon(
-                onClick = onDelete,
-                backgroundColor = if (canDelete) Color(0xFFF44336) else Color.Gray,
-                icon = Icons.Default.Delete,
-                enabled = canDelete
+                backgroundColor = Color(0xFF4CAF50),
+                icon = ActionIconContent.VectorIcon(Icons.Default.Edit) // ✅ sửa chỗ này
             )
 
+            Spacer(Modifier.width(8.dp))
+
+            ActionIcon(
+                onClick = onDelete,
+                backgroundColor = Color(0xFFF44336),
+                icon = ActionIconContent.VectorIcon(Icons.Default.Delete) // ✅ sửa chỗ này
+            )
         }
     ) {
         Row(

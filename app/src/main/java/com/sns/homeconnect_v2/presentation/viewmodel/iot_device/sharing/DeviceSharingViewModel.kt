@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.request.CreateTicketRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.Evidence
+import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
+import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.AddSharedUserUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.GetSharedDevicesUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.GetSharedUsersUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.sharing.RevokePermissionUseCase
 import com.sns.homeconnect_v2.domain.usecase.ticket.CreateTicketUseCase
@@ -36,12 +39,20 @@ sealed class DeviceSharingActionState {
     data class Error(val error: String) : DeviceSharingActionState()
 }
 
+sealed class SharedDeviceState {
+    data object Idle : SharedDeviceState()
+    data object Loading : SharedDeviceState()
+    data class Success(val devices: List<SharedDeviceResponse>) : SharedDeviceState()
+    data class Error(val message: String) : SharedDeviceState()
+}
+
 @HiltViewModel
 class DeviceSharingViewModel @Inject constructor (
 //    private val getSharedUsersUseCase: GetSharedUsersUseCase,
 //    private val addSharedUserUseCase: AddSharedUserUseCase,
 //    private val revokePermissionUseCase: RevokePermissionUseCase,
-    private val createTicketUseCase: CreateTicketUseCase
+    private val createTicketUseCase: CreateTicketUseCase,
+    private val getSharedDevicesUseCase: GetSharedDevicesUseCase
 ) : ViewModel() {
     private val _createTicketState = MutableStateFlow<DeviceSharingActionState>(DeviceSharingActionState.Idle)
     val createTicketState = _createTicketState.asStateFlow()
@@ -77,6 +88,25 @@ class DeviceSharingViewModel @Inject constructor (
             )
         }
     }
+
+    private val _sharedDevicesState = MutableStateFlow<SharedDeviceState>(SharedDeviceState.Idle)
+    val sharedDevicesState = _sharedDevicesState.asStateFlow()
+
+    fun getSharedDevicesForUser() {
+        _sharedDevicesState.value = SharedDeviceState.Loading
+        viewModelScope.launch {
+            getSharedDevicesUseCase().fold(
+                onSuccess = { devices ->
+                    _sharedDevicesState.value = SharedDeviceState.Success(devices)
+                },
+                onFailure = { e ->
+                    _sharedDevicesState.value =
+                        SharedDeviceState.Error(e.message ?: "Lỗi khi tải danh sách thiết bị được chia sẻ!")
+                }
+            )
+        }
+    }
+
 
 //    private val _sharedUsersState = MutableStateFlow<DeviceSharingState>(DeviceSharingState.Idle)
 //    val sharedUsersState = _sharedUsersState.asStateFlow()

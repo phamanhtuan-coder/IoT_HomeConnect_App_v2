@@ -88,6 +88,7 @@ fun DeviceDetailScreen(
     serialNumber: String,
     product: ProductData,
     controls: Map<String, String>,
+    isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel
 ) {
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
@@ -324,15 +325,15 @@ fun DeviceDetailScreen(
                                         Spacer(modifier = Modifier.height(4.dp))
 
                                         CustomSwitch(
-                                            isCheck  = uiPower,
-                                            enabled  = !isUpdatingPower,
+                                            isCheck = uiPower,
+                                            enabled = !isUpdatingPower && !isViewOnly,
                                             onCheckedChange = { newValue ->
-                                                pendingPower   = newValue
+                                                pendingPower = newValue
                                                 isUpdatingPower = true
                                                 displayViewModel.updateDeviceStateBulk(
                                                     serial_number = serialNumber,
-                                                    serial   = serialNumber,
-                                                    updates  = listOf(mapOf("power_status" to newValue))
+                                                    serial = serialNumber,
+                                                    updates = listOf(mapOf("power_status" to newValue))
                                                 )
                                             }
                                         )
@@ -380,7 +381,7 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-//                                    if ("brightness" in controls) {
+                                    if ("brightness" in controls) {
                                         Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
                                         EdgeToEdgeSlider(
@@ -390,12 +391,12 @@ fun DeviceDetailScreen(
                                                 if (uiPower) displayViewModel.updateDeviceStateBulk(
                                                     serial_number = serialNumber,
                                                     serial   = serialNumber,
-                                                    updates  = listOf(mapOf("brightness" to sliderToPercent(v))) // <-- dùng 0-100
+                                                    updates  = listOf(mapOf("brightness" to sliderToPercent(v)))
                                                 )
-                                            }
+                                            },
+                                            enabled = !isViewOnly // 👈 khóa khi chỉ được xem
                                         )
-
-//                                    }
+                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -410,23 +411,23 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-//                                if ("color" in controls) {
+                                if ("color" in controls) {
                                 /* ---------------------- Trong DeviceDetailScreen ---------------------- */
-
-                                FancyColorSlider(
-                                    attribute = attribute,
-                                    onColorChange = { hex ->
-                                        attribute = attribute.copy(color = hex)        // cập nhật state UI
-                                        if (uiPower) {                                 // chỉ sync khi đèn đang bật
-                                            displayViewModel.updateDeviceStateBulk(
-                                                serial_number = serialNumber,
-                                                serial   = serialNumber,
-                                                updates  = listOf(mapOf("color" to hex))
-                                            )
-                                        }
-                                    }
-                                )
-//                                }
+                                    FancyColorSlider(
+                                        attribute = attribute,
+                                        onColorChange = { hex ->
+                                            attribute = attribute.copy(color = hex)        // cập nhật state UI
+                                            if (uiPower) {                                 // chỉ sync khi đèn đang bật
+                                                displayViewModel.updateDeviceStateBulk(
+                                                    serial_number = serialNumber,
+                                                    serial   = serialNumber,
+                                                    updates  = listOf(mapOf("color" to hex))
+                                                )
+                                            }
+                                        },
+                                        enabled = !isViewOnly
+                                    )
+                                }
                             }
                         }
 
@@ -503,6 +504,8 @@ fun DeviceDetailScreen(
                     }
 
                     item {
+                        val buttonStyle = if (isViewOnly) HCButtonStyle.DISABLED else HCButtonStyle.PRIMARY
+
                         Column(
                             modifier = Modifier
                                 .wrapContentWidth()
@@ -515,7 +518,7 @@ fun DeviceDetailScreen(
                         ) {
                             ActionButtonWithFeedback(
                                 label  = "Hiệu ứng LED",
-                                style  = HCButtonStyle.PRIMARY,
+                                style  = buttonStyle,
                                 height = 62.dp,
                                 textSize = 20.sp,
                                 modifier = Modifier.fillMaxWidth(),
@@ -545,7 +548,7 @@ fun DeviceDetailScreen(
                                             pendingAction = DeviceAction.LOCK
                                             showConfirm = true
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -563,7 +566,7 @@ fun DeviceDetailScreen(
                                             pendingAction = DeviceAction.UNLINK
                                             showConfirm = true
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -583,7 +586,7 @@ fun DeviceDetailScreen(
                                         onAction = { _, _ ->
                                             navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -601,7 +604,7 @@ fun DeviceDetailScreen(
                                             pendingAction = DeviceAction.RESET
                                             showConfirm = true
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -626,7 +629,7 @@ fun DeviceDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -644,7 +647,7 @@ fun DeviceDetailScreen(
                                                 loadingAction = null
                                             }
                                         },
-                                        style = HCButtonStyle.PRIMARY,
+                                        style = buttonStyle,
                                         height = 62.dp,
                                         textSize = 20.sp,
                                         modifier = Modifier.weight(1f),
@@ -665,7 +668,7 @@ fun DeviceDetailScreen(
                                             loadingAction = null
                                         }
                                     },
-                                    style = HCButtonStyle.PRIMARY,
+                                    style = buttonStyle,
                                     height = 62.dp,
                                     textSize = 20.sp,
                                     modifier = Modifier.fillMaxWidth(0.8f),

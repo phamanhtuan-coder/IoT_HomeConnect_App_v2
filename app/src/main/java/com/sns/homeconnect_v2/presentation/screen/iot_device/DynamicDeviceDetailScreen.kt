@@ -22,6 +22,7 @@ fun DynamicDeviceDetailScreen(
     deviceName: String,
     serialNumber: String,
     productId: String,
+    isViewOnly: Boolean,
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
     displayViewModel: DeviceDisplayViewModel = hiltViewModel(),
@@ -67,8 +68,10 @@ fun DynamicDeviceDetailScreen(
             val category = (displayState as DeviceDisplayInfoState.Success).category
             val product = (displayState as DeviceDisplayInfoState.Success).product
             val parentName = category.parent_name
-            val controlsMap = (capabilitiesState as DeviceCapabilitiesUiState.Success)
+            val baseControls = (capabilitiesState as DeviceCapabilitiesUiState.Success)
                 .data.capabilities.merged_capabilities.controls
+
+            val controlsMap = baseControls + mapOf("permission_type" to if (isViewOnly) "VIEW" else "CONTROL")
 
             Log.d("CHECK", "parentName=$parentName, controls=$controlsMap")
 

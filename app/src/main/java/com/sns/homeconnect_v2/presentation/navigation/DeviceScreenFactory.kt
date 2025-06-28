@@ -21,23 +21,52 @@ object DeviceScreenFactory {
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
         val normalized = parentName?.trim()?.lowercase()
-        Log.d("CHECK", "parentName='$parentName', normalized='$normalized', controls=$controls")
+        val isViewOnly = controls["permission_type"]?.uppercase() == "VIEW" // ✅ Thêm dòng này
+
+        Log.d("CHECK", "parentName='$parentName', normalized='$normalized', isViewOnly=$isViewOnly, controls=$controls")
+
         return when {
             normalized == "đèn" -> { navController ->
-                DeviceDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
+                DeviceDetailScreen(
+                    navController = navController,
+                    deviceId = deviceId,
+                    deviceName = deviceName,
+                    serialNumber = serialNumber,
+                    product = product,
+                    controls = controls,
+                    snackbarViewModel = snackbarViewModel(),
+                    isViewOnly = isViewOnly               // ✅ Truyền xuống
+                )
             }
+
             normalized?.contains("cảm biến") == true -> { navController ->
-                FireAlarmDetailScreen(navController, deviceId, deviceName, serialNumber, product, controls, snackbarViewModel())
+                FireAlarmDetailScreen(
+                    navController = navController,
+                    deviceId = deviceId,
+                    deviceName = deviceName,
+                    serialNumber = serialNumber,
+                    product = product,
+                    controls = controls,
+                    snackbarViewModel = snackbarViewModel(),
+                    isViewOnly = isViewOnly               // ✅ Truyền xuống
+                )
             }
+
             normalized?.contains("camera") == true -> { navController ->
-                CameraDetailScreen(navController, deviceId, deviceName, serialNumber, controls, snackbarViewModel())
+                CameraDetailScreen(
+                    navController = navController,
+                    deviceId = deviceId,
+                    deviceName = deviceName,
+                    serialNumber = serialNumber,
+                    controls = controls,
+                    snackbarViewModel = snackbarViewModel(),
+                    isViewOnly = isViewOnly               // ✅ Truyền xuống
+                )
             }
+
             else -> { navController ->
                 DefaultDetailScreen(navController)
             }
         }
     }
 }
-
-
-

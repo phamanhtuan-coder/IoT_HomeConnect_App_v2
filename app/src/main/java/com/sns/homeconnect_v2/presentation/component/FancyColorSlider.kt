@@ -60,6 +60,7 @@ fun FancyColorSlider(
     attribute: AttributeRequest,
     onColorChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     thumbDia: Dp = 40.dp,          // đường kính thumb
     trackHeight: Dp = 12.dp        // chiều cao track/gradient
 ) {
@@ -125,13 +126,16 @@ fun FancyColorSlider(
             // slider ẩn track gốc
             Slider(
                 value = pos,
-                onValueChange = { pos = it },
+                onValueChange = { if (enabled) pos = it },
                 onValueChangeFinished = {
-                    val i = (pos * (palette.size - 1)).toInt()
-                    val hex = colorToHex(palette[i].first)
-                    attribute.color = hex
-                    onColorChange(hex)
+                    if (enabled) {
+                        val i = (pos * (palette.size - 1)).toInt()
+                        val hex = colorToHex(palette[i].first)
+                        attribute.color = hex
+                        onColorChange(hex)
+                    }
                 },
+                enabled = enabled,
                 valueRange = 0f..1f,
                 modifier = Modifier
                     .fillMaxWidth()

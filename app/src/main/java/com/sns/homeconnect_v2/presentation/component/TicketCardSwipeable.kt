@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.presentation.component.widget.ActionIcon
+import com.sns.homeconnect_v2.presentation.component.widget.ActionIconContent
 import com.sns.homeconnect_v2.presentation.component.widget.SwipeableItemWithActions
 
 /**
@@ -66,14 +67,13 @@ fun TicketCardSwipeable(
         onCollapsed = onCollapse,
         actions = {
             Spacer(Modifier.width(8.dp))
+
             ActionIcon(
-                onClick = { if (isDeleteEnabled) onDelete() },
-                backgroundColor = if (isDeleteEnabled) Color(0xFFF44336) else Color(0xFFB0B0B0),
-                icon = Icons.Default.Delete,
-                contentDescription = if (isDeleteEnabled) "Delete ticket" else "Delete ticket disabled",
-                enabled = isDeleteEnabled,
-                iconTint = if (isDeleteEnabled) Color.White else Color(0xFF808080)
+                onClick = onDelete,
+                backgroundColor = Color(0xFFF44336),
+                icon = ActionIconContent.VectorIcon(Icons.Default.Delete) // ✅ sửa chỗ này
             )
+
         }
     ) {
         Row(

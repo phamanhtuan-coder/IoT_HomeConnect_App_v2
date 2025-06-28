@@ -84,6 +84,7 @@ fun CameraDetailScreen(
     deviceName: String,
     serialNumber: String,
     controls: Map<String, String>,
+    isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel,
 ) {
     // State to control the visibility of the bottom sheet
@@ -223,7 +224,8 @@ fun CameraDetailScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IconToggleButton(
                                     checked = audioEnabled,
-                                    onCheckedChange = { audioEnabled = it }
+                                    onCheckedChange = { audioEnabled = it },
+                                    enabled = !isViewOnly
                                 ) {
                                     Icon(
                                         imageVector = if (audioEnabled) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
@@ -238,7 +240,8 @@ fun CameraDetailScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 IconToggleButton(
                                     checked = micEnabled,
-                                    onCheckedChange = { micEnabled = it }
+                                    onCheckedChange = { micEnabled = it },
+                                    enabled = !isViewOnly
                                 ) {
                                     Icon(
                                         imageVector = if (micEnabled) Icons.Default.Mic else Icons.Default.MicOff,
@@ -265,14 +268,16 @@ fun CameraDetailScreen(
                             ) {
                                 MiniActionButton(
                                     icon = Icons.Default.Videocam,
-                                    label = "Ghi hình"
+                                    label = "Ghi hình",
+                                    enabled = !isViewOnly
                                 ) {
                                     // TODO: Ghi hình
                                 }
 
                                 MiniActionButton(
                                     icon = Icons.Default.PhotoCamera,
-                                    label = "Chụp ảnh"
+                                    label = "Chụp ảnh",
+                                    enabled = !isViewOnly
                                 ) {
                                     // TODO: Chụp ảnh
                                 }
@@ -284,14 +289,16 @@ fun CameraDetailScreen(
                             ) {
                                 MiniActionButton(
                                     icon = Icons.Default.Movie,
-                                    label = "Xem lại"
+                                    label = "Xem lại",
+                                    enabled = !isViewOnly
                                 ) {
                                     // TODO: Xem lại
                                 }
 
                                 MiniActionButton(
                                     icon = Icons.Default.Notifications,
-                                    label = "Lịch sử cảnh báo"
+                                    label = "Lịch sử cảnh báo",
+                                    enabled = !isViewOnly
                                 ) {
                                     // TODO: Hiển thị lịch sử cảnh báo
                                 }
@@ -300,6 +307,7 @@ fun CameraDetailScreen(
                             MiniActionButton(
                                 icon = Icons.Default.Settings,
                                 label = "Cài đặt",
+                                enabled = !isViewOnly,
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
                                     .fillMaxWidth(0.9f)
@@ -312,13 +320,15 @@ fun CameraDetailScreen(
                     item {
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        ActionButtonWithFeedback(
-                            label = "Gọi hỗ trợ",
-                            snackbarViewModel = snackbarViewModel,
-                            onAction = { onSuccess, onError ->
-                                onSuccess("Đã gọi hỗ trợ thành công!")
-                            }
-                        )
+                        if (!isViewOnly) {
+                            ActionButtonWithFeedback(
+                                label = "Gọi hỗ trợ",
+                                snackbarViewModel = snackbarViewModel,
+                                onAction = { onSuccess, onError ->
+                                    onSuccess("Đã gọi hỗ trợ thành công!")
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -75,16 +75,16 @@ fun GroupCardSwipeable(
 
             ActionIcon(
                 onClick = onEdit,
-                backgroundColor = Color(0xFF4CAF50),
-                icon = ActionIconContent.VectorIcon(Icons.Default.Edit) // ✅ sửa chỗ này
+                backgroundColor = if (canEdit) Color(0xFF4CAF50) else Color.LightGray,
+                icon = ActionIconContent.VectorIcon(Icons.Default.Edit),
+                enabled = canEdit
             )
-
             Spacer(Modifier.width(8.dp))
-
             ActionIcon(
                 onClick = onDelete,
-                backgroundColor = Color(0xFFF44336),
-                icon = ActionIconContent.VectorIcon(Icons.Default.Delete) // ✅ sửa chỗ này
+                backgroundColor = if (canDelete) Color(0xFFF44336) else Color.LightGray,
+                icon = ActionIconContent.VectorIcon(Icons.Default.Delete),
+                enabled = canDelete,
             )
 
         }

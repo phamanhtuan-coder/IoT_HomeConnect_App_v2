@@ -20,3 +20,7 @@ data class AlertResponse(
     val error: String? = null,
     val data: AlertData? = null
 )
+
+data class check(
+    @SerializedName("is_read") val isRead: Boolean,
+)

@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.notification
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,15 +44,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.data.remote.dto.response.AlertResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.check
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.notification.ListNotificationViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationDetailViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationState
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 private object NotificationStyle {
     val cardPadding = 8.dp
@@ -75,6 +81,17 @@ fun NotificationScreen(
     var errorState by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        navController.currentBackStackEntryFlow.collect { entry ->
+            val shouldRefresh = entry.savedStateHandle.get<Boolean>("refresh") ?: false
+            if (shouldRefresh) {
+                viewModel.getAllByUser()
+                entry.savedStateHandle["refresh"] = false
+            }
+        }
+    }
+
+
+    LaunchedEffect(Unit) {
         viewModel.getAllByUser()
     }
 
@@ -86,7 +103,7 @@ fun NotificationScreen(
         is NotificationState.Error -> {
             errorState = (notificationState as NotificationState.Error).error
         }
-        else -> { /* Do nothing */ }
+        else -> { /* Idle hoặc Loading */ }
     }
 
     IoTHomeConnectAppTheme {
@@ -139,6 +156,7 @@ fun NotificationScreen(
 
 @Composable
 fun EmptyNotificationScreen() {
+    val viewModel:NotificationDetailViewModel
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
         Column(
@@ -175,6 +193,7 @@ fun EmptyNotificationScreen() {
 fun NotificationCard(notification: AlertResponse, navController: NavHostController) {
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
+        val viewModel1:NotificationDetailViewModel=hiltViewModel()
         notification.data?.let { alert ->
             Card(
                 modifier = Modifier
@@ -182,10 +201,13 @@ fun NotificationCard(notification: AlertResponse, navController: NavHostControll
                     .padding(NotificationStyle.cardPadding)
                     .clickable {
                         navController.navigate(Screens.NotificationDetail.route + "?id=${alert.id}")
+                        viewModel1.UpdateNotification(alertId = alert.id.toInt(), isRead = check(true))
                     },
                 elevation = CardDefaults.cardElevation(NotificationStyle.cardElevation),
                 shape = RoundedCornerShape(NotificationStyle.cardCornerRadius),
-                colors = CardDefaults.cardColors(colorScheme.primary)
+                colors = CardDefaults.cardColors(
+                    containerColor = if (alert.status) Color.LightGray else colorScheme.primary
+                )
             ) {
                 Row(
                     modifier = Modifier
@@ -208,15 +230,15 @@ fun NotificationCard(notification: AlertResponse, navController: NavHostControll
                     Spacer(modifier = Modifier.width(NotificationStyle.spacerSize))
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Device ${alert.deviceId}",
+                            text = "Nội dung: ${alert.message}",
                             fontSize = NotificationStyle.titleFontSize,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            text = alert.message,
-                            fontSize = NotificationStyle.descriptionFontSize,
-                            color = colorScheme.onPrimary
-                        )
+//                        Text(
+//                            text = alert.message,
+//                            fontSize = NotificationStyle.descriptionFontSize,
+//                            color = colorScheme.onPrimary,
+//                        )
                     }
                     if (alert.status) {
                         Icon(

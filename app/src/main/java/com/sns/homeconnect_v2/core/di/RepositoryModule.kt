@@ -348,7 +348,7 @@ abstract class RepositoryModule {
 
         @Provides
         @Singleton
-        fun provideGetAlertByIdUseCase(alertRepository: AlertRepository): GetAlertByIdUseCase {
+        fun provideGetAlertByIdUseCase(alertRepository: NotificationRepository): GetAlertByIdUseCase {
             return GetAlertByIdUseCase(alertRepository)
         }
 

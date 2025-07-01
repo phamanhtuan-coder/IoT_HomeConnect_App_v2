@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -42,42 +43,19 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedD
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.DeviceSharingViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.SharedDeviceState
 
-/** Giao diện màn hình Device Screen
- * -----------------------------------------
- * Người viết: Nguyễn Thanh Sang
- * Ngày viết: 3/12/2024
- * Lần cập nhật cuối: 9/12/2024
- * -----------------------------------------
-// * @param navController Đối tượng điều khiển điều hướng.
- *
- * @return Scaffold chứa giao diện màn hình Danh sách Thiết bị
- *
- * ---------------------------------------
- * Nội dung cập nhật: Sủa lại phần giao diện
- * ---------------------------
- * Lần cập nhật 30/12/2024
- * Người cập nhật: Phạm Anh Tuấn
- * ---------------------------
- * Nội dung cập nhật: Sửa lại phần giao diện
- * ---------------------------
- * Lần cập nhât: 31/12/24
- * Người cập nhật: Nguyễn Thanh Sang
- */
-
 @Composable
 fun ListDeviceScreen(
     navController: NavHostController = rememberNavController(),
     listOfUserOwnedDevicesViewModel: ListOfUserOwnedDevicesViewModel = hiltViewModel(),
-//    deviceViewModel: DeviceViewModel = hiltViewModel(),
     deviceSharingViewModel: DeviceSharingViewModel = hiltViewModel(),
 ) {
     val ownedDevicesState by listOfUserOwnedDevicesViewModel.listOfUserOwnedDevicesState.collectAsState()
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val deviceOwnershipTabs = listOf("Sở hữu", "Chia sẽ")
-
-    // Lấy danh sách thiết bị được chia sẻ
     val sharedDevicesState by deviceSharingViewModel.sharedDevicesState.collectAsState()
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val deviceOwnershipTabs = listOf("Sở hữu", "Chia sẻ")
+    var searchQuery by remember { mutableStateOf("") }
 
+    // Log trạng thái thiết bị được chia sẻ
     LaunchedEffect(sharedDevicesState) {
         Log.d("SHARED_STATE", sharedDevicesState.toString())
         if (sharedDevicesState is SharedDeviceState.Success) {
@@ -90,74 +68,11 @@ fun ListDeviceScreen(
         }
     }
 
-    val sharedDevices = when (sharedDevicesState) {
-        is SharedDeviceState.Success -> (sharedDevicesState as SharedDeviceState.Success).devices
-        else -> emptyList()
-    }
-
-    // Lấy danh sách thiết bị được chia
+    // Lấy danh sách thiết bị ban đầu
     LaunchedEffect(Unit) {
         listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
         deviceSharingViewModel.getSharedDevicesForUser()
     }
-
-
-//    val ownedDevices = remember {
-//        mutableStateListOf(
-//            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
-//            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
-//            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green),
-//            DeviceUi(4, "Tài chính", "office", false, Icons.Default.Info, Color.Magenta),
-//            DeviceUi(5, "Quản lý", "garage", false, Icons.Default.Settings, Color.Gray),
-//            DeviceUi(6, "Sản xuất", "bathroom", false, Icons.Default.Star, Color.Cyan),
-//            DeviceUi(7, "Kế toán", "dining room", false, Icons.Default.Home, Color.Yellow),
-//            DeviceUi(8, "Nhân sự", "bedroom", false, Icons.Default.Group, Color.LightGray),
-//            DeviceUi(9, "Kho vận", "living room", false, Icons.Default.Info, Color.Blue),
-//            DeviceUi(10, "Kinh doanh", "office", false, Icons.Default.Star, Color.Red),
-//            DeviceUi(11, "Chăm sóc KH", "kitchen", false, Icons.Default.Group, Color.Green),
-//            DeviceUi(12, "Thiết kế", "studio", false, Icons.Default.Settings, Color.Magenta),
-//            DeviceUi(13, "Ban giám đốc", "bedroom", false, Icons.Default.Group, Color.Cyan),
-//            DeviceUi(14, "PR", "conference", false, Icons.Default.Home, Color.Blue),
-//            DeviceUi(15, "Đối ngoại", "office", false, Icons.Default.Info, Color.Red),
-//            DeviceUi(16, "CNTT", "server room", false, Icons.Default.Settings, Color.Gray)
-//        )
-//    }
-
-
-//    var selectedTabIndex by remember { mutableIntStateOf(0) }
-//    var spaces by remember { mutableStateOf<List<SpaceResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
-//    val spacesListState by deviceViewModel.spacesListState.collectAsState()
-//    when (spacesListState) {
-//        is SpaceState.Error -> {
-//            Log.d("Error", (spacesListState as SpaceState.Error).error)
-//        }
-//
-//        is SpaceState.Success -> {
-//            spaces = (spacesListState as SpaceState.Success).spacesList
-//            Log.d("List Device", (spacesListState as SpaceState.Success).spacesList.toString())
-//            if (selectedTabIndex == 0) {
-//                deviceViewModel.getDevicesBySpaceId(spaces.first().SpaceID)
-//            }
-//        }
-//
-//        else -> {/* Do nothing */
-//        }
-//    }
-//    var devices by remember { mutableStateOf<List<DeviceResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
-//    val deviceListState by deviceViewModel.deviceListState.collectAsState()
-//    when (deviceListState) {
-//        is DeviceState.Error -> {
-//            Log.d("Error", (deviceListState as DeviceState.Error).error)
-//        }
-//
-//        is DeviceState.Success -> {
-//            devices = (deviceListState as DeviceState.Success).deviceList
-//            Log.d("List Device", (deviceListState as DeviceState.Success).deviceList.toString())
-//        }
-//
-//        else -> {/* Do nothing */
-//        }
-//    }
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -166,27 +81,19 @@ fun ListDeviceScreen(
             containerColor = colorScheme.background,
             modifier = Modifier.fillMaxSize(),
             topBar = {
-                /*
-            * Hiển thị Header
-             */
                 Header(
                     navController = navController,
                     type = "Back",
                     title = "Danh sách thiết bị"
                 )
-
             },
             bottomBar = {
-                /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
                 MenuBottom(navController)
             },
             floatingActionButtonPosition = FabPosition.End,
             content = { contentPadding ->
-                Column (
-                    modifier= Modifier
-                        .padding(contentPadding)
+                Column(
+                    modifier = Modifier.padding(contentPadding)
                 ) {
                     ColoredCornerBox(
                         cornerRadius = 40.dp
@@ -198,10 +105,16 @@ fun ListDeviceScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             SearchBar(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                onSearch = { searchQuery ->
-                                    /* TODO: điều kiện search */
+                                modifier = Modifier.fillMaxWidth(),
+                                onSearch = { query ->
+                                    searchQuery = query
+                                    if (selectedTabIndex == 0) {
+                                        // Tìm kiếm thiết bị sở hữu
+                                        listOfUserOwnedDevicesViewModel.searchOwnedDevices(query)
+                                    } else {
+                                        // Tìm kiếm thiết bị được chia sẻ
+                                        //deviceSharingViewModel.searchSharedDevices(query)
+                                    }
                                 }
                             )
                         }
@@ -214,14 +127,32 @@ fun ListDeviceScreen(
                         CustomTabRow(
                             tabs = deviceOwnershipTabs,
                             selectedTabIndex = selectedTabIndex,
-                            onTabSelected = { selectedTabIndex = it },
+                            onTabSelected = { index ->
+                                selectedTabIndex = index
+                                // Reset search query khi chuyển tab
+                                searchQuery = ""
+                                if (index == 0) {
+                                    listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
+                                } else {
+                                    deviceSharingViewModel.getSharedDevicesForUser()
+                                }
+                            },
                         )
                     }
 
-                    when(selectedTabIndex) {
+                    when (selectedTabIndex) {
                         0 -> {
                             val ownedDevices = when (ownedDevicesState) {
                                 is ListOfUserOwnedDevicesState.Success -> (ownedDevicesState as ListOfUserOwnedDevicesState.Success).deviceList
+                                is ListOfUserOwnedDevicesState.Error -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("Lỗi: ${(ownedDevicesState as ListOfUserOwnedDevicesState.Error).error}")
+                                    }
+                                    emptyList()
+                                }
                                 else -> emptyList()
                             }
 
@@ -236,41 +167,56 @@ fun ListDeviceScreen(
                                     itemsIndexed(ownedDevices) { index, device ->
                                         Spacer(modifier = Modifier.height(8.dp))
                                         DeviceCardSwipeable(
-                                            deviceName = device.name?: "Thiết bị $index",
-                                            roomName = "Rom",
+                                            deviceName = device.name ?: "Thiết bị $index",
+                                            roomName = "ROM",
                                             isRevealed = device.isRevealed,
+                                            isOwner = true,
+                                            isView = false,
                                             onExpandOnly = {
                                                 listOfUserOwnedDevicesViewModel.updateRevealState(index)
                                             },
                                             onClick = {
                                                 navController.navigate(
                                                     Screens.DynamicDeviceDetail.build(
-                                                        deviceId     = device.device_id,
-                                                        deviceName   = device.name.orEmpty(),
+                                                        deviceId = device.device_id,
+                                                        deviceName = device.name.orEmpty(),
                                                         serialNumber = device.serial_number,
-                                                        productId    = device.template_id
+                                                        productId = device.template_id
                                                     )
                                                 )
                                             },
                                             onCollapse = {
                                                 listOfUserOwnedDevicesViewModel.collapseItem(index)
                                             },
-                                            onDelete = {
-                                            },
-                                            onEdit = { }
+                                            onDelete = { /* Xử lý xóa nếu cần */ },
+                                            onEdit = { /* Xử lý chỉnh sửa nếu cần */ }
                                         )
                                     }
                                 }
-                            } else {
+                            } else if (ownedDevicesState !is ListOfUserOwnedDevicesState.Error) {
                                 Box(
                                     modifier = Modifier.fillMaxSize().padding(16.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text("Không tìm thấy")
+                                    Text("Không tìm thấy thiết bị")
                                 }
                             }
                         }
                         1 -> {
+                            val sharedDevices = when (sharedDevicesState) {
+                                is SharedDeviceState.Success -> (sharedDevicesState as SharedDeviceState.Success).devices
+                                is SharedDeviceState.Error -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize().padding(16.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("Lỗi: ${(sharedDevicesState as SharedDeviceState.Error).message}")
+                                    }
+                                    emptyList()
+                                }
+                                else -> emptyList()
+                            }
+
                             LabeledBox(
                                 label = "Thiết bị được chia sẻ",
                                 value = sharedDevices.size.toString(),
@@ -278,9 +224,7 @@ fun ListDeviceScreen(
                             )
 
                             if (sharedDevices.isNotEmpty()) {
-                                LazyColumn (
-                                    modifier = Modifier.padding(vertical = 8.dp)
-                                ) {
+                                LazyColumn(modifier = Modifier.padding(vertical = 8.dp)) {
                                     itemsIndexed(sharedDevices) { index, device ->
                                         Spacer(modifier = Modifier.height(8.dp))
                                         DeviceCardSwipeable(
@@ -290,36 +234,33 @@ fun ListDeviceScreen(
                                                 "CONTROL" -> "Điều khiển"
                                                 else -> "Không xác định"
                                             },
-                                            isOwner = false, // Shared devices không phải là owner
-                                            isRevealed = false, // Shared devices chưa cần reveal
+                                            isOwner = false,
+                                            isRevealed = false,
                                             isView = device.permission_type == "VIEW",
                                             onExpandOnly = {},
                                             onCollapse = {},
                                             onClick = {
                                                 navController.navigate(
                                                     Screens.DynamicDeviceDetail.build(
-                                                        deviceId     = device.device_id ?: "",
-                                                        deviceName   = device.device_name.orEmpty(),
+                                                        deviceId = device.device_id ?: "",
+                                                        deviceName = device.device_name.orEmpty(),
                                                         serialNumber = device.device_serial,
-                                                        productId    = device.template_id ?: "",
+                                                        productId = device.template_id ?: "",
                                                         permissionType = device.permission_type
                                                     )
                                                 )
                                             },
-                                            onDelete = { /* Xử lý nếu muốn xóa */ },
-                                            onEdit = { /* Nếu cho phép chỉnh */ }
+                                            onDelete = { /* Xử lý xóa nếu cần */ },
+                                            onEdit = { /* Xử lý chỉnh sửa nếu cần */ }
                                         )
                                     }
                                 }
-
-                            } else {
+                            } else if (sharedDevicesState !is SharedDeviceState.Error) {
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text("Không tìm thấy")
+                                    Text("Không tìm thấy thiết bị")
                                 }
                             }
                         }

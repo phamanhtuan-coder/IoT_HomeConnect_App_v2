@@ -10,6 +10,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DevicePermissionResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
@@ -34,4 +35,6 @@ interface DeviceRepository {
     suspend fun stopLedEffect(serial_number: String, request: StopLedEffectRequest): DeviceResponse
     suspend fun applyLedPreset(serial_number: String, request: LedPresetRequest): DeviceResponse
     suspend fun getLedEffects(deviceId: String): LedEffectsResponse
+    suspend fun getOwnedDevices(searchQuery: String): List<OwnedDeviceResponse>
+    suspend fun searchDevices(searchQuery: String): List<DevicePermissionResponse>
 }

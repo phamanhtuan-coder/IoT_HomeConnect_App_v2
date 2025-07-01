@@ -14,6 +14,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DevicePermissionResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
@@ -131,5 +132,24 @@ class DeviceRepositoryImpl @Inject constructor(
         return apiService.getLedEffects(deviceId, "Bearer $token")
     }
 
+    override suspend fun searchDevices(searchQuery: String): List<DevicePermissionResponse> {
+        val token = authManager.getJwtToken()
+        val response = apiService.searchSharedDevicesForUser(searchQuery, "Bearer $token")
+        return response.data // Chỉ trả về danh sách DevicePermissionResponse
+    }
+
+    override suspend fun getOwnedDevices(searchQuery: String): List<OwnedDeviceResponse> {
+        val token = authManager.getJwtToken()
+        val devices = apiService.getUserOwnedDevices("Bearer $token")
+        // Lọc phía client nếu searchQuery không rỗng
+        return if (searchQuery.isBlank()) {
+            devices
+        } else {
+            devices.filter {
+                it.name?.contains(searchQuery, ignoreCase = true) == true ||
+                        it.serial_number.contains(searchQuery, ignoreCase = true)
+            }
+        }
+    }
 
 }

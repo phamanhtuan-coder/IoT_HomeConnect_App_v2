@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.data.remote.api
 
+import com.google.gson.annotations.SerializedName
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
@@ -59,6 +60,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResp
 import com.sns.homeconnect_v2.data.remote.dto.response.CancelTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DevicePermissionListResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DevicePermissionResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
@@ -519,6 +522,13 @@ interface ApiService {
     suspend fun getSharedDevicesForUser(
         @Header("Authorization") token: String
     ): SharedDeviceWrapper
+
+    @GET("permissions/get-device-shared-for-customer")
+    suspend fun searchSharedDevicesForUser(
+        @Query("search") searchQuery: String,
+        @Header("Authorization") token: String
+    ): DevicePermissionListResponse
+
 
 //    @POST("spaces")
 //    suspend fun createSpace(

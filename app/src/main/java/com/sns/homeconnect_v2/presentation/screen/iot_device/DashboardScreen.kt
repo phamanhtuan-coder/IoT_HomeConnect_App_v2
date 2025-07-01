@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.sns.homeconnect_v2.core.util.validation.getIconResByName
 import com.sns.homeconnect_v2.presentation.component.ChartLegend
 import com.sns.homeconnect_v2.presentation.component.RoomTabRow
 import com.sns.homeconnect_v2.presentation.component.TimeRangePicker
@@ -31,6 +35,10 @@ import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.GenericDropdown
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.model.DataPoint
+import com.sns.homeconnect_v2.presentation.model.SpaceTab
+import com.sns.homeconnect_v2.presentation.viewmodel.group.GetListHouseByGroupViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.group.GroupListViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 
 /**
  * Hàm Composable đại diện cho màn hình dashboard của ứng dụng IoT Home Connect.
@@ -63,7 +71,30 @@ import com.sns.homeconnect_v2.presentation.model.DataPoint
  * @since 29-05-2025
  */
 @Composable
-fun DashboardScreen(navController: NavHostController) {
+fun DashboardScreen(
+    navController: NavHostController
+) {
+    /* ----------  VIEW-MODEL ---------- */
+    val groupVm     : GroupListViewModel = hiltViewModel()
+    val houseVm     : GetListHouseByGroupViewModel = hiltViewModel()
+    val spaceVm     : SpaceScreenViewModel = hiltViewModel()
+
+    /* ----------  FLOW → STATE ---------- */
+    val groups  by groupVm.groupList.collectAsState()
+    val houses  by houseVm.houses.collectAsState()
+    val spaces  by spaceVm.spaces.collectAsState()
+
+    /* ----------  UI STATE ---------- */
+    var selectedGroup  by remember { mutableStateOf<Int?>(null) }
+    var selectedHouse  by remember { mutableStateOf<Int?>(null) }
+    var activeSpaceId  by remember { mutableStateOf<String?>(null) }   // id đang chọn
+    var activeRoomName by remember { mutableStateOf<String?>(null) } // label hiện tab
+
+    /* ----------  LẦN ĐẦU ---------- */
+    LaunchedEffect(Unit) {            // → lấy nhóm của tôi
+        groupVm.fetchGroups()
+    }
+
     IoTHomeConnectAppTheme {
         val chartNames = listOf(
             "Nhiệt độ",
@@ -109,8 +140,6 @@ fun DashboardScreen(navController: NavHostController) {
             gasData,         // 2
             electricityData  // 3
         )
-        var current by remember { mutableStateOf<String?>(null) }
-        var activeRoom by remember { mutableStateOf("living") }
         val colorScheme = MaterialTheme.colorScheme
 
         Scaffold(
@@ -156,24 +185,60 @@ fun DashboardScreen(navController: NavHostController) {
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             GenericDropdown(
-                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                                selectedItem = current,
-                                onItemSelected = { current = it },
-                                placeHolder = "Chọn nhóm",
-                                modifier = Modifier.weight(1f)
+                                items        = groups.map { it.name },        // hiển thị
+                                selectedItem = groups.firstOrNull { it.id == selectedGroup }?.name,
+                                placeHolder  = "Chọn nhóm",
+                                modifier     = Modifier.weight(1f),
+                                onItemSelected = { label ->
+                                    val g = groups.first { it.name == label }
+                                    selectedGroup = g.id
+                                    selectedHouse = null          // reset
+                                    activeSpaceId = null
+                                    activeRoomName = null
+                                    houseVm.getHouseByGroup(g.id)     // fetch house
+                                }
                             )
                             GenericDropdown(
-                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                                selectedItem = current,
-                                onItemSelected = { current = it },
-                                placeHolder = "Chọn nhà",
-                                modifier = Modifier.weight(1f)
+                                items        = houses.map { it.house_name },
+                                selectedItem = houses.firstOrNull { it.house_id == selectedHouse }?.house_name,
+                                placeHolder  = "Chọn nhà",
+                                modifier     = Modifier.weight(1f),
+                                enabled      = houses.isNotEmpty(),          // khoá khi chưa chọn group
+                                onItemSelected = { label ->
+                                    val h = houses.first { it.house_name == label }
+                                    selectedHouse = h.house_id
+                                    activeSpaceId = null
+                                    activeRoomName = null
+                                    spaceVm.getSpaces(h.house_id)           // fetch space
+                                }
                             )
                         }
-                        RoomTabRow(
-                            activeRoom = activeRoom,
-                            onRoomChange = { activeRoom = it }
-                        )
+                        /* ----- TABS SPACE ----- */
+                        if (spaces.isNotEmpty()) {
+
+                            // Chuyển spaces → SpaceTab để có iconRes
+                            val spaceTabs = spaces.map { space ->
+                                SpaceTab(
+                                    id = space.space_id.toString(),
+                                    name = space.space_name ?: "Unnamed",
+                                    iconRes = getIconResByName(space.icon_name)
+                                )
+                            }
+
+                            // Lần đầu: chọn tab đầu
+                            if (activeRoomName == null) {
+                                activeRoomName = spaceTabs.first().name
+                                activeSpaceId  = spaceTabs.first().id
+                            }
+
+                            RoomTabRow(
+                                activeRoom   = activeSpaceId ?: "",
+                                onRoomChange = { id -> activeSpaceId = id },
+                                rooms        = spaceTabs,
+                                tabPerScreen = 4
+                            )
+                        }
+
 
                         Column(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),

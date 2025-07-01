@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sns.homeconnect_v2.presentation.model.Room
+import com.sns.homeconnect_v2.presentation.model.SpaceTab
 
 /**
  * Một hàm Composable hiển thị một hàng các tab, mỗi tab đại diện cho một phòng.
@@ -42,15 +42,8 @@ import com.sns.homeconnect_v2.presentation.model.Room
 fun RoomTabRow(
     activeRoom: String,
     onRoomChange: (String) -> Unit,
-    rooms: List<Room> = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend),
-        Room("bedroom", "PHÒNG NGỦ", Icons.Filled.Bed),
-        Room("dining", "PHÒNG ĂN", Icons.Filled.Restaurant),
-        Room("bathroom", "PHÒNG TẮM", Icons.Filled.Bathtub),
-        Room("office", "PHÒNG LÀM VIỆC", Icons.Filled.WorkspacePremium)
-    ),
-    tabPerScreen: Int = 4 // mặc định 4 tab
+    rooms: List<SpaceTab>,
+    tabPerScreen: Int = 4
 ) {
     val selectedIndex = rooms.indexOfFirst { it.id == activeRoom }.coerceAtLeast(0)
     val useScrollable = rooms.size > tabPerScreen
@@ -109,39 +102,6 @@ fun RoomTabRow(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RoomTabRowPreview() {
-    var activeRoom by remember { mutableStateOf("living") }
-    val fewRooms = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend)
-    )
-    val manyRooms = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend),
-        Room("bedroom", "PHÒNG NGỦ", Icons.Filled.Bed),
-        Room("dining", "PHÒNG ĂN", Icons.Filled.Restaurant),
-        Room("bathroom", "PHÒNG TẮM", Icons.Filled.Bathtub),
-        Room("office", "PHÒNG LÀM VIỆC", Icons.Filled.WorkspacePremium)
-    )
-    Column {
-        Text("Ít tab (TabRow - chia đều):")
-        RoomTabRow(
-            activeRoom = activeRoom,
-            onRoomChange = { activeRoom = it },
-            rooms = fewRooms // Thử với ít phòng
-        )
-        Spacer(Modifier.height(24.dp))
-        Text("Nhiều tab (ScrollableTabRow - kéo ngang):")
-        RoomTabRow(
-            activeRoom = activeRoom,
-            onRoomChange = { activeRoom = it },
-            rooms = manyRooms // Thử với nhiều phòng
-        )
     }
 }
 

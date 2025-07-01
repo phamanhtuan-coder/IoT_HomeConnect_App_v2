@@ -21,23 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Thành phần dropdown chung có thể tái sử dụng, được tạo kiểu để khớp với kích thước của SearchBar.
+ * Thành phần dropdown chung có thể tái sử dụng, được tạo kiểu để khớp với chiều cao SearchBar.
  *
- * Thành phần này cung cấp một menu dropdown với giao diện nhất quán.
- *
- * Các tính năng tạo kiểu chính:
- * - **Chiều cao**: `56.dp` (khớp với chiều cao của SearchBar).
- * - **Padding**: `16.dp` theo chiều ngang & `12.dp` theo chiều dọc.
- * - **Bán kính góc**: `12.dp` (để có giao diện bo tròn đồng nhất).
- * - **Mũi tên ở cuối**: Một biểu tượng mũi tên (xuống/lên) ở cuối dropdown, sẽ thay đổi hướng khi menu được mở hoặc đóng.
- *
- * @param items Danh sách các chuỗi để hiển thị trong menu dropdown.
- * @param selectedItem Mục hiện đang được chọn. Có thể là null nếu không có mục nào được chọn.
- * @param onItemSelected Một hàm callback được gọi khi một mục được chọn từ dropdown.
- * @param modifier [Modifier] tùy chọn để áp dụng cho dropdown.
- * @param placeHolder Văn bản hiển thị khi không có mục nào được chọn. Mặc định là "Chọn...".
+ * @param items        Danh sách chuỗi hiển thị.
+ * @param selectedItem Chuỗi đang được chọn (nullable).
+ * @param onItemSelected Callback khi chọn mục.
+ * @param modifier     Modifier tùy chỉnh.
+ * @param placeHolder  Văn bản placeholder khi chưa chọn.
+ * @param isTablet     Dự phòng cho UI tablet (chưa dùng).
+ * @param leadingIcon  Icon đầu dòng (nullable).
+ * @param enabled      Cho phép nhấn hay không.
  */
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GenericDropdown(
@@ -47,20 +41,25 @@ fun GenericDropdown(
     modifier: Modifier = Modifier,
     placeHolder: String = "Select...",
     isTablet: Boolean = false,
-    leadingIcon: ImageVector? = null // Icon đầu dòng (nếu có)
+    leadingIcon: ImageVector? = null,
+    enabled: Boolean = true
 ) {
     var showSheet by remember { mutableStateOf(false) }
 
-    // Vùng nhấn để mở sheet
+    /** ----- VÙNG KÍCH HOẠT ----- */
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color(0xFF9E9E9E), RoundedCornerShape(16.dp))
-            .background(Color.White)
+            .border(
+                1.dp,
+                if (enabled) Color(0xFF9E9E9E) else Color(0xFFBDBDBD),
+                RoundedCornerShape(16.dp)
+            )
+            .background(if (enabled) Color.White else Color(0xFFF5F5F5))
             .height(56.dp)
             .fillMaxWidth()
-            .clickable { showSheet = true }
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .let { if (enabled) it.clickable { showSheet = true } else it },
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -75,26 +74,31 @@ fun GenericDropdown(
                     tint = Color(0xFF212121),
                     modifier = Modifier.size(36.dp)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(Modifier.width(12.dp))
             }
 
             Text(
                 text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
                 fontSize = 20.sp,
-                color = if (selectedItem.isNullOrBlank()) Color.Gray else Color(0xFF212121),
+                color = when {
+                    !enabled -> Color(0xFF9E9E9E)
+                    selectedItem.isNullOrBlank() -> Color.Gray
+                    else -> Color(0xFF212121)
+                },
                 modifier = Modifier.weight(1f)
             )
 
             Icon(
                 imageVector = if (showSheet) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = Color(0xFF212121),
+                tint = if (enabled) Color(0xFF212121) else Color(0xFF9E9E9E),
                 modifier = Modifier.size(28.dp)
             )
         }
     }
 
-    if (showSheet) {
+    /** ----- SHEET ----- */
+    if (showSheet && enabled) {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
             containerColor = Color.White,
@@ -105,7 +109,6 @@ fun GenericDropdown(
                     .fillMaxWidth()
                     .padding(top = 10.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
             ) {
-                // Title hiển thị placeholder
                 Text(
                     text = placeHolder,
                     style = MaterialTheme.typography.titleLarge,
@@ -122,7 +125,11 @@ fun GenericDropdown(
                                 onItemSelected(item)
                                 showSheet = false
                             }
-                            .background(if (item == selectedItem) Color(0xFF2979FF).copy(alpha = 0.08f) else Color.Transparent)
+                            .background(
+                                if (item == selectedItem)
+                                    Color(0xFF2979FF).copy(alpha = 0.08f)
+                                else Color.Transparent
+                            )
                             .padding(vertical = 18.dp, horizontal = 12.dp)
                     ) {
                         Text(
@@ -133,7 +140,7 @@ fun GenericDropdown(
                         )
                     }
                     if (item != items.last()) {
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+                        HorizontalDivider(Modifier.padding(horizontal = 8.dp))
                     }
                 }
             }
@@ -146,12 +153,11 @@ fun GenericDropdown(
 private fun GenericDropdownPreview() {
     var current by remember { mutableStateOf<String?>(null) }
     MaterialTheme {
-        Column(modifier = Modifier.padding(24.dp)) {
+        Column(Modifier.padding(24.dp)) {
             GenericDropdown(
                 items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
                 selectedItem = current,
                 onItemSelected = { current = it },
-                isTablet = false,
                 leadingIcon = null,
                 placeHolder = "Chọn phòng"
             )

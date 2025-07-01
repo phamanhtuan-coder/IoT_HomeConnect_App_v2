@@ -63,6 +63,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.Notification
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
@@ -519,6 +520,11 @@ interface ApiService {
     suspend fun getSharedDevicesForUser(
         @Header("Authorization") token: String
     ): SharedDeviceWrapper
+
+    @GET("notifications/user")
+    suspend fun getUserNotifications(
+        @Header("Authorization") token: String
+    ): List<Notification>
 
 //    @POST("spaces")
 //    suspend fun createSpace(

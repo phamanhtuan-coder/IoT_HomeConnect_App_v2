@@ -11,6 +11,7 @@ import com.sns.homeconnect_v2.data.repository.DeviceRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.EcomRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.GroupRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.HouseRepositoryImpl
+import com.sns.homeconnect_v2.data.repository.NotificationImpl
 import com.sns.homeconnect_v2.data.repository.OTPRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SharedRepositoryImpl
 import com.sns.homeconnect_v2.data.repository.SocketRepositoryImpl
@@ -25,6 +26,7 @@ import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import com.sns.homeconnect_v2.domain.repository.EcomRepository
 import com.sns.homeconnect_v2.domain.repository.GroupRepository
 import com.sns.homeconnect_v2.domain.repository.HouseRepository
+import com.sns.homeconnect_v2.domain.repository.NotificationRepository
 import com.sns.homeconnect_v2.domain.repository.OTPRepository
 import com.sns.homeconnect_v2.domain.repository.SharedRepository
 import com.sns.homeconnect_v2.domain.repository.SocketRepository
@@ -94,6 +96,13 @@ import kotlin.jvm.java
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        impl: NotificationImpl
+    ): NotificationRepository
+
     @Binds
     @Singleton
     abstract fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository

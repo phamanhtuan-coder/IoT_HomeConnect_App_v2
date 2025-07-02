@@ -45,12 +45,17 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.rememberResponsiveLayoutConfig
 import com.sns.homeconnect_v2.data.remote.dto.response.AlertDetail
+import com.sns.homeconnect_v2.data.remote.dto.response.Notification
+import com.sns.homeconnect_v2.data.remote.dto.response.check
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationDetailState
 import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationDetailViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationReadState
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 /** Giao diện màn hình Chi tiết thông báo (DetailNotification)
  * -----------------------------------------
@@ -68,25 +73,22 @@ import com.sns.homeconnect_v2.presentation.viewmodel.notification.NotificationRe
 fun DetailNotificationScreen(
     navController: NavHostController,
     alertId: Int,
-    viewModel: NotificationDetailViewModel = hiltViewModel(),
 ) {
+    val viewModel: NotificationDetailViewModel = hiltViewModel()
     val layoutConfig = rememberResponsiveLayoutConfig()
     val notificationState by viewModel.alertState.collectAsState()
     val notificationReadState by viewModel.alertReadState.collectAsState()
+    val readSuccess = notificationReadState is NotificationReadState.Success
 
-    // Handle navigation after reading notification
-    when (notificationReadState) {
-        is NotificationReadState.Success -> {
-            navController.popBackStack(Screens.AllNotifications.route, inclusive = false)
-        }
-        is NotificationReadState.Error -> {
-            val error = (notificationReadState as NotificationReadState.Error).error
-            Log.d("Lỗi: ", error)
-        }
-        else -> {
-            /* Do nothing */
+    LaunchedEffect(readSuccess) {
+        if (readSuccess) {
+            navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.set("refresh", true)
+            navController.popBackStack()
         }
     }
+
 
     // Fetch alert details
     LaunchedEffect(Unit) {
@@ -104,7 +106,7 @@ fun DetailNotificationScreen(
                     title = when (notificationState) {
                         is NotificationDetailState.Success -> {
                             val alert = (notificationState as NotificationDetailState.Success).alert
-                            if (alert.typeId == 1) "Chi tiết cảnh báo" else "Chi tiết thông báo"
+                            if (alert.type == "ticket") "Chi tiết cảnh báo" else "Chi tiết thông báo"
                         }
                         else -> "Chi tiết thông báo"
                     },
@@ -127,7 +129,7 @@ fun DetailNotificationScreen(
                         when (notificationState) {
                             is NotificationDetailState.Success -> {
                                 val alert = (notificationState as NotificationDetailState.Success).alert
-                                NotificationDetailContent(alert, viewModel, layoutConfig)
+                                NotificationDetailContent(alert, viewModel, layoutConfig,navController)
                             }
                             is NotificationDetailState.Error -> {
                                 Text(
@@ -158,9 +160,10 @@ fun DetailNotificationScreen(
 
 @Composable
 fun NotificationDetailContent(
-    alert: AlertDetail,
+    alert: Notification,
     viewModel: NotificationDetailViewModel,
-    layoutConfig: com.sns.homeconnect_v2.core.util.LayoutConfig
+    layoutConfig: com.sns.homeconnect_v2.core.util.LayoutConfig,
+    navController: NavHostController
 ) {
     val colorScheme = MaterialTheme.colorScheme
     // Box lớn chứa phần tiêu đề và các thành phần bên trong
@@ -191,7 +194,7 @@ fun NotificationDetailContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = alert.alertType.alertTypeName,
+                            text = alert.type,
                             fontSize = layoutConfig.headingFontSize,
                             fontWeight = FontWeight.Bold,
                             color = colorScheme.onPrimary
@@ -217,7 +220,7 @@ fun NotificationDetailContent(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = if (alert.status) "Đã xem" else "Chưa xem",
+                                text = if (alert.isRead) "Đã xem" else "Chưa xem",
                                 fontSize = layoutConfig.textFontSize,
                                 fontWeight = FontWeight.Bold,
                                 color = colorScheme.onPrimary
@@ -237,7 +240,7 @@ fun NotificationDetailContent(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = alert.timestamp,
+                                text = formatIsoDateToVietnamese(alert.createdAt),
                                 fontSize = layoutConfig.textFontSize,
                                 color = colorScheme.onPrimary
                             )
@@ -288,7 +291,7 @@ fun NotificationDetailContent(
                 .padding(layoutConfig.outerPadding)
         ) {
             Text(
-                text = alert.message,
+                text = alert.text,
                 fontSize = layoutConfig.textFontSize,
                 color = colorScheme.onBackground,
                 softWrap = true,
@@ -301,13 +304,15 @@ fun NotificationDetailContent(
         // Nút "ĐỌC THÔNG BÁO"
         Button(
             onClick = {
-                viewModel.readNotification(alertId = alert.alertId)
+                viewModel.UpdateNotification(alertId = alert.id, isRead = check(true))
+                Log.d("DetailNotificationScreen", "Đã cập nhật trạng thái thông báo ${alert.id} thành đã đọc")
+                navController.popBackStack()
             },
             modifier = Modifier
                 .width(200.dp)
                 .height(48.dp),
             shape = RoundedCornerShape(50),
-            enabled = !alert.status,
+            enabled = !alert.isRead,
             colors = ButtonDefaults.buttonColors(
                 containerColor = colorScheme.primary
             )
@@ -319,5 +324,15 @@ fun NotificationDetailContent(
                 color = colorScheme.onPrimary
             )
         }
+    }
+}
+
+fun formatIsoDateToVietnamese(dateString: String): String {
+    return try {
+        val odt = OffsetDateTime.parse(dateString)
+        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm", Locale("vi", "VN"))
+        odt.format(formatter)
+    } catch (e: Exception) {
+        dateString // fallback nếu lỗi
     }
 }

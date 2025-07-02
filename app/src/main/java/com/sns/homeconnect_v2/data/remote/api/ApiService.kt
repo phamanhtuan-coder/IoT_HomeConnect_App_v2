@@ -64,6 +64,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.Notification
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
@@ -76,6 +77,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.TicketResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.check
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
 import retrofit2.Response
@@ -530,6 +532,24 @@ interface ApiService {
         @Query("limit") limit: Int = 10,
         @Header("Authorization") token: String
     ): List<HourlyValueResponse>
+
+    @GET("notifications/user")
+    suspend fun getUserNotifications(
+        @Header("Authorization") token: String
+    ): List<Notification>
+
+    @GET("notifications/detail/{id}")
+    suspend fun getNotificationDetail(
+        @Path("id") id: Int,
+        @Header("Authorization") token: String
+    ): Notification
+
+    @PUT("notifications/{id}")
+    suspend fun updateNotification(
+        @Path("id") id: Int,
+        @Body is_read: check,
+        @Header("Authorization") token: String
+    ): Notification
 
 
 //    @POST("spaces")

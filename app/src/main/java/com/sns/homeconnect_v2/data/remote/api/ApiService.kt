@@ -62,6 +62,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesRespons
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.Notification
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -522,6 +523,16 @@ interface ApiService {
         @Header("Authorization") token: String
     ): SharedDeviceWrapper
 
+    @GET("hourly-values/space/{spaceId}")
+    suspend fun getHourlyValuesBySpace(
+        @Path("spaceId") spaceId: Int,
+        @Query("start_time") startTime: String,   // 2025-06-16T00:00:00Z
+        @Query("end_time")   endTime: String,     // 2025-06-21T00:00:00Z
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Header("Authorization") token: String
+    ): List<HourlyValueResponse>
+
     @GET("notifications/user")
     suspend fun getUserNotifications(
         @Header("Authorization") token: String
@@ -539,6 +550,7 @@ interface ApiService {
         @Body is_read: check,
         @Header("Authorization") token: String
     ): Notification
+
 
 //    @POST("spaces")
 //    suspend fun createSpace(

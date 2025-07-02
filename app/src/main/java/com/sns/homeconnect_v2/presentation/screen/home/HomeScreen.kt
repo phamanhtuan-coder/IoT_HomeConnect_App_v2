@@ -73,7 +73,9 @@ fun HomeScreen(
     val featureButtons = listOf(
         FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {},
         FeatureButtonItem(Icons.Default.Wifi, "Kết nối Wifi") {},
-        FeatureButtonItem(Icons.Default.Upload, "Chia sẻ thiết bị") {},
+        FeatureButtonItem(Icons.Default.Upload, "Dashboard") {
+            navController.navigate(Screens.Dashboard.route)
+        },
         FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {}
     )
     val deviceStats = listOf(

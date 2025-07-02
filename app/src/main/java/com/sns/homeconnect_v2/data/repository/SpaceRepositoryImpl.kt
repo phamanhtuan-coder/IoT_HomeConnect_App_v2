@@ -8,6 +8,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SpaceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
+import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
 import javax.inject.Inject
 
@@ -61,6 +62,20 @@ class SpaceRepositoryImpl @Inject constructor(
             apiService.updateSpace(spaceId, body, token = "Bearer $token")
         }
     }
+
+    override suspend fun getHourlyValues(
+        spaceId: Int,
+        startTime: String,
+        endTime: String,
+        page: Int,
+        limit: Int
+    ): List<HourlyValueResponse> {
+        val token = authManager.getJwtToken()
+        return apiService.getHourlyValuesBySpace(
+            spaceId, startTime, endTime, page, limit, "Bearer $token"
+        )
+    }
+
 }
 
 //    override suspend fun getSpaces(houseId: Int): List<SpaceResponse2> {

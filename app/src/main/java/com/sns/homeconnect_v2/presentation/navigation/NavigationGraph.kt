@@ -43,6 +43,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.TransferOwnershipSc
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenViewModel
 import com.sns.homeconnect_v2.presentation.screen.group.house.space.DetailSpaceScreen
+import com.sns.homeconnect_v2.presentation.screen.iot_device.DashboardScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.DynamicDeviceDetailScreen
 import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.ShareDeviceScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
@@ -122,6 +123,10 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 HomeScreen(navController)
             }
             // TODO: Add Dashboard screen
+
+            composable(Screens.Dashboard.route) {          // ✅ NEW
+                DashboardScreen(navController)
+            }
             // TODO: Add DashboardDeviceScreen
 
             composable(Screens.UserActivity.route) {

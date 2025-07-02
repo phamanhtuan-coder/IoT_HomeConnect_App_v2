@@ -381,7 +381,7 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    if ("brightness" in controls) {
+//                                     if ("brightness" in controls) {
                                         Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
                                         EdgeToEdgeSlider(
@@ -396,7 +396,7 @@ fun DeviceDetailScreen(
                                             },
                                             enabled = !isViewOnly // 👈 khóa khi chỉ được xem
                                         )
-                                    }
+//                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -411,7 +411,7 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                if ("color" in controls) {
+//                                if ("color" in controls) {
                                 /* ---------------------- Trong DeviceDetailScreen ---------------------- */
                                     FancyColorSlider(
                                         attribute = attribute,
@@ -427,7 +427,7 @@ fun DeviceDetailScreen(
                                         },
                                         enabled = !isViewOnly
                                     )
-                                }
+//                                }
                             }
                         }
 

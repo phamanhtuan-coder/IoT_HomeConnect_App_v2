@@ -1,5 +1,6 @@
 package com.sns.homeconnect_v2.presentation.viewmodel.iot_device
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
@@ -9,12 +10,14 @@ import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceState
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceDisplayInfoUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDeviceStateUseCase
+import com.sns.homeconnect_v2.domain.usecase.iot_device.UnlinkDeviceUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.UpdateDeviceStateBulkUseCase
 import com.sns.homeconnect_v2.domain.usecase.iot_device.UpdateDeviceStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 sealed class DeviceDisplayInfoState {
@@ -45,12 +48,20 @@ sealed class UpdateDeviceStateBulkUiState {
     data class Error(val error: String) : UpdateDeviceStateBulkUiState()
 }
 
+sealed class UnlinkState {
+    data object Idle : UnlinkState()
+    data object Loading : UnlinkState()
+    data class Success(val message: String) : UnlinkState()
+    data class Error(val error: String) : UnlinkState()
+}
+
 @HiltViewModel
 class DeviceDisplayViewModel @Inject constructor(
     private val getDeviceDisplayInfoUseCase: GetDeviceDisplayInfoUseCase,
     private val getDeviceStateUseCase: GetDeviceStateUseCase,
     private val updateDeviceStateUseCase: UpdateDeviceStateUseCase,
-    private val updateDeviceStateBulkUseCase: UpdateDeviceStateBulkUseCase
+    private val updateDeviceStateBulkUseCase: UpdateDeviceStateBulkUseCase,
+    private val unlinkDeviceUseCase: UnlinkDeviceUseCase,
 ) : ViewModel() {
 
     // ---------- 1. DISPLAY INFO ----------
@@ -148,6 +159,26 @@ class DeviceDisplayViewModel @Inject constructor(
                             UpdateDeviceStateBulkUiState.Error(it.message ?: "Lỗi không xác định")
                     }
                 )
+        }
+    }
+
+    private val _unlinkState = MutableStateFlow<UnlinkState>(UnlinkState.Idle)
+    val unlinkState = _unlinkState.asStateFlow()
+
+    fun unlinkDevice(serialNumber: String) {
+        _unlinkState.value = UnlinkState.Loading
+        viewModelScope.launch {
+            unlinkDeviceUseCase(serialNumber).fold(
+                onSuccess = {
+                    Log.d("DeviceDetailViewModel", "Unlink success")
+                    _unlinkState.value = UnlinkState.Success("Đã gỡ thiết bị thành công")
+                },
+                onFailure = { e ->
+                    Log.e("DeviceDetailViewModel", "Unlink error: ${e.message}")
+                    _unlinkState.value =
+                        UnlinkState.Error(e.message ?: "Lỗi khi gỡ liên kết thiết bị!")
+                }
+            )
         }
     }
 }

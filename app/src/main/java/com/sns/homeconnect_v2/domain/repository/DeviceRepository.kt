@@ -23,7 +23,6 @@ interface DeviceRepository {
     suspend fun getInfoDevice(deviceId: Int): DeviceResponse
     suspend fun toggleDevice(deviceId: Int, toggleRequest: ToggleRequest): ToggleResponse
     suspend fun updateAttributeDevice(deviceId: Int, brightness: Int, color: String): AttributeResponse
-    suspend fun unlinkDevice(deviceId: Int): UnlinkResponse
     suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse
     suspend fun getListOfUserOwnedDevices(): List<OwnedDeviceResponse>
     suspend fun getDeviceCapabilities(deviceId: String, serialNumber: String): DeviceCapabilitiesResponse
@@ -34,4 +33,5 @@ interface DeviceRepository {
     suspend fun stopLedEffect(serial_number: String, request: StopLedEffectRequest): DeviceResponse
     suspend fun applyLedPreset(serial_number: String, request: LedPresetRequest): DeviceResponse
     suspend fun getLedEffects(deviceId: String): LedEffectsResponse
+    suspend fun unlinkDevice(serialNumber: String): Result<Unit>
 }

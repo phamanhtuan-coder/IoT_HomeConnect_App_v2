@@ -55,11 +55,15 @@ class DeviceRepositoryImpl @Inject constructor(
         return apiService.updateAttributes(deviceId, attributeRequest, token = "Bearer $token")
     }
 
-    override suspend fun unlinkDevice(
-        deviceId: Int
-    ): UnlinkResponse {
+    override suspend fun unlinkDevice(serialNumber: String): Result<Unit> {
         val token = authManager.getJwtToken()
-        return apiService.unlinkDevice(deviceId, token = "Bearer $token")
+        return try {
+            val response = apiService.unlinkDevice(serialNumber, "Bearer $token")
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Unlink failed: ${response.code()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun linkDevice(request: LinkDeviceRequest): LinkDeviceResponse {
@@ -130,6 +134,4 @@ class DeviceRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         return apiService.getLedEffects(deviceId, "Bearer $token")
     }
-
-
 }

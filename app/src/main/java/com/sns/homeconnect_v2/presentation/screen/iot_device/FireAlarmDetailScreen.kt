@@ -65,6 +65,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInf
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
@@ -99,6 +100,7 @@ fun FireAlarmDetailScreen(
     deviceId: String,
     deviceName: String,
     serialNumber: String,
+    spaceId: String,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true, // Thêm biến này để xác định chế độ xem chỉ
@@ -119,6 +121,23 @@ fun FireAlarmDetailScreen(
     var pendingPowerStatus by remember { mutableStateOf<Boolean?>(null) }
 
     var isPowerUpdating by remember { mutableStateOf(false) }
+
+
+    val unlinkState by deviceDisplayViewModel.unlinkState.collectAsState()
+
+    LaunchedEffect(unlinkState) {
+        when (val state = unlinkState) {
+            is UnlinkState.Success -> {
+                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+            }
+
+            is UnlinkState.Error -> {
+                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+            }
+
+            else -> {}
+        }
+    }
 
     // Lấy context
     LaunchedEffect(Unit) {
@@ -710,19 +729,38 @@ fun FireAlarmDetailScreen(
                                     dismissText = "Huỷ",
                                     onConfirm = {
                                         showConfirm = false
-
-                                        /* Bật spinner đúng nút */
                                         loadingAction = pendingAction
-//                                        val act = pendingAction          // copy ra để dùng trong coroutine
+                                        val action = pendingAction
                                         pendingAction = null
 
                                         scope.launch {
-                                            delay(1000)                  // gọi API thật tại đây
-                                            val ok = true
-                                            if (ok)  pendingOnSuccess?.invoke("Thành công!")
-                                            else     pendingOnError?.invoke("Thất bại!")
-
-                                            loadingAction = null         // tắt spinner
+                                            when (action) {
+                                                DeviceAction.UNLINK -> {
+                                                    displayViewModel.unlinkDevice(
+                                                        serialNumber = serialNumber
+                                                    )
+                                                }
+                                                DeviceAction.LOCK -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                }
+                                                DeviceAction.RESET -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                }
+                                                DeviceAction.TRANSFER -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                }
+                                                DeviceAction.REPORT_LOST -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                }
+                                                else -> {
+                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                }
+                                            }
+                                            loadingAction = null
                                         }
                                     },
                                     onDismiss = {

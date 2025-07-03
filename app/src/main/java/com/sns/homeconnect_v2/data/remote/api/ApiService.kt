@@ -551,6 +551,11 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Notification
 
+    @DELETE("devices/{serialNumber}")
+    suspend fun unlinkDevice(
+        @Path("serialNumber") serialNumber: String,
+        @Header("Authorization") token: String
+    ): Response<Unit>
 
 //    @POST("spaces")
 //    suspend fun createSpace(

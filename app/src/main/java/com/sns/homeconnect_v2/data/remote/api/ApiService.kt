@@ -554,6 +554,7 @@ interface ApiService {
     @DELETE("devices/{serialNumber}")
     suspend fun unlinkDevice(
         @Path("serialNumber") serialNumber: String,
+        @Query("space_id") spaceId: Int,
         @Header("Authorization") token: String
     ): Response<Unit>
 

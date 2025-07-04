@@ -7,9 +7,9 @@ import javax.inject.Inject
 class UnlinkDeviceUseCase @Inject constructor(
     private val repository: DeviceRepository
 ) {
-    suspend operator fun invoke(serialNumber: String): Result<Unit> {
+    suspend operator fun invoke(serialNumber: String, spaceId: Int): Result<Unit> {
         return try {
-            repository.unlinkDevice(serialNumber)
+            repository.unlinkDevice(serialNumber, spaceId)
         } catch (e: Exception) {
             Result.failure(e)
         }

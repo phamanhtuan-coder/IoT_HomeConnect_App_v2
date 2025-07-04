@@ -166,6 +166,7 @@ sealed class Screens(val route: String) {
             deviceName: String,
             serialNumber: String,
             productId: String,
+            ,
             permissionType: String = "CONTROL"
         ): String =
             listOf(

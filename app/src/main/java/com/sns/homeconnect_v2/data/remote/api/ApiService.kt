@@ -156,12 +156,6 @@ interface ApiService {
         @Body attribute: AttributeRequest,
         @Header("Authorization") token: String
     ): AttributeResponse
-
-    @POST("devices/{deviceId}/unlink")
-    suspend fun unlinkDevice(
-        @Path("deviceId") deviceId: Int,
-        @Header("Authorization") token: String
-    ): UnlinkResponse
   
     @GET("houses/{houseId}")
     suspend fun getHouseId(

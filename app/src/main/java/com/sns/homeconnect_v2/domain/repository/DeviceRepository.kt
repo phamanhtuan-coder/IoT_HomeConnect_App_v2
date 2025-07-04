@@ -33,6 +33,5 @@ interface DeviceRepository {
     suspend fun stopLedEffect(serial_number: String, request: StopLedEffectRequest): DeviceResponse
     suspend fun applyLedPreset(serial_number: String, request: LedPresetRequest): DeviceResponse
     suspend fun getLedEffects(deviceId: String): LedEffectsResponse
-    suspend fun unlinkDevice(serialNumber: String, spaceId: String): Result<Unit>
     suspend fun unlinkDevice(serialNumber: String, spaceId: Int): Result<Unit>
 }

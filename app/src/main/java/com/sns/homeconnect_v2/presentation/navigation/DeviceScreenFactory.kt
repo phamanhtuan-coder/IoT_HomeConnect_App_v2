@@ -17,6 +17,7 @@ object DeviceScreenFactory {
         parentName: String?,
         serialNumber: String,
         product: ProductData,
+        spaceId: Int,
         controls: Map<String, String>,
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
@@ -34,6 +35,7 @@ object DeviceScreenFactory {
                     serialNumber = serialNumber,
                     product = product,
                     controls = controls,
+                    spaceId = spaceId,
                     snackbarViewModel = snackbarViewModel(),
                     isViewOnly = isViewOnly               // ✅ Truyền xuống
                 )
@@ -47,6 +49,7 @@ object DeviceScreenFactory {
                     serialNumber = serialNumber,
                     product = product,
                     controls = controls,
+                    spaceId = spaceId,
                     snackbarViewModel = snackbarViewModel(),
                     isViewOnly = isViewOnly               // ✅ Truyền xuống
                 )

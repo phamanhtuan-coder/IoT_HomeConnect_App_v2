@@ -86,7 +86,7 @@ fun DeviceDetailScreen(
     deviceId: String,
     deviceName: String,
     serialNumber: String,
-    spaceId: String,
+    spaceId: Int,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,
@@ -786,6 +786,7 @@ fun DeviceDetailScreen(
                                                 DeviceAction.UNLINK -> {
                                                     displayViewModel.unlinkDevice(
                                                         serialNumber = serialNumber,
+                                                        spaceId = spaceId
                                                     )
                                                 }
 

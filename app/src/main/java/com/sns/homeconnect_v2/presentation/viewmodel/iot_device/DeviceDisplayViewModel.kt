@@ -165,10 +165,10 @@ class DeviceDisplayViewModel @Inject constructor(
     private val _unlinkState = MutableStateFlow<UnlinkState>(UnlinkState.Idle)
     val unlinkState = _unlinkState.asStateFlow()
 
-    fun unlinkDevice(serialNumber: String) {
+    fun unlinkDevice(serialNumber: String, spaceId: Int) {
         _unlinkState.value = UnlinkState.Loading
         viewModelScope.launch {
-            unlinkDeviceUseCase(serialNumber).fold(
+            unlinkDeviceUseCase(serialNumber, spaceId).fold(
                 onSuccess = {
                     Log.d("DeviceDetailViewModel", "Unlink success")
                     _unlinkState.value = UnlinkState.Success("Đã gỡ thiết bị thành công")

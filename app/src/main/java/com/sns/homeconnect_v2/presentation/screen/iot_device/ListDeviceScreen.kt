@@ -191,7 +191,7 @@ fun ListDeviceScreen(
                                                         deviceName   = device.name.orEmpty(),
                                                         serialNumber = device.serial_number,
                                                         productId    = device.template_id,
-
+                                                        spaceId = device.space_id?:0
                                                     )
                                                 )
                                             },
@@ -245,6 +245,7 @@ fun ListDeviceScreen(
                                                         deviceName   = device.device_name.orEmpty(),
                                                         serialNumber = device.device_serial,
                                                         productId    = device.template_id ?: "",
+                                                        spaceId = 0,
                                                         permissionType = device.permission_type
                                                     )
                                                 )

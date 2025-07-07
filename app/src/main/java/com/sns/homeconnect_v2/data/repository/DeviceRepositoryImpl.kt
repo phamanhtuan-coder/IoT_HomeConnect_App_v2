@@ -10,6 +10,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResponse
@@ -55,12 +56,13 @@ class DeviceRepositoryImpl @Inject constructor(
         return apiService.updateAttributes(deviceId, attributeRequest, token = "Bearer $token")
     }
 
-    override suspend fun unlinkDevice(serialNumber: String, spaceId: Int): Result<Unit> {
+    override suspend fun unlinkDevice(serialNumber: String, groupId: Int): Result<Unit> {
         val token = authManager.getJwtToken()
+        val body = UnlinkDeviceRequest(groupId)
         return try {
-            val response = apiService.unlinkDevice(serialNumber, spaceId, "Bearer $token")
+            val response = apiService.unlinkDevice(serialNumber, body, "Bearer $token")
             if (response.isSuccessful) Result.success(Unit)
-            else Result.failure(Exception("Unlink failed: ${response.code()}"))
+            else Result.failure(Exception("Unlink failed: ${response.code()} - ${response.errorBody()?.string()}"))
         } catch (e: Exception) {
             Result.failure(e)
         }

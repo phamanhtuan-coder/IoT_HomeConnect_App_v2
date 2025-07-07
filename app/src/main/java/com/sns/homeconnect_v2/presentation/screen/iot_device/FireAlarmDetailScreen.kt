@@ -100,7 +100,7 @@ fun FireAlarmDetailScreen(
     deviceId: String,
     deviceName: String,
     serialNumber: String,
-    spaceId: Int ,
+    groupId: Int ,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true, // Thêm biến này để xác định chế độ xem chỉ
@@ -738,7 +738,7 @@ fun FireAlarmDetailScreen(
                                                 DeviceAction.UNLINK -> {
                                                     displayViewModel.unlinkDevice(
                                                         serialNumber = serialNumber,
-                                                        spaceId = spaceId
+                                                        groupId= groupId
                                                     )
                                                 }
                                                 DeviceAction.LOCK -> {

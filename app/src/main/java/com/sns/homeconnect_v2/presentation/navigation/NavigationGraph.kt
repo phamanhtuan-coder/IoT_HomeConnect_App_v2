@@ -392,7 +392,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     navArgument("deviceName") { type = NavType.StringType },
                     navArgument("serialNumber") { type = NavType.StringType },
                     navArgument("productId") { type = NavType.StringType },
-                    navArgument("spaceId") {type = NavType.IntType},
+                    navArgument("groupId") {type = NavType.IntType},
                     navArgument("permissionType") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
@@ -400,7 +400,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 val deviceName     = backStackEntry.arguments?.getString("deviceName") ?: ""
                 val serialNumber   = backStackEntry.arguments?.getString("serialNumber") ?: ""
                 val productId      = backStackEntry.arguments?.getString("productId") ?: ""
-                val spaceId        = backStackEntry.arguments?.getInt("spaceId")
+                val groupId        = backStackEntry.arguments?.getInt("groupId")
                 val permissionType = backStackEntry.arguments?.getString("permissionType") ?: "CONTROL"
                 val isViewOnly     = permissionType.uppercase() == "VIEW"
 
@@ -410,7 +410,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     serialNumber = serialNumber,
                     productId = productId,
                     isViewOnly = isViewOnly,
-                    spaceId = spaceId?:0,
+                    groupId = groupId?:0,
                     navController = navController
                 )
             }

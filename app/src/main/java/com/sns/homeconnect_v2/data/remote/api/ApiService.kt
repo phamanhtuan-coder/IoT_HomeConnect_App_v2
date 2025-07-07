@@ -51,6 +51,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
@@ -545,10 +546,10 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Notification
 
-    @DELETE("devices/{serialNumber}")
+    @HTTP(method = "DELETE", path = "devices/{serialNumber}", hasBody = true)
     suspend fun unlinkDevice(
         @Path("serialNumber") serialNumber: String,
-        @Query("space_id") spaceId: Int,
+        @Body request: UnlinkDeviceRequest,
         @Header("Authorization") token: String
     ): Response<Unit>
 

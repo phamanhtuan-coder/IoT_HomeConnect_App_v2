@@ -71,6 +71,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedEffectViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedUiState
@@ -94,19 +95,6 @@ fun DeviceDetailScreen(
 ) {
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
     val unlinkState by displayViewModel.unlinkState.collectAsState()
-
-    LaunchedEffect(unlinkState) {
-        when (val state = unlinkState) {
-            is com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState.Success -> {
-                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
-            }
-            is com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState.Error -> {
-                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
-            }
-            else -> {}
-        }
-    }
-
 
     // Lấy thông tin chi tiết thiết bị
     val ledViewModel: LedEffectViewModel = hiltViewModel()
@@ -286,6 +274,27 @@ fun DeviceDetailScreen(
             else -> Unit
         }
     }
+
+    LaunchedEffect(unlinkState) {
+        when (val state = unlinkState) {
+            is UnlinkState.Success -> {
+                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+                pendingOnSuccess?.invoke(state.message)
+                pendingOnSuccess = null
+                loadingAction = null
+                navController.popBackStack()
+            }
+            is UnlinkState.Error -> {
+                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                pendingOnError?.invoke(state.error)
+                pendingOnError = null
+                loadingAction = null
+            }
+            else -> {}
+        }
+    }
+
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme

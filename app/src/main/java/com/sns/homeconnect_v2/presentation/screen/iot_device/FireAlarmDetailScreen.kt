@@ -122,6 +122,9 @@ fun FireAlarmDetailScreen(
 
     var isPowerUpdating by remember { mutableStateOf(false) }
 
+    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var loadingAction    by remember { mutableStateOf<DeviceAction?>(null) }
 
     val unlinkState by deviceDisplayViewModel.unlinkState.collectAsState()
 
@@ -129,12 +132,17 @@ fun FireAlarmDetailScreen(
         when (val state = unlinkState) {
             is UnlinkState.Success -> {
                 snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+                pendingOnSuccess?.invoke(state.message)    // ✅ báo nút dừng
+                pendingOnSuccess = null
+                loadingAction     = null               // ✅ tắt spinner
+                navController.popBackStack()
             }
-
             is UnlinkState.Error -> {
                 snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                pendingOnError?.invoke(state.error)
+                pendingOnError  = null
+                loadingAction   = null
             }
-
             else -> {}
         }
     }
@@ -210,10 +218,6 @@ fun FireAlarmDetailScreen(
 
     /* ---------- 2. STATE DÙNG CHUNG ---------- */
     var pendingAction      by remember { mutableStateOf<DeviceAction?>(null) }
-    var loadingAction      by remember { mutableStateOf<DeviceAction?>(null) }
-
-    var pendingOnSuccess   by remember { mutableStateOf<((String) -> Unit)?>(null) }
-    var pendingOnError     by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     var confirmTitle       by remember { mutableStateOf("") }
     var confirmMessage     by remember { mutableStateOf("") }
@@ -736,6 +740,7 @@ fun FireAlarmDetailScreen(
                                         scope.launch {
                                             when (action) {
                                                 DeviceAction.UNLINK -> {
+                                                    loadingAction = DeviceAction.UNLINK
                                                     displayViewModel.unlinkDevice(
                                                         serialNumber = serialNumber,
                                                         groupId= groupId

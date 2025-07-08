@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sns.homeconnect_v2.presentation.model.FeatureButtonItem
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 
 @Composable
 fun FeatureButtonRow(
@@ -34,10 +35,14 @@ fun FeatureButtonRow(
 @Composable
 fun FeatureButtonRowPreview() {
     val items = listOf(
-        FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {},
+        FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {
+        },
         FeatureButtonItem(Icons.Default.Wifi, "Kết nối Wifi") {},
-        FeatureButtonItem(Icons.Default.Upload, "Chia sẻ thiết bị") {},
-        FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {}
+        FeatureButtonItem(Icons.Default.Upload, "Chia sẻ thiết bị") {
+        },
+        FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {
+
+        }
     )
     FeatureButtonRow(items = items, modifier = Modifier.padding(vertical = 8.dp))
 }

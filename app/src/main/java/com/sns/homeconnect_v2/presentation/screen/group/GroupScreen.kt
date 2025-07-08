@@ -12,7 +12,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
@@ -102,31 +104,6 @@ fun GroupScreen(
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        val fabChildren = listOf(
-            FabChild(
-                icon = Icons.Default.Edit,
-                onClick = { /* TODO: chỉnh sửa nhóm */ },
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            ),
-            FabChild(
-                icon = Icons.Default.Delete,
-                onClick = {
-                    snackbarViewModel.showSnackbar(
-                        msg = "Vui lòng chọn một nhóm để xóa",
-                        variant = SnackbarVariant.WARNING
-                    )
-                },
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            ),
-            FabChild(
-                icon = Icons.Default.Share,
-                onClick = { /* TODO: chia sẻ nhóm */ },
-                containerColor = colorScheme.primary,
-                contentColor = colorScheme.onPrimary
-            )
-        )
 
         Scaffold(
             topBar = {
@@ -138,13 +115,27 @@ fun GroupScreen(
             },
             containerColor = Color.White,
             floatingActionButton = {
-                RadialFab(
-                    items = fabChildren,
-                    radius = 120.dp,
-                    startDeg = -90f,
-                    sweepDeg = -90f,
-                    onParentClick = { /* TODO: thêm nhóm mới */ }
-                )
+                FloatingActionButton(
+                    onClick = {
+                        snackbarViewModel.showSnackbar("Đã nhấn nút thêm!")
+                        navController.navigate(Screens.CreateGroup.route)
+                    },
+                    containerColor = colorScheme.primary ?: Color(0xFF6200EE),
+                    contentColor = colorScheme.onPrimary ?: Color.White,
+                    modifier = Modifier.size(60.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = "+",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = colorScheme.onPrimary ?: Color.White
+                        )
+                    }
+                }
             },
             floatingActionButtonPosition = FabPosition.End,
             bottomBar = {

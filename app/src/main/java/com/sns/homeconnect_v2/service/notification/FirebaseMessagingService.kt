@@ -27,6 +27,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var sendFcmTokenUseCase: SendFcmTokenUseCase
 
     override fun onNewToken(token: String) {
+        Log.d("MyFirebaseMessaging", "🔥 Token mới: $token")
         super.onNewToken(token)
         getSharedPreferences("app_prefs", MODE_PRIVATE).edit {
             putString("FCM_TOKEN", token)

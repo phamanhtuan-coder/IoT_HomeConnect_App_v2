@@ -6,7 +6,7 @@ import io.socket.client.Socket
 import org.json.JSONObject
 
 object SocketManager {
-    private const val BASE_SOCKET_URL = "http://10.0.2.2:7777"
+    private const val BASE_SOCKET_URL = "https://iothomeconnectapiv2-production.up.railway.app"
 
     private lateinit var socket: Socket
 

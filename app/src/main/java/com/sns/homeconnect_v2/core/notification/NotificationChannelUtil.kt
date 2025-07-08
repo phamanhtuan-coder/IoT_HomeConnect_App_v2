@@ -20,7 +20,7 @@ object NotificationChannelUtil {
 
             val channel = NotificationChannel(
                 "homeconnect_warning",
-                "Cảnh báo",
+                "Cảnh báo thiết bị",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = "Kênh thông báo cảnh báo nguy hiểm/khẩn cấp"

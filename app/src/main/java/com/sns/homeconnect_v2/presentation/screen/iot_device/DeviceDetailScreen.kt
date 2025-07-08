@@ -71,6 +71,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedEffectViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedUiState
@@ -86,12 +87,14 @@ fun DeviceDetailScreen(
     deviceId: String,
     deviceName: String,
     serialNumber: String,
+    groupId: Int,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel
 ) {
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    val unlinkState by displayViewModel.unlinkState.collectAsState()
 
     // Lấy thông tin chi tiết thiết bị
     val ledViewModel: LedEffectViewModel = hiltViewModel()
@@ -271,6 +274,27 @@ fun DeviceDetailScreen(
             else -> Unit
         }
     }
+
+    LaunchedEffect(unlinkState) {
+        when (val state = unlinkState) {
+            is UnlinkState.Success -> {
+                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+                pendingOnSuccess?.invoke(state.message)
+                pendingOnSuccess = null
+                loadingAction = null
+                navController.popBackStack()
+            }
+            is UnlinkState.Error -> {
+                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                pendingOnError?.invoke(state.error)
+                pendingOnError = null
+                loadingAction = null
+            }
+            else -> {}
+        }
+    }
+
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -562,7 +586,7 @@ fun DeviceDetailScreen(
                                             pendingOnSuccess = onS
                                             pendingOnError = onE
                                             confirmTitle = "Gỡ kết nối"
-                                            confirmMessage = "Bạn muốn gỡ kết nối!"
+                                            confirmMessage = "Bạn có chắc chắn muốn gỡ thiết bị này không?"
                                             pendingAction = DeviceAction.UNLINK
                                             showConfirm = true
                                         },
@@ -762,15 +786,47 @@ fun DeviceDetailScreen(
                                     dismissText = "Huỷ",
                                     onConfirm = {
                                         showConfirm = false
-
                                         loadingAction = pendingAction
+                                        val action = pendingAction
                                         pendingAction = null
 
                                         scope.launch {
-                                            delay(1000)
-                                            val ok = true
-                                            if (ok) pendingOnSuccess?.invoke("Thành công!")
-                                            else pendingOnError?.invoke("Thất bại!")
+                                            when (action) {
+                                                DeviceAction.UNLINK -> {
+                                                    displayViewModel.unlinkDevice(
+                                                        serialNumber = serialNumber,
+                                                        groupId = groupId
+                                                    )
+                                                }
+
+                                                DeviceAction.LOCK -> {
+                                                    // TODO: Gọi API khoá thiết bị nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                }
+
+                                                DeviceAction.RESET -> {
+                                                    // TODO: Gọi API reset thiết bị nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                }
+
+                                                DeviceAction.TRANSFER -> {
+                                                    // TODO: Gọi API chuyển quyền nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                }
+
+                                                DeviceAction.REPORT_LOST -> {
+                                                    // TODO: Gọi API báo mất nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                }
+
+                                                else -> {
+                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                }
+                                            }
 
                                             loadingAction = null
                                         }
@@ -781,6 +837,7 @@ fun DeviceDetailScreen(
                                     }
                                 )
                             }
+
                         }
                     }
                 }

@@ -36,14 +36,6 @@ sealed class AttributeState {
     data class Success(val message: String, val device: DeviceResponse) : AttributeState()
     data class Error(val error: String) : AttributeState()
 }
-
-sealed class UnlinkState {
-    data object Idle : UnlinkState()               // Chưa làm gì
-    data object Loading : UnlinkState()           // Đang loading
-    data class Success(val message: String) : UnlinkState()
-    data class Error(val error: String) : UnlinkState()
-}
-
 //sealed class CalculationState {
 //    data object Idle : CalculationState()
 //    data object Loading : CalculationState()
@@ -68,7 +60,6 @@ class DeviceDetailViewModel @Inject constructor(
     private val getInfoDeviceUseCase: GetInfoDeviceUseCase,
     private val toggleDeviceUseCase: ToggleDeviceUseCase,
     private val attributeDeviceUseCase: AttributeDeviceUseCase,
-    private val unlinkDeviceUseCase: UnlinkDeviceUseCase,
 ) : ViewModel() {
     private val _infoDeviceState = MutableStateFlow<GetInfoDeviceState>(GetInfoDeviceState.Idle)
     val infoDeviceState = _infoDeviceState.asStateFlow()
@@ -125,25 +116,6 @@ class DeviceDetailViewModel @Inject constructor(
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
                     _attributeState.value =
                         AttributeState.Error(e.message ?: "Lỗi khi cập nhật thuộc tính thiết bị!")
-                }
-            )
-        }
-    }
-
-    private val _unlinkState = MutableStateFlow<UnlinkState>(UnlinkState.Idle)
-    val unlinkState = _unlinkState.asStateFlow()
-
-    fun unlinkDevice(deviceId: Int) {
-        _unlinkState.value = UnlinkState.Loading
-        viewModelScope.launch {
-            unlinkDeviceUseCase(deviceId).fold(
-                onSuccess = { response ->
-                    Log.d("DeviceDetailViewModel", "Success: $response")
-                    _unlinkState.value = UnlinkState.Success(response.message)
-                },
-                onFailure = { e ->
-                    Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _unlinkState.value = UnlinkState.Error(e.message ?: "Lỗi khi xóa thiết bị!")
                 }
             )
         }

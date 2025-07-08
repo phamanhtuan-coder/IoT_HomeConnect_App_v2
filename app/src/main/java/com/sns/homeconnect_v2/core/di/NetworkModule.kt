@@ -53,7 +53,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    @Named("HomeConnectEcomUrl") // BẮT BUỘC PHẢI CÓ TRÊN RETURN VALUE
+    @Named("HomeConnectEcomUrl")
     fun provideEcomApiService(
         @Named("HomeConnectEcomUrl") retrofit: Retrofit
     ): EcomApiService {

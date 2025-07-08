@@ -29,19 +29,10 @@ sealed class ToggleState {
     data class Error(val error: String) : ToggleState()
 }
 
-sealed class UnlinkState {
-    data object Idle : UnlinkState()               // Chưa làm gì
-    data object Loading : UnlinkState()           // Đang loading
-    data class Success(val message: String) : UnlinkState()
-    data class Error(val error: String) : UnlinkState()
-}
-
-
 @HiltViewModel
 class FireAlarmDetailViewModel @Inject constructor(
     private val getInfoDeviceUseCase: GetInfoDeviceUseCase,
-    private val toggleDeviceUseCase: ToggleDeviceUseCase,
-    private val unlinkDeviceUseCase: UnlinkDeviceUseCase,
+    private val toggleDeviceUseCase: ToggleDeviceUseCase
 ) : ViewModel() {
 
 
@@ -83,25 +74,6 @@ class FireAlarmDetailViewModel @Inject constructor(
                     Log.e("DeviceDetailViewModel", "Error: ${e.message}")
                     _toggleState.value =
                         ToggleState.Error(e.message ?: "Lỗi khi cập nhật trạng thái thiết bị!")
-                }
-            )
-        }
-    }
-
-    private val _unlinkState = MutableStateFlow<UnlinkState>(UnlinkState.Idle)
-    val unlinkState = _unlinkState.asStateFlow()
-
-    fun unlinkDevice(deviceId: Int) {
-        _unlinkState.value = UnlinkState.Loading
-        viewModelScope.launch {
-            unlinkDeviceUseCase(deviceId).fold(
-                onSuccess = { response ->
-                    Log.d("DeviceDetailViewModel", "Success: $response")
-                    _unlinkState.value = UnlinkState.Success(response.message)
-                },
-                onFailure = { e ->
-                    Log.e("DeviceDetailViewModel", "Error: ${e.message}")
-                    _unlinkState.value = UnlinkState.Error(e.message ?: "Lỗi khi xóa thiết bị!")
                 }
             )
         }

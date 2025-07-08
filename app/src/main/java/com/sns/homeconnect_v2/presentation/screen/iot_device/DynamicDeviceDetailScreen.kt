@@ -22,6 +22,7 @@ fun DynamicDeviceDetailScreen(
     deviceName: String,
     serialNumber: String,
     productId: String,
+    groupId: Int,
     isViewOnly: Boolean,
     navController: NavHostController,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
@@ -80,6 +81,7 @@ fun DynamicDeviceDetailScreen(
                 deviceName = deviceName,
                 parentName = parentName,
                 serialNumber = serialNumber,
+                groupId = groupId,
                 product = product,
                 controls = controlsMap,
                 snackbarViewModel = { snackbarViewModel }

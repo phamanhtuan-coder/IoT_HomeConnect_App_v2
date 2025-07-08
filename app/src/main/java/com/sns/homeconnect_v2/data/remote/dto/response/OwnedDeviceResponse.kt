@@ -7,6 +7,7 @@ data class OwnedDeviceResponse(
     val serial_number: String,
     val template_id: String,
     val space_id: Int?,
+    val group_id: Int?,
     val account_id: String?,
     val hub_id: String?,
     val firmware_id: String?,

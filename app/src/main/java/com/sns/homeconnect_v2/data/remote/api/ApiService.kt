@@ -51,6 +51,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
@@ -156,12 +157,6 @@ interface ApiService {
         @Body attribute: AttributeRequest,
         @Header("Authorization") token: String
     ): AttributeResponse
-
-    @POST("devices/{deviceId}/unlink")
-    suspend fun unlinkDevice(
-        @Path("deviceId") deviceId: Int,
-        @Header("Authorization") token: String
-    ): UnlinkResponse
   
     @GET("houses/{houseId}")
     suspend fun getHouseId(
@@ -551,6 +546,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Notification
 
+    @HTTP(method = "DELETE", path = "devices/{serialNumber}", hasBody = true)
+    suspend fun unlinkDevice(
+        @Path("serialNumber") serialNumber: String,
+        @Body request: UnlinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): Response<Unit>
 
 //    @POST("spaces")
 //    suspend fun createSpace(

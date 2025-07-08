@@ -5,12 +5,11 @@ import com.sns.homeconnect_v2.domain.repository.DeviceRepository
 import javax.inject.Inject
 
 class UnlinkDeviceUseCase @Inject constructor(
-    private val deviceRepository: DeviceRepository
+    private val repository: DeviceRepository
 ) {
-    suspend operator fun invoke(deviceId: Int): Result<UnlinkResponse> {
+    suspend operator fun invoke(serialNumber: String, spaceId: Int): Result<Unit> {
         return try {
-            val response = deviceRepository.unlinkDevice(deviceId)
-            Result.success(response)
+            repository.unlinkDevice(serialNumber, spaceId)
         } catch (e: Exception) {
             Result.failure(e)
         }

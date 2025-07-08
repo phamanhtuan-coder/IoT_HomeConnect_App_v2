@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.google.gson.Gson
+import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -49,6 +51,7 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.ShareDevice
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
 import com.sns.homeconnect_v2.ticket_screen.TicketListScreen
+import java.net.URLDecoder
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,
@@ -392,6 +395,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     navArgument("deviceName") { type = NavType.StringType },
                     navArgument("serialNumber") { type = NavType.StringType },
                     navArgument("productId") { type = NavType.StringType },
+                    navArgument("groupId") {type = NavType.IntType},
                     navArgument("permissionType") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
@@ -399,6 +403,7 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 val deviceName     = backStackEntry.arguments?.getString("deviceName") ?: ""
                 val serialNumber   = backStackEntry.arguments?.getString("serialNumber") ?: ""
                 val productId      = backStackEntry.arguments?.getString("productId") ?: ""
+                val groupId        = backStackEntry.arguments?.getInt("groupId")
                 val permissionType = backStackEntry.arguments?.getString("permissionType") ?: "CONTROL"
                 val isViewOnly     = permissionType.uppercase() == "VIEW"
 
@@ -408,7 +413,9 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     serialNumber = serialNumber,
                     productId = productId,
                     isViewOnly = isViewOnly,
-                    navController = navController
+                    groupId = groupId?:0,
+                    navController = navController,
+                    snackbarViewModel = snackbarViewModel
                 )
             }
 
@@ -451,7 +458,6 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     snackbarViewModel = snackbarViewModel
                 )
             }
-
         }
     }
 }

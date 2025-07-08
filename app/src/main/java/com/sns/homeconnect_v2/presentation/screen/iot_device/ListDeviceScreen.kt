@@ -101,64 +101,6 @@ fun ListDeviceScreen(
         deviceSharingViewModel.getSharedDevicesForUser()
     }
 
-
-//    val ownedDevices = remember {
-//        mutableStateListOf(
-//            DeviceUi(1, "Gia đình", "bedroom", false, Icons.Default.Group, Color.Blue),
-//            DeviceUi(2, "Marketing", "living room", false, Icons.Default.Home, Color.Red),
-//            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green),
-//            DeviceUi(4, "Tài chính", "office", false, Icons.Default.Info, Color.Magenta),
-//            DeviceUi(5, "Quản lý", "garage", false, Icons.Default.Settings, Color.Gray),
-//            DeviceUi(6, "Sản xuất", "bathroom", false, Icons.Default.Star, Color.Cyan),
-//            DeviceUi(7, "Kế toán", "dining room", false, Icons.Default.Home, Color.Yellow),
-//            DeviceUi(8, "Nhân sự", "bedroom", false, Icons.Default.Group, Color.LightGray),
-//            DeviceUi(9, "Kho vận", "living room", false, Icons.Default.Info, Color.Blue),
-//            DeviceUi(10, "Kinh doanh", "office", false, Icons.Default.Star, Color.Red),
-//            DeviceUi(11, "Chăm sóc KH", "kitchen", false, Icons.Default.Group, Color.Green),
-//            DeviceUi(12, "Thiết kế", "studio", false, Icons.Default.Settings, Color.Magenta),
-//            DeviceUi(13, "Ban giám đốc", "bedroom", false, Icons.Default.Group, Color.Cyan),
-//            DeviceUi(14, "PR", "conference", false, Icons.Default.Home, Color.Blue),
-//            DeviceUi(15, "Đối ngoại", "office", false, Icons.Default.Info, Color.Red),
-//            DeviceUi(16, "CNTT", "server room", false, Icons.Default.Settings, Color.Gray)
-//        )
-//    }
-
-
-//    var selectedTabIndex by remember { mutableIntStateOf(0) }
-//    var spaces by remember { mutableStateOf<List<SpaceResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
-//    val spacesListState by deviceViewModel.spacesListState.collectAsState()
-//    when (spacesListState) {
-//        is SpaceState.Error -> {
-//            Log.d("Error", (spacesListState as SpaceState.Error).error)
-//        }
-//
-//        is SpaceState.Success -> {
-//            spaces = (spacesListState as SpaceState.Success).spacesList
-//            Log.d("List Device", (spacesListState as SpaceState.Success).spacesList.toString())
-//            if (selectedTabIndex == 0) {
-//                deviceViewModel.getDevicesBySpaceId(spaces.first().SpaceID)
-//            }
-//        }
-//
-//        else -> {/* Do nothing */
-//        }
-//    }
-//    var devices by remember { mutableStateOf<List<DeviceResponse>>(emptyList()) } // Lắng nghe danh sách thiết bị
-//    val deviceListState by deviceViewModel.deviceListState.collectAsState()
-//    when (deviceListState) {
-//        is DeviceState.Error -> {
-//            Log.d("Error", (deviceListState as DeviceState.Error).error)
-//        }
-//
-//        is DeviceState.Success -> {
-//            devices = (deviceListState as DeviceState.Success).deviceList
-//            Log.d("List Device", (deviceListState as DeviceState.Success).deviceList.toString())
-//        }
-//
-//        else -> {/* Do nothing */
-//        }
-//    }
-
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
 
@@ -248,7 +190,8 @@ fun ListDeviceScreen(
                                                         deviceId     = device.device_id,
                                                         deviceName   = device.name.orEmpty(),
                                                         serialNumber = device.serial_number,
-                                                        productId    = device.template_id
+                                                        productId    = device.template_id,
+                                                        groupId = device.group_id?:0
                                                     )
                                                 )
                                             },
@@ -302,6 +245,7 @@ fun ListDeviceScreen(
                                                         deviceName   = device.device_name.orEmpty(),
                                                         serialNumber = device.device_serial,
                                                         productId    = device.template_id ?: "",
+                                                        groupId = 0,
                                                         permissionType = device.permission_type
                                                     )
                                                 )

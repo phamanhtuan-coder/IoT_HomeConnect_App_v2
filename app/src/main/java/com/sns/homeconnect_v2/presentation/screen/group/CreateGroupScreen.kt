@@ -41,9 +41,7 @@ fun CreateGroupScreen(
         is CreateGroupState.Success -> {
             LaunchedEffect(Unit) {
                 snackbarViewModel.showSnackbar("Thêm nhóm thành cộng!", SnackbarVariant.SUCCESS)
-                navController.navigate("home") {
-                    popUpTo("create_group") { inclusive = true }
-                }
+                navController.popBackStack()
             }
         }
 

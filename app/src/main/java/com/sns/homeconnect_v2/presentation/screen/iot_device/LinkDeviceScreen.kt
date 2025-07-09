@@ -206,7 +206,7 @@ fun LinkDeviceScreen(
                                     deviceId = it
                                     deviceIdError = ValidationUtils.validateDeviceId(it)
                                 },
-                                placeholderText = "ID Thiết bị",
+                                placeholderText = "Serial number Thiết bị",
                                 leadingIcon = Icons.Default.Devices,
                                 modifier = Modifier
                                     .height(56.dp)
@@ -327,6 +327,6 @@ fun LinkDeviceScreenPreview() {
     val navController = rememberNavController()
     LinkDeviceScreen(
         navController = navController,
-        snackbarViewModel = SnackbarViewModel() // ⛔️ nếu không có constructor thì tạo 1 mock ViewModel riêng
+        snackbarViewModel = SnackbarViewModel()
     )
 }

@@ -261,13 +261,13 @@ fun DeviceDetailScreen(
     LaunchedEffect(updateState) {
         when (val st = updateState) {
             is UpdateDeviceStateBulkUiState.Success -> {
-                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Cập nhật trạng thái thành cộng", SnackbarVariant.SUCCESS)
                 isSendingToggle = false
                 // refresh lại trạng thái
                 displayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
-                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Cập nhật trạng thái thất bại", SnackbarVariant.ERROR)
                 isSendingToggle = false
                 pendingToggle   = null
             }
@@ -278,15 +278,14 @@ fun DeviceDetailScreen(
     LaunchedEffect(unlinkState) {
         when (val state = unlinkState) {
             is UnlinkState.Success -> {
-                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
                 pendingOnSuccess?.invoke(state.message)
                 pendingOnSuccess = null
                 loadingAction = null
                 navController.popBackStack()
             }
             is UnlinkState.Error -> {
-                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
-                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
                 pendingOnError?.invoke(state.error)
                 pendingOnError = null
                 loadingAction = null

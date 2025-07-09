@@ -131,14 +131,14 @@ fun FireAlarmDetailScreen(
     LaunchedEffect(unlinkState) {
         when (val state = unlinkState) {
             is UnlinkState.Success -> {
-                snackbarViewModel.showSnackbar(state.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
                 pendingOnSuccess?.invoke(state.message)    // ✅ báo nút dừng
                 pendingOnSuccess = null
                 loadingAction     = null               // ✅ tắt spinner
                 navController.popBackStack()
             }
             is UnlinkState.Error -> {
-                snackbarViewModel.showSnackbar(state.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
                 pendingOnError?.invoke(state.error)
                 pendingOnError  = null
                 loadingAction   = null
@@ -178,12 +178,12 @@ fun FireAlarmDetailScreen(
     LaunchedEffect(updateBulkUiState) {
         when (val st = updateBulkUiState) {
             is UpdateDeviceStateBulkUiState.Success -> {
-                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Cập nhật thành cộng", SnackbarVariant.SUCCESS)
                 isPowerUpdating = false                // mở khóa Switch
                 deviceDisplayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
-                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Cập nhật thất bại", SnackbarVariant.ERROR)
                 isPowerUpdating  = false               // mở khóa
                 pendingPowerStatus = null              // hủy lệnh chờ
             }

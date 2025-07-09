@@ -206,6 +206,7 @@ fun LinkDeviceScreen(
                                     deviceId = it
                                     deviceIdError = ValidationUtils.validateDeviceId(it)
                                 },
+
                                 placeholderText = "Serial number Thiết bị",
                                 leadingIcon = Icons.Default.Devices,
                                 modifier = Modifier

@@ -30,7 +30,7 @@ object NetworkModule {
     @Named("HomeConnectEcomUrl")
     fun provideHomeConnectEcomUrl(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8081/api/")
+            .baseUrl("https://sns-e-com-backend.up.railway.app/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

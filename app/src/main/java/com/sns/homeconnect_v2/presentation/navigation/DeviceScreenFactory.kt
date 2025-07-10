@@ -27,7 +27,7 @@ object DeviceScreenFactory {
         Log.d("CHECK", "parentName='$parentName', normalized='$normalized', isViewOnly=$isViewOnly, controls=$controls")
 
         return when {
-            normalized == "đèn" -> { navController ->
+            normalized == "Đèn Led" -> { navController ->
                 DeviceDetailScreen(
                     navController = navController,
                     deviceId = deviceId,

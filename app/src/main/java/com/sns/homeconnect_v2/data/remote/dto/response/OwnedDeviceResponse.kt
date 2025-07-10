@@ -13,6 +13,8 @@ data class OwnedDeviceResponse(
     val firmware_id: String?,
     val name: String?,
     val power_status: Boolean,
+    val device_type_name: String?,
+    val device_type_parent_name: String?,
     val attribute: JsonElement?,         // hoặc Map<String, Any>?
     val wifi_ssid: String?,
     val wifi_password: String?,

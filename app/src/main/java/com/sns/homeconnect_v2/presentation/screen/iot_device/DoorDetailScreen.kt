@@ -29,13 +29,14 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 fun DoorDetailScreen(
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
     /* ---------- STATE ---------- */
-    var doorType by remember { mutableStateOf(DoorType.SLIDING) }
+    var doorType by remember { mutableStateOf(DoorType.TRADITIONAL) }
     var isOpen   by remember { mutableStateOf(false) }
 
     var powerStatusUI by remember { mutableStateOf(false) }
@@ -202,18 +203,4 @@ fun DoorDetailScreen(
             }
         )
     }
-}
-
-/* ---------------- PREVIEW ---------------- */
-@Preview(showBackground = true)
-@Composable
-private fun DoorDetailScreenPreview() {
-    DoorDetailScreen(
-        deviceId = "DEVICE001",
-        deviceName = "Cửa chính",
-        serialNumber = "SERIAL123456",
-        controls = mapOf("power_status" to "toggle"),
-        isViewOnly = true,
-        snackbarViewModel = remember { SnackbarViewModel() }
-    )
 }

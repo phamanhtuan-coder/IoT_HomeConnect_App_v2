@@ -99,6 +99,7 @@ fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
     groupId: Int ,
     product: ProductData,

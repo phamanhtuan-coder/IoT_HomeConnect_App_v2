@@ -396,7 +396,9 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     navArgument("serialNumber") { type = NavType.StringType },
                     navArgument("productId") { type = NavType.StringType },
                     navArgument("groupId") {type = NavType.IntType},
-                    navArgument("permissionType") { type = NavType.StringType }
+                    navArgument("permissionType") { type = NavType.StringType },
+                    navArgument("deviceTypeName") { type = NavType.StringType; nullable = true },
+                    navArgument("deviceTypeParentName") { type = NavType.StringType; nullable = true }
                 )
             ) { backStackEntry ->
                 val deviceId       = backStackEntry.arguments?.getString("deviceId") ?: ""
@@ -406,6 +408,8 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                 val groupId        = backStackEntry.arguments?.getInt("groupId")
                 val permissionType = backStackEntry.arguments?.getString("permissionType") ?: "CONTROL"
                 val isViewOnly     = permissionType.uppercase() == "VIEW"
+                val deviceTypeName        = backStackEntry.arguments?.getString("deviceTypeName")
+                val deviceTypeParentName  = backStackEntry.arguments?.getString("deviceTypeParentName")
 
                 DynamicDeviceDetailScreen(
                     deviceId = deviceId,
@@ -413,9 +417,11 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     serialNumber = serialNumber,
                     productId = productId,
                     isViewOnly = isViewOnly,
-                    groupId = groupId?:0,
+                    groupId = groupId ?: 0,
                     navController = navController,
-                    snackbarViewModel = snackbarViewModel
+                    snackbarViewModel = snackbarViewModel,
+                    deviceTypeName = deviceTypeName,
+                    deviceTypeParentName = deviceTypeParentName
                 )
             }
 

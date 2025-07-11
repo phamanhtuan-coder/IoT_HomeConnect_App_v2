@@ -37,100 +37,24 @@ fun DynamicDeviceDetailScreen(
     capabilitiesViewModel: DeviceCapabilitiesViewModel = hiltViewModel()
 ) {
     val alreadyHasTypeInfo = !deviceTypeName.isNullOrBlank() && !deviceTypeParentName.isNullOrBlank()
+    Log.d("CHECK", "deviceTypeName=$deviceTypeName, deviceTypeParentName=$deviceTypeParentName")
 
-    if (alreadyHasTypeInfo) {
-        val displayState by displayViewModel.displayState.collectAsState()
-
-        if (displayState is DeviceDisplayInfoState.Success) {
-            val product = (displayState as DeviceDisplayInfoState.Success).product
-            val controlsMap = mapOf("permission_type" to if (isViewOnly) "VIEW" else "CONTROL")
-
-            val screen = DeviceScreenFactory.getScreen(
-                deviceId = deviceId,
-                deviceName = deviceName,
-                deviceTypeName = deviceTypeName,
-                deviceTypeParentName = deviceTypeParentName,
-                serialNumber = serialNumber,
-                groupId = groupId,
-                product = product,
-                controls = controlsMap,
-                snackbarViewModel = { snackbarViewModel }
-            )
-            screen(navController)
-            return
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-
-            // ⏲ Timeout sau 3 giây nếu vẫn chưa Success thì quay lại màn list
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(3000)
-                val currentState = displayViewModel.displayState.value
-                if (currentState !is DeviceDisplayInfoState.Success) {
-                    Log.d("CHECK", "Timeout loading, điều hướng về ListDevices")
-                    navController.navigate(Screens.ListDevices.route) {
-                        popUpTo(Screens.ListDevices.route) { inclusive = true }
-                    }
-                }
-            }
-
-            return
-        }
-    }
-
-
-    // 🔹 Nếu chưa có thông tin → Gọi ViewModel để lấy như bình thường
-    val capabilitiesState by capabilitiesViewModel.uiState.collectAsState()
     val displayState by displayViewModel.displayState.collectAsState()
+    val capabilitiesState by capabilitiesViewModel.uiState.collectAsState()
 
-    Log.d("CHECK", "Gọi ViewModel: deviceId=$deviceId, productId=$productId")
-
+    // ✅ Gọi ViewModel nếu chưa có dữ liệu
     LaunchedEffect(productId, deviceId, serialNumber) {
-        displayViewModel.fetchDisplayInfo(productId)
-        capabilitiesViewModel.loadCapabilities(deviceId, serialNumber)
+        if (displayState !is DeviceDisplayInfoState.Success &&
+            displayState !is DeviceDisplayInfoState.Loading) {
+            displayViewModel.fetchDisplayInfo(productId)
+        }
+        if (capabilitiesState !is DeviceCapabilitiesUiState.Success &&
+            capabilitiesState !is DeviceCapabilitiesUiState.Loading) {
+            capabilitiesViewModel.loadCapabilities(deviceId, serialNumber)
+        }
     }
 
     when {
-        displayState is DeviceDisplayInfoState.Loading ||
-                capabilitiesState is DeviceCapabilitiesUiState.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-
-            // ⏲ Timeout sau 3 giây nếu vẫn chưa Success thì quay lại màn list
-            LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(3000)
-                val currentState = displayViewModel.displayState.value
-                if (currentState !is DeviceDisplayInfoState.Success) {
-                    Log.d("CHECK", "Timeout loading, điều hướng về ListDevices")
-                    navController.navigate(Screens.ListDevices.route) {
-                        popUpTo(Screens.ListDevices.route) { inclusive = true }
-                    }
-                }
-            }
-        }
-
-        displayState is DeviceDisplayInfoState.Error -> {
-            snackbarViewModel.showSnackbar(
-                (displayState as DeviceDisplayInfoState.Error).error,
-                SnackbarVariant.ERROR
-            )
-        }
-
-        capabilitiesState is DeviceCapabilitiesUiState.Error -> {
-            snackbarViewModel.showSnackbar(
-                (capabilitiesState as DeviceCapabilitiesUiState.Error).error,
-                SnackbarVariant.ERROR
-            )
-        }
-
         displayState is DeviceDisplayInfoState.Success &&
                 capabilitiesState is DeviceCapabilitiesUiState.Success -> {
             val category = (displayState as DeviceDisplayInfoState.Success).category
@@ -138,7 +62,6 @@ fun DynamicDeviceDetailScreen(
             val parentName = category.parent_name
             val baseControls = (capabilitiesState as DeviceCapabilitiesUiState.Success)
                 .data.capabilities.merged_capabilities.controls
-
             val controlsMap = baseControls + mapOf("permission_type" to if (isViewOnly) "VIEW" else "CONTROL")
 
             val screen = DeviceScreenFactory.getScreen(
@@ -155,8 +78,37 @@ fun DynamicDeviceDetailScreen(
             screen(navController)
         }
 
+        displayState is DeviceDisplayInfoState.Error -> {
+            snackbarViewModel.showSnackbar(
+                (displayState as DeviceDisplayInfoState.Error).error,
+                SnackbarVariant.ERROR
+            )
+        }
+
+        capabilitiesState is DeviceCapabilitiesUiState.Error -> {
+            snackbarViewModel.showSnackbar(
+                (capabilitiesState as DeviceCapabilitiesUiState.Error).error,
+                SnackbarVariant.ERROR
+            )
+        }
+
         else -> {
-            Log.d("CHECK", "Trạng thái ngoài dự kiến")
+            // Hiển thị loading và timeout 3 giây nếu quá lâu
+            Box(Modifier.fillMaxSize(), Alignment.Center) {
+                CircularProgressIndicator()
+            }
+
+            LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(3000)
+                val stillLoading = displayViewModel.displayState.value !is DeviceDisplayInfoState.Success ||
+                        capabilitiesViewModel.uiState.value !is DeviceCapabilitiesUiState.Success
+                if (stillLoading) {
+                    Log.d("CHECK", "Timeout loading, điều hướng về ListDevices")
+                    navController.navigate(Screens.ListDevices.route) {
+                        popUpTo(Screens.ListDevices.route) { inclusive = true }
+                    }
+                }
+            }
         }
     }
 }

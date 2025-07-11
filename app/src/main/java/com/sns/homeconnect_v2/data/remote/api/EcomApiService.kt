@@ -6,9 +6,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface EcomApiService {
-    @GET("/api/product/detail/{templateId}")
+    @GET("product/detail/{templateId}")
     suspend fun getProductDetail(@Path("templateId") templateId: String): ProductDetailResponse
 
-    @GET("/api/categories/detail/{categoryId}")
+    @GET("categories/detail/{categoryId}")
     suspend fun getCategoryDetail(@Path("categoryId") categoryId: Int): CategoryDetailResponse
 }

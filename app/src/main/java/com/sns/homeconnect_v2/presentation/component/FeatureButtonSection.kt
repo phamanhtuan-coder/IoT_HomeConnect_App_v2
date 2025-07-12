@@ -63,19 +63,19 @@ fun FeatureButtonSection(
     }
 }
 
-//@Preview(showBackground = true, widthDp = 360)
-//@Composable
-//fun FeatureButtonSectionPreview() {
-//    val sampleItems = listOf(
-//        FeatureButtonItem(Icons.Default.Warning, "Báo mất\nthiết bị") {},
-//        FeatureButtonItem(Icons.Default.Sync, "Chuyển\nquyền sở hữu") {},
-//        FeatureButtonItem(Icons.Default.Home, "Quản lý nhà") {},
-//        FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
-//        FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
-//        FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
-//        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {},
-//    )
-//
-//    FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
-//}
+@Preview(showBackground = true, widthDp = 360)
+@Composable
+fun FeatureButtonSectionPreview() {
+    val sampleItems = listOf(
+        FeatureButtonItem(Icons.Default.Warning, "Báo mất\nthiết bị") {},
+        FeatureButtonItem(Icons.Default.Sync, "Chuyển\nquyền sở hữu") {},
+        FeatureButtonItem(Icons.Default.Home, "Quản lý nhà") {},
+        FeatureButtonItem(Icons.Default.GridView, "Phòng") {},
+        FeatureButtonItem(Icons.Default.Folder, "Nhóm thiết bị") {},
+        FeatureButtonItem(Icons.Default.BorderAll, "Lịch sử\nhoạt động") {},
+        FeatureButtonItem(Icons.Default.Download, "Cập nhật\nphần mềm") {},
+    )
+
+    FeatureButtonSection(items = sampleItems, modifier = Modifier.padding(16.dp))
+}
 

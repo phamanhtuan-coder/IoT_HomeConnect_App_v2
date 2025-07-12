@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,7 +115,11 @@ fun BackHeader(
     IoTHomeConnectAppTheme {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary
+//                containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color(0xFF1976D2), // Xanh dương đậm
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
             ),
             title = {
                 Text(
@@ -137,7 +145,7 @@ fun BackHeader(
                     )
 
                     if (showDrawerButton) {
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
                         RoundedIconButton(
                             icon = Icons.Filled.Menu,
                             description = "Menu",
@@ -183,7 +191,11 @@ fun HomeHeader(
     IoTHomeConnectAppTheme {
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.primary
+                //containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = Color(0xFF1976D2), // Xanh dương đậm
+                titleContentColor = Color.White,
+                navigationIconContentColor = Color.White,
+                actionIconContentColor = Color.White
             ),
             title = {
                 Column(
@@ -228,14 +240,18 @@ fun HomeHeader(
 fun RoundedIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
     IconButton(
         modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .background(MaterialTheme.colorScheme.onPrimary, shape = CircleShape),
+            .padding(horizontal = 4.dp) // Giảm padding
+            .size(36.dp) // Giảm kích thước nút
+            .shadow(4.dp, CircleShape, clip = false) // Thêm bóng
+            .clip(CircleShape)
+            .background(Color(0xFFE3F2FD)), // Xanh nhạt, đồng bộ với FeatureButton
         onClick = onClick
     ) {
         Icon(
             imageVector = icon,
             contentDescription = description,
-            tint = MaterialTheme.colorScheme.primary
+            tint = Color(0xFF1976D2), // Xanh dương đậm cho biểu tượng
+            modifier = Modifier.size(20.dp) // Giảm kích thước biểu tượng
         )
     }
 }

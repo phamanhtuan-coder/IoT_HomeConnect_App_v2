@@ -58,15 +58,15 @@ fun RoomTabRow(
     if (useScrollable) {
         ScrollableTabRow(
             selectedTabIndex = selectedIndex,
-            edgePadding = 0.dp,
-            containerColor = Color.White,
-            contentColor = Color.Black,
+            edgePadding = 12.dp, // Tăng khoảng cách lề để thoáng hơn
+            containerColor = Color(0xFFF5F7FA), // Nền xám nhạt nhẹ nhàng
+            contentColor = Color(0xFF1A1A1A), // Màu nội dung tối nhẹ
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 3.dp,
-                    color = Color(0xFF2979FF)
+                    height = 4.dp,
+                    color = Color(0xFF1E88E5)
                 )
             }
         ) {
@@ -75,8 +75,8 @@ fun RoomTabRow(
                 Tab(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
-                    selectedContentColor = Color(0xFF2979FF),
-                    unselectedContentColor = Color(0xFF404B5A),
+                    selectedContentColor = Color(0xFF1E88E5),
+                    unselectedContentColor = Color(0xFF6B7280),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     RoomTabContent(room, isActive)
@@ -86,14 +86,14 @@ fun RoomTabRow(
     } else {
         TabRow(
             selectedTabIndex = selectedIndex,
-            containerColor = Color.White,
-            contentColor = Color.Black,
+            containerColor = Color(0xFFF5F7FA), // Nền xám nhạt nhẹ nhàng
+            contentColor = Color(0xFF1A1A1A), // Màu nội dung tối nhẹ
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 3.dp,
-                    color = Color(0xFF2979FF)
+                    height = 4.dp,
+                    color = Color(0xFF1E88E5)
                 )
             }
         ) {
@@ -102,8 +102,8 @@ fun RoomTabRow(
                 Tab(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
-                    selectedContentColor = Color(0xFF2979FF),
-                    unselectedContentColor = Color(0xFF404B5A),
+                    selectedContentColor = Color(0xFF1E88E5),
+                    unselectedContentColor = Color(0xFF6B7280),
                 ) {
                     RoomTabContent(room, isActive)
                 }

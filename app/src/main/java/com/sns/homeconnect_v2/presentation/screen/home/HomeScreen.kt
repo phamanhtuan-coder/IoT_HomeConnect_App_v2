@@ -2,6 +2,7 @@ package com.sns.homeconnect_v2.presentation.screen.home
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -164,6 +165,8 @@ fun HomeScreen(
                         ) {
                             item {
                                 ColoredCornerBox(
+                                    startColor = Color(0xFF1976D2), // Xanh dương đậm
+                                    endColor = Color(0xFFE3F2FD), // Xanh nhạt
                                     cornerRadius = 24.dp
                                 ) {
                                     Box(
@@ -174,12 +177,12 @@ fun HomeScreen(
                                     }
                                 }
                             }
-                            item {
-                                InvertedCornerHeader(
-                                    backgroundColor = colorScheme.surface,
-                                    overlayColor = colorScheme.primary
-                                ) {}
-                            }
+//                            item {
+//                                InvertedCornerHeader(
+//                                    backgroundColor = colorScheme.surface,
+//                                    overlayColor = colorScheme.primary
+//                                ) {}
+//                            }
                             item {
                                 FeatureButtonRow(
                                     items = featureButtons,

@@ -43,10 +43,10 @@ import kotlinx.coroutines.launch
 fun DeviceStatCardCarousel(
     items: List<DeviceStatCardItem>,
     modifier: Modifier = Modifier,
-    cardWidth: Dp = 300.dp,
+    cardWidth: Dp = 260.dp,
 ) {
     /* ---------- setup kích thước & state ---------- */
-    val cardSpacing = 12.dp
+    val cardSpacing = 8.dp
     val edgePadding = (LocalConfiguration.current.screenWidthDp.dp - cardWidth) / 2
     val virtualCount = Int.MAX_VALUE
     val startIndex = remember { (virtualCount / 2) - (virtualCount / 2 % items.size) }

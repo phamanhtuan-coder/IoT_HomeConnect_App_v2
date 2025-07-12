@@ -136,16 +136,16 @@ fun DashboardScreen(navController: NavHostController) {
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .padding(20.dp)
                         ) {
                             WeatherInfo()
                         }
                     }
 
-                    InvertedCornerHeader(
-                        backgroundColor = colorScheme.surface,
-                        overlayColor = colorScheme.primary
-                    ) { }
+//                    InvertedCornerHeader(
+//                        backgroundColor = colorScheme.surface,
+//                        overlayColor = colorScheme.primary
+//                    ) { }
 
                     Column (
                         modifier = Modifier

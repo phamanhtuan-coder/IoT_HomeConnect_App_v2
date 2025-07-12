@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,36 +34,38 @@ fun DeviceStatCard(
 ) {
     Box(
         modifier = modifier
-            .width(350.dp)
-            .height(120.dp)
-            .clip(RoundedCornerShape(24.dp))
-            .background(Color(0xFFD8E4E8))
-            .padding(horizontal = 16.dp),
+            .width(260.dp)
+            .height(100.dp)
+            .shadow(8.dp, RoundedCornerShape(28.dp), clip = false)
+            .clip(RoundedCornerShape(28.dp))
+            .background(Color(0xFFF8FAFC))
+            .padding(horizontal = 12.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
-            horizontalArrangement = Arrangement.Center,
+            horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Spacer(Modifier.width(31.dp))
             Icon(
                 imageVector = item.icon,
                 contentDescription = null,
                 tint = item.iconColor,
                 modifier = Modifier.size(46.dp)
             )
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(12.dp))
             Column {
                 Text(
                     text = item.title,
-                    color = Color(0xFF888E9C),
-                    fontSize = 20.sp,
+                    color = Color(0xFF1A1A1A),
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Medium
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = item.value,
-                    color = Color(0xFF111111),
-                    fontSize = 26.sp,
+                    color = Color(0xFF333333),
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -75,7 +78,7 @@ fun DeviceStatCard(
 fun DeviceStatPrevice() {
     val item = DeviceStatCardItem(
         icon = Icons.Default.Memory,
-        iconColor = Color(0xFFF54B63),
+        iconColor = Color(0xFF1976D2),
         title = "Tổng số thiết bị",
         value = "12 thiết bị")
     DeviceStatCard(item = item)

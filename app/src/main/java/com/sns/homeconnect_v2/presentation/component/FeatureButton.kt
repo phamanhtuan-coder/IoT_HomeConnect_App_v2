@@ -31,18 +31,18 @@ fun FeatureButton(
     item: FeatureButtonItem,
     modifier: Modifier = Modifier,
     iconColor: Color = MaterialTheme.colorScheme.primary,
-    backgroundColor: Color = Color(0xFFD8E4E8),
+    backgroundColor: Color = Color(0xFFE3F2FD),
 ) {
     Column(
         modifier = Modifier
-            .width(86.dp),
+            .width(72.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box (
             modifier = modifier
-                .size(86.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .size(62.dp)
+                .clip(RoundedCornerShape(40.dp))
                 .background(backgroundColor)
                 .clickable { item.onClick() },
             contentAlignment = Alignment.Center
@@ -51,16 +51,17 @@ fun FeatureButton(
                 imageVector = item.icon,
                 contentDescription = null,
                 tint = iconColor,
-                modifier = Modifier.size(51.dp)
+                modifier = Modifier.size(36.dp)
             )
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = item.label,
-            color = Color(0xFF444444),
-            fontSize = 16.sp,
+            color = Color(0xFF333333),
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
-            maxLines = 2
+            maxLines = 2,
+            style = MaterialTheme.typography.bodySmall
         )
     }
 }

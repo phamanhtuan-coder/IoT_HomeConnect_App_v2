@@ -1,6 +1,8 @@
 package com.sns.homeconnect_v2.presentation.component.widget
 
+import IoTHomeConnectAppTheme
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +21,8 @@ import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,18 +52,16 @@ import androidx.compose.ui.platform.LocalDensity
 @Composable
 fun InvertedCornerHeader(
     modifier: Modifier = Modifier,
-    topEndCornerPercent: Int = 90,
+    topEndCornerPercent: Int = 100, // Tăng bo góc
     backgroundColor: Color,
     overlayColor: Color,
     content: @Composable () -> Unit
 ) {
     var contentHeightPx by remember { mutableIntStateOf(0) }
     val density = LocalDensity.current
-    val contentHeightDp = maxOf(with(density) { contentHeightPx.toDp() }, 40.dp)
+    val contentHeightDp = maxOf(with(density) { contentHeightPx.toDp() }, 48.dp)
 
     Box(modifier = modifier.fillMaxWidth()) {
-
-        // ✅ Overlay màu xanh đậm, luôn có kích thước vuông bằng với box dưới
         Box(
             modifier = Modifier
                 .size(contentHeightDp)
@@ -67,72 +69,74 @@ fun InvertedCornerHeader(
                 .background(overlayColor)
                 .zIndex(1f)
         )
-
-        // ✅ Nền trắng với chiều cao tối thiểu 40.dp và có thể dãn
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 40.dp)
+                .defaultMinSize(minHeight = 48.dp)
                 .onSizeChanged { contentHeightPx = it.height }
-                .clip(RoundedCornerShape(topEndPercent = topEndCornerPercent))
-                .background(
-                    color = backgroundColor,
-                    shape = RoundedCornerShape(topEndPercent = topEndCornerPercent)
-                )
+                //.clip(RoundedCornerShape(topEndPercent = topEndCornerPercent))
+                .background(backgroundColor)
+                //.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(topEndPercent = topEndCornerPercent))
                 .zIndex(2f)
         ) {
-            content()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                content()
+            }
         }
     }
 }
 
-
-@Preview(showBackground = true, name = "InvertedCornerHeader Preview")
+@Preview(showBackground = true)
 @Composable
 fun InvertedCornerHeaderPreview() {
-    InvertedCornerHeader(
-        backgroundColor = Color.White,
-        overlayColor = Color(0xFF3A4750) // Màu xanh dương đậm
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+    IoTHomeConnectAppTheme {
+        InvertedCornerHeader(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            overlayColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
         ) {
-            Button(
-                onClick = {},
-                modifier = Modifier.size(32.dp),
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF3A4750),
-                    contentColor = Color.White
-                )
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Info",
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {},
-                modifier = Modifier.size(32.dp),
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF3A4750),
-                    contentColor = Color.White
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Wifi,
-                    contentDescription = "Wifi",
-                    modifier = Modifier.size(18.dp)
-                )
+                Button(
+                    onClick = {},
+                    modifier = Modifier.size(36.dp),
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Info",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = {},
+                    modifier = Modifier.size(36.dp),
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Wifi,
+                        contentDescription = "Wifi",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
         }
     }

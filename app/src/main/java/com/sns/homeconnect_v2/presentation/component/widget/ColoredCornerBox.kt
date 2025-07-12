@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 
 /**
  * Một hàm Composable hiển thị một Box với nền màu và góc dưới bên trái được bo tròn.
@@ -28,7 +29,8 @@ import androidx.compose.ui.draw.clip
  */
 @Composable
 fun ColoredCornerBox(
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    startColor: Color = MaterialTheme.colorScheme.primary, // Xanh dương đậm
+    endColor: Color = Color(0xFFE3F2FD), // Xanh nhạt
     cornerRadius: Dp = 40.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -36,8 +38,12 @@ fun ColoredCornerBox(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 57.dp)
-            .clip(RoundedCornerShape(bottomStart = cornerRadius))
-            .background(backgroundColor)
+            .clip(RoundedCornerShape(bottomStart = cornerRadius, bottomEnd = cornerRadius))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(startColor, endColor)
+                )
+                )
     ) {
         content()
     }
@@ -48,6 +54,8 @@ fun ColoredCornerBox(
 fun ColoredCornerBoxPreview() {
     IoTHomeConnectAppTheme {
         ColoredCornerBox(
+            startColor = Color(0xFF1976D2), // Xanh dương đậm
+            endColor = Color(0xFFE3F2FD), // Xanh nhạt
             cornerRadius = 40.dp
         ) {
             Text(

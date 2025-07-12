@@ -64,11 +64,16 @@ fun DynamicDeviceDetailScreen(
                 .data.capabilities.merged_capabilities.controls
             val controlsMap = baseControls + mapOf("permission_type" to if (isViewOnly) "VIEW" else "CONTROL")
 
+            // 👉 Xác định lại 2 biến trước khi build màn
+            val finalDeviceTypeName   = deviceTypeName?.takeIf { it.isNotBlank() } ?: category.name
+            val finalParentTypeName   = deviceTypeParentName?.takeIf { it.isNotBlank() } ?: parentName
+
+
             val screen = DeviceScreenFactory.getScreen(
                 deviceId = deviceId,
                 deviceName = deviceName,
-                deviceTypeName = category.name,
-                deviceTypeParentName = parentName,
+                deviceTypeName        = finalDeviceTypeName,   // đã có fallback
+                deviceTypeParentName  = finalParentTypeName,   // đã có fallback
                 serialNumber = serialNumber,
                 groupId = groupId,
                 product = product,

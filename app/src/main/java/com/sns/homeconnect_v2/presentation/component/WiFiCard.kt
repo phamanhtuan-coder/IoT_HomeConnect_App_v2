@@ -27,7 +27,7 @@ fun WiFiCard(
             .fillMaxWidth()
             .padding(vertical = layoutConfig.textFieldSpacing)
             .clickable {
-                if (!isConnected) {
+                if (isConnected) {
                     navController.navigate(Screens.WifiConnection.route)
                 }
             },

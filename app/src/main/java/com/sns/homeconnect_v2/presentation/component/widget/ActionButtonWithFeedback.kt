@@ -1,4 +1,4 @@
-package com.sns.homeconnect_v2.presentation.component.widget
+    package com.sns.homeconnect_v2.presentation.component.widget
 
 import IoTHomeConnectAppTheme
 import androidx.compose.foundation.BorderStroke

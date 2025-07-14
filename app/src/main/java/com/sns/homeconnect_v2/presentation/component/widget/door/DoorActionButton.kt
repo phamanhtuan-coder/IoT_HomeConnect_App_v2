@@ -34,14 +34,14 @@ fun DoorActionButton(
     val backgroundColor = if (isOpen) Color(0xFFFFEBEE) else Color(0xFFE3F2FD)
     val contentColor = if (isOpen) Color(0xFFD32F2F) else Color(0xFF1565C0)
 
-    Surface(
+    Card(
         onClick = onClick,
         modifier = modifier
             .width(160.dp)
             .height(140.dp),
         shape = RoundedCornerShape(16.dp),
-        color = backgroundColor,
-        shadowElevation = 6.dp
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier
@@ -75,15 +75,4 @@ fun DoorActionButton(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewInteractiveDoorActionButton() {
-    var isOpen by remember { mutableStateOf(false) }
-
-    DoorActionButton(
-        isOpen = isOpen,
-        onClick = { isOpen = !isOpen }
-    )
 }

@@ -9,6 +9,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleDoorRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
@@ -18,6 +19,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesRespons
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -141,5 +143,13 @@ class DeviceRepositoryImpl @Inject constructor(
     override suspend fun getDoorStatus(serialNumber: String): DoorStatusResponse {
         val token = "Bearer ${authManager.getJwtToken()}"
         return apiService.getDoorStatus(serialNumber, token)
+    }
+
+    override suspend fun toggleDoorPower(
+        serialNumber: String,
+        request: ToggleDoorRequest
+    ): DoorToggleResponse {
+        val token = authManager.getJwtToken()
+        return apiService.toggleDoorPowerStatus(serialNumber, request, "Bearer $token")
     }
 }

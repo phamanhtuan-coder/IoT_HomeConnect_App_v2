@@ -51,6 +51,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleDoorRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
@@ -63,6 +64,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesRespons
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
@@ -560,6 +562,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): DoorStatusResponse
 
+    @POST("doors/{serialNumber}/toggle")
+    suspend fun toggleDoorPowerStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Body body: ToggleDoorRequest,
+        @Header("Authorization") token: String
+    ): DoorToggleResponse
 
 //    @POST("spaces")
 //    suspend fun createSpace(

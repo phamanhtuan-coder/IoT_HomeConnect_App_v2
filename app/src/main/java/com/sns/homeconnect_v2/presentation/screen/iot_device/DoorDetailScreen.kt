@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -12,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -22,37 +22,74 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorActionButton
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorCanvas
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorType
-import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_door.ApiResult
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_door.DoorViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun DoorDetailScreen(
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
-    /* ---------- STATE ---------- */
-    var doorType by remember { mutableStateOf(DoorType.SLIDING) }
-    var isOpen   by remember { mutableStateOf(false) }
+    val viewModel: DoorViewModel = hiltViewModel()
+    val toggleState by viewModel.toggleState.collectAsState()
+    val doorStatusState by viewModel.doorStatus.collectAsState()
 
-    var powerStatusUI by remember { mutableStateOf(false) }
-    var isPowerUpdating by remember { mutableStateOf(false) }
+    var doorType by remember(deviceTypeName) {
+        mutableStateOf(DoorType.fromLabel(deviceTypeName) ?: DoorType.TRADITIONAL)
+    }
 
-    var pendingPowerStatus by remember { mutableStateOf<Boolean?>(null) }
+    var isOpen by remember { mutableStateOf(false) }
+    var isProcessing by remember { mutableStateOf(false) }
+    var pendingAction by remember { mutableStateOf<Boolean?>(null) }
 
-    val colorScheme = MaterialTheme.colorScheme
+    LaunchedEffect(Unit) {
+        viewModel.fetchDoorStatus(serialNumber)
+    }
+
+    LaunchedEffect(pendingAction) {
+        pendingAction?.let { desiredOpen ->
+            isProcessing = true
+            viewModel.toggleDoorPower(serialNumber, desiredOpen)
+            pendingAction = null // Quan trọng để tránh gửi lại
+        }
+    }
+
+
+    when (doorStatusState) {
+        is ApiResult.Success -> {
+            val status = (doorStatusState as ApiResult.Success).data
+            doorType = DoorType.fromLabel(deviceTypeName) ?: DoorType.TRADITIONAL
+            isOpen = status.door_state == "open"
+        }
+        is ApiResult.Error -> {
+            snackbarViewModel.showSnackbar((doorStatusState as ApiResult.Error).message)
+        }
+        else -> {}
+    }
+
+    // Xử lý toggleState sau khi gọi API
+    when (toggleState) {
+        is ApiResult.Success -> {
+            val result = (toggleState as ApiResult.Success).data
+            isOpen = result.door.door_state == "open"
+            isProcessing = false
+        }
+        is ApiResult.Error -> {
+            snackbarViewModel.showSnackbar((toggleState as ApiResult.Error).message)
+            isProcessing = false
+        }
+        else -> {}
+    }
 
     IoTHomeConnectAppTheme {
         Scaffold(
-            topBar = {
-            },
-            bottomBar = {
-            },
-            containerColor = colorScheme.background,
-            modifier = Modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.background,
             content = { innerPadding ->
                 LazyColumn(
                     modifier = Modifier
@@ -61,73 +98,39 @@ fun DoorDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
-                    /** ---- VÙNG CANVAS ---- */
                     item {
-                        ColoredCornerBox(
-                            cornerRadius = 40.dp
-                        ) {
+                        ColoredCornerBox(cornerRadius = 40.dp) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                                    .padding(16.dp)
                             ) {
-                                // BÊN TRÁI: Thông tin thiết bị
                                 Column(
-                                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                                    horizontalAlignment = Alignment.Start
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
                                     Text(
                                         text = deviceName,
-                                        color = colorScheme.onPrimary,
                                         fontSize = 20.sp,
-                                        lineHeight = 28.sp,
-                                        style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold,
-                                        letterSpacing = 0.5.sp
+                                        color = MaterialTheme.colorScheme.onPrimary
                                     )
 
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        Text(
-                                            text = "Bật/Tắt",
-                                            color = colorScheme.onPrimary,
-                                            fontSize = 14.sp
-                                        )
-                                        CustomSwitch(
-                                            isCheck = powerStatusUI,
-                                            enabled = !isPowerUpdating,
-                                            onCheckedChange = { newStatus ->
-                                                pendingPowerStatus = newStatus
-                                                isPowerUpdating = true
-                                            }
-                                        )
-                                    }
+                                    Text(
+                                        text = "Trạng thái cửa:",
+                                        fontSize = 14.sp,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
 
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                                    ) {
-                                        Text(
-                                            text = "Trạng thái cửa:",
-                                            color = colorScheme.onPrimary,
-                                            fontSize = 14.sp,
-                                            fontWeight = FontWeight.Normal
-                                        )
-
-                                        Text(
-                                            text = if (isOpen) "Đang mở" else "Đang đóng",
-                                            color = if (isOpen) Color(0xFFFF0000) else Color(0xFF00FF19),
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            letterSpacing = 0.3.sp
-                                        )
-                                    }
+                                    Text(
+                                        text = if (isOpen) "Đang mở" else "Đang đóng",
+                                        color = if (isOpen) Color.Green else Color.Red,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
                                 }
 
-                                Spacer(Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
 
-                                // BÊN PHẢI: Cửa đẹp hơn
                                 Box(
                                     modifier = Modifier
                                         .weight(1f)
@@ -137,20 +140,21 @@ fun DoorDetailScreen(
                                     DoorCanvas(
                                         doorType = doorType,
                                         isOpen = isOpen,
-                                        onToggle = { if (!isViewOnly) isOpen = !isOpen },
-                                        modifier = Modifier
-                                            .fillMaxSize(1f)
+                                        onToggle = {
+                                            if (!isViewOnly && !isProcessing) {
+                                                pendingAction = !isOpen
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxSize()
                                     )
                                 }
                             }
                         }
                     }
-
-                    /** ---- DẢI HEADER VỚI SELECTOR ---- */
                     item {
                         InvertedCornerHeader(
-                            backgroundColor = colorScheme.surface,
-                            overlayColor = colorScheme.primary
+                            backgroundColor = MaterialTheme.colorScheme.surface,
+                            overlayColor = MaterialTheme.colorScheme.primary
                         ) {
                             Row(
                                 modifier = Modifier
@@ -159,61 +163,37 @@ fun DoorDetailScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                /* ---------- INFO ---------- */
-                                IconButton(
-                                    onClick = {
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
+                                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
                                     Icon(
                                         imageVector = Icons.Default.Info,
                                         contentDescription = "Info",
-                                        tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
 
-                                /* ---------- WIFI ---------- */
-                                IconButton(
-                                    onClick = {
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
+                                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
                                     Icon(
                                         imageVector = Icons.Default.Wifi,
                                         contentDescription = "Wi-Fi",
-                                        tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
+                                        tint = MaterialTheme.colorScheme.primary
                                     )
                                 }
                             }
                         }
                     }
-
-                    /** ---- BUTTON MỞ/ĐÓNG ---- */
                     item {
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         DoorActionButton(
                             isOpen = isOpen,
-                            onClick = { isOpen = !isOpen }
+                            onClick = {
+                                if (!isViewOnly && !isProcessing) {
+                                    pendingAction = !isOpen
+                                }
+                            }
                         )
                     }
                 }
             }
         )
     }
-}
-
-/* ---------------- PREVIEW ---------------- */
-@Preview(showBackground = true)
-@Composable
-private fun DoorDetailScreenPreview() {
-    DoorDetailScreen(
-        deviceId = "DEVICE001",
-        deviceName = "Cửa chính",
-        serialNumber = "SERIAL123456",
-        controls = mapOf("power_status" to "toggle"),
-        isViewOnly = true,
-        snackbarViewModel = remember { SnackbarViewModel() }
-    )
 }

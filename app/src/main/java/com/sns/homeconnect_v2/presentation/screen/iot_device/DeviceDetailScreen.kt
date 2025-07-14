@@ -86,6 +86,7 @@ fun DeviceDetailScreen(
     navController: NavHostController,
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
     groupId: Int,
     product: ProductData,
@@ -294,6 +295,7 @@ fun DeviceDetailScreen(
         }
     }
 
+    Log.d("DeviceDetailScreen", "deviceId=$deviceId, deviceName=$deviceName, serialNumber=$serialNumber, groupId=$groupId")
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme

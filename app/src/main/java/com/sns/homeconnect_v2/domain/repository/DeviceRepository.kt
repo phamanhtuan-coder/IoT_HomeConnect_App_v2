@@ -5,6 +5,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleDoorRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ToggleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.AttributeResponse
@@ -12,6 +13,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResp
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -34,4 +37,6 @@ interface DeviceRepository {
     suspend fun applyLedPreset(serial_number: String, request: LedPresetRequest): DeviceResponse
     suspend fun getLedEffects(deviceId: String): LedEffectsResponse
     suspend fun unlinkDevice(serialNumber: String, spaceId: Int): Result<Unit>
+    suspend fun getDoorStatus(serialNumber: String): DoorStatusResponse
+    suspend fun toggleDoorPower(serialNumber: String, request: ToggleDoorRequest): DoorToggleResponse
 }

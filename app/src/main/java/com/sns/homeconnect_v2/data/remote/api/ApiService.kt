@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.remote.api
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ApproveRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
@@ -51,6 +52,7 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleDoorRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
@@ -62,6 +64,8 @@ import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
@@ -553,13 +557,24 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Unit>
 
-    @POST("shared-permissions/{ticketId}/approve")
+    @POST("permissions/approve-share-permission")
     suspend fun approveSharePermission(
-        @Path("ticketId") ticketId: String,
-        @Body body: Map<String, Boolean>,
+        @Body request: ApproveRequest,
         @Header("Authorization") token: String
     ): Response<Unit>
 
+    @GET("doors/{serialNumber}/status")
+    suspend fun getDoorStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DoorStatusResponse
+
+    @POST("doors/{serialNumber}/toggle")
+    suspend fun toggleDoorPowerStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Body body: ToggleDoorRequest,
+        @Header("Authorization") token: String
+    ): DoorToggleResponse
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

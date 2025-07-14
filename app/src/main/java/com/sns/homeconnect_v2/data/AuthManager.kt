@@ -30,3 +30,4 @@ class AuthManager @Inject constructor(
     fun getAccountId(): String = prefs.getString("ACCOUNT_ID", "") ?: ""
 }
 
+

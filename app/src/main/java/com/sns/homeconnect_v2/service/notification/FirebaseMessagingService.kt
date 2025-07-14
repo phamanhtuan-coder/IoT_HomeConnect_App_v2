@@ -51,7 +51,9 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val title = remoteMessage.data["title"]
         val body = remoteMessage.data["body"]
 
+        Log.d(TAG, "🔥 Nhận được cảnh báo: title=$title, body=$body")
         if (type == "alarm") {
+            Log.d(TAG, "🔥 Nhận được cảnh báo cháy: title=$title, body=$body") // Thêm dòng này
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
             ) {

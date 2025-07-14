@@ -20,6 +20,7 @@ object NetworkModule {
     @Named("HomeConnectRetrofit")
     fun provideHomeConnectRetrofit(): Retrofit {
         return Retrofit.Builder()
+//            .baseUrl("https://10.0.2.2:7777/api/")
             .baseUrl("https://iothomeconnectapiv2-production.up.railway.app/api/") // Thay đổi thành localhost/IP thật
             .addConverterFactory(GsonConverterFactory.create())
             .build()

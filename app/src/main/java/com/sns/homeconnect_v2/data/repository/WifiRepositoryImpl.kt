@@ -19,6 +19,7 @@ import com.sns.homeconnect_v2.domain.repository.WifiRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.InetAddress
@@ -120,24 +121,38 @@ class WifiRepositoryImpl @Inject constructor(
         password: String
     ): Result<String> = withContext(Dispatchers.IO) {
         try {
-            val socket = DatagramSocket()
-            socket.soTimeout = 5000
-            val address = InetAddress.getByName(espIp)
-            val data = "SSID=$ssid;PASSWORD=$password;"
-            val buffer = data.toByteArray()
-            val packet = DatagramPacket(buffer, buffer.size, address, port)
-            socket.send(packet)
+            DatagramSocket().use { socket ->          // Tự đóng khi xong
+                socket.soTimeout = 5_000               // 5 s timeout
+                val address = InetAddress.getByName(espIp)
 
-            val responseBuffer = ByteArray(256)
-            val responsePacket = DatagramPacket(responseBuffer, responseBuffer.size)
-            socket.receive(responsePacket)
-            val response = String(responsePacket.data, 0, responsePacket.length)
-            socket.close()
+                /*----------- 1. Tạo payload JSON -----------*/
+                val payload = JSONObject().apply {
+                    put("ssid", ssid)
+                    put("password", password)
+                    // Nếu muốn gửi thêm:
+                    // put("defaultColor", "#FFFFFF")
+                    // put("defaultBrightness", 100)
+                }.toString()
 
-            if (response.contains("SUCCESS")) {
-                Result.Success(response)
-            } else {
-                Result.Error("ESP response: $response")
+                /*----------- 2. Gửi UDP -----------*/
+                val sendBuf   = payload.toByteArray(Charsets.UTF_8)
+                val sendPack  = DatagramPacket(sendBuf, sendBuf.size, address, port)
+                socket.send(sendPack)
+
+                /*----------- 3. Đọc phản hồi -----------*/
+                val recvBuf   = ByteArray(512)
+                val recvPack  = DatagramPacket(recvBuf, recvBuf.size)
+                socket.receive(recvPack)
+
+                val respStr   = String(recvPack.data, 0, recvPack.length, Charsets.UTF_8)
+                val respJson  = JSONObject(respStr)
+
+                // 4. Trả kết quả
+                return@withContext if (respJson.optString("status") == "success") {
+                    Result.Success(respStr)            // hoặc respJson.toString()
+                } else {
+                    Result.Error("ESP response: $respStr")
+                }
             }
         } catch (e: Exception) {
             Result.Error("UDP error: ${e.message}")

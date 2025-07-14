@@ -18,13 +18,16 @@ object DeviceScreenFactory {
         deviceTypeName: String?,
         deviceTypeParentName: String?,
         serialNumber: String,
-        product: ProductData,
+        product: ProductData? = null,
         groupId: Int,
         controls: Map<String, String>,
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
         val normalized = deviceTypeParentName?.trim()?.lowercase()
         val isViewOnly = controls["permission_type"]?.uppercase() == "VIEW" // ✅ Thêm dòng này
+
+        // một ProductData rỗng (cần constructor mặc định trong data class)
+        val safeProduct = product ?: ProductData()
 
         Log.d("CHECK", "parentName='$deviceTypeParentName', normalized='$normalized', isViewOnly=$isViewOnly, controls=$controls")
 
@@ -36,7 +39,7 @@ object DeviceScreenFactory {
                     deviceName = deviceName,
                     deviceTypeName = deviceTypeName ?: "",
                     serialNumber = serialNumber,
-                    product = product,
+                    product = safeProduct,
                     controls = controls,
                     groupId = groupId,
                     snackbarViewModel = snackbarViewModel(),
@@ -51,7 +54,7 @@ object DeviceScreenFactory {
                     deviceName = deviceName,
                     deviceTypeName = deviceTypeName ?: "",
                     serialNumber = serialNumber,
-                    product = product,
+                    product = safeProduct,
                     controls = controls,
                     groupId   = groupId,
                     snackbarViewModel = snackbarViewModel(),

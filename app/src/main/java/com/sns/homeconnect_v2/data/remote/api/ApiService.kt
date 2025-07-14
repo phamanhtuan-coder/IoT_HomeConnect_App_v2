@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.remote.api
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ApproveRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
@@ -553,6 +554,12 @@ interface ApiService {
     suspend fun unlinkDevice(
         @Path("serialNumber") serialNumber: String,
         @Body request: UnlinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @POST("permissions/approve-share-permission")
+    suspend fun approveSharePermission(
+        @Body request: ApproveRequest,
         @Header("Authorization") token: String
     ): Response<Unit>
 

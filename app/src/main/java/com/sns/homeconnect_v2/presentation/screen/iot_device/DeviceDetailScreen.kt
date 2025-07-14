@@ -295,6 +295,7 @@ fun DeviceDetailScreen(
         }
     }
 
+    Log.d("DeviceDetailScreen", "deviceId=$deviceId, deviceName=$deviceName, serialNumber=$serialNumber, groupId=$groupId")
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme

@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.repository
 
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.request.ApproveRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUserRequest
@@ -37,10 +38,9 @@ class SharedRepositoryImpl @Inject constructor(
 
     override suspend fun approveSharePermission(ticketId: String): Response<Unit> {
         val token = authManager.getJwtToken()
-        val body = mapOf("accept" to true)
+        val approveRequest = ApproveRequest(ticketId = ticketId, isApproved = true)
         return apiService.approveSharePermission(
-            ticketId = ticketId,
-            body = body,
+            request = approveRequest,
             token = "Bearer $token"
         )
     }

@@ -553,6 +553,13 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Response<Unit>
 
+    @POST("shared-permissions/{ticketId}/approve")
+    suspend fun approveSharePermission(
+        @Path("ticketId") ticketId: String,
+        @Body body: Map<String, Boolean>,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

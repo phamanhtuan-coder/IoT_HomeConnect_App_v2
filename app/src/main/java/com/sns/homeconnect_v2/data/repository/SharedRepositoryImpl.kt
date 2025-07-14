@@ -34,4 +34,14 @@ class SharedRepositoryImpl @Inject constructor(
         val token = authManager.getJwtToken()
         return apiService.revokePermission(permissionId = permissionID, token = "Bearer $token")
     }
+
+    override suspend fun approveSharePermission(ticketId: String): Response<Unit> {
+        val token = authManager.getJwtToken()
+        val body = mapOf("accept" to true)
+        return apiService.approveSharePermission(
+            ticketId = ticketId,
+            body = body,
+            token = "Bearer $token"
+        )
+    }
 }

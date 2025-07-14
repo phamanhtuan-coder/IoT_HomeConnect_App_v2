@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
+import com.sns.homeconnect_v2.presentation.component.ApprovePermissionDialog
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.FilterSheetContent
 import com.sns.homeconnect_v2.presentation.component.TicketCardSwipeable
@@ -67,19 +68,13 @@ fun TicketListScreen(
     val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var ticketToDelete by remember { mutableStateOf<String?>(null) }
-
-    // Log để debug
-    LaunchedEffect(tickets) {
-        tickets.forEachIndexed { index, ticket ->
-            println("Ticket $index: userName=${ticket.userName}, status=${ticket.status}")
-        }
-    }
+    val showApproveDialog = remember { mutableStateOf(false) }
+    val selectedTicketId = remember { mutableStateOf<String?>(null) }
 
     val options = listOf("Tất cả", "Đã xử lý", "Chưa xử lý")
     var selectedStatus by remember { mutableStateOf(options[0]) }
     var isSheetVisible by remember { mutableStateOf(false) }
 
-    // Đếm số lượng ticket chưa xem
     val unviewedCount = tickets.count { !it.IsViewed }
 
     IoTHomeConnectAppTheme {
@@ -99,8 +94,8 @@ fun TicketListScreen(
                         snackbarViewModel.showSnackbar("Đã nhấn nút thêm!")
                         navController.navigate(Screens.CreateTicket.route)
                     },
-                    containerColor = colorScheme.primary ?: Color(0xFF6200EE),
-                    contentColor = colorScheme.onPrimary ?: Color.White,
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary,
                     modifier = Modifier.size(60.dp)
                 ) {
                     Box(
@@ -111,7 +106,7 @@ fun TicketListScreen(
                             text = "+",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = colorScheme.onPrimary ?: Color.White
+                            color = colorScheme.onPrimary
                         )
                     }
                 }
@@ -149,18 +144,10 @@ fun TicketListScreen(
                                 ticketViewModel.fetchTickets()
                                 snackbarViewModel.showSnackbar("Đã tải lại danh sách!", SnackbarVariant.SUCCESS)
                             }) {
-                                Icon(
-                                    Icons.Default.Refresh,
-                                    contentDescription = "Tải lại danh sách",
-                                    modifier = Modifier.size(32.dp)
-                                )
+                                Icon(Icons.Default.Refresh, contentDescription = "Tải lại danh sách", modifier = Modifier.size(32.dp))
                             }
                             IconButton(onClick = { isSheetVisible = true }) {
-                                Icon(
-                                    Icons.Default.FilterList,
-                                    contentDescription = "Mở bộ lọc",
-                                    modifier = Modifier.size(32.dp)
-                                )
+                                Icon(Icons.Default.FilterList, contentDescription = "Mở bộ lọc", modifier = Modifier.size(32.dp))
                             }
                         }
                     }
@@ -186,10 +173,14 @@ fun TicketListScreen(
                                 },
                                 onClick = {
                                     ticketViewModel.markTicketAsViewed(index)
-                                    navController.navigate(
-                                        Screens.DetailTicket.createRoute(ticket.ticketId)
-                                    )
-                                    println("Navigating to ticket detail with ID: ${ticket.ticketId}")
+
+                                    if (ticket.ticketTypeName == "Chia sẻ quyền") {
+                                        selectedTicketId.value = ticket.ticketId
+                                        showApproveDialog.value = true
+                                    } else {
+                                        navController.navigate(Screens.DetailTicket.createRoute(ticket.ticketId))
+                                        println("Navigating to ticket detail with ID: ${ticket.ticketId}")
+                                    }
                                 },
                                 ticketId = ticket.ticketId,
                                 isDeleteEnabled = ticket.status.toString().lowercase() != "cancelled"
@@ -198,13 +189,25 @@ fun TicketListScreen(
                     }
                 } else {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxSize().padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text("Không tìm thấy yêu cầu hỗ trợ")
                     }
+                }
+
+                if (showApproveDialog.value && selectedTicketId.value != null) {
+                    ApprovePermissionDialog(
+                        ticketId = selectedTicketId.value!!,
+                        onDismiss = {
+                            showApproveDialog.value = false
+                            selectedTicketId.value = null
+                        },
+                        onApproved = {
+                            ticketViewModel.fetchTickets()
+                            snackbarViewModel.showSnackbar("Đã chấp nhận chia sẻ quyền", SnackbarVariant.SUCCESS)
+                        }
+                    )
                 }
 
                 BottomSheetWithTrigger(
@@ -306,6 +309,7 @@ fun TicketListScreen(
                         )
                     }
                 )
+
 
                 if (showDatePicker) {
                     DatePickerDialog(

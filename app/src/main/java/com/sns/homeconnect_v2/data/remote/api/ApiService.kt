@@ -575,7 +575,6 @@ interface ApiService {
         @Body body: ToggleDoorRequest,
         @Header("Authorization") token: String
     ): DoorToggleResponse
-
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

@@ -12,6 +12,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResp
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -34,4 +35,5 @@ interface DeviceRepository {
     suspend fun applyLedPreset(serial_number: String, request: LedPresetRequest): DeviceResponse
     suspend fun getLedEffects(deviceId: String): LedEffectsResponse
     suspend fun unlinkDevice(serialNumber: String, spaceId: Int): Result<Unit>
+    suspend fun getDoorStatus(serialNumber: String): DoorStatusResponse
 }

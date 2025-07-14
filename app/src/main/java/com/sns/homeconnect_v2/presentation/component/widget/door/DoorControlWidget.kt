@@ -28,9 +28,15 @@ import androidx.compose.ui.unit.sp
  * Loại cửa: truyền thống, trượt ngang, cuốn lên.
  */
 enum class DoorType(val label: String) {
-    TRADITIONAL("Cửa truyền thống"),
+    TRADITIONAL("Cửa cánh"),
     SLIDING("Cửa trượt"),
-    ROLLER("Cửa cuốn")
+    ROLLER("Cửa cuốn");
+
+    companion object {
+        fun fromLabel(label: String): DoorType? {
+            return values().find { it.label == label }
+        }
+    }
 }
 
 // Thời gian animation chậm hơn (ms)

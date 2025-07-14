@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import IoTHomeConnectAppTheme
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -22,7 +23,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorActionButton
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorCanvas
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorType
-import com.sns.homeconnect_v2.presentation.navigation.Screens
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_door.ApiResult
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_door.DoorViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
@@ -35,14 +37,38 @@ fun DoorDetailScreen(
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
-    /* ---------- STATE ---------- */
-    var doorType by remember { mutableStateOf(DoorType.TRADITIONAL) }
-    var isOpen   by remember { mutableStateOf(false) }
+    val viewModel: DoorViewModel = hiltViewModel()
 
+    // 1. State cần remember
+    var doorType by remember { mutableStateOf(DoorType.TRADITIONAL) }
+    var isOpen by remember { mutableStateOf(false) }
     var powerStatusUI by remember { mutableStateOf(false) }
     var isPowerUpdating by remember { mutableStateOf(false) }
-
     var pendingPowerStatus by remember { mutableStateOf<Boolean?>(null) }
+
+    // 2. Observe từ ViewModel
+    val doorStatusState by viewModel.doorStatus.collectAsState()
+
+    // 3. Gọi API một lần
+    LaunchedEffect(Unit) {
+        viewModel.fetchDoorStatus(serialNumber)
+    }
+
+    // 4. Cập nhật state nếu có dữ liệu
+    when (doorStatusState) {
+        is ApiResult.Success -> {
+            val status = (doorStatusState as ApiResult.Success).data
+            Log.d("DoorStatus", "Trạng thái: ${status.door_state}, Kiểu: ${status.door_type}, Online: ${status.online}")
+            doorType = DoorType.fromLabel(deviceTypeName) ?: DoorType.TRADITIONAL
+            isOpen = status.door_state == "open"
+            powerStatusUI = status.online
+        }
+        is ApiResult.Error -> {
+            val error = (doorStatusState as ApiResult.Error).message
+            snackbarViewModel.showSnackbar(error)
+        }
+        else -> {}
+    }
 
     val colorScheme = MaterialTheme.colorScheme
 

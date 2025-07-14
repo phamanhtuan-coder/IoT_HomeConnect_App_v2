@@ -17,6 +17,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.BulkDeviceStateUpdateResp
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LinkDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
@@ -135,5 +136,10 @@ class DeviceRepositoryImpl @Inject constructor(
     override suspend fun getLedEffects(deviceId: String): LedEffectsResponse {
         val token = authManager.getJwtToken()
         return apiService.getLedEffects(deviceId, "Bearer $token")
+    }
+
+    override suspend fun getDoorStatus(serialNumber: String): DoorStatusResponse {
+        val token = "Bearer ${authManager.getJwtToken()}"
+        return apiService.getDoorStatus(serialNumber, token)
     }
 }

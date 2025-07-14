@@ -62,6 +62,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
@@ -552,6 +553,13 @@ interface ApiService {
         @Body request: UnlinkDeviceRequest,
         @Header("Authorization") token: String
     ): Response<Unit>
+
+    @GET("doors/{serialNumber}/status")
+    suspend fun getDoorStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DoorStatusResponse
+
 
 //    @POST("spaces")
 //    suspend fun createSpace(

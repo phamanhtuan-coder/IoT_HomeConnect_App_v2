@@ -37,163 +37,161 @@ fun DoorDetailScreen(
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
     val viewModel: DoorViewModel = hiltViewModel()
-    val toggleState by viewModel.toggleState.collectAsState()
-    val doorStatusState by viewModel.doorStatus.collectAsState()
 
-    var doorType by remember(deviceTypeName) {
+    // ❶ State từ ViewModel
+    val doorStatusState by viewModel.doorStatus.collectAsState()
+    val toggleState      by viewModel.toggleState.collectAsState()
+
+    // ❷ State cục bộ UI
+    var doorType     by remember(deviceTypeName) {
         mutableStateOf(DoorType.fromLabel(deviceTypeName) ?: DoorType.TRADITIONAL)
     }
-
-    var isOpen by remember { mutableStateOf(false) }
+    var isOpen       by remember { mutableStateOf(false) }
     var isProcessing by remember { mutableStateOf(false) }
-    var pendingAction by remember { mutableStateOf<Boolean?>(null) }
 
-    LaunchedEffect(Unit) {
-        viewModel.fetchDoorStatus(serialNumber)
-    }
+    /* ---------------- ❸ LẤY TRẠNG THÁI BAN ĐẦU ---------------- */
+    LaunchedEffect(Unit) { viewModel.fetchDoorStatus(serialNumber) }
 
-    LaunchedEffect(pendingAction) {
-        pendingAction?.let { desiredOpen ->
-            isProcessing = true
-            viewModel.toggleDoorPower(serialNumber, desiredOpen)
-            pendingAction = null // Quan trọng để tránh gửi lại
-        }
-    }
-
-
+    /* ---------------- ❹ XỬ LÝ KHI VIEWMODEL TRẢ VỀ --------------- */
+    // a. Trạng thái cửa trả về từ API “lấy trạng thái”
     when (doorStatusState) {
         is ApiResult.Success -> {
-            val status = (doorStatusState as ApiResult.Success).data
+            val data = (doorStatusState as ApiResult.Success).data
             doorType = DoorType.fromLabel(deviceTypeName) ?: DoorType.TRADITIONAL
-            isOpen = status.door_state == "open"
+            isOpen   = data.door_state == "open"
         }
-        is ApiResult.Error -> {
-            snackbarViewModel.showSnackbar((doorStatusState as ApiResult.Error).message)
-        }
-        else -> {}
+        is ApiResult.Error   -> snackbarViewModel.showSnackbar(
+            (doorStatusState as ApiResult.Error).message
+        )
+        else                 -> {}
     }
 
-    // Xử lý toggleState sau khi gọi API
-    when (toggleState) {
-        is ApiResult.Success -> {
-            val result = (toggleState as ApiResult.Success).data
-            isOpen = result.door.door_state == "open"
-            isProcessing = false
-        }
-        is ApiResult.Error -> {
-            snackbarViewModel.showSnackbar((toggleState as ApiResult.Error).message)
-            isProcessing = false
-        }
-        else -> {}
-    }
-
-    IoTHomeConnectAppTheme {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            content = { innerPadding ->
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    contentPadding = PaddingValues(bottom = 32.dp)
-                ) {
-                    item {
-                        ColoredCornerBox(cornerRadius = 40.dp) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Column(
-                                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                                ) {
-                                    Text(
-                                        text = deviceName,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-
-                                    Text(
-                                        text = "Trạng thái cửa:",
-                                        fontSize = 14.sp,
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    )
-
-                                    Text(
-                                        text = if (isOpen) "Đang mở" else "Đang đóng",
-                                        color = if (isOpen) Color.Green else Color.Red,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .aspectRatio(1f),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    DoorCanvas(
-                                        doorType = doorType,
-                                        isOpen = isOpen,
-                                        onToggle = {
-                                            if (!isViewOnly && !isProcessing) {
-                                                pendingAction = !isOpen
-                                            }
-                                        },
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    item {
-                        InvertedCornerHeader(
-                            backgroundColor = MaterialTheme.colorScheme.surface,
-                            overlayColor = MaterialTheme.colorScheme.primary
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Info",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-
-                                IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
-                                    Icon(
-                                        imageVector = Icons.Default.Wifi,
-                                        contentDescription = "Wi-Fi",
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        DoorActionButton(
-                            isOpen = isOpen,
-                            onClick = {
-                                if (!isViewOnly && !isProcessing) {
-                                    pendingAction = !isOpen
-                                }
-                            }
-                        )
-                    }
+    // b. Kết quả gọi “mở/đóng”
+    //    -> luôn fetch lại để “double‑check”
+    LaunchedEffect(toggleState) {
+        when (toggleState) {
+            is ApiResult.Success,
+            is ApiResult.Error   -> {
+                isProcessing = false
+                viewModel.fetchDoorStatus(serialNumber)      // ✨ lấy lại trạng thái
+                if (toggleState is ApiResult.Error) {
+                    snackbarViewModel.showSnackbar(
+                        (toggleState as ApiResult.Error).message
+                    )
                 }
             }
-        )
+            else -> {}
+        }
+    }
+
+    /* ---------------- ❺ HÀM ĐẢO TRẠNG THÁI & GỬI LỆNH ----------- */
+    fun toggleDoor() {
+        if (isViewOnly || isProcessing) return
+        val desiredOpen = !isOpen          // đảo trạng thái
+        isOpen       = desiredOpen         // cập nhật UI ngay
+        isProcessing = true
+        viewModel.toggleDoorPower(serialNumber, desiredOpen)   // gửi lệnh
+    }
+
+    /* ---------------- ❻ UI ---------------- */
+    IoTHomeConnectAppTheme {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background
+        ) { inner ->
+            LazyColumn(
+                modifier = Modifier
+                    .padding(inner)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                contentPadding = PaddingValues(bottom = 32.dp)
+            ) {
+                item {
+                    ColoredCornerBox(cornerRadius = 40.dp) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text(
+                                    text = deviceName,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Text(
+                                    text = "Trạng thái cửa:",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                                Text(
+                                    text = if (isOpen) "Đang mở" else "Đang đóng",
+                                    color = if (isOpen) Color.Green else Color.Red,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                DoorCanvas(
+                                    doorType = doorType,
+                                    isOpen   = isOpen,
+                                    onToggle = { toggleDoor() },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    InvertedCornerHeader(
+                        backgroundColor = MaterialTheme.colorScheme.surface,
+                        overlayColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = "Info",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                                Icon(
+                                    imageVector = Icons.Default.Wifi,
+                                    contentDescription = "Wi-Fi",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    DoorActionButton(
+                        isOpen = isOpen,
+                        onClick = { toggleDoor() }
+                    )
+                }
+            }
+        }
     }
 }
+

@@ -1,5 +1,36 @@
 package com.sns.homeconnect_v2.data.remote.dto.response
 
+data class EffectParams(
+    val count: Int,
+    val speed: Int,
+    val color1: String,
+    val color2: String,
+    val effect: String,
+    val duration: Int
+)
+
+data class DeviceAttribute(
+    val color: String,
+    val effect: String,
+    val status: String,
+    val door_type: String,
+    val last_seen: String,
+    val brightness: Int,
+    val color_mode: String,
+    val deviceType: String,
+    val effect_count: Int,
+    val effect_speed: Int,
+    val power_status: Boolean,
+    val effect_active: Boolean,
+    val effect_color1: String,
+    val effect_color2: String,
+    val effect_params: EffectParams,
+    val effect_preset: String,
+    val offline_reason: String?,
+    val connection_type: String,
+    val effect_duration: Int
+)
+
 data class LinkDeviceResponse(
     val device_id: String,
     val serial_number: String,
@@ -11,7 +42,7 @@ data class LinkDeviceResponse(
     val firmware_id: String?,
     val name: String,
     val power_status: Boolean,
-    val attribute: String?,
+    val attribute: DeviceAttribute?,
     val wifi_ssid: String?,
     val wifi_password: String?,
     val current_value: String?,
@@ -23,24 +54,3 @@ data class LinkDeviceResponse(
     val updated_at: String,
     val is_deleted: Boolean
 )
-
-
-//data class LinkDeviceResponse(
-//    val message: String,
-//    val device: LinkDevice
-//)
-//
-//data class LinkDevice(
-//    val DeviceID: Int,
-//    val TypeID: Int,
-//    val SpaceID: String, // Chuyển SpaceID thành String
-//    val UserID: Int,
-//    val Name: String,
-//    val PowerStatus: Boolean,
-//    val Attribute: String,
-//    val WifiSSID: String,
-//    val WifiPassword: String,
-//    val IsDeleted: Boolean,
-//    val createdAt: String,
-//    val updatedAt: String
-//)

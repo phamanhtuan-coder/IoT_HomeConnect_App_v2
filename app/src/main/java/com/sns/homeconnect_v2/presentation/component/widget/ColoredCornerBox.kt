@@ -29,8 +29,8 @@ import androidx.compose.ui.graphics.Brush
  */
 @Composable
 fun ColoredCornerBox(
-    startColor: Color = MaterialTheme.colorScheme.primary, // Xanh dương đậm
-    endColor: Color = Color(0xFFE3F2FD), // Xanh nhạt
+    startColor: Color = Color(0xFF1976D2), // Xanh dương đậm
+    endColor: Color = Color(0xFF64B5F6), // Xanh nhạt
     cornerRadius: Dp = 40.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -49,13 +49,14 @@ fun ColoredCornerBox(
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun ColoredCornerBoxPreview() {
     IoTHomeConnectAppTheme {
         ColoredCornerBox(
             startColor = Color(0xFF1976D2), // Xanh dương đậm
-            endColor = Color(0xFFE3F2FD), // Xanh nhạt
+            endColor = Color(0xFF64B5F6),
             cornerRadius = 40.dp
         ) {
             Text(

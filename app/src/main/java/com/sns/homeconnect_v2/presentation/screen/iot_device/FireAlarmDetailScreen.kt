@@ -403,7 +403,7 @@ fun FireAlarmDetailScreen(
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth() // Chiều rộng đầy đủ
-                                        .background(color = colorScheme.primary) // Nền màu xanh dương
+                                        //.background(color = colorScheme.primary) // Nền màu xanh dương
                                         .weight(0.2f), // Chiếm 20% của Row
                                     horizontalAlignment = Alignment.Start,
                                     verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
@@ -437,7 +437,7 @@ fun FireAlarmDetailScreen(
 
                                     Text(
                                         text = "Trạng thái hiện tại: ",
-                                        color = colorScheme.onPrimary,
+                                        color = Color(0xFF222222),
                                         fontSize = 16.sp
                                     )
 
@@ -448,7 +448,7 @@ fun FireAlarmDetailScreen(
                                         color = when (selectedStatus) {
                                             "Báo động" -> Color.Red
                                             "Lỗi" -> Color.Yellow
-                                            else -> Color.Green
+                                            else -> Color(0xFF228B22)
                                         }
                                     )
                                 }

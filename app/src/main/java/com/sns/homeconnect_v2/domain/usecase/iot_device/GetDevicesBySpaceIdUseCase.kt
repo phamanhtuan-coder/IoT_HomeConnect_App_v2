@@ -1,7 +1,6 @@
 package com.sns.homeconnect_v2.domain.usecase.iot_device
 
 import com.sns.homeconnect_v2.domain.repository.SpaceRepository
-import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import javax.inject.Inject
 

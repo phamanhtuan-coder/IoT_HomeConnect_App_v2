@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
+import com.sns.homeconnect_v2.domain.usecase.iot_device.GetDevicesBySpaceIdUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetListSpaceUseCase
 import com.sns.homeconnect_v2.domain.usecase.space.GetSpaceDetailUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SpaceScreenDetailViewModel @Inject constructor(
-    private val getDetailSpaceUseCase: GetSpaceDetailUseCase
+    private val getDevicesBySpaceIdUseCase: GetDevicesBySpaceIdUseCase
 ) :ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
@@ -28,7 +29,7 @@ class SpaceScreenDetailViewModel @Inject constructor(
     fun getSpaces(spaceId: Int) {
         viewModelScope.launch {
             _isLoading.value = true
-            val result = getDetailSpaceUseCase.invoke(spaceId)
+            val result = getDevicesBySpaceIdUseCase.invoke(spaceId)
             result.onSuccess { spacesDevice ->
                 _spacesDevice.value = spacesDevice // Đảm bảo spaces là List<Space>
                 Log.d("ViewModel space", spacesDevice.toString())

@@ -40,6 +40,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.ListOfUserOwnedDevicesViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.DeviceSharingViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.RevokeRecipientViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.sharing.SharedDeviceState
 
 /** Giao diện màn hình Device Screen
@@ -71,6 +72,7 @@ fun ListDeviceScreen(
 //    deviceViewModel: DeviceViewModel = hiltViewModel(),
     deviceSharingViewModel: DeviceSharingViewModel = hiltViewModel(),
 ) {
+    val revokeVM: RevokeRecipientViewModel = hiltViewModel()
     val ownedDevicesState by listOfUserOwnedDevicesViewModel.listOfUserOwnedDevicesState.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val deviceOwnershipTabs = listOf("Sở hữu", "Chia sẽ")
@@ -99,6 +101,17 @@ fun ListDeviceScreen(
     LaunchedEffect(Unit) {
         listOfUserOwnedDevicesViewModel.getListOfUserOwnedDevices()
         deviceSharingViewModel.getSharedDevicesForUser()
+    }
+
+    // Lắng nghe trạng thái revoke
+    val revokeState by revokeVM.state.collectAsState()
+
+    // Nếu revoke thành công, cập nhật lại danh sách thiết bị
+    LaunchedEffect(revokeState) {
+        if (revokeState is RevokeRecipientViewModel.UiState.Success) {
+            deviceSharingViewModel.getSharedDevicesForUser()
+            revokeVM.reset()   // (tuỳ chọn) trở lại Idle
+        }
     }
 
     IoTHomeConnectAppTheme {
@@ -254,7 +267,9 @@ fun ListDeviceScreen(
                                                     )
                                                 )
                                             },
-                                            onDelete = { /* Xử lý nếu muốn xóa */ },
+                                            onDelete = {
+                                                revokeVM.revoke(device.device_serial)   // ➍ gọi Use‑Case
+                                            },
                                             onEdit = { /* Nếu cho phép chỉnh */ }
                                         )
                                     }

@@ -575,6 +575,13 @@ interface ApiService {
         @Body body: ToggleDoorRequest,
         @Header("Authorization") token: String
     ): DoorToggleResponse
+
+    @DELETE("permissions/recipient/{serialNumber}")
+    suspend fun revokeRecipientPermission(
+        @Path("serialNumber") serial: String,
+        @Header("Authorization") bearer: String   // "Bearer <JWT>"
+    ): Response<Unit>
+
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

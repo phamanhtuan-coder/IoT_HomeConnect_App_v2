@@ -22,6 +22,11 @@ data class DeviceResponseSpace(
     val created_at: String?,
     val updated_at: String?,
     val is_deleted: Boolean,
+    val device_type_id: Int?, // Thêm trường từ JSON
+    val device_type_name: String?, // Thêm trường từ JSON
+    val device_template_name: String?, // Thêm trường từ JSON
+    val device_template_status: String?, // Thêm trường từ JSON
+    val device_base_capabilities: Map<String, Any>?, // Thêm trường, sử dụng Map cho object JSON
     val isRevealed: Boolean = false
 )
 

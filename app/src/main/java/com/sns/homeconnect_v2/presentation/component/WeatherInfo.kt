@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -116,10 +118,11 @@ fun WeatherInfo(
     Column(
         modifier = Modifier
             .background(
-                color = Color(0xFFD8E4E8),
-                shape = RoundedCornerShape(25.dp)
+                color = Color(0xFFF7F2FA), // Nền đồng bộ với DashboardScreen
+                shape = RoundedCornerShape(10.dp) // Giảm bo góc
             )
-            .padding(8.dp),
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(10.dp)) // Viền nhẹ
+            .padding(10.dp), // Giảm padding
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -131,63 +134,80 @@ fun WeatherInfo(
             Icon(
                 imageVector = Icons.Filled.WbSunny,
                 contentDescription = null,
-                tint = Color(0xFF424242),
-                modifier = Modifier.size(if (isTablet) 120.dp else 80.dp)
+                tint = Color(0xFFF57C00), // Cam nhạt cho icon thời tiết
+                modifier = Modifier.size(if (isTablet) 48.dp else 40.dp) // Giảm kích thước icon
             )
-            Column(horizontalAlignment = Alignment.Start) {
-                Text(
-                    text = thoiGian,
-                    color = Color(0xFF424242),
-                    fontSize = 14.sp
-                )
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp), // Thêm padding để tránh cắt chữ
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.spacedBy(3.dp) // Giảm khoảng cách
+            ) {
                 Text(
                     text = thoiTiet,
-                    color = Color(0xFF424242),
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    color = Color(0xFF1E88E5), // Xanh dương nhẹ cho thời tiết
+                    fontSize = 14.sp, // Giảm kích thước chữ
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis // Ngăn cắt chữ
+                )
+                Text(
+                    text = thoiGian,
+                    color = Color(0xFF6B7280), // Xám trung cho thời gian
+                    fontSize = 11.sp, // Giảm kích thước chữ
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = viTri,
-                    color = Color(0xFF424242),
-                    fontSize = 14.sp
+                    color = Color(0xFF9CA3AF), // Xám nhạt cho vị trí
+                    fontSize = 11.sp, // Giảm kích thước chữ
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     text = nhietDo,
-                    color = Color(0xFF424242),
-                    fontSize = if (isTablet) 40.sp else 30.sp,
-                    fontWeight = FontWeight.Bold
+                    color = Color(0xFFE65100), // Cam đậm cho nhiệt độ
+                    fontSize = if (isTablet) 24.sp else 20.sp, // Giảm kích thước chữ
+                    fontWeight = FontWeight.Medium
                 )
                 Icon(
                     imageVector = Icons.Filled.WbSunny,
                     contentDescription = null,
-                    tint = Color(0xFF424242),
-                    modifier = Modifier.size(if (isTablet) 32.dp else 28.dp)
+                    tint = Color(0xFFE65100), // Cam đậm cho icon nhiệt độ
+                    modifier = Modifier.size(if (isTablet) 24.dp else 20.dp) // Giảm kích thước icon
                 )
             }
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = 16.dp),
+            modifier = Modifier.padding(vertical = 8.dp), // Giảm khoảng cách
             thickness = 1.dp,
-            color = Color(0xFFBDBDBD)
+            color = Color(0xFFE0E0E0)
         )
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 100.dp),
+                .heightIn(max = 80.dp),
             columns = GridCells.Fixed(3),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 WeatherWidget(
                     icon = Icons.Filled.WaterDrop,
                     value = "$doAm%",
                     label = "Độ ẩm",
-                    isTablet = isTablet
+                    isTablet = isTablet,
+                    iconTint = Color(0xFF1E88E5) // Xanh dương nhẹ cho widget
                 )
             }
             item {
@@ -195,7 +215,8 @@ fun WeatherInfo(
                     icon = Icons.Filled.Visibility,
                     value = "$tamNhin km",
                     label = "Tầm nhìn",
-                    isTablet = isTablet
+                    isTablet = isTablet,
+                    iconTint = Color(0xFF1E88E5)
                 )
             }
             item {
@@ -203,7 +224,8 @@ fun WeatherInfo(
                     icon = Icons.Filled.Air,
                     value = "$gio km/h",
                     label = "Phong",
-                    isTablet = isTablet
+                    isTablet = isTablet,
+                    iconTint = Color(0xFF1E88E5)
                 )
             }
         }

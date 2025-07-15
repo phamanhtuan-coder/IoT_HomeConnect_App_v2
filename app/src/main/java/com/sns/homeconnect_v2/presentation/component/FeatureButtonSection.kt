@@ -26,8 +26,8 @@ fun FeatureButtonSection(
     title: String = "Tính năng",
     items: List<FeatureButtonItem>,
     columns: Int = 4,
-    horizontalSpacing: Int = 12,
-    verticalSpacing: Int = 24,
+    horizontalSpacing: Int = 8,
+    verticalSpacing: Int = 16,
 ) {
     Column(
         modifier = modifier,
@@ -35,9 +35,10 @@ fun FeatureButtonSection(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 14.dp)
+            style = MaterialTheme.typography.titleMedium, // Giảm kích thước tiêu đề
+            fontWeight = FontWeight.SemiBold, // Font nhẹ hơn
+            color = MaterialTheme.colorScheme.onSurface, // Màu chữ hài hòa
+            modifier = Modifier.padding(bottom = 12.dp) // Giảm padding
         )
 
         val rows = items.chunked(columns)
@@ -54,6 +55,7 @@ fun FeatureButtonSection(
             ) {
                 rowItems.forEach { item ->
                     FeatureButton(item = item)
+                    Spacer(modifier = Modifier.width(horizontalSpacing.dp))
                 }
             }
 

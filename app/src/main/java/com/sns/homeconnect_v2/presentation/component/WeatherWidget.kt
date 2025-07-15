@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -24,7 +25,8 @@ fun WeatherWidget(
     icon: ImageVector,
     value: String,
     label: String,
-    isTablet: Boolean
+    isTablet: Boolean,
+    iconTint: Color
 ) {
 //    val screenWidth = LocalConfiguration.current.screenWidthDp
 //    val isTablet = screenWidth > 600

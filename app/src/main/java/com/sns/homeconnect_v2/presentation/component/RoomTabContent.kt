@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,14 +40,14 @@ fun RoomTabContent(room: Room, isActive: Boolean) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(vertical = 8.dp)
+            .padding(vertical = 3.dp)
             .wrapContentWidth()
     ) {
         Box(
             modifier = Modifier
-                .size(60.dp)
+                .size(if (isActive) 36.dp else 32.dp) // Tăng kích thước cho dễ nhìn
                 .background(
-                    color = if (isActive) Color(0xFF2979FF) else Color(0xFFF4F7FB),
+                    color = if (isActive) Color(0xFF1E88E5) else Color(0xFFF7F2FA),
                     shape = CircleShape
                 ),
             contentAlignment = Alignment.Center
@@ -54,18 +55,22 @@ fun RoomTabContent(room: Room, isActive: Boolean) {
             Icon(
                 imageVector = room.icon,
                 contentDescription = room.name,
-                tint = if (isActive) Color.White else Color(0xFF404B5A),
-                modifier = Modifier.size(34.dp)
+                tint = if (isActive) Color(0xFFFFFFFF) else Color(0xFF9CA3AF),
+                modifier = Modifier.size(if (isActive) 20.dp else 18.dp)
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = room.name,
-            fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
-            fontSize = 14.sp,
-            color = if (isActive) Color(0xFF2979FF) else Color(0xFF404B5A),
-            modifier = Modifier.padding(top = 2.dp)
-        )
+        if (isActive) { // Chỉ hiển thị tên cho tab được chọn
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                text = room.name,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                color = Color(0xFF1E88E5),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis, // Ngăn cắt chữ
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
     }
 }
 

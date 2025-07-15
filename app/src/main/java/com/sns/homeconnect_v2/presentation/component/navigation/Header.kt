@@ -1,6 +1,7 @@
 package com.sns.homeconnect_v2.presentation.component.navigation
 
 import IoTHomeConnectAppTheme
+import android.R.attr.start
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -198,8 +199,10 @@ fun HomeHeader(
                 actionIconContentColor = Color.White
             ),
             title = {
+                Spacer(modifier = Modifier.width(8.dp)) // Giảm khoảng cách giữa biểu tượng và tiêu đề
                 Column(
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp) // Giảm padding ngang
                 ) {
                     Text(
                         text = getGreeting(),
@@ -231,6 +234,7 @@ fun HomeHeader(
                         navController.navigate(Screens.AllNotifications.route)
                     }
                 )
+                Spacer(modifier = Modifier.width(8.dp)) // Giảm khoảng cách giữa các nút
             }
         )
     }
@@ -238,15 +242,17 @@ fun HomeHeader(
 
 @Composable
 fun RoundedIconButton(icon: ImageVector, description: String, onClick: () -> Unit) {
+    Spacer(modifier = Modifier.width(8.dp))
     IconButton(
         modifier = Modifier
-            .padding(horizontal = 4.dp) // Giảm padding
+            .padding(horizontal = 10.dp) // Giảm padding
             .size(36.dp) // Giảm kích thước nút
             .shadow(4.dp, CircleShape, clip = false) // Thêm bóng
             .clip(CircleShape)
             .background(Color(0xFFE3F2FD)), // Xanh nhạt, đồng bộ với FeatureButton
         onClick = onClick
     ) {
+        Spacer(modifier = Modifier.width(20.dp))
         Icon(
             imageVector = icon,
             contentDescription = description,

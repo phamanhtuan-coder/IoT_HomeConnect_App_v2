@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,20 +48,19 @@ fun GenericDropdown(
     modifier: Modifier = Modifier,
     placeHolder: String = "Select...",
     isTablet: Boolean = false,
-    leadingIcon: ImageVector? = null // Icon đầu dòng (nếu có)
+    leadingIcon: ImageVector? = null
 ) {
     var showSheet by remember { mutableStateOf(false) }
 
-    // Vùng nhấn để mở sheet
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .border(1.dp, Color(0xFF9E9E9E), RoundedCornerShape(16.dp))
-            .background(Color.White)
-            .height(56.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp))
+            .background(Color(0xFFF7F2FA))
+            .height(48.dp)
             .fillMaxWidth()
             .clickable { showSheet = true }
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 10.dp), // Giảm padding ngang
         contentAlignment = Alignment.CenterStart
     ) {
         Row(
@@ -72,24 +72,28 @@ fun GenericDropdown(
                 Icon(
                     imageVector = leadingIcon,
                     contentDescription = null,
-                    tint = Color(0xFF212121),
-                    modifier = Modifier.size(36.dp)
+                    tint = Color(0xFF374151), // Xám đậm nhẹ
+                    modifier = Modifier.size(20.dp) // Giảm kích thước icon
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(6.dp)) // Giảm khoảng cách
             }
 
             Text(
                 text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
-                fontSize = 20.sp,
-                color = if (selectedItem.isNullOrBlank()) Color.Gray else Color(0xFF212121),
-                modifier = Modifier.weight(1f)
+                fontSize = 14.sp, // Giảm kích thước chữ
+                color = if (selectedItem.isNullOrBlank()) Color(0xFF9CA3AF) else Color(0xFF374151), // Xám nhạt/xám đậm
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp), // Thêm padding phải để tránh cắt chữ
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis // Xử lý chữ dài
             )
 
             Icon(
                 imageVector = if (showSheet) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = Color(0xFF212121),
-                modifier = Modifier.size(28.dp)
+                tint = Color(0xFF374151),
+                modifier = Modifier.size(20.dp)
             )
         }
     }
@@ -97,43 +101,45 @@ fun GenericDropdown(
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = { showSheet = false },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+            containerColor = Color(0xFFF7F2FA),
+            shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp) // Giảm bo góc
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+                    .padding(top = 8.dp, bottom = 12.dp, start = 12.dp, end = 12.dp) // Giảm padding
             ) {
-                // Title hiển thị placeholder
                 Text(
                     text = placeHolder,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = Color(0xFF2979FF),
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    style = MaterialTheme.typography.titleSmall, // Giảm kích thước tiêu đề
+                    color = Color(0xFF1E88E5),
+                    modifier = Modifier.padding(bottom = 10.dp) // Giảm padding
                 )
 
                 items.forEach { item ->
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(8.dp))
                             .clickable {
                                 onItemSelected(item)
                                 showSheet = false
                             }
-                            .background(if (item == selectedItem) Color(0xFF2979FF).copy(alpha = 0.08f) else Color.Transparent)
-                            .padding(vertical = 18.dp, horizontal = 12.dp)
+                            .background(if (item == selectedItem) Color(0x1A1E88E5) else Color.Transparent) // Nền xanh nhạt khi chọn
+                            .padding(vertical = 10.dp, horizontal = 10.dp) // Giảm padding
                     ) {
                         Text(
                             text = item,
-                            fontSize = 20.sp,
-                            color = if (item == selectedItem) Color(0xFF2979FF) else Color(0xFF212121),
-                            fontWeight = if (item == selectedItem) FontWeight.Bold else FontWeight.Normal
+                            fontSize = 16.sp, // Giảm kích thước chữ
+                            color = if (item == selectedItem) Color(0xFF1E88E5) else Color(0xFF374151),
+                            fontWeight = if (item == selectedItem) FontWeight.Medium else FontWeight.Normal
                         )
                     }
                     if (item != items.last()) {
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 8.dp))
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 10.dp), // Giảm padding
+                            color = Color(0xFFE0E0E0)
+                        )
                     }
                 }
             }

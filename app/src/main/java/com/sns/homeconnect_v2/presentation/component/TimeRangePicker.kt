@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -59,63 +61,65 @@ fun TimeRangePicker() {
     var selectedRange by remember { mutableStateOf("Hôm nay") }
     var customRange by remember { mutableStateOf<Pair<String, String>?>(null) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Button(
             onClick = { sheetOpen = true },
             modifier = Modifier
-                .height(57.dp)
+                .height(55.dp) // Chiều cao đồng bộ với GenericDropdown
                 .fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(12.dp), // Bo góc đồng bộ
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF4F7FB), // Nền nhạt nhẹ, không trắng hoàn toàn
-                contentColor = Color(0xFF2979FF)
+                containerColor = Color(0xFFF7F2FA), // Nền đồng bộ với DashboardScreen
+                contentColor = Color(0xFF1E88E5) // Xanh dương nhẹ
             ),
-            border = BorderStroke(2.dp, Color(0xFF2979FF)),
+            border = BorderStroke(1.dp, Color(0xFFE0E0E0)), // Viền xám nhạt
             elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 12.dp
+                defaultElevation = 0.dp, // Bỏ elevation để phẳng
+                pressedElevation = 2.dp
             )
         ) {
-            // Icon lịch nằm trong vòng tròn nhỏ, đậm
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .background(color = Color(0x332979FF), shape = RoundedCornerShape(20.dp)), // nền xanh nhạt nhạt
+                    .size(32.dp) // Giảm kích thước box
+                    .background(color = Color(0x1A1E88E5), shape = RoundedCornerShape(8.dp)), // Nền xanh nhạt, bo góc
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.CalendarToday,
                     contentDescription = "Chọn ngày",
-                    tint = Color(0xFF2979FF),
-                    modifier = Modifier.size(26.dp)
+                    tint = Color(0xFF1E88E5),
+                    modifier = Modifier.size(20.dp) // Giảm kích thước icon
                 )
             }
-            Spacer(Modifier.width(16.dp))
+            Spacer(Modifier.width(10.dp)) // Giảm khoảng cách
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp) // Thêm padding phải để tránh cắt chữ
             ) {
                 Text(
                     text = "Chọn thời gian",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = Color(0xFF2979FF),
-                    letterSpacing = 1.sp
+                    fontWeight = FontWeight.Medium, // Font nhẹ hơn
+                    fontSize = 16.sp, // Chữ chính nhỏ hơn
+                    color = Color(0xFF374151), // Xám đậm nhẹ
+                    letterSpacing = 0.5.sp
                 )
                 if (selectedRange.isNotBlank() && selectedRange != "Chọn thời gian") {
                     Text(
                         text = selectedRange,
                         fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        maxLines = 1
+                        fontSize = 12.sp, // Giảm kích thước chữ phụ
+                        color = Color(0xFF9CA3AF), // Xám nhạt
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis // Xử lý chữ dài
                     )
                 }
             }
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = "Mở chọn ngày",
-                tint = Color(0xFF2979FF),
-                modifier = Modifier.size(28.dp)
+                tint = Color(0xFF1E88E5),
+                modifier = Modifier.size(20.dp) // Giảm kích thước icon
             )
         }
 
@@ -134,7 +138,6 @@ fun TimeRangePicker() {
         )
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewTimeRangePickerDemo() {

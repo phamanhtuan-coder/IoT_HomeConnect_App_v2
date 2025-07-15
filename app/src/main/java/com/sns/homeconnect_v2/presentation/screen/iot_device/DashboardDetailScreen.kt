@@ -141,10 +141,10 @@ fun DashboardDetailScreen(navController: NavHostController) {
                         }
                     }
 
-                    InvertedCornerHeader(
-                        backgroundColor = colorScheme.surface,
-                        overlayColor = colorScheme.primary
-                    ) { }
+//                    InvertedCornerHeader(
+//                        backgroundColor = colorScheme.surface,
+//                        overlayColor = colorScheme.primary
+//                    ) { }
 
                     Column (
                         modifier = Modifier

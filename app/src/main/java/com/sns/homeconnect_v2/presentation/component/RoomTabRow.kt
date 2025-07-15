@@ -1,6 +1,9 @@
 package com.sns.homeconnect_v2.presentation.component
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Bed
@@ -20,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,7 +55,7 @@ fun RoomTabRow(
         Room("bathroom", "PHÒNG TẮM", Icons.Filled.Bathtub),
         Room("office", "PHÒNG LÀM VIỆC", Icons.Filled.WorkspacePremium)
     ),
-    tabPerScreen: Int = 4 // mặc định 4 tab
+    tabPerScreen: Int = 4
 ) {
     val selectedIndex = rooms.indexOfFirst { it.id == activeRoom }.coerceAtLeast(0)
     val useScrollable = rooms.size > tabPerScreen
@@ -58,17 +63,22 @@ fun RoomTabRow(
     if (useScrollable) {
         ScrollableTabRow(
             selectedTabIndex = selectedIndex,
-            edgePadding = 12.dp, // Tăng khoảng cách lề để thoáng hơn
-            containerColor = Color(0xFFF5F7FA), // Nền xám nhạt nhẹ nhàng
-            contentColor = Color(0xFF1A1A1A), // Màu nội dung tối nhẹ
+            edgePadding = 2.dp,
+            containerColor = Color(0xFFF7F2FA),
+            contentColor = Color(0xFF374151),
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 4.dp,
+                    height = 2.dp,
                     color = Color(0xFF1E88E5)
                 )
-            }
+            },
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp)) // Thêm bo góc
+                .background(Color(0xFFF7F2FA))
+                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp)) // Thêm viền
+                .shadow(4.dp, RoundedCornerShape(12.dp)) // Thêm bóng đổ
         ) {
             rooms.forEachIndexed { index, room ->
                 val isActive = index == selectedIndex
@@ -76,8 +86,10 @@ fun RoomTabRow(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
                     selectedContentColor = Color(0xFF1E88E5),
-                    unselectedContentColor = Color(0xFF6B7280),
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    unselectedContentColor = Color(0xFF9CA3AF),
+                    modifier = Modifier
+                        .padding(horizontal = 3.dp, vertical = 3.dp)
+                        .height(48.dp)
                 ) {
                     RoomTabContent(room, isActive)
                 }
@@ -86,16 +98,18 @@ fun RoomTabRow(
     } else {
         TabRow(
             selectedTabIndex = selectedIndex,
-            containerColor = Color(0xFFF5F7FA), // Nền xám nhạt nhẹ nhàng
-            contentColor = Color(0xFF1A1A1A), // Màu nội dung tối nhẹ
+            containerColor = Color(0xFFF7F2FA),
+            contentColor = Color(0xFF374151),
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 4.dp,
+                    height = 2.dp,
                     color = Color(0xFF1E88E5)
                 )
-            }
+            },modifier = Modifier
+                .clip(RoundedCornerShape(12.dp)) // Thêm bo góc
+                .background(Color(0xFFF7F2FA))
         ) {
             rooms.forEachIndexed { index, room ->
                 val isActive = index == selectedIndex
@@ -103,7 +117,10 @@ fun RoomTabRow(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
                     selectedContentColor = Color(0xFF1E88E5),
-                    unselectedContentColor = Color(0xFF6B7280),
+                    unselectedContentColor = Color(0xFF9CA3AF),
+                    modifier = Modifier
+                        .padding(horizontal = 3.dp, vertical = 3.dp)
+                        .height(48.dp)
                 ) {
                     RoomTabContent(room, isActive)
                 }

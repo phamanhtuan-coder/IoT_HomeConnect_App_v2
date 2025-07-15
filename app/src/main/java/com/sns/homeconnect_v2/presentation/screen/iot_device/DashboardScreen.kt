@@ -2,12 +2,14 @@ package com.sns.homeconnect_v2.presentation.screen.iot_device
 
 import com.sns.homeconnect_v2.presentation.component.CustomLineChart
 import IoTHomeConnectAppTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -65,12 +67,7 @@ import com.sns.homeconnect_v2.presentation.model.DataPoint
 @Composable
 fun DashboardScreen(navController: NavHostController) {
     IoTHomeConnectAppTheme {
-        val chartNames = listOf(
-            "Nhiệt độ",
-            "Độ ẩm",
-            "Khí gas",
-            "Điện tiêu thụ"
-        )
+        val chartNames = listOf("Nhiệt độ", "Độ ẩm", "Khí gas", "Điện tiêu thụ")
         val temperatureData = (0..23).map { hour ->
             val temperatureValue = (14 + 10 * kotlin.math.sin(Math.PI * (hour - 6) / 15)).toFloat() + (0..2).random()
             DataPoint("%02d:00".format(hour), temperatureValue)
@@ -103,84 +100,85 @@ fun DashboardScreen(navController: NavHostController) {
             Color(0x55E57373), // Đỏ nhạt
             Color(0x55FFB300)  // Vàng nhạt
         )
-        val chartDataList = listOf(
-            temperatureData, // 0
-            humidityData,    // 1
-            gasData,         // 2
-            electricityData  // 3
-        )
+        val chartDataList = listOf(temperatureData, humidityData, gasData, electricityData)
         var current by remember { mutableStateOf<String?>(null) }
         var activeRoom by remember { mutableStateOf("living") }
-        val colorScheme = MaterialTheme.colorScheme
+        var selectedTimeRange by remember { mutableStateOf("Hôm nay") }
 
         Scaffold(
             topBar = {
                 Header(
                     navController = navController,
-                    type          = "Back",
-                    title         = "Space Details"
+                    type = "Back",
+                    title = "Space Details"
                 )
             },
             containerColor = Color.White,
-            bottomBar = {
-                MenuBottom(navController)
-            }
+            bottomBar = { MenuBottom(navController) }
         ) { scaffoldPadding ->
-            LazyColumn (
-                modifier= Modifier
-                    .padding(scaffoldPadding)
+            LazyColumn(
+                modifier = Modifier
+                    .padding(scaffoldPadding),
+                    //.padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 item {
-                    ColoredCornerBox(
-                        cornerRadius = 40.dp
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(20.dp)
-                        ) {
+                    ColoredCornerBox(cornerRadius = 32.dp) {
+                        Box(modifier = Modifier.padding(20.dp)) {
                             WeatherInfo()
                         }
                     }
-
-//                    InvertedCornerHeader(
-//                        backgroundColor = colorScheme.surface,
-//                        overlayColor = colorScheme.primary
-//                    ) { }
-
-                    Column (
+                    Column(
                         modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Row (
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        // Box nền cho Dropdown + Tabs + Time Picker
+                        Box(
+                            modifier = Modifier
+                                .background(Color(0xFFF5F5F5), shape = MaterialTheme.shapes.medium)
+                                .padding(12.dp)
                         ) {
-                            GenericDropdown(
-                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                                selectedItem = current,
-                                onItemSelected = { current = it },
-                                placeHolder = "Chọn nhóm",
-                                modifier = Modifier.weight(1f)
-                            )
-                            GenericDropdown(
-                                items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
-                                selectedItem = current,
-                                onItemSelected = { current = it },
-                                placeHolder = "Chọn nhà",
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        RoomTabRow(
-                            activeRoom = activeRoom,
-                            onRoomChange = { activeRoom = it }
-                        )
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                // Dropdown nhóm và nhà
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    GenericDropdown(
+                                        items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                        selectedItem = current,
+                                        onItemSelected = { current = it },
+                                        placeHolder = "Chọn nhóm",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    GenericDropdown(
+                                        items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                                        selectedItem = current,
+                                        onItemSelected = { current = it },
+                                        placeHolder = "Chọn nhà",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
 
+                                // Tabs chọn phòng
+                                RoomTabRow(
+                                    activeRoom = activeRoom,
+                                    onRoomChange = { activeRoom = it }
+                                )
+
+                            }
+                        }
+
+                        // Divider phân cách
+                        Divider(color = Color.LightGray, thickness = 1.dp)
+                        // Bộ lọc thời gian
+                        TimeRangePicker()
+                        // Các biểu đồ
                         Column(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            modifier = Modifier.padding(top = 6.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             chartNames.forEachIndexed { i, label ->
-                                TimeRangePicker() // Nếu cần 4 bộ lọc riêng cho từng biểu đồ
                                 CustomLineChart(
                                     dataPoints = chartDataList[i],
                                     chartWidth = 250.dp,
@@ -188,7 +186,7 @@ fun DashboardScreen(navController: NavHostController) {
                                     yLabelCount = 5,
                                     lineColor = chartColors[i],
                                     fillColor = chartFillColors[i],
-                                    backgroundColor = Color(0xFFF7F2FA),
+                                    backgroundColor = Color(0xFFF7F7F7),
                                     showFill = true,
                                     cornerRadius = 8.dp,
                                     labelTextSize = 12f
@@ -200,6 +198,7 @@ fun DashboardScreen(navController: NavHostController) {
                             }
                         }
                     }
+
                 }
             }
         }

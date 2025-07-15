@@ -71,6 +71,7 @@ import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedEffectViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.detail_led.LedUiState
@@ -85,13 +86,16 @@ fun DeviceDetailScreen(
     navController: NavHostController,
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
+    groupId: Int,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel
 ) {
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
+    val unlinkState by displayViewModel.unlinkState.collectAsState()
 
     // Lấy thông tin chi tiết thiết bị
     val ledViewModel: LedEffectViewModel = hiltViewModel()
@@ -258,19 +262,40 @@ fun DeviceDetailScreen(
     LaunchedEffect(updateState) {
         when (val st = updateState) {
             is UpdateDeviceStateBulkUiState.Success -> {
-                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Cập nhật trạng thái thành cộng", SnackbarVariant.SUCCESS)
                 isSendingToggle = false
                 // refresh lại trạng thái
                 displayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
-                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Cập nhật trạng thái thất bại", SnackbarVariant.ERROR)
                 isSendingToggle = false
                 pendingToggle   = null
             }
             else -> Unit
         }
     }
+
+    LaunchedEffect(unlinkState) {
+        when (val state = unlinkState) {
+            is UnlinkState.Success -> {
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
+                pendingOnSuccess?.invoke(state.message)
+                pendingOnSuccess = null
+                loadingAction = null
+                navController.popBackStack()
+            }
+            is UnlinkState.Error -> {
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
+                pendingOnError?.invoke(state.error)
+                pendingOnError = null
+                loadingAction = null
+            }
+            else -> {}
+        }
+    }
+
+    Log.d("DeviceDetailScreen", "deviceId=$deviceId, deviceName=$deviceName, serialNumber=$serialNumber, groupId=$groupId")
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
@@ -381,7 +406,7 @@ fun DeviceDetailScreen(
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
-                                    if ("brightness" in controls) {
+//                                     if ("brightness" in controls) {
                                         Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
 
                                         EdgeToEdgeSlider(
@@ -396,7 +421,7 @@ fun DeviceDetailScreen(
                                             },
                                             enabled = !isViewOnly // 👈 khóa khi chỉ được xem
                                         )
-                                    }
+//                                    }
                                 }
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -411,7 +436,7 @@ fun DeviceDetailScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                if ("color" in controls) {
+//                                if ("color" in controls) {
                                 /* ---------------------- Trong DeviceDetailScreen ---------------------- */
                                     FancyColorSlider(
                                         attribute = attribute,
@@ -427,7 +452,7 @@ fun DeviceDetailScreen(
                                         },
                                         enabled = !isViewOnly
                                     )
-                                }
+//                                }
                             }
                         }
 
@@ -562,7 +587,7 @@ fun DeviceDetailScreen(
                                             pendingOnSuccess = onS
                                             pendingOnError = onE
                                             confirmTitle = "Gỡ kết nối"
-                                            confirmMessage = "Bạn muốn gỡ kết nối!"
+                                            confirmMessage = "Bạn có chắc chắn muốn gỡ thiết bị này không?"
                                             pendingAction = DeviceAction.UNLINK
                                             showConfirm = true
                                         },
@@ -762,15 +787,47 @@ fun DeviceDetailScreen(
                                     dismissText = "Huỷ",
                                     onConfirm = {
                                         showConfirm = false
-
                                         loadingAction = pendingAction
+                                        val action = pendingAction
                                         pendingAction = null
 
                                         scope.launch {
-                                            delay(1000)
-                                            val ok = true
-                                            if (ok) pendingOnSuccess?.invoke("Thành công!")
-                                            else pendingOnError?.invoke("Thất bại!")
+                                            when (action) {
+                                                DeviceAction.UNLINK -> {
+                                                    displayViewModel.unlinkDevice(
+                                                        serialNumber = serialNumber,
+                                                        groupId = groupId
+                                                    )
+                                                }
+
+                                                DeviceAction.LOCK -> {
+                                                    // TODO: Gọi API khoá thiết bị nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                }
+
+                                                DeviceAction.RESET -> {
+                                                    // TODO: Gọi API reset thiết bị nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                }
+
+                                                DeviceAction.TRANSFER -> {
+                                                    // TODO: Gọi API chuyển quyền nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                }
+
+                                                DeviceAction.REPORT_LOST -> {
+                                                    // TODO: Gọi API báo mất nếu có
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                }
+
+                                                else -> {
+                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                }
+                                            }
 
                                             loadingAction = null
                                         }
@@ -781,6 +838,7 @@ fun DeviceDetailScreen(
                                     }
                                 )
                             }
+
                         }
                     }
                 }

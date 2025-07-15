@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.BorderAll
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Help
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Memory
@@ -72,10 +73,18 @@ fun HomeScreen(
         SlideShowItem("https://picsum.photos/id/3/600/300")
     )
     val featureButtons = listOf(
-        FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {},
-        FeatureButtonItem(Icons.Default.Wifi, "Kết nối Wifi") {},
-        FeatureButtonItem(Icons.Default.Upload, "Chia sẻ thiết bị") {},
-        FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {}
+        FeatureButtonItem(Icons.Default.Add, "Thêm thiết bị") {
+            navController.navigate(Screens.AddDevice.route)
+        },
+        FeatureButtonItem(Icons.Default.Groups, "Nhóm thiết bị") {
+            navController.navigate(Screens.Groups.route)
+        },
+        FeatureButtonItem(Icons.Default.Upload, "Dashboard") {
+            navController.navigate(Screens.Dashboard.route)
+        },
+        FeatureButtonItem(Icons.Default.PhoneAndroid, "Thiết bị của tôi") {
+            navController.navigate(Screens.ListDevices.route)
+        }
     )
     val deviceStats = listOf(
         DeviceStatCardItem(Icons.Default.Memory , Color(0xFFF54B63), "Tổng số thiết bị", "12 thiết bị"),

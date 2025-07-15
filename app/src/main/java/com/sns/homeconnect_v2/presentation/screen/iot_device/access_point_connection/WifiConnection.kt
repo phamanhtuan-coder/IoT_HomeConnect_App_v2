@@ -4,6 +4,7 @@ import IoTHomeConnectAppTheme
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
@@ -80,28 +81,32 @@ fun WifiConnectionScreen(
                                 color = colorScheme.onBackground
                             )
                             Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
+                            // Ô nhập SSID – KHÔNG hiển thị lỗi
                             OutlinedTextField(
-                                shape = androidx.compose.foundation.shape.RoundedCornerShape(25),
-                                singleLine = true,
                                 value = ssidState.value,
-                                onValueChange = {
-                                    ssidState.value = it
-                                    ssidErrorState.value = ValidationUtils.validateSSID(it)
-                                },
-                                placeholder = { Text("SSID:") },
-                                leadingIcon = { Icon(Icons.Filled.Wifi, contentDescription = null) },
-                                isError = ssidErrorState.value.isNotEmpty() && ssidErrorState.value != "SSID hợp lệ",
-                                supportingText = { if (ssidErrorState.value.isNotEmpty() && ssidErrorState.value != "SSID hợp lệ") Text(ssidErrorState.value) },
+                                onValueChange = { ssidState.value = it },
+
+                                placeholder   = { Text("SSID:") },
+                                leadingIcon   = { Icon(Icons.Filled.Wifi, contentDescription = null) },
+
+                                singleLine    = true,
+                                shape         = RoundedCornerShape(25),
+
+                                /* Đặt isError = false để Compose không tô viền đỏ */
+                                isError       = false,
+
+                                /* Không truyền supportingText để khỏi hiển thị dòng lỗi */
                                 modifier = Modifier
                                     .width(if (isTablet) 500.dp else 400.dp)
                                     .height(if (isTablet) 80.dp else 70.dp),
+
                                 colors = TextFieldDefaults.colors(
-                                    focusedTextColor = colorScheme.onBackground,
-                                    unfocusedTextColor = colorScheme.onBackground.copy(alpha = 0.7f),
-                                    focusedContainerColor = colorScheme.onPrimary,
-                                    unfocusedContainerColor = colorScheme.onPrimary,
-                                    focusedIndicatorColor = colorScheme.primary,
-                                    unfocusedIndicatorColor = colorScheme.onBackground.copy(alpha = 0.5f)
+                                    focusedTextColor       = colorScheme.onBackground,
+                                    unfocusedTextColor     = colorScheme.onBackground.copy(alpha = 0.7f),
+                                    focusedContainerColor  = colorScheme.onPrimary,
+                                    unfocusedContainerColor= colorScheme.onPrimary,
+                                    focusedIndicatorColor  = colorScheme.primary,
+                                    unfocusedIndicatorColor= colorScheme.onBackground.copy(alpha = 0.5f)
                                 )
                             )
                             Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
@@ -141,16 +146,18 @@ fun WifiConnectionScreen(
                             Spacer(modifier = Modifier.height(layoutConfig.textFieldSpacing))
                             Button(
                                 onClick = {
-                                    if (ssidState.value.isEmpty() || passwordState.value.isEmpty()) {
+                                    if (ssidState.value.isBlank() || passwordState.value.isBlank()) {
                                         Toast.makeText(context, "Vui lòng nhập đầy đủ thông tin Wi-Fi!", Toast.LENGTH_SHORT).show()
-                                    } else if (ssidErrorState.value != "SSID hợp lệ") {
-                                        Toast.makeText(context, "Vui lòng sửa lỗi trong thông tin Wi-Fi!", Toast.LENGTH_SHORT).show()
                                     } else {
                                         coroutineScope.launch {
-                                            val success = viewModel.sendCredentials(context, "192.168.4.1", 4210, ssidState.value, passwordState.value)
-                                            if (success) {
-                                                navController.popBackStack()
-                                            }
+                                            val ok = viewModel.sendCredentials(
+                                                context,
+                                                "192.168.4.1",   // ip
+                                                8888,            // port
+                                                ssidState.value,
+                                                passwordState.value
+                                            )
+                                            if (ok) navController.popBackStack()
                                         }
                                     }
                                 },

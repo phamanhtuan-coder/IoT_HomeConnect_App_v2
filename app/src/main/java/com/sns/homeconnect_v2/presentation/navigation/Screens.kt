@@ -159,14 +159,17 @@ sealed class Screens(val route: String) {
     }
 
     object DynamicDeviceDetail : Screens(
-        "dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}/{permissionType}"
+        "dynamic_device_detail/{deviceId}/{deviceName}/{serialNumber}/{productId}/{groupId}/{permissionType}/{deviceTypeName}/{deviceTypeParentName}"
     ) {
         fun build(
             deviceId: String,
             deviceName: String,
             serialNumber: String,
             productId: String,
-            permissionType: String = "CONTROL"
+            groupId: Int,
+            permissionType: String = "CONTROL",
+            deviceTypeName: String?,
+            deviceTypeParentName: String?
         ): String =
             listOf(
                 "dynamic_device_detail",
@@ -174,7 +177,10 @@ sealed class Screens(val route: String) {
                 Uri.encode(deviceName),
                 Uri.encode(serialNumber),
                 Uri.encode(productId),
-                Uri.encode(permissionType)
+                Uri.encode(groupId.toString()),
+                Uri.encode(permissionType),
+                Uri.encode(deviceTypeName ?: ""),
+                Uri.encode(deviceTypeParentName ?: "")
             ).joinToString("/")
     }
 

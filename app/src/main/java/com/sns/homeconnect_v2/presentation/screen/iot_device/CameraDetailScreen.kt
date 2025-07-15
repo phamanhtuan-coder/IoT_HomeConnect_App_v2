@@ -82,6 +82,7 @@ fun CameraDetailScreen(
     navController: NavHostController,
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
     controls: Map<String, String>,
     isViewOnly: Boolean = true,

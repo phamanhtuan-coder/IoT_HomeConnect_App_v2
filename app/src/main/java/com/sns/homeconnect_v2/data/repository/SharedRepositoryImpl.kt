@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.repository
 
 import com.sns.homeconnect_v2.data.AuthManager
 import com.sns.homeconnect_v2.data.remote.api.ApiService
+import com.sns.homeconnect_v2.data.remote.dto.request.ApproveRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUser
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedUserRequest
@@ -33,5 +34,19 @@ class SharedRepositoryImpl @Inject constructor(
     override suspend fun revokePermission(permissionID: Int):   Response<Unit> {
         val token = authManager.getJwtToken()
         return apiService.revokePermission(permissionId = permissionID, token = "Bearer $token")
+    }
+
+    override suspend fun approveSharePermission(ticketId: String): Response<Unit> {
+        val token = authManager.getJwtToken()
+        val approveRequest = ApproveRequest(ticketId = ticketId, isApproved = true)
+        return apiService.approveSharePermission(
+            request = approveRequest,
+            token = "Bearer $token"
+        )
+    }
+
+    override suspend fun revokeRecipientPermission(serialNumber: String): Response<Unit> {
+        val token = "Bearer ${authManager.getJwtToken()}"
+        return apiService.revokeRecipientPermission(serialNumber, token)
     }
 }

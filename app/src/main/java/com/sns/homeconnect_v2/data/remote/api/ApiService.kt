@@ -3,6 +3,7 @@ package com.sns.homeconnect_v2.data.remote.api
 import com.sns.homeconnect_v2.data.remote.dto.base.ApiResponse
 import com.sns.homeconnect_v2.data.remote.dto.base.CreateGroupResponse
 import com.sns.homeconnect_v2.data.remote.dto.request.AddGroupMemberRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ApproveRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.AttributeRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.BulkDeviceStateUpdateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.ChangePasswordRequest
@@ -51,6 +52,8 @@ import com.sns.homeconnect_v2.data.remote.dto.request.LedEffectRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.LedPresetRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.RecoveryPasswordRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.StopLedEffectRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.ToggleDoorRequest
+import com.sns.homeconnect_v2.data.remote.dto.request.UnlinkDeviceRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateDeviceStateRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateGroupMemberRoleRequest
 import com.sns.homeconnect_v2.data.remote.dto.request.UpdateSpaceRequest
@@ -61,8 +64,12 @@ import com.sns.homeconnect_v2.data.remote.dto.response.CreateTicketResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceCapabilitiesResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceResponseSpace
 import com.sns.homeconnect_v2.data.remote.dto.response.DeviceStateResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorStatusResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.DoorToggleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.ForgotPasswordResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.HourlyValueResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.LedEffectsResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.Notification
 import com.sns.homeconnect_v2.data.remote.dto.response.OwnedDeviceResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.RoleResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.SharedDeviceResponse
@@ -75,6 +82,7 @@ import com.sns.homeconnect_v2.data.remote.dto.response.house.House
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HouseResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.house.HousesListResponse
 import com.sns.homeconnect_v2.data.remote.dto.response.TicketResponse
+import com.sns.homeconnect_v2.data.remote.dto.response.check
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseRequest
 import com.sns.homeconnect_v2.data.remote.dto.response.house.UpdateHouseResponse
 import retrofit2.Response
@@ -153,12 +161,6 @@ interface ApiService {
         @Body attribute: AttributeRequest,
         @Header("Authorization") token: String
     ): AttributeResponse
-
-    @POST("devices/{deviceId}/unlink")
-    suspend fun unlinkDevice(
-        @Path("deviceId") deviceId: Int,
-        @Header("Authorization") token: String
-    ): UnlinkResponse
   
     @GET("houses/{houseId}")
     suspend fun getHouseId(
@@ -519,6 +521,66 @@ interface ApiService {
     suspend fun getSharedDevicesForUser(
         @Header("Authorization") token: String
     ): SharedDeviceWrapper
+
+    @GET("hourly-values/space/{spaceId}")
+    suspend fun getHourlyValuesBySpace(
+        @Path("spaceId") spaceId: Int,
+        @Query("start_time") startTime: String,   // 2025-06-16T00:00:00Z
+        @Query("end_time")   endTime: String,     // 2025-06-21T00:00:00Z
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Header("Authorization") token: String
+    ): List<HourlyValueResponse>
+
+    @GET("notifications/user")
+    suspend fun getUserNotifications(
+        @Header("Authorization") token: String
+    ): List<Notification>
+
+    @GET("notifications/detail/{id}")
+    suspend fun getNotificationDetail(
+        @Path("id") id: Int,
+        @Header("Authorization") token: String
+    ): Notification
+
+    @PUT("notifications/{id}")
+    suspend fun updateNotification(
+        @Path("id") id: Int,
+        @Body is_read: check,
+        @Header("Authorization") token: String
+    ): Notification
+
+    @HTTP(method = "DELETE", path = "devices/{serialNumber}", hasBody = true)
+    suspend fun unlinkDevice(
+        @Path("serialNumber") serialNumber: String,
+        @Body request: UnlinkDeviceRequest,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @POST("permissions/approve-share-permission")
+    suspend fun approveSharePermission(
+        @Body request: ApproveRequest,
+        @Header("Authorization") token: String
+    ): Response<Unit>
+
+    @GET("doors/{serialNumber}/status")
+    suspend fun getDoorStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Header("Authorization") token: String
+    ): DoorStatusResponse
+
+    @POST("doors/{serialNumber}/toggle")
+    suspend fun toggleDoorPowerStatus(
+        @Path("serialNumber") serialNumber: String,
+        @Body body: ToggleDoorRequest,
+        @Header("Authorization") token: String
+    ): DoorToggleResponse
+
+    @DELETE("permissions/recipient/{serialNumber}")
+    suspend fun revokeRecipientPermission(
+        @Path("serialNumber") serial: String,
+        @Header("Authorization") bearer: String   // "Bearer <JWT>"
+    ): Response<Unit>
 
 //    @POST("spaces")
 //    suspend fun createSpace(

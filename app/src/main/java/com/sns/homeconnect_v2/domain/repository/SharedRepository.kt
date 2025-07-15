@@ -12,4 +12,8 @@ interface SharedRepository {
     suspend fun addSharedUser(deviceId: Int, sharedWithUserEmail: String): Response<Unit>
 
     suspend fun revokePermission(permissionID: Int):   Response<Unit>
+
+    suspend fun approveSharePermission(ticketId: String): Response<Unit>
+
+    suspend fun revokeRecipientPermission(serialNumber: String): Response<Unit>
 }

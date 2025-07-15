@@ -1,9 +1,6 @@
 package com.sns.homeconnect_v2.presentation.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bathtub
 import androidx.compose.material.icons.filled.Bed
@@ -23,12 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sns.homeconnect_v2.presentation.model.Room
+import com.sns.homeconnect_v2.presentation.model.SpaceTab
 
 /**
  * Một hàm Composable hiển thị một hàng các tab, mỗi tab đại diện cho một phòng.
@@ -47,14 +42,7 @@ import com.sns.homeconnect_v2.presentation.model.Room
 fun RoomTabRow(
     activeRoom: String,
     onRoomChange: (String) -> Unit,
-    rooms: List<Room> = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend),
-        Room("bedroom", "PHÒNG NGỦ", Icons.Filled.Bed),
-        Room("dining", "PHÒNG ĂN", Icons.Filled.Restaurant),
-        Room("bathroom", "PHÒNG TẮM", Icons.Filled.Bathtub),
-        Room("office", "PHÒNG LÀM VIỆC", Icons.Filled.WorkspacePremium)
-    ),
+    rooms: List<SpaceTab>,
     tabPerScreen: Int = 4
 ) {
     val selectedIndex = rooms.indexOfFirst { it.id == activeRoom }.coerceAtLeast(0)
@@ -63,33 +51,26 @@ fun RoomTabRow(
     if (useScrollable) {
         ScrollableTabRow(
             selectedTabIndex = selectedIndex,
-            edgePadding = 2.dp,
-            containerColor = Color(0xFFF7F2FA),
-            contentColor = Color(0xFF374151),
+            edgePadding = 0.dp,
+            containerColor = Color.White,
+            contentColor = Color.Black,
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 2.dp,
-                    color = Color(0xFF1E88E5)
+                    height = 3.dp,
+                    color = Color(0xFF2979FF)
                 )
-            },
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp)) // Thêm bo góc
-                .background(Color(0xFFF7F2FA))
-                .border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(12.dp)) // Thêm viền
-                .shadow(4.dp, RoundedCornerShape(12.dp)) // Thêm bóng đổ
+            }
         ) {
             rooms.forEachIndexed { index, room ->
                 val isActive = index == selectedIndex
                 Tab(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
-                    selectedContentColor = Color(0xFF1E88E5),
-                    unselectedContentColor = Color(0xFF9CA3AF),
-                    modifier = Modifier
-                        .padding(horizontal = 3.dp, vertical = 3.dp)
-                        .height(48.dp)
+                    selectedContentColor = Color(0xFF2979FF),
+                    unselectedContentColor = Color(0xFF404B5A),
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     RoomTabContent(room, isActive)
                 }
@@ -98,67 +79,29 @@ fun RoomTabRow(
     } else {
         TabRow(
             selectedTabIndex = selectedIndex,
-            containerColor = Color(0xFFF7F2FA),
-            contentColor = Color(0xFF374151),
+            containerColor = Color.White,
+            contentColor = Color.Black,
             divider = {},
             indicator = { tabPositions ->
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                    height = 2.dp,
-                    color = Color(0xFF1E88E5)
+                    height = 3.dp,
+                    color = Color(0xFF2979FF)
                 )
-            },modifier = Modifier
-                .clip(RoundedCornerShape(12.dp)) // Thêm bo góc
-                .background(Color(0xFFF7F2FA))
+            }
         ) {
             rooms.forEachIndexed { index, room ->
                 val isActive = index == selectedIndex
                 Tab(
                     selected = isActive,
                     onClick = { onRoomChange(room.id) },
-                    selectedContentColor = Color(0xFF1E88E5),
-                    unselectedContentColor = Color(0xFF9CA3AF),
-                    modifier = Modifier
-                        .padding(horizontal = 3.dp, vertical = 3.dp)
-                        .height(48.dp)
+                    selectedContentColor = Color(0xFF2979FF),
+                    unselectedContentColor = Color(0xFF404B5A),
                 ) {
                     RoomTabContent(room, isActive)
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RoomTabRowPreview() {
-    var activeRoom by remember { mutableStateOf("living") }
-    val fewRooms = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend)
-    )
-    val manyRooms = listOf(
-        Room("kitchen", "PHÒNG BẾP", Icons.Filled.Kitchen),
-        Room("living", "PHÒNG KHÁCH", Icons.Filled.Weekend),
-        Room("bedroom", "PHÒNG NGỦ", Icons.Filled.Bed),
-        Room("dining", "PHÒNG ĂN", Icons.Filled.Restaurant),
-        Room("bathroom", "PHÒNG TẮM", Icons.Filled.Bathtub),
-        Room("office", "PHÒNG LÀM VIỆC", Icons.Filled.WorkspacePremium)
-    )
-    Column {
-        Text("Ít tab (TabRow - chia đều):")
-        RoomTabRow(
-            activeRoom = activeRoom,
-            onRoomChange = { activeRoom = it },
-            rooms = fewRooms // Thử với ít phòng
-        )
-        Spacer(Modifier.height(24.dp))
-        Text("Nhiều tab (ScrollableTabRow - kéo ngang):")
-        RoomTabRow(
-            activeRoom = activeRoom,
-            onRoomChange = { activeRoom = it },
-            rooms = manyRooms // Thử với nhiều phòng
-        )
     }
 }
 

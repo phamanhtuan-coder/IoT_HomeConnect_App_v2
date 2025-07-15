@@ -65,6 +65,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInf
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceStateUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UnlinkState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.UpdateDeviceStateBulkUiState
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import kotlinx.coroutines.delay
@@ -98,7 +99,9 @@ fun FireAlarmDetailScreen(
     navController: NavHostController,
     deviceId: String,
     deviceName: String,
+    deviceTypeName: String,
     serialNumber: String,
+    groupId: Int ,
     product: ProductData,
     controls: Map<String, String>,
     isViewOnly: Boolean = true, // Thêm biến này để xác định chế độ xem chỉ
@@ -119,6 +122,31 @@ fun FireAlarmDetailScreen(
     var pendingPowerStatus by remember { mutableStateOf<Boolean?>(null) }
 
     var isPowerUpdating by remember { mutableStateOf(false) }
+
+    var pendingOnSuccess by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var pendingOnError   by remember { mutableStateOf<((String) -> Unit)?>(null) }
+    var loadingAction    by remember { mutableStateOf<DeviceAction?>(null) }
+
+    val unlinkState by deviceDisplayViewModel.unlinkState.collectAsState()
+
+    LaunchedEffect(unlinkState) {
+        when (val state = unlinkState) {
+            is UnlinkState.Success -> {
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
+                pendingOnSuccess?.invoke(state.message)    // ✅ báo nút dừng
+                pendingOnSuccess = null
+                loadingAction     = null               // ✅ tắt spinner
+                navController.popBackStack()
+            }
+            is UnlinkState.Error -> {
+                snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
+                pendingOnError?.invoke(state.error)
+                pendingOnError  = null
+                loadingAction   = null
+            }
+            else -> {}
+        }
+    }
 
     // Lấy context
     LaunchedEffect(Unit) {
@@ -151,12 +179,12 @@ fun FireAlarmDetailScreen(
     LaunchedEffect(updateBulkUiState) {
         when (val st = updateBulkUiState) {
             is UpdateDeviceStateBulkUiState.Success -> {
-                snackbarViewModel.showSnackbar(st.message, SnackbarVariant.SUCCESS)
+                snackbarViewModel.showSnackbar("Cập nhật thành cộng", SnackbarVariant.SUCCESS)
                 isPowerUpdating = false                // mở khóa Switch
                 deviceDisplayViewModel.fetchDeviceState(serialNumber)
             }
             is UpdateDeviceStateBulkUiState.Error -> {
-                snackbarViewModel.showSnackbar(st.error, SnackbarVariant.ERROR)
+                snackbarViewModel.showSnackbar("Cập nhật thất bại", SnackbarVariant.ERROR)
                 isPowerUpdating  = false               // mở khóa
                 pendingPowerStatus = null              // hủy lệnh chờ
             }
@@ -191,10 +219,6 @@ fun FireAlarmDetailScreen(
 
     /* ---------- 2. STATE DÙNG CHUNG ---------- */
     var pendingAction      by remember { mutableStateOf<DeviceAction?>(null) }
-    var loadingAction      by remember { mutableStateOf<DeviceAction?>(null) }
-
-    var pendingOnSuccess   by remember { mutableStateOf<((String) -> Unit)?>(null) }
-    var pendingOnError     by remember { mutableStateOf<((String) -> Unit)?>(null) }
 
     var confirmTitle       by remember { mutableStateOf("") }
     var confirmMessage     by remember { mutableStateOf("") }
@@ -710,19 +734,40 @@ fun FireAlarmDetailScreen(
                                     dismissText = "Huỷ",
                                     onConfirm = {
                                         showConfirm = false
-
-                                        /* Bật spinner đúng nút */
                                         loadingAction = pendingAction
-//                                        val act = pendingAction          // copy ra để dùng trong coroutine
+                                        val action = pendingAction
                                         pendingAction = null
 
                                         scope.launch {
-                                            delay(1000)                  // gọi API thật tại đây
-                                            val ok = true
-                                            if (ok)  pendingOnSuccess?.invoke("Thành công!")
-                                            else     pendingOnError?.invoke("Thất bại!")
-
-                                            loadingAction = null         // tắt spinner
+                                            when (action) {
+                                                DeviceAction.UNLINK -> {
+                                                    loadingAction = DeviceAction.UNLINK
+                                                    displayViewModel.unlinkDevice(
+                                                        serialNumber = serialNumber,
+                                                        groupId= groupId
+                                                    )
+                                                }
+                                                DeviceAction.LOCK -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                }
+                                                DeviceAction.RESET -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                }
+                                                DeviceAction.TRANSFER -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                }
+                                                DeviceAction.REPORT_LOST -> {
+                                                    delay(1000)
+                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                }
+                                                else -> {
+                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                }
+                                            }
+                                            loadingAction = null
                                         }
                                     },
                                     onDismiss = {

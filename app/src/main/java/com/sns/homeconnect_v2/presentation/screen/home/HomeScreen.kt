@@ -175,7 +175,7 @@ fun HomeScreen(
                             item {
                                 ColoredCornerBox(
                                     startColor = Color(0xFF1976D2), // Xanh dương đậm
-                                    endColor = Color(0xFFE3F2FD), // Xanh nhạt
+                                    endColor = Color(0xFFBBDEFB), // Xanh nhạt
                                     cornerRadius = 24.dp
                                 ) {
                                     Box(

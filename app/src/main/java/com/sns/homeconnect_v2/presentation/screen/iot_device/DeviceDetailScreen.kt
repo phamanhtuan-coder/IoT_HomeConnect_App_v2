@@ -47,10 +47,12 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.sliderToPercent
@@ -336,7 +338,7 @@ fun DeviceDetailScreen(
                                                 end = 12.dp
                                             )
                                             .fillMaxWidth()
-                                            .background(color = colorScheme.primary)
+                                            //.background(color = colorScheme.primary)
                                             .weight(0.2f),
                                         horizontalAlignment = Alignment.Start,
                                         verticalArrangement = Arrangement.SpaceBetween
@@ -383,11 +385,11 @@ fun DeviceDetailScreen(
                                             )
                                         }
 
-                                        Text(
-                                            "Độ sáng",
-                                            color = colorScheme.onPrimary,
-                                            fontSize = 20.sp
-                                        )
+//                                        Text(
+//                                            "Độ sáng",
+//                                            color = colorScheme.onPrimary,
+//                                            fontSize = 20.sp
+//                                        )
                                         Spacer(modifier = Modifier.height(8.dp))
                                     }
 
@@ -401,13 +403,13 @@ fun DeviceDetailScreen(
 
                                 Column(
                                     modifier = Modifier
-                                        .width(rowWidth.dp)
-                                        .background(color = colorScheme.primary)
+                                        .width(500.dp)
+                                        //.background(color = colorScheme.primary)
                                         .clickable(enabled = false) {}
                                         .padding(horizontal = 16.dp)
                                 ) {
 //                                     if ("brightness" in controls) {
-                                        Text("Độ sáng", color = colorScheme.onPrimary, fontSize = 20.sp)
+                                        Text("Kéo để tăng độ sáng: ", color = colorScheme.onPrimary, fontSize = 20.sp)
 
                                         EdgeToEdgeSlider(
                                             value = sliderValue,

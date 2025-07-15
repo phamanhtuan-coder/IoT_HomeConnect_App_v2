@@ -44,4 +44,9 @@ class SharedRepositoryImpl @Inject constructor(
             token = "Bearer $token"
         )
     }
+
+    override suspend fun revokeRecipientPermission(serialNumber: String): Response<Unit> {
+        val token = "Bearer ${authManager.getJwtToken()}"
+        return apiService.revokeRecipientPermission(serialNumber, token)
+    }
 }

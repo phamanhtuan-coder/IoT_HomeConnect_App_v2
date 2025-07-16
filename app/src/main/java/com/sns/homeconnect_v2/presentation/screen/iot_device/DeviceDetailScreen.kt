@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LinkOff
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,16 +45,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.R
 import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.core.util.validation.sliderToPercent
@@ -69,6 +70,8 @@ import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeed
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
+import com.sns.homeconnect_v2.presentation.component.widget.button.DeviceActionButton
+import com.sns.homeconnect_v2.presentation.component.widget.button.DeviceQuickActions
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
@@ -96,6 +99,9 @@ fun DeviceDetailScreen(
     isViewOnly: Boolean = true,
     snackbarViewModel: SnackbarViewModel
 ) {
+    // ngay trên cùng của DeviceDetailScreen (cùng nhóm với showConfirm, loadingAction …)
+    var showFullScreenLoading by remember { mutableStateOf(false) }
+
     val displayViewModel: DeviceDisplayViewModel = hiltViewModel()
     val unlinkState by displayViewModel.unlinkState.collectAsState()
 
@@ -281,6 +287,7 @@ fun DeviceDetailScreen(
     LaunchedEffect(unlinkState) {
         when (val state = unlinkState) {
             is UnlinkState.Success -> {
+                showFullScreenLoading = false
                 snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
                 pendingOnSuccess?.invoke(state.message)
                 pendingOnSuccess = null
@@ -288,6 +295,7 @@ fun DeviceDetailScreen(
                 navController.popBackStack()
             }
             is UnlinkState.Error -> {
+                showFullScreenLoading = false
                 snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
                 pendingOnError?.invoke(state.error)
                 pendingOnError = null
@@ -301,113 +309,114 @@ fun DeviceDetailScreen(
 
     IoTHomeConnectAppTheme {
         val colorScheme = MaterialTheme.colorScheme
-        Scaffold(
-            topBar = {
-                Header(
-                    navController = navController,
-                    type = "Back",
-                    title = "Chi tiết thiết bị"
-                )
-            },
-            bottomBar = {
-                MenuBottom(navController)
-            },
-            containerColor = colorScheme.background,
-            modifier = Modifier.fillMaxSize(),
-            content = { innerPadding ->
-                LazyColumn(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                ) {
-                    item {
-                        ColoredCornerBox(
-                            cornerRadius = 40.dp
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    Header(
+                        navController = navController,
+                        type = "Back",
+                        title = "Chi tiết thiết bị"
+                    )
+                },
+                bottomBar = {
+                    MenuBottom(navController)
+                },
+                containerColor = colorScheme.background,
+                modifier = Modifier.fillMaxSize(),
+                content = { innerPadding ->
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                    ) {
+                        item {
+                            ColoredCornerBox(
+                                cornerRadius = 40.dp
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(
-                                        horizontal = 16.dp
-                                    )
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
                                 ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .padding(
-                                                end = 12.dp
-                                            )
-                                            .fillMaxWidth()
-                                            //.background(color = colorScheme.primary)
-                                            .weight(0.2f),
-                                        horizontalAlignment = Alignment.Start,
-                                        verticalArrangement = Arrangement.SpaceBetween
+                                    Row(
+                                        modifier = Modifier.padding(
+                                            horizontal = 16.dp
+                                        )
                                     ) {
-                                        Text(
-                                            text = deviceName,
-                                            color = colorScheme.onPrimary,
-                                            lineHeight = 32.sp,
-                                            fontSize = 30.sp
-                                        )
-                                        Spacer(modifier = Modifier.height(4.dp))
-
-                                        CustomSwitch(
-                                            isCheck = uiPower,
-                                            enabled = !isUpdatingPower && !isViewOnly,
-                                            onCheckedChange = { newValue ->
-                                                pendingPower = newValue
-                                                isUpdatingPower = true
-                                                displayViewModel.updateDeviceStateBulk(
-                                                    serial_number = serialNumber,
-                                                    serial = serialNumber,
-                                                    updates = listOf(mapOf("power_status" to newValue))
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(
+                                                    end = 12.dp
                                                 )
-                                            }
-                                        )
-
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.Start,
-                                            verticalAlignment = Alignment.Bottom
+                                                .fillMaxWidth()
+                                                //.background(color = colorScheme.primary)
+                                                .weight(0.2f),
+                                            horizontalAlignment = Alignment.Start,
+                                            verticalArrangement = Arrangement.SpaceBetween
                                         ) {
                                             Text(
-                                                text = ((sliderValue * 100 / 255).roundToInt()).toString(),
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 50.sp,
-                                                color = colorScheme.onPrimary
+                                                text = deviceName,
+                                                color = colorScheme.onPrimary,
+                                                lineHeight = 32.sp,
+                                                fontSize = 30.sp
                                             )
-                                            Text(
-                                                "%",
-                                                fontWeight = FontWeight.Bold,
-                                                fontSize = 25.sp,
-                                                modifier = Modifier.offset(y = (-8).dp),
-                                                color = colorScheme.onPrimary
+                                            Spacer(modifier = Modifier.height(4.dp))
+
+                                            CustomSwitch(
+                                                isCheck = uiPower,
+                                                enabled = !isUpdatingPower && !isViewOnly,
+                                                onCheckedChange = { newValue ->
+                                                    pendingPower = newValue
+                                                    isUpdatingPower = true
+                                                    displayViewModel.updateDeviceStateBulk(
+                                                        serial_number = serialNumber,
+                                                        serial = serialNumber,
+                                                        updates = listOf(mapOf("power_status" to newValue))
+                                                    )
+                                                }
                                             )
-                                        }
+
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.Start,
+                                                verticalAlignment = Alignment.Bottom
+                                            ) {
+                                                Text(
+                                                    text = ((sliderValue * 100 / 255).roundToInt()).toString(),
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 50.sp,
+                                                    color = colorScheme.onPrimary
+                                                )
+                                                Text(
+                                                    "%",
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontSize = 25.sp,
+                                                    modifier = Modifier.offset(y = (-8).dp),
+                                                    color = colorScheme.onPrimary
+                                                )
+                                            }
 
 //                                        Text(
 //                                            "Độ sáng",
 //                                            color = colorScheme.onPrimary,
 //                                            fontSize = 20.sp
 //                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+
+                                        Image(
+                                            painter = painterResource(id = R.drawable.lamp),
+                                            modifier = Modifier.size(200.dp),
+                                            contentDescription = "",
+                                            colorFilter = ColorFilter.tint(colorScheme.onPrimary)
+                                        )
                                     }
 
-                                    Image(
-                                        painter = painterResource(id = R.drawable.lamp),
-                                        modifier = Modifier.size(200.dp),
-                                        contentDescription = "",
-                                        colorFilter = ColorFilter.tint(colorScheme.onPrimary)
-                                    )
-                                }
-
-                                Column(
-                                    modifier = Modifier
-                                        .width(500.dp)
-                                        //.background(color = colorScheme.primary)
-                                        .clickable(enabled = false) {}
-                                        .padding(horizontal = 16.dp)
-                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .width(500.dp)
+                                            //.background(color = colorScheme.primary)
+                                            .clickable(enabled = false) {}
+                                            .padding(horizontal = 16.dp)
+                                    ) {
 //                                     if ("brightness" in controls) {
                                         Text("Kéo để tăng độ sáng: ", color = colorScheme.onPrimary, fontSize = 20.sp)
 
@@ -424,22 +433,22 @@ fun DeviceDetailScreen(
                                             enabled = !isViewOnly // 👈 khóa khi chỉ được xem
                                         )
 //                                    }
-                                }
+                                    }
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                    Spacer(modifier = Modifier.height(16.dp))
 
-                                Box(
-                                    modifier = Modifier
-                                        .padding(start = 16.dp, end = 16.dp)
-                                        .fillMaxWidth()
-                                        .height(1.dp)
-                                        .background(colorScheme.onPrimary)
-                                )
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(start = 16.dp, end = 16.dp)
+                                            .fillMaxWidth()
+                                            .height(1.dp)
+                                            .background(colorScheme.onPrimary)
+                                    )
 
-                                Spacer(modifier = Modifier.height(16.dp))
+                                    Spacer(modifier = Modifier.height(16.dp))
 
 //                                if ("color" in controls) {
-                                /* ---------------------- Trong DeviceDetailScreen ---------------------- */
+                                    /* ---------------------- Trong DeviceDetailScreen ---------------------- */
                                     FancyColorSlider(
                                         attribute = attribute,
                                         onColorChange = { hex ->
@@ -455,396 +464,284 @@ fun DeviceDetailScreen(
                                         enabled = !isViewOnly
                                     )
 //                                }
+                                }
                             }
-                        }
 
-                        InvertedCornerHeader(
-                            backgroundColor = colorScheme.surface,
-                            overlayColor = colorScheme.primary
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(
-                                        horizontal = 16.dp, vertical = 8.dp
-                                    ),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            InvertedCornerHeader(
+                                backgroundColor = colorScheme.surface,
+                                overlayColor = colorScheme.primary
                             ) {
-                                IconButton(
-                                    onClick = {
-                                        showBottomSheet.value = true
-                                    },
-                                    modifier = Modifier.size(32.dp)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(
+                                            vertical = 8.dp
+                                        ),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Info",
-                                        tint = colorScheme.primary,
+                                    IconButton(
+                                        onClick = {
+                                            showBottomSheet.value = true
+                                        },
                                         modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate(
-                                            Screens.AccessPoint.createRoute(deviceId, deviceName)
-                                        )
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Wifi,
-                                        contentDescription = "Wi-Fi",
-                                        tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                if (showBottomSheet.value) {
-                                    ModalBottomSheet(
-                                        onDismissRequest = { showBottomSheet.value = false }
                                     ) {
-                                        when (displayState) {
-                                            is DeviceDisplayInfoState.Success -> {
-                                                val product = (displayState as DeviceDisplayInfoState.Success).product
-                                                val category = (displayState as DeviceDisplayInfoState.Success).category
-                                                Column(modifier = Modifier.padding(16.dp)) {
-                                                    Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
-                                                    Text("Danh mục: ${category.name ?: "Không rõ"}")
-                                                    Text("Giá: ${product.selling_price  ?: "Không rõ"}")
-                                                    Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = "Info",
+                                            tint = colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(
+                                                Screens.AccessPoint.createRoute(deviceId, deviceName)
+                                            )
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Wifi,
+                                            contentDescription = "Wi-Fi",
+                                            tint = colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                    if (showBottomSheet.value) {
+                                        ModalBottomSheet(
+                                            onDismissRequest = { showBottomSheet.value = false }
+                                        ) {
+                                            when (displayState) {
+                                                is DeviceDisplayInfoState.Success -> {
+                                                    val product = (displayState as DeviceDisplayInfoState.Success).product
+                                                    val category = (displayState as DeviceDisplayInfoState.Success).category
+                                                    Column(modifier = Modifier.padding(16.dp)) {
+                                                        Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
+                                                        Text("Danh mục: ${category.name ?: "Không rõ"}")
+                                                        Text("Giá: ${product.selling_price  ?: "Không rõ"}")
+                                                        Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                                    }
                                                 }
+                                                is DeviceDisplayInfoState.Loading -> {
+                                                    Text("Đang tải thông tin sản phẩm...")
+                                                }
+                                                is DeviceDisplayInfoState.Error -> {
+                                                    Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                                }
+                                                else -> {}
                                             }
-                                            is DeviceDisplayInfoState.Loading -> {
-                                                Text("Đang tải thông tin sản phẩm...")
-                                            }
-                                            is DeviceDisplayInfoState.Error -> {
-                                                Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
-                                            }
-                                            else -> {}
                                         }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    item {
-                        val buttonStyle = if (isViewOnly) HCButtonStyle.DISABLED else HCButtonStyle.PRIMARY
+                        item {
+                            val buttonStyle = if (isViewOnly) HCButtonStyle.DISABLED else HCButtonStyle.PRIMARY
 
-                        Column(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(horizontal = (16.dp))
-                                .onSizeChanged { size ->
-                                    rowWidth = size.width
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            ActionButtonWithFeedback(
-                                label  = "Hiệu ứng LED",
-                                style  = buttonStyle,
-                                height = 62.dp,
-                                textSize = 20.sp,
-                                modifier = Modifier.fillMaxWidth(),
-                                snackbarViewModel = snackbarViewModel,
-                                onAction = { onS, _ ->
-                                    onS("Đang mở…")
-                                    showEffectSheet.value = true
-                                }
-                            )
                             Column(
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    ActionButtonWithFeedback(
-                                        label = "Khóa thiết bị",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError = onE
-                                            confirmTitle = "Khóa thiết bị"
-                                            confirmMessage = "Bạn có chắc muốn khoá thiết bị này?"
-                                            pendingAction = DeviceAction.LOCK
-                                            showConfirm = true
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-
-                                    ActionButtonWithFeedback(
-                                        label = "Gỡ kết nối",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError = onE
-                                            confirmTitle = "Gỡ kết nối"
-                                            confirmMessage = "Bạn có chắc chắn muốn gỡ thiết bị này không?"
-                                            pendingAction = DeviceAction.UNLINK
-                                            showConfirm = true
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-                                }
-
-                                Spacer(Modifier.height(12.dp))
-
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    ActionButtonWithFeedback(
-                                        label = "Chia sẻ quyền",
-                                        onAction = { _, _ ->
-                                            navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-
-                                    ActionButtonWithFeedback(
-                                        label = "Reset thiết bị",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError = onE
-                                            confirmTitle = "Reset thiết bị"
-                                            confirmMessage = "Bạn muốn reset thiết bị này!"
-                                            pendingAction = DeviceAction.RESET
-                                            showConfirm = true
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.RESET,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-                                }
-
-                                Spacer(Modifier.height(12.dp))
-
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    ActionButtonWithFeedback(
-                                        label = "Chuyển quyền sở hữu",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.TRANSFER
-                                            scope.launch {
-                                                delay(1000)
-                                                onS("Đã chuyển")
-                                                loadingAction = null
-                                            }
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-
-                                    ActionButtonWithFeedback(
-                                        label = "Xem phiên bản",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.VERSION
-                                            scope.launch {
-                                                delay(1000)
-                                                onS("v1.0")
-                                                loadingAction = null
-                                            }
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-                                }
-
-                                Spacer(Modifier.height(16.dp))
-
-                                ActionButtonWithFeedback(
-                                    label = "Báo mất thiết bị",
-                                    onAction = { onS, _ ->
-                                        loadingAction = DeviceAction.REPORT_LOST
-                                        scope.launch {
-                                            delay(1000)
-                                            onS("Đã báo mất")
-                                            loadingAction = null
-                                        }
+                                    .wrapContentWidth()
+                                    .padding(horizontal = (16.dp))
+                                    .onSizeChanged { size ->
+                                        rowWidth = size.width
                                     },
-                                    style = buttonStyle,
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                ActionButtonWithFeedback(
+                                    label  = "Hiệu ứng LED",
+                                    style  = buttonStyle,
                                     height = 62.dp,
                                     textSize = 20.sp,
-                                    modifier = Modifier.fillMaxWidth(0.8f),
-                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST,
-                                    snackbarViewModel = snackbarViewModel
-                                )
-                            }
-
-                            /* ---------- SHEET: HIỆU ỨNG LED ---------- */
-                            if (showEffectSheet.value) {
-                                ModalBottomSheet(
-                                    onDismissRequest = { showEffectSheet.value = false }
-                                ) {
-                                    if (ledState is LedUiState.Loading) {
-                                        CircularProgressIndicator(
-                                            Modifier
-                                                .padding(24.dp)
-                                                .align(Alignment.CenterHorizontally)
-                                        )
+                                    modifier = Modifier.fillMaxWidth(),
+                                    snackbarViewModel = snackbarViewModel,
+                                    onAction = { onS, _ ->
+                                        onS("Đang mở…")
+                                        showEffectSheet.value = true
                                     }
-
-                                    EffectSelector(
-                                        state = ledState,
-                                        snackbarViewModel = snackbarViewModel,
-                                        onApply = { effect, speed, count, c1, c2 ->
-                                            ledViewModel.applyEffect(
-                                                deviceId  = deviceId,
-                                                serial    = serialNumber,
-                                                effect    = effect,
-                                                speed     = speed,
-                                                count     = count,
-                                                color1    = c1,
-                                                color2    = c2
-                                            )
-                                            showEffectSheet.value = false
-                                        }
-                                    )
-
-                                    Row (
+                                )
+                                Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 16.dp),
-                                    ) {
-                                        ActionButtonWithFeedback(
-                                            label  = "Dừng hiệu ứng",
-                                            style  = HCButtonStyle.SECONDARY,
-                                            height = 54.dp,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f),
-                                            snackbarViewModel = snackbarViewModel,
-                                            onAction = { onS, _ ->
-                                                ledViewModel.stopEffect(deviceId, serialNumber)
-                                                showEffectSheet.value = false
-                                                onS("Đang dừng…")
-                                            }
-                                        )
+                                            .padding(vertical = 16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Spacer(Modifier.height(16.dp))
 
-                                        Spacer(Modifier.width(8.dp))
-
-                                        ActionButtonWithFeedback(
-                                            label  = "Chế độ mẫu",
-                                            style  = HCButtonStyle.PRIMARY,
-                                            height = 54.dp,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .weight(1f),
-                                            snackbarViewModel = snackbarViewModel,
-                                            onAction = { onS, _ ->
-                                                ledViewModel.applyPreset(
-                                                    deviceId  = deviceId,
-                                                    serial    = serialNumber,
-                                                    preset    = "party_mode",
-                                                    duration  = 30_000   // 30 giây
-                                                )
-                                                showEffectSheet.value = false
-                                                onS("Đang áp dụng preset…")
-                                            }
-                                        )
-                                    }
-
-                                    Spacer(Modifier.height(12.dp))
-                                }
-                            }
-
-                            if (showConfirm) {
-                                WarningDialog(
-                                    title = confirmTitle,
-                                    text = confirmMessage,
-                                    confirmText = "Đồng ý",
-                                    dismissText = "Huỷ",
-                                    onConfirm = {
-                                        showConfirm = false
-                                        loadingAction = pendingAction
-                                        val action = pendingAction
-                                        pendingAction = null
-
-                                        scope.launch {
-                                            when (action) {
-                                                DeviceAction.UNLINK -> {
-                                                    displayViewModel.unlinkDevice(
-                                                        serialNumber = serialNumber,
-                                                        groupId = groupId
-                                                    )
-                                                }
-
-                                                DeviceAction.LOCK -> {
-                                                    // TODO: Gọi API khoá thiết bị nếu có
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
-                                                }
-
-                                                DeviceAction.RESET -> {
-                                                    // TODO: Gọi API reset thiết bị nếu có
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
-                                                }
-
-                                                DeviceAction.TRANSFER -> {
-                                                    // TODO: Gọi API chuyển quyền nếu có
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
-                                                }
-
-                                                DeviceAction.REPORT_LOST -> {
-                                                    // TODO: Gọi API báo mất nếu có
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
-                                                }
-
-                                                else -> {
-                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
-                                                }
-                                            }
-
-                                            loadingAction = null
+                                    DeviceQuickActions(
+                                        serialNumber = serialNumber,
+                                        navController = navController,
+                                        snackbarVM   = snackbarViewModel,
+                                        onRequestConfirm = { action, title, msg ->
+                                            confirmTitle  = title
+                                            confirmMessage= msg
+                                            pendingAction = action
+                                            showConfirm   = true
                                         }
-                                    },
-                                    onDismiss = {
-                                        showConfirm = false
-                                        pendingAction = null
-                                    }
                                 )
                             }
 
+                                /* ---------- SHEET: HIỆU ỨNG LED ---------- */
+                                if (showEffectSheet.value) {
+                                    ModalBottomSheet(
+                                        onDismissRequest = { showEffectSheet.value = false }
+                                    ) {
+                                        if (ledState is LedUiState.Loading) {
+                                            CircularProgressIndicator(
+                                                Modifier
+                                                    .padding(24.dp)
+                                                    .align(Alignment.CenterHorizontally)
+                                            )
+                                        }
+
+                                        EffectSelector(
+                                            state = ledState,
+                                            snackbarViewModel = snackbarViewModel,
+                                            onApply = { effect, speed, count, c1, c2 ->
+                                                ledViewModel.applyEffect(
+                                                    deviceId  = deviceId,
+                                                    serial    = serialNumber,
+                                                    effect    = effect,
+                                                    speed     = speed,
+                                                    count     = count,
+                                                    color1    = c1,
+                                                    color2    = c2
+                                                )
+                                                showEffectSheet.value = false
+                                            }
+                                        )
+
+                                        Row (
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp),
+                                        ) {
+                                            ActionButtonWithFeedback(
+                                                label  = "Dừng hiệu ứng",
+                                                style  = HCButtonStyle.SECONDARY,
+                                                height = 54.dp,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f),
+                                                snackbarViewModel = snackbarViewModel,
+                                                onAction = { onS, _ ->
+                                                    ledViewModel.stopEffect(deviceId, serialNumber)
+                                                    showEffectSheet.value = false
+                                                    onS("Đang dừng…")
+                                                }
+                                            )
+
+                                            Spacer(Modifier.width(8.dp))
+
+                                            ActionButtonWithFeedback(
+                                                label  = "Chế độ mẫu",
+                                                style  = HCButtonStyle.PRIMARY,
+                                                height = 54.dp,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .weight(1f),
+                                                snackbarViewModel = snackbarViewModel,
+                                                onAction = { onS, _ ->
+                                                    ledViewModel.applyPreset(
+                                                        deviceId  = deviceId,
+                                                        serial    = serialNumber,
+                                                        preset    = "party_mode",
+                                                        duration  = 30_000   // 30 giây
+                                                    )
+                                                    showEffectSheet.value = false
+                                                    onS("Đang áp dụng preset…")
+                                                }
+                                            )
+                                        }
+
+                                        Spacer(Modifier.height(12.dp))
+                                    }
+                                }
+
+                                if (showConfirm) {
+                                    WarningDialog(
+                                        title = confirmTitle,
+                                        text = confirmMessage,
+                                        confirmText = "Đồng ý",
+                                        dismissText = "Huỷ",
+                                        onConfirm = {
+                                            showConfirm = false
+                                            loadingAction = pendingAction
+                                            val action = pendingAction
+                                            pendingAction = null
+
+                                            scope.launch {
+                                                when (action) {
+                                                    DeviceAction.UNLINK -> {
+                                                        showFullScreenLoading = true
+                                                        delay(5_000)
+                                                        displayViewModel.unlinkDevice(
+                                                            serialNumber = serialNumber,
+                                                            groupId      = groupId
+                                                        )
+                                                    }
+
+                                                    DeviceAction.LOCK -> {
+                                                        // TODO: Gọi API khoá thiết bị nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                    }
+
+                                                    DeviceAction.RESET -> {
+                                                        // TODO: Gọi API reset thiết bị nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                    }
+
+                                                    DeviceAction.TRANSFER -> {
+                                                        // TODO: Gọi API chuyển quyền nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                    }
+
+                                                    DeviceAction.REPORT_LOST -> {
+                                                        // TODO: Gọi API báo mất nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                    }
+
+                                                    else -> {
+                                                        pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                    }
+                                                }
+
+                                                loadingAction = null
+                                            }
+                                        },
+                                        onDismiss = {
+                                            showConfirm = false
+                                            pendingAction = null
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
+            )
+            if (showFullScreenLoading) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0x88000000)),      // mờ toàn màn hình
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
             }
-        )
+        }
     }
 }

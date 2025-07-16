@@ -317,20 +317,6 @@ fun CameraDetailScreen(
                             }
                         }
                     }
-
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        if (!isViewOnly) {
-                            ActionButtonWithFeedback(
-                                label = "Gọi hỗ trợ",
-                                snackbarViewModel = snackbarViewModel,
-                                onAction = { onSuccess, onError ->
-                                    onSuccess("Đã gọi hỗ trợ thành công!")
-                                }
-                            )
-                        }
-                    }
                 }
             }
         )

@@ -16,7 +16,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.sns.homeconnect_v2.presentation.component.CustomSwitch
+import com.sns.homeconnect_v2.presentation.component.navigation.Header
+import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.door.DoorActionButton
@@ -28,6 +31,7 @@ import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 @Composable
 fun DoorDetailScreen(
+    navController: NavHostController,
     deviceId: String,
     deviceName: String,
     deviceTypeName: String,
@@ -95,8 +99,20 @@ fun DoorDetailScreen(
 
     /* ---------------- ❻ UI ---------------- */
     IoTHomeConnectAppTheme {
+        val colorScheme = MaterialTheme.colorScheme
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.background
+            topBar = {
+                Header(
+                    navController = navController,
+                    type = "Back",
+                    title = "Chi tiết thiết bị"
+                )
+            },
+            bottomBar = {
+                MenuBottom(navController)
+            },
+            containerColor = colorScheme.background,
+            modifier = Modifier.fillMaxSize(),
         ) { inner ->
             LazyColumn(
                 modifier = Modifier

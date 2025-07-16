@@ -58,9 +58,7 @@ import com.sns.homeconnect_v2.presentation.component.SingleColorCircleWithDivide
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
-import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.button.DeviceQuickActions
 import com.sns.homeconnect_v2.presentation.navigation.Screens

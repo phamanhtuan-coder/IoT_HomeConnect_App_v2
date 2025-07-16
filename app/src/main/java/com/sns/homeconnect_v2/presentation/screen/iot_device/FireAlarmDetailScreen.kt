@@ -4,6 +4,7 @@ import IoTHomeConnectAppTheme
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,10 +58,9 @@ import com.sns.homeconnect_v2.presentation.component.SingleColorCircleWithDivide
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
-import com.sns.homeconnect_v2.presentation.component.widget.HCButtonStyle
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
+import com.sns.homeconnect_v2.presentation.component.widget.button.DeviceQuickActions
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayInfoState
 import com.sns.homeconnect_v2.presentation.viewmodel.iot_device.DeviceDisplayViewModel
@@ -107,6 +108,8 @@ fun FireAlarmDetailScreen(
     isViewOnly: Boolean = true, // Thêm biến này để xác định chế độ xem chỉ
     snackbarViewModel: SnackbarViewModel = hiltViewModel(),
 ) {
+    // ngay trên cùng của DeviceDetailScreen (cùng nhóm với showConfirm, loadingAction …)
+    var showFullScreenLoading by remember { mutableStateOf(false) }
     // Khởi tạo ViewModel
     val deviceViewModel: DeviceViewModel = hiltViewModel()
     // Khởi tạo ViewModel để lấy trạng thái thiết bị
@@ -132,6 +135,7 @@ fun FireAlarmDetailScreen(
     LaunchedEffect(unlinkState) {
         when (val state = unlinkState) {
             is UnlinkState.Success -> {
+                showFullScreenLoading = false
                 snackbarViewModel.showSnackbar("Gỡ thiết bị thành cộng", SnackbarVariant.SUCCESS)
                 pendingOnSuccess?.invoke(state.message)    // ✅ báo nút dừng
                 pendingOnSuccess = null
@@ -139,6 +143,7 @@ fun FireAlarmDetailScreen(
                 navController.popBackStack()
             }
             is UnlinkState.Error -> {
+                showFullScreenLoading = false
                 snackbarViewModel.showSnackbar("Gỡ thiết bị thất bại", SnackbarVariant.ERROR)
                 pendingOnError?.invoke(state.error)
                 pendingOnError  = null
@@ -365,191 +370,192 @@ fun FireAlarmDetailScreen(
 
     val colorScheme = MaterialTheme.colorScheme
     IoTHomeConnectAppTheme {
-        Scaffold(
-            topBar = {
-                /*
-            * Hiển thị Header
-             */
-                Header(
-                    navController = navController,
-                    type = "Back",
-                    title = "Chi tiết thiết bị"
-                )
-            },
-            bottomBar = {
-                /*
-            * Hiển thị Thanh Menu dưới cùng
-             */
-                MenuBottom(navController)
-            },
-            containerColor = colorScheme.background,
-            modifier = Modifier.fillMaxSize(),
-            content = { innerPadding ->
-                LazyColumn (
-                    modifier = Modifier.padding(innerPadding)
-                ) {
-                    item {
-                        ColoredCornerBox(
-                            cornerRadius = 40.dp
-                        ) {
-                            // Phần đầu tiên: Hiển thị thông tin "Dining Room"
-                            Row(
-                                modifier = Modifier.padding(
-                                    horizontal = 16.dp,
-                                    vertical = 8.dp
-                                ) // Canh lề trên và phải
+        Box(Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    /*
+                * Hiển thị Header
+                 */
+                    Header(
+                        navController = navController,
+                        type = "Back",
+                        title = "Chi tiết thiết bị"
+                    )
+                },
+                bottomBar = {
+                    /*
+                * Hiển thị Thanh Menu dưới cùng
+                 */
+                    MenuBottom(navController)
+                },
+                containerColor = colorScheme.background,
+                modifier = Modifier.fillMaxSize(),
+                content = { innerPadding ->
+                    LazyColumn (
+                        modifier = Modifier.padding(innerPadding)
+                    ) {
+                        item {
+                            ColoredCornerBox(
+                                cornerRadius = 40.dp
                             ) {
-                                // Cột chứa các thông tin của phòng
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth() // Chiều rộng đầy đủ
-                                        //.background(color = colorScheme.primary) // Nền màu xanh dương
-                                        .weight(0.2f), // Chiếm 20% của Row
-                                    horizontalAlignment = Alignment.Start,
-                                    verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
+                                // Phần đầu tiên: Hiển thị thông tin "Dining Room"
+                                Row(
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 8.dp
+                                    ) // Canh lề trên và phải
                                 ) {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                    // Cột chứa các thông tin của phòng
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth() // Chiều rộng đầy đủ
+                                            //.background(color = colorScheme.primary) // Nền màu xanh dương
+                                            .weight(0.2f), // Chiếm 20% của Row
+                                        horizontalAlignment = Alignment.Start,
+                                        verticalArrangement = Arrangement.SpaceBetween // Các thành phần cách đều nhau
+                                    ) {
+                                        Spacer(modifier = Modifier.height(8.dp))
 
-                                    Text(
-                                        text = deviceName,
-                                        color = colorScheme.onPrimary, // Màu chữ trắng
-                                        lineHeight = 27.sp,
-                                        fontSize = 25.sp
-                                    ) // Tiêu đề
+                                        Text(
+                                            text = deviceName,
+                                            color = colorScheme.onPrimary, // Màu chữ trắng
+                                            lineHeight = 27.sp,
+                                            fontSize = 25.sp
+                                        ) // Tiêu đề
 
-                                    // Switch bật/tắt đèn
-                                    CustomSwitch(
-                                        isCheck  = powerStatusUI,
-                                        enabled  = !isPowerUpdating,          // chỉ khóa khi đang chờ server
-                                        onCheckedChange = { newStatus ->
-                                            pendingPowerStatus = newStatus
-                                            isPowerUpdating   = true          // khóa ngay
+                                        // Switch bật/tắt đèn
+                                        CustomSwitch(
+                                            isCheck  = powerStatusUI,
+                                            enabled  = !isPowerUpdating,          // chỉ khóa khi đang chờ server
+                                            onCheckedChange = { newStatus ->
+                                                pendingPowerStatus = newStatus
+                                                isPowerUpdating   = true          // khóa ngay
 
-                                            Log.d("SwitchAction", "Gửi bulk power_status = $newStatus")
+                                                Log.d("SwitchAction", "Gửi bulk power_status = $newStatus")
 
-                                            deviceDisplayViewModel.updateDeviceStateBulk(
-                                                serial_number = serialNumber,
-                                                serial   = serialNumber,
-                                                updates  = listOf(mapOf("power_status" to newStatus))
-                                            )
-                                        }
-                                    )
-
-                                    Text(
-                                        text = "Trạng thái hiện tại: ",
-                                        color = Color(0xFF222222),
-                                        fontSize = 16.sp
-                                    )
-
-                                    Text(
-                                        text = selectedStatus,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp,
-                                        color = when (selectedStatus) {
-                                            "Báo động" -> Color.Red
-                                            "Lỗi" -> Color.Yellow
-                                            else -> Color(0xFF228B22)
-                                        }
-                                    )
-                                }
-
-                                SingleColorCircleWithDividers(
-                                    selectedStatus = selectedStatus,
-                                    dividerCount = 12
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-
-                        InvertedCornerHeader(
-                            backgroundColor = colorScheme.surface,
-                            overlayColor = colorScheme.primary
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                /* ---------- INFO ---------- */
-                                IconButton(
-                                    onClick = {
-                                        showBottomSheet.value = true
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Info,
-                                        contentDescription = "Info",
-                                        tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                /* ---------- WIFI ---------- */
-                                IconButton(
-                                    onClick = {
-                                        navController.navigate(
-                                            Screens.AccessPoint.route +
-                                                    "?id=${deviceId}&name=${"Lamp"}"
-                                        )
-                                    },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Wifi,
-                                        contentDescription = "Wi-Fi",
-                                        tint = colorScheme.primary,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .onSizeChanged { size ->
-                                    rowWidth = size.width // Lấy kích thước của Row
-                                },
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .widthIn(max = if (isTablet) 700.dp else 400.dp)
-                                    .padding(horizontal = 12.dp)
-                                    .wrapContentWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                sliderKeys.forEach { (key, label) ->
-                                    if (controls[key] == "slider") { // Đúng kiểu slider trong controls
-                                        InfoRow(
-                                            label  = "$label:",
-                                            value  = "${displayedValues[key] ?: 0}",   // ⬅️ dùng displayedValues
-                                            unit   = sliderUnits[key] ?: "",
-
-                                            // Màu cảnh báo chỉ khi thiết bị bật, còn tắt thì xám
-                                            stateColor = if (!powerStatusUI) Color.Gray else when (key) {
-                                                "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) Color.Red else Color.Green
-                                                "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) Color.Red else Color.Green
-                                                "hum"  -> Color.Green
-                                                else   -> Color.Gray
-                                            },
-
-                                            // Ký hiệu “✓/!” chỉ khi bật, tắt thì “–”
-                                            stateText  = if (!powerStatusUI) "–" else when (key) {
-                                                "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) "!" else "✓"
-                                                "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) "!" else "✓"
-                                                "hum"  -> "✓"
-                                                else   -> "?"
+                                                deviceDisplayViewModel.updateDeviceStateBulk(
+                                                    serial_number = serialNumber,
+                                                    serial   = serialNumber,
+                                                    updates  = listOf(mapOf("power_status" to newStatus))
+                                                )
                                             }
                                         )
 
-                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Text(
+                                            text = "Trạng thái hiện tại: ",
+                                            color = Color(0xFF222222),
+                                            fontSize = 16.sp
+                                        )
+
+                                        Text(
+                                            text = selectedStatus,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 18.sp,
+                                            color = when (selectedStatus) {
+                                                "Báo động" -> Color.Red
+                                                "Lỗi" -> Color.Yellow
+                                                else -> Color(0xFF228B22)
+                                            }
+                                        )
+                                    }
+
+                                    SingleColorCircleWithDividers(
+                                        selectedStatus = selectedStatus,
+                                        dividerCount = 12
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+
+                            InvertedCornerHeader(
+                                backgroundColor = colorScheme.surface,
+                                overlayColor = colorScheme.primary
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    /* ---------- INFO ---------- */
+                                    IconButton(
+                                        onClick = {
+                                            showBottomSheet.value = true
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Info,
+                                            contentDescription = "Info",
+                                            tint = colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                    /* ---------- WIFI ---------- */
+                                    IconButton(
+                                        onClick = {
+                                            navController.navigate(
+                                                Screens.AccessPoint.route +
+                                                        "?id=${deviceId}&name=${"Lamp"}"
+                                            )
+                                        },
+                                        modifier = Modifier.size(32.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Wifi,
+                                            contentDescription = "Wi-Fi",
+                                            tint = colorScheme.primary,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .onSizeChanged { size ->
+                                        rowWidth = size.width // Lấy kích thước của Row
+                                    },
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .widthIn(max = if (isTablet) 700.dp else 400.dp)
+                                        .padding(horizontal = 12.dp)
+                                        .wrapContentWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    sliderKeys.forEach { (key, label) ->
+                                        if (controls[key] == "slider") { // Đúng kiểu slider trong controls
+                                            InfoRow(
+                                                label  = "$label:",
+                                                value  = "${displayedValues[key] ?: 0}",   // ⬅️ dùng displayedValues
+                                                unit   = sliderUnits[key] ?: "",
+
+                                                // Màu cảnh báo chỉ khi thiết bị bật, còn tắt thì xám
+                                                stateColor = if (!powerStatusUI) Color.Gray else when (key) {
+                                                    "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) Color.Red else Color.Green
+                                                    "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) Color.Red else Color.Green
+                                                    "hum"  -> Color.Green
+                                                    else   -> Color.Gray
+                                                },
+
+                                                // Ký hiệu “✓/!” chỉ khi bật, tắt thì “–”
+                                                stateText  = if (!powerStatusUI) "–" else when (key) {
+                                                    "gas"  -> if (sliderValues["gas"]  ?: 0 > 600) "!" else "✓"
+                                                    "temp" -> if (sliderValues["temp"] ?: 0 > 40 ) "!" else "✓"
+                                                    "hum"  -> "✓"
+                                                    else   -> "?"
+                                                }
+                                            )
+
+                                            Spacer(modifier = Modifier.height(8.dp))
 //                                        EdgeToEdgeSlider(
 //                                            value = sliderStates[key] ?: 0f,
 //                                            onValueChange = sliderSetters[key] ?: {},
@@ -560,253 +566,140 @@ fun FireAlarmDetailScreen(
 //                                            modifier = Modifier.fillMaxWidth()
 //                                        )
 //                                        Spacer(modifier = Modifier.height(8.dp))
+                                        }
                                     }
                                 }
-                            }
 
-                            /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                val buttonStyle = if (isViewOnly) HCButtonStyle.DISABLED else HCButtonStyle.PRIMARY
-                                /* ===== HÀNG 1 ===== */
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                /* ------------------ LAYOUT NÚT HÀNH ĐỘNG ------------------ */
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    /* KHÓA THIẾT BỊ – có dialog */
-                                    ActionButtonWithFeedback(
-                                        label  = "Khóa thiết bị",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Khóa thiết bị"
-                                            confirmMessage   = "Bạn có chắc muốn khoá thiết bị này?"
-                                            pendingAction    = DeviceAction.LOCK
-                                            showConfirm      = true
-                                        },
-                                        style  = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.LOCK,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
+                                    Spacer(Modifier.height(16.dp))
 
-                                    /* GỠ KẾT NỐI – có dialog */
-                                    ActionButtonWithFeedback(
-                                        label  = "Gỡ kết nối",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Gỡ kết nối"
-                                            confirmMessage   = "Bạn muốn gỡ kết nối!"
-                                            pendingAction    = DeviceAction.UNLINK
-                                            showConfirm      = true
-                                        },
-                                        style  = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.UNLINK,
-                                        snackbarViewModel = snackbarViewModel
+                                    DeviceQuickActions(
+                                        serialNumber = serialNumber,
+                                        navController = navController,
+                                        snackbarVM   = snackbarViewModel,
+                                        onRequestConfirm = { action, title, msg ->
+                                            confirmTitle  = title
+                                            confirmMessage= msg
+                                            pendingAction = action
+                                            showConfirm   = true
+                                        }
                                     )
                                 }
 
-                                Spacer(Modifier.height(12.dp))
+                                // WarningDialog xác nhận
+                                if (showConfirm) {
+                                    WarningDialog(
+                                        title = confirmTitle,
+                                        text = confirmMessage,
+                                        confirmText = "Đồng ý",
+                                        dismissText = "Huỷ",
+                                        onConfirm = {
+                                            showConfirm = false
+                                            loadingAction = pendingAction
+                                            val action = pendingAction
+                                            pendingAction = null
 
-                                /* ===== HÀNG 2 ===== */
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    /* CHIA SẺ QUYỀN – KHÔNG dialog, quay ngay */
-                                    ActionButtonWithFeedback(
-                                        label = "Chia sẻ quyền",
-                                        onAction = { _, _ ->
-                                            navController.navigate(Screens.ShareDeviceBySerial.createRoute(serialNumber))
-                                        },
-                                        style = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.SHARE,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-
-                                    /* RESET THIẾT BỊ – có dialog */
-                                    ActionButtonWithFeedback(
-                                        label  = "Reset thiết bị",
-                                        onAction = { onS, onE ->
-                                            pendingOnSuccess = onS
-                                            pendingOnError   = onE
-                                            confirmTitle     = "Reset thiết bị"
-                                            confirmMessage   = "Bạn muốn reset thiết bị này!"
-                                            pendingAction    = DeviceAction.RESET
-                                            showConfirm      = true
-                                        },
-                                        style  = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.RESET,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-                                }
-
-                                Spacer(Modifier.height(12.dp))
-
-                                /* ===== HÀNG 3 ===== */
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    /* CHUYỂN QUYỀN SỞ HỮU – KHÔNG dialog */
-                                    ActionButtonWithFeedback(
-                                        label  = "Chuyển quyền sở hữu",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.TRANSFER
                                             scope.launch {
-                                                delay(1000)
-                                                onS("Đã chuyển")
+                                                when (action) {
+                                                    DeviceAction.UNLINK -> {
+                                                        showFullScreenLoading = true
+                                                        delay(5_000)
+                                                        displayViewModel.unlinkDevice(
+                                                            serialNumber = serialNumber,
+                                                            groupId      = groupId
+                                                        )
+                                                    }
+
+                                                    DeviceAction.LOCK -> {
+                                                        // TODO: Gọi API khoá thiết bị nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã khoá thiết bị!")
+                                                    }
+
+                                                    DeviceAction.RESET -> {
+                                                        // TODO: Gọi API reset thiết bị nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã reset thiết bị!")
+                                                    }
+
+                                                    DeviceAction.TRANSFER -> {
+                                                        // TODO: Gọi API chuyển quyền nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã chuyển quyền!")
+                                                    }
+
+                                                    DeviceAction.REPORT_LOST -> {
+                                                        // TODO: Gọi API báo mất nếu có
+                                                        delay(1000)
+                                                        pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
+                                                    }
+
+                                                    else -> {
+                                                        pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                                    }
+                                                }
+
                                                 loadingAction = null
                                             }
                                         },
-                                        style  = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.TRANSFER,
-                                        snackbarViewModel = snackbarViewModel
-                                    )
-
-                                    /* XEM PHIÊN BẢN – KHÔNG dialog */
-                                    ActionButtonWithFeedback(
-                                        label  = "Xem phiên bản",
-                                        onAction = { onS, _ ->
-                                            loadingAction = DeviceAction.VERSION
-                                            scope.launch {
-                                                delay(1000)
-                                                onS("v1.0")
-                                                loadingAction = null
-                                            }
-                                        },
-                                        style  = buttonStyle,
-                                        height = 62.dp,
-                                        textSize = 20.sp,
-                                        modifier = Modifier.weight(1f),
-                                        isLoadingFromParent = loadingAction == DeviceAction.VERSION,
-                                        snackbarViewModel = snackbarViewModel
+                                        onDismiss = {
+                                            showConfirm = false
+                                            pendingAction = null
+                                        }
                                     )
                                 }
 
-                                Spacer(Modifier.height(16.dp))
-
-                                /* ===== NÚT CUỐI (BÁO MẤT) ===== */
-                                ActionButtonWithFeedback(
-                                    label  = "Báo mất thiết bị",
-                                    onAction = { onS, _ ->
-                                        loadingAction = DeviceAction.REPORT_LOST
-                                        scope.launch {
-                                            delay(1000)
-                                            onS("Đã báo mất")
-                                            loadingAction = null
-                                        }
-                                    },
-                                    style  = buttonStyle,
-                                    height = 62.dp,
-                                    textSize = 20.sp,
-                                    modifier = Modifier.fillMaxWidth(0.8f),
-                                    isLoadingFromParent = loadingAction == DeviceAction.REPORT_LOST,
-                                    snackbarViewModel = snackbarViewModel
-                                )
-                            }
-
-                            // WarningDialog xác nhận
-                            if (showConfirm) {
-                                WarningDialog(
-                                    title       = confirmTitle,
-                                    text        = confirmMessage,
-                                    confirmText = "Đồng ý",
-                                    dismissText = "Huỷ",
-                                    onConfirm = {
-                                        showConfirm = false
-                                        loadingAction = pendingAction
-                                        val action = pendingAction
-                                        pendingAction = null
-
-                                        scope.launch {
-                                            when (action) {
-                                                DeviceAction.UNLINK -> {
-                                                    loadingAction = DeviceAction.UNLINK
-                                                    displayViewModel.unlinkDevice(
-                                                        serialNumber = serialNumber,
-                                                        groupId= groupId
-                                                    )
-                                                }
-                                                DeviceAction.LOCK -> {
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã khoá thiết bị!")
-                                                }
-                                                DeviceAction.RESET -> {
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã reset thiết bị!")
-                                                }
-                                                DeviceAction.TRANSFER -> {
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã chuyển quyền!")
-                                                }
-                                                DeviceAction.REPORT_LOST -> {
-                                                    delay(1000)
-                                                    pendingOnSuccess?.invoke("Đã báo mất thiết bị!")
-                                                }
-                                                else -> {
-                                                    pendingOnError?.invoke("Chưa hỗ trợ thao tác này.")
+                                if (showBottomSheet.value) {
+                                    ModalBottomSheet(
+                                        onDismissRequest = { showBottomSheet.value = false }
+                                    ) {
+                                        when (displayState) {
+                                            is DeviceDisplayInfoState.Success -> {
+                                                val product = (displayState as DeviceDisplayInfoState.Success).product
+                                                val category = (displayState as DeviceDisplayInfoState.Success).category
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
+                                                    Text("Danh mục: ${category.name ?: "Không rõ"}")
+                                                    Text("Giá: ${product.selling_price  ?: "Không rõ"}")
+                                                    Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
                                                 }
                                             }
-                                            loadingAction = null
-                                        }
-                                    },
-                                    onDismiss = {
-                                        showConfirm   = false
-                                        pendingAction = null
-                                    }
-                                )
-                            }
-
-                            if (showBottomSheet.value) {
-                                ModalBottomSheet(
-                                    onDismissRequest = { showBottomSheet.value = false }
-                                ) {
-                                    when (displayState) {
-                                        is DeviceDisplayInfoState.Success -> {
-                                            val product = (displayState as DeviceDisplayInfoState.Success).product
-                                            val category = (displayState as DeviceDisplayInfoState.Success).category
-                                            Column(modifier = Modifier.padding(16.dp)) {
-                                                Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
-                                                Text("Danh mục: ${category.name ?: "Không rõ"}")
-                                                Text("Giá: ${product.selling_price  ?: "Không rõ"}")
-                                                Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                                            is DeviceDisplayInfoState.Loading -> {
+                                                Text("Đang tải thông tin sản phẩm...")
                                             }
+                                            is DeviceDisplayInfoState.Error -> {
+                                                Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                            }
+                                            else -> {}
                                         }
-                                        is DeviceDisplayInfoState.Loading -> {
-                                            Text("Đang tải thông tin sản phẩm...")
-                                        }
-                                        is DeviceDisplayInfoState.Error -> {
-                                            Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
-                                        }
-                                        else -> {}
                                     }
                                 }
                             }
                         }
                     }
                 }
+            )
+            if (showFullScreenLoading) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0x88000000)),      // mờ toàn màn hình
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 4.dp,
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
             }
-        )
+        }
     }
 }
 

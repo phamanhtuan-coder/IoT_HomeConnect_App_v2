@@ -77,13 +77,14 @@ object DeviceScreenFactory {
 
             normalized?.contains("cửa thông minh") == true -> { navController ->
                 DoorDetailScreen(
+                    navController = navController,
                     deviceId = deviceId,
                     deviceName = deviceName,
                     deviceTypeName = deviceTypeName ?: "",
                     serialNumber = serialNumber,
                     controls = controls,
                     snackbarViewModel = snackbarViewModel(),
-                    isViewOnly = isViewOnly               // ✅ Truyền xuống
+                    isViewOnly = isViewOnly
                 )
             }
 

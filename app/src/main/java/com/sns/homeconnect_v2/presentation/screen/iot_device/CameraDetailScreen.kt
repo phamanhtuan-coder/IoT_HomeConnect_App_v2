@@ -55,7 +55,6 @@ import coil.compose.AsyncImage
 import com.sns.homeconnect_v2.presentation.component.MiniActionButton
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
-import com.sns.homeconnect_v2.presentation.component.widget.ActionButtonWithFeedback
 import com.sns.homeconnect_v2.presentation.component.widget.ColoredCornerBox
 import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.navigation.Screens
@@ -315,20 +314,6 @@ fun CameraDetailScreen(
                             ) {
                                 // TODO: Điều hướng đến cài đặt
                             }
-                        }
-                    }
-
-                    item {
-                        Spacer(modifier = Modifier.height(24.dp))
-
-                        if (!isViewOnly) {
-                            ActionButtonWithFeedback(
-                                label = "Gọi hỗ trợ",
-                                snackbarViewModel = snackbarViewModel,
-                                onAction = { onSuccess, onError ->
-                                    onSuccess("Đã gọi hỗ trợ thành công!")
-                                }
-                            )
                         }
                     }
                 }

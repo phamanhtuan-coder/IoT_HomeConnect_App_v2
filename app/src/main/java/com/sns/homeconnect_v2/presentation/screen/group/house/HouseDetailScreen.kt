@@ -210,7 +210,7 @@ fun HouseDetailScreen(
 
                             },
                             onClick = {
-                                navController.navigate(Screens.SpaceDetail.createRoute(space.space_id))
+                                navController.navigate(Screens.SpaceDetail.createRoute(space.space_id, currentUserRole))
                                 Log.d("Space Clicked", "ID: ${space.space_id}, Name: ${space.space_name}")
                             }
                         )

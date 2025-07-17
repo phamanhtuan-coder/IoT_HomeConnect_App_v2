@@ -25,7 +25,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.sns.homeconnect_v2.presentation.component.BottomSheetWithTrigger
 import com.sns.homeconnect_v2.presentation.component.DeviceCardSwipeable
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
@@ -35,13 +34,11 @@ import com.sns.homeconnect_v2.presentation.component.widget.InvertedCornerHeader
 import com.sns.homeconnect_v2.presentation.component.widget.LabeledBox
 import com.sns.homeconnect_v2.presentation.component.widget.RadialFab
 import com.sns.homeconnect_v2.presentation.component.widget.SearchBar
-import com.sns.homeconnect_v2.presentation.model.DeviceUi
 import com.sns.homeconnect_v2.presentation.model.FabChild
 import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.SpaceScreenDetailViewModel
 import com.sns.homeconnect_v2.presentation.viewmodel.space.UpdateSpaceViewModel
-import kotlinx.coroutines.launch
-import androidx.compose.runtime.rememberCoroutineScope
+import com.sns.homeconnect_v2.presentation.navigation.Screens
 
 /**
  * Hàm Composable đại diện cho màn hình chi tiết của một không gian/nhóm.
@@ -57,12 +54,19 @@ import androidx.compose.runtime.rememberCoroutineScope
  * @since 16/05/2025
  */
 
+object Roles {
+    const val MEMBER  = "member"
+    const val OWNER   = "owner"
+    const val VICE    = "vice"
+    const val ADMIN   = "admin"
+}
+
 @Composable
 fun DetailSpaceScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     spaceId: Int,
-
+    currentUserRole: String
 ) {
 //    val deviceList = remember {
 //        mutableStateListOf(
@@ -71,6 +75,8 @@ fun DetailSpaceScreen(
 //            DeviceUi(3, "Kỹ thuật", "kitchen", false, Icons.Default.Group, Color.Green)
 //        )
 //    }
+    val isViewOnly = currentUserRole.equals(Roles.MEMBER, ignoreCase = true)
+    val permissionType = if (isViewOnly) "VIEW" else "CONTROL"
     val spaceViewModel: SpaceScreenDetailViewModel = hiltViewModel()
     val updateSpaceViewModel: UpdateSpaceViewModel = hiltViewModel()
     val snackbarViewModel: SnackbarViewModel = hiltViewModel()
@@ -207,7 +213,20 @@ fun DetailSpaceScreen(
                                         spaceViewModel.updateRevealState(i)
                                     }
                                 },
-                                onClick = {},
+                                onClick = {
+                                    navController.navigate(
+                                        Screens.DynamicDeviceDetail.build(
+                                            deviceId     = deviceUi.device_id?:"",
+                                            deviceName   = deviceUi.name.orEmpty(),
+                                            serialNumber = deviceUi.serial_number,
+                                            deviceTypeName = deviceUi.device_type_name,
+                                            deviceTypeParentName = null,
+                                            permissionType = permissionType,
+                                            productId    = deviceUi.template_id,
+                                            groupId = deviceUi.group_id?:0
+                                        )
+                                    )
+                                },
                                 onCollapse = {
                                     spaceViewModel.updateRevealState(deviceIndex)
                                 },

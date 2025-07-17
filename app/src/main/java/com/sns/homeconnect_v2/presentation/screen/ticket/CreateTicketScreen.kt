@@ -149,7 +149,7 @@ fun CreateTicketScreen(
                         )
 
                         GenericDropdown(
-                            items = listOf("Phòng khách", "Phòng ngủ", "Nhà bếp"),
+                            items = listOf("Mất thiết bị",  "Bảo hành", "Chia sẻ quyền", "Nhượng quyền thiết bị", "Mất tài khoản", "Khoá thiết bị"),
                             selectedItem = current ?: "Chọn loại hỗ trợ",
                             onItemSelected = { current = it },
                             isTablet = false,
@@ -187,9 +187,12 @@ fun CreateTicketScreen(
                         Button(
                             onClick = {
                                 val ticketTypeId = when (current) {
-                                    "Phòng khách" -> 2
-                                    "Phòng ngủ" -> 1
-                                    "Nhà bếp" -> 2
+                                    "Mất thiết bị" -> 2
+                                    "Bảo hành" -> 1
+                                    "Chia sẻ quyền" -> 3
+                                    "Nhượng quyền thiết bị" -> 4
+                                    "Mất tài khoản" -> 5
+                                    "Khoá thiết bị" -> 6
                                     else -> 0 // Giá trị không hợp lệ
                                 }
                                 val request = CreateTicketRequest(

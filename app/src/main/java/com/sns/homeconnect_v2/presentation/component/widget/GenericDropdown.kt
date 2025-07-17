@@ -72,14 +72,14 @@ fun GenericDropdown(
                     imageVector = leadingIcon,
                     contentDescription = null,
                     tint = Color(0xFF212121),
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier.size(28.dp),
                 )
                 Spacer(Modifier.width(12.dp))
             }
 
             Text(
                 text = selectedItem.takeUnless { it.isNullOrBlank() } ?: placeHolder,
-                fontSize = 20.sp,
+                fontSize = 16.sp,
                 color = when {
                     !enabled -> Color(0xFF9E9E9E)
                     selectedItem.isNullOrBlank() -> Color.Gray

@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -655,21 +659,106 @@ fun FireAlarmDetailScreen(
                                     )
                                 }
 
-                                if (showBottomSheet.value) {
-                                    ModalBottomSheet(
-                                        onDismissRequest = { showBottomSheet.value = false }
-                                    ) {
-                                        when (displayState) {
-                                            is DeviceDisplayInfoState.Success -> {
-                                                val product = (displayState as DeviceDisplayInfoState.Success).product
-                                                val category = (displayState as DeviceDisplayInfoState.Success).category
-                                                Column(modifier = Modifier.padding(16.dp)) {
-                                                    Text("Tên sản phẩm: ${product.name ?: "Không rõ"}")
-                                                    Text("Danh mục: ${category.name ?: "Không rõ"}")
-                                                    Text("Giá: ${product.selling_price  ?: "Không rõ"}")
-                                                    Text("Mô tả: ${product.description_normal ?: "Không có mô tả"}")
+                            if (showBottomSheet.value) {
+                                ModalBottomSheet(
+                                    onDismissRequest = { showBottomSheet.value = false }
+                                ) {
+                                    when (displayState) {
+                                        is DeviceDisplayInfoState.Success -> {
+                                            val product = (displayState as DeviceDisplayInfoState.Success).product
+                                            val category = (displayState as DeviceDisplayInfoState.Success).category
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(16.dp),
+                                                horizontalAlignment = Alignment.Start,
+                                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                // Tên sản phẩm
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Info,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "Tên sản phẩm: ${product.name ?: "Không rõ"}",
+                                                        style = MaterialTheme.typography.titleMedium,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        fontWeight = FontWeight.SemiBold
+                                                    )
                                                 }
-                                            }
+
+                                                // Danh mục
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Category,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.primary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "Danh mục: ${category.name ?: "Không rõ"}",
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        fontWeight = FontWeight.SemiBold
+                                                    )
+                                                }
+
+                                                // Giá
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.MonetizationOn,
+                                                        contentDescription = null,
+                                                        tint = MaterialTheme.colorScheme.error,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "Giá: ${product.selling_price ?: "Không rõ"}",
+                                                        style = MaterialTheme.typography.bodyLarge,
+                                                        color = MaterialTheme.colorScheme.error
+                                                    )
+                                                }
+
+                                                // Mô tả
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.Start,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Default.Description,
+                                                        contentDescription = null,
+                                                        tint = Color(0xFFFFC107),
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = "Mô tả: ${product.description_normal ?: "Không có mô tả"}",
+                                                        style = MaterialTheme.typography.bodyMedium,
+                                                        color = Color(0xFFFFC107),
+                                                        fontWeight = FontWeight.SemiBold
+//                                                        modifier = Modifier
+//                                                            .weight(1f)
+//                                                            .wrapContentWidth(Alignment.CenterHorizontally)
+                                                    )
+                                                }
                                             is DeviceDisplayInfoState.Loading -> {
                                                 Text("Đang tải thông tin sản phẩm...")
                                             }

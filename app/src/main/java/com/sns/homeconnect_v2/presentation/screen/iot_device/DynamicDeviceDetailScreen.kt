@@ -42,7 +42,6 @@ fun DynamicDeviceDetailScreen(
     val displayState by displayViewModel.displayState.collectAsState()
     val capabilitiesState by capabilitiesViewModel.uiState.collectAsState()
 
-    // ✅ Gọi ViewModel nếu chưa có dữ liệu
     LaunchedEffect(productId, deviceId, serialNumber) {
         if (displayState !is DeviceDisplayInfoState.Success &&
             displayState !is DeviceDisplayInfoState.Loading) {
@@ -98,20 +97,17 @@ fun DynamicDeviceDetailScreen(
         }
 
         else -> {
-            // Hiển thị loading và timeout 3 giây nếu quá lâu
             Box(Modifier.fillMaxSize(), Alignment.Center) {
                 CircularProgressIndicator()
             }
 
             LaunchedEffect(Unit) {
-                kotlinx.coroutines.delay(3000)
+                kotlinx.coroutines.delay(5000)
                 val stillLoading = displayViewModel.displayState.value !is DeviceDisplayInfoState.Success ||
                         capabilitiesViewModel.uiState.value !is DeviceCapabilitiesUiState.Success
                 if (stillLoading) {
                     Log.d("CHECK", "Timeout loading, điều hướng về ListDevices")
-                    navController.navigate(Screens.ListDevices.route) {
-                        popUpTo(Screens.ListDevices.route) { inclusive = true }
-                    }
+                    navController.popBackStack()
                 }
             }
         }

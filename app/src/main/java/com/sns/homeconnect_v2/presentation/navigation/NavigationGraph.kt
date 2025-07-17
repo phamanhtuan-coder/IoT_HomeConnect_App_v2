@@ -239,16 +239,23 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
                     currentUserRole = currentUserRole
                 )
             }
-//ds space detail
+
+            //ds space detail
             composable(
                 route  = Screens.SpaceDetail.route,
-                arguments = listOf(navArgument("spaceId") { type = NavType.IntType })
+                arguments = listOf(
+                    navArgument("spaceId")         { type = NavType.IntType },
+                    navArgument("currentUserRole") { type = NavType.StringType }
+                )
             ) { backStackEntry ->
-                val spaceId = backStackEntry.arguments?.getInt("spaceId") ?: -1
+                val spaceId         = backStackEntry.arguments?.getInt("spaceId") ?: -1
+                val currentUserRole = backStackEntry.arguments?.getString("currentUserRole") ?: "member"
+
                 DetailSpaceScreen(
-                    navController = navController,
-                    modifier = Modifier,
-                    spaceId = spaceId
+                    modifier       = Modifier,
+                    navController  = navController,
+                    spaceId        = spaceId,
+                    currentUserRole = currentUserRole          // 🌟 mới
                 )
             }
 

@@ -24,7 +24,7 @@ object DeviceScreenFactory {
         snackbarViewModel: @Composable () -> SnackbarViewModel
     ): @Composable (NavHostController) -> Unit {
         val normalized = deviceTypeParentName?.trim()?.lowercase()
-        val isViewOnly = controls["permission_type"]?.uppercase() == "VIEW" // ✅ Thêm dòng này
+        val isViewOnly = controls["permission_type"]?.uppercase() == "VIEW"
 
         // một ProductData rỗng (cần constructor mặc định trong data class)
         val safeProduct = product ?: ProductData()

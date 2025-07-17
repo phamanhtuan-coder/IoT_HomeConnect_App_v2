@@ -153,7 +153,8 @@ fun FireAlarmDetailScreen(
                 pendingOnError  = null
                 loadingAction   = null
             }
-            else -> {}
+            is UnlinkState.Loading -> { /* optionally show loading */ }
+            is UnlinkState.Idle    -> { /* optionally do nothing */ }
         }
     }
 
@@ -659,7 +660,7 @@ fun FireAlarmDetailScreen(
                                     )
                                 }
 
-                            if (showBottomSheet.value) {
+                                if (showBottomSheet.value) {
                                 ModalBottomSheet(
                                     onDismissRequest = { showBottomSheet.value = false }
                                 ) {
@@ -667,6 +668,7 @@ fun FireAlarmDetailScreen(
                                         is DeviceDisplayInfoState.Success -> {
                                             val product = (displayState as DeviceDisplayInfoState.Success).product
                                             val category = (displayState as DeviceDisplayInfoState.Success).category
+
                                             Column(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
@@ -759,16 +761,20 @@ fun FireAlarmDetailScreen(
 //                                                            .wrapContentWidth(Alignment.CenterHorizontally)
                                                     )
                                                 }
-                                            is DeviceDisplayInfoState.Loading -> {
-                                                Text("Đang tải thông tin sản phẩm...")
                                             }
-                                            is DeviceDisplayInfoState.Error -> {
-                                                Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
-                                            }
-                                            else -> {}
                                         }
+
+                                        is DeviceDisplayInfoState.Loading -> {
+                                            Text("Đang tải thông tin sản phẩm...")
+                                        }
+                                        is DeviceDisplayInfoState.Error -> {
+                                            Text("Lỗi: ${(displayState as DeviceDisplayInfoState.Error).error}")
+                                        }
+                                        else -> {
                                     }
                                 }
+                                }
+                            }
                             }
                         }
                     }

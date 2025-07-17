@@ -7,8 +7,12 @@ class LogOutUseCase @Inject constructor(
     private val authRepository: AuthRepository,
 ) {
     suspend operator fun invoke(): Result<Unit> {
+        return authRepository.logout()
+    }
+
+    suspend fun logoutAllDevices(): Result<Unit> {
         return try {
-            authRepository.logout()
+            authRepository.logoutAllDevices()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

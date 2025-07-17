@@ -50,10 +50,45 @@ class AuthRepositoryImpl @Inject constructor(
         return response
     }
 
-    override suspend fun logout() {
+    override suspend fun logout(): Result<Unit> {
         val token = authManager.getJwtToken()
-//   Todo:     apiService.logout("Bearer $token") // Assuming ApiService has a logout endpoint
-        authManager.clearJwtToken()
+        val userDeviceId = authManager.getUserDeviceId()
+
+        return try {
+            if (token.isNotEmpty() && userDeviceId != null) {
+                val request = mapOf("userDeviceId" to userDeviceId)
+                apiService.logout("Bearer $token", request)
+            }
+
+            // Xóa thông tin local
+            authManager.clearJwtToken()
+            authManager.clearRefreshToken()
+            authManager.clearDeviceUuid()
+            authManager.clearAccountId()
+            authManager.clearUserDeviceId()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun logoutAllDevices(): Result<Unit> {
+        val token = authManager.getJwtToken()
+
+        return try {
+            if (token.isNotEmpty()) {
+                apiService.logoutAllDevices("Bearer $token")
+            }
+            authManager.clearJwtToken()
+            authManager.clearRefreshToken()
+            authManager.clearDeviceUuid()
+            authManager.clearAccountId()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            // Ghi log nếu muốn
+            Result.failure(e)
+        }
     }
 
     override suspend fun register(user: RegisterRequest): RegisterResponse {

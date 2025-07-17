@@ -46,12 +46,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.common.util.DeviceProperties.isTablet
 import com.sns.homeconnect_v2.core.util.rememberResponsiveLayoutConfig
+import com.sns.homeconnect_v2.core.util.validation.SnackbarVariant
 import com.sns.homeconnect_v2.presentation.component.dialog.WarningDialog
 import com.sns.homeconnect_v2.presentation.component.navigation.Header
 import com.sns.homeconnect_v2.presentation.component.navigation.MenuBottom
 import com.sns.homeconnect_v2.presentation.navigation.Screens
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.InfoProfileState
 import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewModel
+import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileState
+import com.sns.homeconnect_v2.presentation.viewmodel.snackbar.SnackbarViewModel
 
 /** Giao diện màn hình Settings Screen (SettingsScreen)
  * -----------------------------------------
@@ -65,14 +68,36 @@ import com.sns.homeconnect_v2.presentation.viewmodel.profile.ProfileScreenViewMo
 @Composable
 fun SettingsScreen(
     navController: NavHostController,
+    snackbarViewModel: SnackbarViewModel,
     viewModel:     ProfileScreenViewModel  = hiltViewModel(),
 ) {
+    var actionType by remember { mutableStateOf("SINGLE") }
+
     val layoutConfig = rememberResponsiveLayoutConfig() // Lấy LayoutConfig
 
     var showAlertDialog by remember { mutableStateOf(false) }
 
     var profileId by remember { mutableIntStateOf(-1) } // Lắng nghe danh sách thiết bị
     val infoProfileState by viewModel.infoProfileState.collectAsState()
+
+    val logoutState by viewModel.logoutState.collectAsState()
+
+    LaunchedEffect(logoutState) {
+        when (logoutState) {
+            is ProfileState.Success -> {
+                snackbarViewModel.showSnackbar("Đăng xuất thành công", SnackbarVariant.SUCCESS)
+                // Quay về màn hình đăng nhập hoặc welcome
+                navController.navigate(Screens.Welcome.route) {
+                    popUpTo(0) // Xóa toàn bộ stack để không back lại được
+                }
+            }
+            is ProfileState.Error -> {
+                snackbarViewModel.showSnackbar("Đăng xuất thất bại", SnackbarVariant.ERROR)
+                Log.e("Logout", (logoutState as ProfileState.Error).message)
+            }
+            else -> {}
+        }
+    }
 
     when(infoProfileState){
         is InfoProfileState.Error ->{
@@ -144,22 +169,41 @@ fun SettingsScreen(
                                         navController.navigate("${Screens.UpdatePassword.route}/${profileId}")
                                     }
                                 )
+
                                 CardSettings(
                                     icon = Icons.AutoMirrored.Filled.ExitToApp,
                                     title = "Đăng xuất",
                                     onClick = {
+                                        actionType = "SINGLE"
                                         showAlertDialog = true
-                                        //ToDo: Kiểm tra dữ liệu, di chuyển đền màn hình cài đặt đăng suất.
                                     }
                                 )
+
+                                CardSettings(
+                                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                                    title = "Đăng xuất toàn bộ thiết bị",
+                                    onClick = {
+                                        actionType = "ALL"
+                                        showAlertDialog = true
+                                    }
+                                )
+
                             }
 
                             if (showAlertDialog) {
                                 WarningDialog(
                                     title = "Cảnh báo",
-                                    text = "Hành động này sẽ đăng xuất bạn ra khỏi ứng dụng. Bạn có chắc chắn không?",
+                                    text = if (actionType == "ALL")
+                                        "Bạn có chắc chắn muốn đăng xuất khỏi toàn bộ thiết bị không?"
+                                    else
+                                        "Bạn có chắc chắn muốn đăng xuất khỏi thiết bị hiện tại không?",
                                     onConfirm = {
-                                        viewModel.logout()
+                                        if (actionType == "ALL") {
+                                            viewModel.logoutAllDevices()
+                                        } else {
+                                            viewModel.logout()
+                                        }
+                                        showAlertDialog = false
                                     },
                                     onDismiss = { showAlertDialog = false }
                                 )
@@ -212,13 +256,5 @@ fun CardSettings(icon: ImageVector, title: String, onClick: () -> Unit) {
             )
 
         }
-
-
     }
-}
-
-@Preview(showBackground = true,showSystemUi = true)
-@Composable
-fun SettingsScreenPreview() {
-    SettingsScreen(navController = rememberNavController())
 }

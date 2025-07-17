@@ -582,6 +582,17 @@ interface ApiService {
         @Header("Authorization") bearer: String   // "Bearer <JWT>"
     ): Response<Unit>
 
+    @POST("auth/logout")
+    suspend fun logout(
+        @Header("Authorization") token: String,
+        @Body request: Map<String, Int> // hoặc LogoutDeviceRequest nếu bạn muốn dùng model
+    )
+
+    @POST("auth/logout/all")
+    suspend fun logoutAllDevices(
+        @Header("Authorization") token: String      // Bearer <JWT>
+    ): Response<Unit>
+
 //    @POST("spaces")
 //    suspend fun createSpace(
 //        @Body body: CreateSpaceRequest,

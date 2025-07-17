@@ -140,7 +140,10 @@ fun NavigationGraph(navController: NavHostController, snackbarViewModel: Snackba
 
             // --- Setting screens ---
             composable(Screens.Settings.route) {
-                SettingsScreen(navController)
+                SettingsScreen(
+                    navController,
+                    snackbarViewModel = snackbarViewModel
+                )
             }
 
             // --- House screens ---

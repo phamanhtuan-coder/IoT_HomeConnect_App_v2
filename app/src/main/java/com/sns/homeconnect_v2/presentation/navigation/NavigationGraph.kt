@@ -9,8 +9,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.google.gson.Gson
-import com.sns.homeconnect_v2.data.remote.dto.response.ProductData
 import com.sns.homeconnect_v2.presentation.screen.auth.ForgotPasswordScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.LoginScreen
 import com.sns.homeconnect_v2.presentation.screen.auth.RecoverPasswordScreen
@@ -51,7 +49,6 @@ import com.sns.homeconnect_v2.presentation.screen.iot_device.sharing.ShareDevice
 import com.sns.homeconnect_v2.presentation.screen.ticket.CreateTicketScreen
 import com.sns.homeconnect_v2.presentation.screen.ticket.TicketDetailScreen
 import com.sns.homeconnect_v2.ticket_screen.TicketListScreen
-import java.net.URLDecoder
 
 @Composable
 fun NavigationGraph(navController: NavHostController, snackbarViewModel: SnackbarViewModel,

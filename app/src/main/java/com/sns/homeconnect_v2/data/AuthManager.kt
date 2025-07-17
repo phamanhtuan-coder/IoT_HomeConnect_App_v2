@@ -28,6 +28,18 @@ class AuthManager @Inject constructor(
     // ✅ THÊM MỚI — dùng cho socket (accountId)
     fun saveAccountId(accountId: String) = prefs.edit().putString("ACCOUNT_ID", accountId).apply()
     fun getAccountId(): String = prefs.getString("ACCOUNT_ID", "") ?: ""
+    fun clearRefreshToken()    = prefs.edit().remove("JWT_TOKEN_REFRESH").apply()
+
+    // 2️⃣ Thiết bị & tài khoản ---------------------------------------------------
+    fun clearDeviceUuid()      = prefs.edit().remove("JWT_TOKEN_DEVICE_UUID").apply()
+    fun clearAccountId()       = prefs.edit().remove("ACCOUNT_ID").apply()
+
+    fun saveUserDeviceId(id: Int) = prefs.edit().putInt("USER_DEVICE_ID", id).apply()
+    fun getUserDeviceId(): Int? {
+        val value = prefs.getInt("USER_DEVICE_ID", -1)
+        return if (value != -1) value else null
+    }
+    fun clearUserDeviceId() = prefs.edit().remove("USER_DEVICE_ID").apply()
 }
 
 
